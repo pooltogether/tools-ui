@@ -1,21 +1,36 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+/assets/images
+/public
+next.config.js
+postcss.config.js
+tailwind.config.js
+yarn.lock
+package.json
+_redirects
+.babelrc
+post-export.js
+postcss.config.js
+PT-Ref-Pool-UI.code-workspace
+tailwind.config.js
 
-.yalc/**
-yalc.lock
+*.md
+
+.next
+.envrc
+.nvmvrc
+.envrc.example
 
 # dependencies
-.envrc
 /node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
+.history
 
 # next.js
-.next
+/.next/
 /out/
-.next
 
 # production
 /build
@@ -33,16 +48,3 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
-
-# VSCode
-.history
-
-dist
-out
-functions-out
-
-# Local Netlify folder
-.netlify
-
-# Sentry
-.sentryclirc
