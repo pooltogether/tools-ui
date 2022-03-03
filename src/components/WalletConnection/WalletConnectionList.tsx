@@ -11,7 +11,6 @@ import { getPriorityConnector } from '@web3-react/core'
 export const WalletConnectionList: FC = () => {
   const activateWalletConnection = async (wallet: WalletInfo) => {
     try {
-      console.log({ wallet })
       await wallet.connector.activate()
     } catch (e) {
       console.error('Error connecting to wallet')
@@ -89,12 +88,6 @@ const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) =>
   const { activate, walletKey, wallet } = props
   const { connector, name, iconURL, description, href, color, primary, mobile, mobileOnly } = wallet
   const isActivating = useSelectedIsActivating(connector)
-
-  console.log({
-    name,
-    connector,
-    isActivating
-  })
 
   const button = (
     <SquareButton

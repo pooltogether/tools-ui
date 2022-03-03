@@ -1,4 +1,4 @@
-import { TwabDelegator } from '@views/TwabDelegator'
+import { TwabDelegator } from '../views/TwabDelegator'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 

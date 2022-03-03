@@ -46,15 +46,6 @@ export const RPC_URLS = getRpcUrls(ALL_SUPPORTED_CHAIN_IDS, {
   infura: process.env.NEXT_PUBLIC_INFURA_ID
 })
 
-console.log({
-  RPC_URLS,
-  keys: {
-    alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-    etherscan: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY,
-    infura: process.env.NEXT_PUBLIC_INFURA_ID
-  }
-})
-
 export const READ_PROVIDERS = Object.freeze({
   ...getReadProviders(SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets]),
   ...getReadProviders(SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets])
@@ -71,7 +62,7 @@ export const SUPPORTED_CHAIN_NAMES = Object.freeze({
 
 export const DEFAULT_CHAIN_IDS = Object.freeze({
   [APP_ENVIRONMENTS.mainnets]: CHAIN_ID.polygon,
-  [APP_ENVIRONMENTS.testnets]: CHAIN_ID.mumbai
+  [APP_ENVIRONMENTS.testnets]: CHAIN_ID.rinkeby
 })
 
 // Native currency symbols in app

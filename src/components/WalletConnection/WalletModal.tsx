@@ -46,7 +46,8 @@ const ActiveWalletState = () => {
             try {
               connector.deactivate()
             } catch (e) {
-              console.log(e.message)
+              console.debug(e.message)
+              window.location.reload()
             }
           }}
           theme={SquareButtonTheme.orangeOutline}

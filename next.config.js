@@ -17,7 +17,7 @@ const nextConfig = {
       '@interfaces': path.resolve(__dirname, './src/interfaces'),
       '@utils': path.resolve(__dirname, './src/utils'),
       '@styles': path.resolve(__dirname, './src/styles'),
-      '@views': path.resolve(__dirname, './src/views'),
+      '@twabDelegator': path.resolve(__dirname, './src/views/TwabDelegator'),
     };
     return config
   }
