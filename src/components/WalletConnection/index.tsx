@@ -16,6 +16,7 @@ interface WalletConnectionProps {
   className?: string
 }
 
+// TODO: Clean up these hooks
 const { usePriorityAccount, usePriorityIsActive } = getPriorityConnector(...CONNECTORS)
 
 export const WalletConnection: React.FC<WalletConnectionProps> = (props) => {

@@ -14,10 +14,6 @@ type Value = string | number | boolean | undefined | null
 type Mapping = { [key: string]: any }
 type Argument = Value | Mapping | Argument[]
 
-declare module 'classNames' {
-  export default function (...args: Argument[]): string
-}
-
 declare module '*.avif' {
   const src: string
   export default src

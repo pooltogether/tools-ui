@@ -1,36 +1,36 @@
 import { batch, contract } from '@pooltogether/etherplex'
 import { getReadProvider } from '@pooltogether/utilities'
-import { useTwabDelegatorChainIds } from '@twabDelegator/hooks/useTwabDelegatorChainIds'
 import TwabDelegatorAbi from '@twabDelegator/abis/TwabDelegator'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
-import { useQueries, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { NO_REFETCH } from '@pooltogether/hooks/dist/constants'
-import { Delegation } from '@twabDelegator/interfaces'
+import { Delegation, DelegationId } from '@twabDelegator/interfaces'
+import { BigNumber } from 'ethers'
 
 /**
  *
  * @param chainId
- * @param usersAddress
+ * @param delegator
  * @returns
  */
-export const useUsersTwabDelegations = (chainId: number, usersAddress: string) => {
+export const useDelegatorsTwabDelegations = (chainId: number, delegator: string) => {
   return useQuery(
-    ['useUsersTwabDelegations', usersAddress, chainId],
-    async () => getUsersTwabDelegations(chainId, usersAddress),
+    ['useDelegatorsTwabDelegations', delegator, chainId],
+    async () => getUsersTwabDelegationsWithIds(chainId, delegator),
     {
       ...NO_REFETCH,
-      enabled: !!usersAddress
+      enabled: !!delegator
     }
   )
 }
 
 /**
- *
+ * TODO: One day this will blow up if someone delegates to more than the max value of a js number...
  * @param chainId
- * @param usersAddress
+ * @param delegator
  * @returns
  */
-const getUsersTwabDelegations = async (chainId: number, usersAddress: string) => {
+const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string) => {
   const provider = getReadProvider(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
 
@@ -38,9 +38,7 @@ const getUsersTwabDelegations = async (chainId: number, usersAddress: string) =>
   let slotIndexOffset = 0
   let batchCalls = []
 
-  const delegations: {
-    [slotIndex: string]: Delegation
-  } = {}
+  const delegationsWithIds: { delegation: Delegation; delegationId: DelegationId }[] = []
 
   const fetchPageOfTwabDelegations = async () => {
     for (let i = 0; i < slotIndexOffset + pageSize; i++) {
@@ -50,16 +48,30 @@ const getUsersTwabDelegations = async (chainId: number, usersAddress: string) =>
         TwabDelegatorAbi,
         twabDelegatorAddress
       )
-      batchCalls.push(twabDelegatorContract.getDelegation(usersAddress, slotIndex))
+      batchCalls.push(twabDelegatorContract.getDelegation(delegator, slotIndex))
     }
 
     let response = await batch(provider, ...batchCalls)
     const slotIndices = Object.keys(response)
 
     slotIndices.forEach((slotIndex) => {
-      const delegation: Delegation = response[slotIndex].getDelegation
+      const delegationResponse: Delegation = response[slotIndex].getDelegation
+      const delegation = {
+        balance: delegationResponse.balance,
+        delegatee: delegationResponse.delegatee,
+        delegation: delegationResponse.delegation,
+        length: delegationResponse.length,
+        lockUntil: delegationResponse.lockUntil,
+        wasCreated: delegationResponse.wasCreated
+      }
       if (delegation.wasCreated) {
-        delegations[slotIndex] = delegation
+        delegationsWithIds.push({
+          delegation,
+          delegationId: {
+            slot: BigNumber.from(slotIndex),
+            delegator
+          }
+        })
       }
     })
 
@@ -73,6 +85,5 @@ const getUsersTwabDelegations = async (chainId: number, usersAddress: string) =>
   }
 
   await fetchPageOfTwabDelegations()
-  console.log({ chainId, delegations })
-  return delegations
+  return delegationsWithIds
 }

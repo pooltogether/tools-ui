@@ -2,7 +2,7 @@ import { SquareButton, BottomSheet, SquareButtonTheme } from '@pooltogether/reac
 import { getPriorityConnector } from '@web3-react/core'
 import classNames from 'classnames'
 
-import React, { FC } from 'react'
+import React from 'react'
 import { Trans } from 'react-i18next'
 import { CONNECTORS } from '../../connectors'
 import { WalletConnectionList } from './WalletConnectionList'
@@ -15,7 +15,7 @@ interface WalletModalProps {
 const { usePriorityConnector, usePriorityAccount, usePriorityChainId, usePriorityIsActive } =
   getPriorityConnector(...CONNECTORS)
 
-export const WalletModal: FC<WalletModalProps> = (props) => {
+export const WalletModal: React.FC<WalletModalProps> = (props) => {
   const { isOpen, closeModal } = props
   const active = usePriorityIsActive()
 

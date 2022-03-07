@@ -8,3 +8,23 @@ export interface Delegation {
   lockUntil: BigNumber
   wasCreated: boolean
 }
+
+export interface DelegationId {
+  delegator: string
+  slot: BigNumber
+}
+
+export interface DelegationUpdate extends DelegationId {
+  delegatee: string
+  lockDuration: number
+}
+
+export interface DelegationFund extends DelegationId {
+  amount: BigNumber
+}
+
+export interface DelegationFormValues {
+  delegatee: string
+  balance: string
+  duration: number
+}
