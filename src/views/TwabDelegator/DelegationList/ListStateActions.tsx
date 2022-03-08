@@ -1,4 +1,9 @@
-import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import {
+  SquareButton,
+  SquareButtonSize,
+  SquareButtonTheme,
+  ThemedClipSpinner
+} from '@pooltogether/react-components'
 import {
   delegationUpdatesCountAtom,
   delegationFundsAtom,
@@ -16,11 +21,12 @@ import { ListState } from '.'
 
 interface ListStateActionsProps {
   listState: ListState
+  transactionPending: boolean
   setListState: (listState: ListState) => void
 }
 
 export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
-  const { listState, setListState } = props
+  const { listState, transactionPending, setListState } = props
   const [editsCount] = useAtom(delegationUpdatesCountAtom)
   const [creationsCount] = useAtom(delegationCreationsCountAtom)
   const [fundsCount] = useAtom(delegationFundsCountAtom)
@@ -37,6 +43,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
         <SquareButton
           className='w-24'
           size={SquareButtonSize.sm}
+          disabled={transactionPending}
           onClick={() => {
             resetDelegationUpdates()
             resetDelegationCreations()
@@ -52,11 +59,13 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           <span>e: {editsCount} </span>
           <span>f: {fundsCount} </span>
           <SquareButton
+            className='flex space-x-2'
             size={SquareButtonSize.sm}
             onClick={() => setIsConfirmationModalOpen(true)}
             disabled={!fundsCount && !editsCount && !creationsCount}
           >
-            Save Changes
+            <span>{transactionPending ? 'Saving changes' : 'Save Changes'}</span>
+            {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
           </SquareButton>
         </div>
       </div>
@@ -72,15 +81,24 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             setListState(ListState.readOnly)
           }}
           theme={SquareButtonTheme.tealOutline}
+          disabled={transactionPending}
         >
           Cancel
         </SquareButton>
         <SquareButton
+          className='flex space-x-2'
           size={SquareButtonSize.sm}
           onClick={() => setIsConfirmationModalOpen(true)}
           disabled={!withdrawlsCount}
         >
-          {withdrawlsCount ? `Withdraw (${withdrawlsCount})` : 'Withdraw'}
+          <span>
+            {transactionPending
+              ? 'Withdrawing'
+              : withdrawlsCount
+              ? `Withdraw (${withdrawlsCount})`
+              : 'Withdraw'}
+          </span>
+          {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
         </SquareButton>
       </div>
     )
@@ -92,6 +110,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
         className='w-24'
         size={SquareButtonSize.sm}
         onClick={() => setListState(ListState.withdraw)}
+        disabled={transactionPending}
       >
         Withdraw
       </SquareButton>
@@ -99,6 +118,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
         className='w-24'
         size={SquareButtonSize.sm}
         onClick={() => setListState(ListState.edit)}
+        disabled={transactionPending}
       >
         Edit
       </SquareButton>

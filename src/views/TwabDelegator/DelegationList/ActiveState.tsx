@@ -9,7 +9,8 @@ import {
   addDelegationWithdrawalAtom,
   delegationFundsAtom,
   delegationIdToEditAtom,
-  delegationFormDefaultsAtom
+  delegationFormDefaultsAtom,
+  createDelegationModalOpenAtom
 } from '@twabDelegator/atoms'
 import {
   Delegation,
@@ -37,6 +38,7 @@ import { useState } from 'react'
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
   listState: ListState
+  transactionPending: boolean
   setListState: (listState: ListState) => void
 }
 
@@ -47,7 +49,7 @@ export interface ActiveStateProps extends DelegationListProps {
  * @returns
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
-  const { chainId, className, listState, setListState, delegator } = props
+  const { chainId, className, listState, setListState, delegator, transactionPending } = props
   const { data: delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   const usersAddress = useUsersAddress()
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
@@ -60,6 +62,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
             key={`${usersAddress}-${twabDelegatorAddress}-slot-${delegation.delegationId.slot.toString()}`}
             chainId={chainId}
             listState={listState}
+            transactionPending={transactionPending}
           />
         ))}
       </ul>
@@ -69,6 +72,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         delegator={delegator}
         listState={listState}
         setListState={setListState}
+        transactionPending={transactionPending}
       />
     </>
   )
@@ -77,6 +81,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
 interface DelegationRowProps {
   listState: ListState
   chainId: number
+  transactionPending: boolean
   delegationId: DelegationId
   delegation?: Delegation
   delegationUpdate?: DelegationUpdate
@@ -89,7 +94,15 @@ interface DelegationRowProps {
  * @returns
  */
 const DelegationRow: React.FC<DelegationRowProps> = (props) => {
-  const { chainId, delegationId, delegation, delegationUpdate, delegationFund, listState } = props
+  const {
+    chainId,
+    delegationId,
+    delegation,
+    delegationUpdate,
+    delegationFund,
+    listState,
+    transactionPending
+  } = props
   const { slot } = delegationId
 
   // TODO: Get token decimals
@@ -117,7 +130,12 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         'grid-cols-5': listState === ListState.edit || listState === ListState.withdraw
       })}
     >
-      {listState === ListState.withdraw && <DelegationWithdrawToggle delegationId={delegationId} />}
+      {listState === ListState.withdraw && (
+        <DelegationWithdrawToggle
+          delegationId={delegationId}
+          transactionPending={transactionPending}
+        />
+      )}
       <span>{slot.toString()}</span>
       <span>{delegateeDisplay}</span>
       <span>{balance}</span>
@@ -126,6 +144,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         <span>
           {(delegationUpdate || delegationFund) && <span>e</span>}
           <DelegationEditToggle
+            transactionPending={transactionPending}
             delegationId={delegationId}
             delegatee={delegatee}
             balance={balance}
@@ -142,8 +161,11 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
  * @param props
  * @returns
  */
-const DelegationWithdrawToggle: React.FC<{ delegationId: DelegationId }> = (props) => {
-  const { delegationId } = props
+const DelegationWithdrawToggle: React.FC<{
+  delegationId: DelegationId
+  transactionPending: boolean
+}> = (props) => {
+  const { delegationId, transactionPending } = props
   const delegationWithdrawal = useDelegationWithdrawal(delegationId)
   const addDelegationWithdrawal = useUpdateAtom(addDelegationWithdrawalAtom)
   const removeDelegationWithdrawal = useUpdateAtom(removeDelegationWithdrawalAtom)
@@ -151,6 +173,7 @@ const DelegationWithdrawToggle: React.FC<{ delegationId: DelegationId }> = (prop
 
   return (
     <CheckboxInputGroup
+      disabled={transactionPending}
       checked={amount?.isZero()}
       handleClick={() =>
         amount?.isZero()
@@ -166,8 +189,9 @@ const DelegationEditToggle: React.FC<{
   delegatee: string
   balance: string
   duration: number
+  transactionPending: boolean
 }> = (props) => {
-  const { delegationId, delegatee, balance, duration } = props
+  const { delegationId, delegatee, balance, duration, transactionPending } = props
   const setIsOpen = useUpdateAtom(editDelegationModalOpenAtom)
   const setDelegationFormDefaults = useUpdateAtom(delegationFormDefaultsAtom)
   const setDelegationIdToEdit = useUpdateAtom(delegationIdToEditAtom)
@@ -183,6 +207,7 @@ const DelegationEditToggle: React.FC<{
         })
         setIsOpen(true)
       }}
+      disabled={transactionPending}
     >
       <FeatherIcon icon='edit' className='w-4 h-4' />
     </button>
@@ -194,33 +219,27 @@ const AddSlotButton: React.FC<{
   delegator: string
   listState: ListState
   setListState: (listState: ListState) => void
+  transactionPending: boolean
   className?: string
 }> = (props) => {
-  const { chainId, delegator, className, listState, setListState } = props
-  const [isOpen, setIsOpen] = useState(false)
+  const { className, listState, setListState, transactionPending } = props
+  const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
 
   if (listState === ListState.withdraw) return null
 
   return (
-    <>
-      <SquareButton
-        theme={SquareButtonTheme.tealOutline}
-        className={classNames(className, 'w-24')}
-        size={SquareButtonSize.sm}
-        onClick={() => {
-          setListState(ListState.edit)
-          setIsOpen(true)
-        }}
-      >
-        Add Slot
-      </SquareButton>
-      <CreateDelegationModal
-        chainId={chainId}
-        delegator={delegator}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-      />
-    </>
+    <SquareButton
+      theme={SquareButtonTheme.tealOutline}
+      className={classNames(className, 'w-24')}
+      size={SquareButtonSize.sm}
+      onClick={() => {
+        setListState(ListState.edit)
+        setIsOpen(true)
+      }}
+      disabled={transactionPending}
+    >
+      Add Slot
+    </SquareButton>
   )
 }
 

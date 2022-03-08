@@ -1,16 +1,22 @@
 import { Provider as JotaiProvider } from 'jotai'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import {} from '@web3-react/core'
 import { useTranslation } from 'react-i18next'
-import { ethers } from 'ethers'
+import { isMobile } from 'react-device-detect'
 
-import { LoadingLogo, ThemeContextProvider, ToastContainer } from '@pooltogether/react-components'
+import {
+  LoadingLogo,
+  ThemeContext,
+  ThemeContextProvider,
+  ToastContainer
+} from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
   initProviderApiKeys,
+  ScreenSize,
   useInitCookieOptions,
-  useInitReducedMotion
+  useInitReducedMotion,
+  useScreenSize
 } from '@pooltogether/hooks'
 import { useInitializeOnboard } from '@pooltogether/bnc-onboard-hooks'
 import { initSentry, sentryLog } from '../services/sentry'
@@ -18,6 +24,8 @@ import { CUSTOM_WALLETS_CONFIG } from '../constants/customWalletsConfig'
 
 // Initialize Localization
 import '../services/i18n'
+import { ToastContainerProps } from 'react-toastify'
+import { useContext } from 'react'
 
 // Initialize Sentry error logging
 initSentry()
@@ -47,8 +55,8 @@ export const AppContainer: React.FC = (props) => {
     <JotaiProvider>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools />
-        <ToastContainer className='pool-toast' position='top-center' autoClose={7000} />
         <ThemeContextProvider>
+          <ThemedToastContainer />
           <CustomErrorBoundary>
             {i18n.isInitialized ? (
               <>{children}</>
@@ -61,6 +69,20 @@ export const AppContainer: React.FC = (props) => {
         </ThemeContextProvider>
       </QueryClientProvider>
     </JotaiProvider>
+  )
+}
+
+const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
+  const { theme } = useContext(ThemeContext)
+  const screenSize = useScreenSize()
+  return (
+    <ToastContainer
+      {...props}
+      style={{ zIndex: '99999' }}
+      position={screenSize > ScreenSize.sm ? 'bottom-right' : 'top-center'}
+      autoClose={7000}
+      theme={theme}
+    />
   )
 }
 

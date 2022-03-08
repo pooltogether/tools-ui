@@ -1,4 +1,10 @@
-import { SquareButton, BottomSheet, SquareButtonTheme } from '@pooltogether/react-components'
+import { useUsersTransactions } from '@atoms/transactions'
+import {
+  SquareButton,
+  BottomSheet,
+  SquareButtonTheme,
+  BlockExplorerLink
+} from '@pooltogether/react-components'
 import { getPriorityConnector } from '@web3-react/core'
 import classNames from 'classnames'
 
@@ -31,37 +37,56 @@ const ActiveWalletState = () => {
   const connector = usePriorityConnector()
   const account = usePriorityAccount()
   const chainId = usePriorityChainId()
+  const transactions = useUsersTransactions(account)
 
   return (
-    <div className='flex flex-col'>
-      <div className='overflow-ellipsis overflow-hidden flex flex-col'>
-        <h4 className='mb-1'>Account</h4>
-        <span className='text-xs opacity-80 mb-4'>{account}</span>
-        <span>Chain: {chainId}</span>
-      </div>
+    <>
+      <div className='flex flex-col'>
+        <div className='overflow-ellipsis overflow-hidden flex flex-col'>
+          <h4 className='mb-1'>Account</h4>
+          <span className='text-xs opacity-80 mb-4'>{account}</span>
+          <span>Chain: {chainId}</span>
+        </div>
 
-      <div className='flex justify-end mt-6'>
-        <SquareButton
-          onClick={() => {
-            try {
-              connector.deactivate()
-            } catch (e) {
-              console.debug(e.message)
-              window.location.reload()
-            }
-          }}
-          theme={SquareButtonTheme.orangeOutline}
-        >
-          Disconnect
-        </SquareButton>
+        <div className='flex justify-end mt-6'>
+          <SquareButton
+            onClick={() => {
+              try {
+                connector.deactivate()
+              } catch (e) {
+                console.debug(e.message)
+                window.location.reload()
+              }
+            }}
+            theme={SquareButtonTheme.orangeOutline}
+          >
+            Disconnect
+          </SquareButton>
+        </div>
       </div>
-    </div>
+      <ul>
+        {transactions?.map((transaction) => (
+          <li key={transaction.id}>
+            {!!transaction.receipt ? (
+              <BlockExplorerLink
+                chainId={transaction.chainId}
+                hash={transaction.receipt.transactionHash}
+              >
+                {transaction.transactionName}
+              </BlockExplorerLink>
+            ) : (
+              <span>{transaction.transactionName}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }
 
 const ConnectWalletState = () => {
   return (
-    <div>
+    <>
       <h4 className='mb-4'>Connect to a wallet</h4>
       <p className='mb-8'>
         <Trans
@@ -69,14 +94,14 @@ const ConnectWalletState = () => {
           components={{
             termsLink: (
               <a
-                className='text-pt-teal transition hover:opacity-70'
+                className='text-pt-teal transition hover:opacity-70 underline'
                 href='https://pooltogether.com/terms/'
                 target='_blank'
               />
             ),
             disclaimerLink: (
               <a
-                className='text-pt-teal transition hover:opacity-70'
+                className='text-pt-teal transition hover:opacity-70 underline'
                 href='https://pooltogether.com/protocol-disclaimer/'
                 target='_blank'
               />
@@ -84,8 +109,15 @@ const ConnectWalletState = () => {
           }}
         />
       </p>
-      <WalletConnectionList />
-    </div>
+      <WalletConnectionList className='mb-4' />
+      <a
+        className='text-pt-teal transition hover:opacity-70 underline text-sm'
+        href='https://docs.ethhub.io/using-ethereum/wallets/intro-to-ethereum-wallets/'
+        target='_blank'
+      >
+        What's a wallet?
+      </a>
+    </>
   )
 }
 

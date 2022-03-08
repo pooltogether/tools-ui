@@ -228,6 +228,11 @@ export const editDelegationModalOpenAtom = atom<boolean>(false)
 /**
  *
  */
+export const createDelegationModalOpenAtom = atom<boolean>(false)
+
+/**
+ *
+ */
 export const delegationUpdatesModalOpenAtom = atom<boolean>(false)
 
 /**

@@ -1,5 +1,5 @@
 import { CHAIN_ID } from '@constants/misc'
-import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
+import { APP_ENVIRONMENTS, Token } from '@pooltogether/hooks'
 
 export const TWAB_DELEGATOR_CHAIN_IDS = Object.freeze({
   [APP_ENVIRONMENTS.mainnets]: [],

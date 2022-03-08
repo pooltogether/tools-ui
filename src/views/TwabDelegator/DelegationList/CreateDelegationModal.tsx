@@ -1,6 +1,10 @@
 import { BottomSheet, ModalTitle } from '@pooltogether/react-components'
 import { dToMs } from '@pooltogether/utilities'
-import { addDelegationFundAtom, addDelegationCreationAtom } from '@twabDelegator/atoms'
+import {
+  addDelegationFundAtom,
+  addDelegationCreationAtom,
+  createDelegationModalOpenAtom
+} from '@twabDelegator/atoms'
 import { DelegationForm } from '@twabDelegator/DelegationForm'
 import { useNextSlot } from '@twabDelegator/hooks/useNextSlot'
 import {
@@ -10,15 +14,15 @@ import {
   DelegationUpdate
 } from '@twabDelegator/interfaces'
 import { parseUnits } from 'ethers/lib/utils'
+import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 
 export const CreateDelegationModal: React.FC<{
   chainId: number
   delegator: string
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
 }> = (props) => {
-  const { chainId, delegator, isOpen, setIsOpen } = props
+  const { chainId, delegator } = props
+  const [isOpen, setIsOpen] = useAtom(createDelegationModalOpenAtom)
   const nextSlotId = useNextSlot(chainId, delegator)
 
   return (

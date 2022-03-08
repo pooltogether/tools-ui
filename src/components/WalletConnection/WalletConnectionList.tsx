@@ -1,5 +1,5 @@
 import { SquareButton, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
-import React, { FC } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import METAMASK_ICON_URL from '../../assets/images/metamask.png'
 import classNames from 'classnames'
@@ -8,7 +8,8 @@ import { SUPPORTED_WALLETS, WalletInfo } from '@constants/wallets'
 import { CONNECTORS, metaMask } from '../../connectors'
 import { getPriorityConnector } from '@web3-react/core'
 
-export const WalletConnectionList: FC = () => {
+export const WalletConnectionList: React.FC<{ className?: string }> = (props) => {
+  const { className } = props
   const activateWalletConnection = async (wallet: WalletInfo) => {
     try {
       await wallet.connector.activate()
@@ -18,7 +19,7 @@ export const WalletConnectionList: FC = () => {
   }
 
   return (
-    <ul className='flex flex-col space-y-2'>
+    <ul className={classNames('flex flex-col space-y-2', className)}>
       {Object.keys(SUPPORTED_WALLETS).map((walletKey) => (
         <WalletConnectionOption
           key={walletKey}
