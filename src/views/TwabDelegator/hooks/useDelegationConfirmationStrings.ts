@@ -1,4 +1,5 @@
-import { msToD } from '@pooltogether/utilities'
+import { useTicket } from '@hooks/v4/useTicket'
+import { sToD } from '@pooltogether/utilities'
 import {
   delegationCreationsAtom,
   delegationFundsAtom,
@@ -22,6 +23,7 @@ import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
  * @returns
  */
 export const useDelegationConfirmationStrings = (chainId: number, delegator: string) => {
+  const ticket = useTicket(chainId)
   const useQueryResult = useDelegatorsTwabDelegations(chainId, delegator)
   const [delegationUpdates] = useAtom(delegationUpdatesAtom)
   const [delegationCreations] = useAtom(delegationCreationsAtom)
@@ -63,7 +65,7 @@ export const useDelegationConfirmationStrings = (chainId: number, delegator: str
 
     // Check for lock durations
     if (delegationUpdate.lockDuration) {
-      updateStrings.push(`Set slot #${slot} lock to ${msToD(delegationUpdate.lockDuration)} days`)
+      updateStrings.push(`Set slot #${slot} lock to ${sToD(delegationUpdate.lockDuration)} days`)
     }
   })
 
@@ -77,14 +79,19 @@ export const useDelegationConfirmationStrings = (chainId: number, delegator: str
         delegationFund.slot.eq(delegationData.delegationId.slot)
     )
 
-    // TODO: Get ticket decimals, ticker
     // Check for fund change or initialization
     if (delegation) {
       updateStrings.push(
-        `Update slot #${slot} balance to ${formatUnits(delegationFund.amount, 6)} USDC`
+        `Update slot #${slot} balance to ${formatUnits(delegationFund.amount, ticket.decimals)} ${
+          ticket.symbol
+        }`
       )
     } else {
-      updateStrings.push(`Fund slot #${slot} with ${formatUnits(delegationFund.amount, 6)} USDC`)
+      updateStrings.push(
+        `Fund slot #${slot} with ${formatUnits(delegationFund.amount, ticket.decimals)} ${
+          ticket.symbol
+        }`
+      )
     }
   })
 

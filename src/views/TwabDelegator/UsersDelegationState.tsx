@@ -1,4 +1,4 @@
-import { useUsersAddress } from '@hooks/useUsersAddress'
+import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { NetworkIcon } from '@pooltogether/react-components'
 import { shorten } from '@pooltogether/utilities'
 

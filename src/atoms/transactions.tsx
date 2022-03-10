@@ -3,6 +3,7 @@ import { atom, useAtom } from 'jotai'
 import { atomWithStorage, useUpdateAtom } from 'jotai/utils'
 import { toast } from 'react-toastify'
 import { v4 as uuid } from 'uuid'
+import { sentryLog } from '../services/sentry'
 
 export interface Transaction {
   id: string
@@ -100,8 +101,6 @@ export const updateTransactionsAtom = atom<
 })
 
 /**
- * TODO: Overrides
- * TODO: Toasts
  * @param chainId
  * @param usersAddress
  * @returns
@@ -123,18 +122,19 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
     id: string,
     transactionName: string,
     chainId: number,
-    usersAddress: string,
     callTransaction: () => Promise<TransactionResponse>,
     callbacks?: TransactionCallbacks
   ) => {
+    let response: TransactionResponse
+    let receipt: TransactionReceipt
+
     try {
       callbacks?.onSent?.(id)
       const responsePromise = callTransaction()
       toast.promise(responsePromise, {
-        pending: `${transactionName} confirmation is pending`,
-        error: `${transactionName} confirmation was rejected`
+        pending: `${transactionName} confirmation is pending`
       })
-      const response = await responsePromise
+      response = await responsePromise
       // Chain id may be set to 0 if EIP-155 is disabled and legacy signing is used
       // See https://docs.ethers.io/v5/api/utils/transactions/#Transaction
       if (response.chainId === 0) {
@@ -146,13 +146,17 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
 
       const receiptPromise = response.wait()
       toast.promise(receiptPromise, {
+        // TODO: We could make pending & succeded toasts include the tx hash & a link to etherscan.
         pending: `${transactionName} is pending`,
         success: `${transactionName} has completed`,
         error: `${transactionName} was rejected`
       })
-      const receipt = await receiptPromise
-      callbacks?.onComplete?.(id)
+      receipt = await receiptPromise
+
+      console.log({ receipt, response })
+
       // Transaction was confirmed on chain
+      callbacks?.onComplete?.(id)
       const status =
         !!receipt.status && receipt.status === 1
           ? TransactionStatus.success
@@ -166,15 +170,37 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
 
       callbacks?.refetch?.(id)
     } catch (e) {
-      console.debug(e)
+      console.error(e.message)
+      console.log({ e, receipt, response })
       if (e?.message?.match('User denied transaction signature')) {
         updateTransaction({
           id,
           status: TransactionStatus.cancelled,
           state: TransactionState.complete
         })
+        toast.error(`${transactionName} confirmation was cancelled`)
+      } else if (e?.error?.message) {
+        const errorDetails = getErrorDetails(e.error.message)
+
+        updateTransaction({
+          id,
+          receipt,
+          status: TransactionStatus.error,
+          state: TransactionState.complete
+        })
+        const errorMessage = `Transaction failed - ${errorDetails}`
+        toast.error(errorMessage)
+        sentryLog(errorMessage)
       } else {
-        // TODO: OTHER ERRORS, TX FAILED
+        updateTransaction({
+          id,
+          receipt,
+          status: TransactionStatus.error,
+          state: TransactionState.complete
+        })
+        const errorMessage = `Transaction failed - Unknown error`
+        toast.error(errorMessage)
+        sentryLog(errorMessage)
       }
     }
   }
@@ -186,7 +212,7 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
   ) => {
     const id: string = uuid()
     createTransaction({ id, transactionName, chainId, usersAddress })
-    sendTransaction(id, transactionName, chainId, usersAddress, callTransaction, callbacks)
+    sendTransaction(id, transactionName, chainId, callTransaction, callbacks)
     return id
   }
 }
@@ -209,4 +235,10 @@ export const useTransaction = (id: string) => {
 export const useUsersTransactions = (usersAddress: string) => {
   const [transactions] = useAtom(transactionsAtom)
   return transactions.filter((transaction) => transaction.usersAddress === usersAddress)
+}
+
+const getErrorDetails = (errorMessage: string) => {
+  if (errorMessage.includes('Ticket/twab-burn-lt-balance')) return 'Insufficient ticket balance'
+  if (errorMessage.includes('TWABDelegator/lock-too-long')) return 'Lock is too long'
+  return errorMessage
 }

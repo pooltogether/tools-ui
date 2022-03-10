@@ -35,6 +35,7 @@ export const useDelegatorsUpdatedTwabDelegations = (chainId: number, delegator: 
     delegationId: DelegationId
     delegation?: Delegation
     delegationUpdate?: DelegationUpdate
+    delegationCreation?: DelegationUpdate
     delegationFund?: DelegationFund
   }[] = useQueryResult.data.map((delegationWithId) => {
     const { delegation, delegationId } = delegationWithId
@@ -68,7 +69,7 @@ export const useDelegatorsUpdatedTwabDelegations = (chainId: number, delegator: 
         slot: delegationCreation.slot,
         delegator: delegationCreation.delegator
       },
-      delegationUpdate: delegationCreation,
+      delegationCreation: delegationCreation,
       delegationFund
     })
   })

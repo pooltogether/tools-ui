@@ -24,7 +24,7 @@ import { CUSTOM_WALLETS_CONFIG } from '../constants/customWalletsConfig'
 
 // Initialize Localization
 import '../services/i18n'
-import { ToastContainerProps } from 'react-toastify'
+import { toast, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
 
 // Initialize Sentry error logging
@@ -78,6 +78,7 @@ const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
   return (
     <ToastContainer
       {...props}
+      limit={3}
       style={{ zIndex: '99999' }}
       position={screenSize > ScreenSize.sm ? 'bottom-right' : 'top-center'}
       autoClose={7000}

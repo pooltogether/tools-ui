@@ -1,13 +1,19 @@
-import { Input } from '@components/Input'
+import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
+import { useTicket } from '@hooks/v4/useTicket'
 import { SquareButton } from '@pooltogether/react-components'
+import { sToD } from '@pooltogether/utilities'
 import { DelegationFormValues } from '@twabDelegator/interfaces'
+import classNames from 'classnames'
+import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useForm } from 'react-hook-form'
+import { useMaxLockDuration } from './hooks/useMaxLockDuration'
 
 interface DelegationFormProps {
-  onSubmit: (data: DelegationFormValues) => void
+  onSubmit: (data: DelegationFormValues, resetForm: () => void) => void
   defaultValues: DelegationFormValues
   submitString: string
+  chainId: number
 }
 
 /**
@@ -16,62 +22,108 @@ interface DelegationFormProps {
  * @returns
  */
 export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
-  const { onSubmit, defaultValues, submitString } = props
+  const { onSubmit, defaultValues, submitString, chainId } = props
+
+  const ticket = useTicket(chainId)
+  const { data: maxLockDuration, isFetched: isMaxLockFetched } = useMaxLockDuration(chainId)
 
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isDirty, isValid, isValidating }
+    reset,
+    formState: { errors, isValid }
   } = useForm<DelegationFormValues>({
-    mode: 'onChange',
-    reValidateMode: 'onChange',
-    defaultValues
+    mode: 'onTouched',
+    defaultValues,
+    shouldUnregister: true
   })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col' autoComplete='off'>
+    <form
+      onSubmit={handleSubmit((v) => onSubmit(v, reset))}
+      className='flex flex-col'
+      autoComplete='off'
+    >
       <Label className='uppercase' htmlFor='delegatee'>
         Delegatee
       </Label>
-      <Input
+      <StyledInput
         id='delegatee'
-        className='mb-2 w-full'
+        invalid={!!errors.delegatee}
+        className='w-full'
         placeholder='0xabc...'
-        // TODO: Validation
-        // Entered value is a valid address
-        {...register('delegatee', { required: true })}
+        {...register('delegatee', {
+          required: {
+            value: true,
+            message: 'Delegatee is required'
+          },
+          validate: {
+            isAddress: (v) => isAddress(v) || 'Invalid address'
+          }
+        })}
       />
+      <ErrorMessage className='mb-1'>{errors.delegatee?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
         Amount (PTaUSDC)
       </Label>
-      <Input
+      <StyledInput
         id='balance'
-        className='mb-2 w-full'
+        invalid={!!errors.balance}
+        className='w-full'
         placeholder='10'
-        // TODO: Validation
-        // Max amount is users ticket balance + users stake
-        // Min amount is 0
-        {...register('balance', { required: true })}
+        {...register('balance', {
+          required: {
+            value: true,
+            message: 'Balance is required'
+          },
+          validate: {
+            isNumber: (v) => !isNaN(Number(v)) || 'Balance must be a number',
+            isValidBigNumber: (v) => {
+              try {
+                parseUnits(v, ticket.decimals)
+                return true
+              } catch (e) {
+                return 'Invalid balance'
+              }
+            },
+            isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+          }
+        })}
       />
+      <ErrorMessage className='mb-1'>{errors.balance?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='duration'>
         Duration (days)
       </Label>
-      <Input
+      <StyledInput
         id='duration'
+        invalid={!!errors.duration}
         className='w-1/3'
         placeholder='0'
+        disabled={!isMaxLockFetched}
         {...register('duration', {
-          required: true,
+          required: {
+            value: true,
+            message: 'Duration is required'
+          },
           valueAsNumber: true,
-          min: 0,
-          // TODO: Fetch the MAX_LOCK value from the Twab Delegator
-          max: 180
+          min: {
+            value: 0,
+            message: 'Minimum duration of 0 days'
+          },
+          max: {
+            value: sToD(maxLockDuration),
+            message: `Maximum duration of ${sToD(maxLockDuration)} days`
+          }
         })}
       />
-      <SquareButton className='mt-10' disabled={!isValid} type='submit'>
+      <ErrorMessage>{errors.duration?.message}</ErrorMessage>
+      <SquareButton className='mt-4' disabled={!isValid || !isMaxLockFetched} type='submit'>
         {submitString}
       </SquareButton>
     </form>
   )
 }
+
+const ErrorMessage: React.FC<{ className?: string }> = (props) => (
+  <p {...props} className={classNames(props.className, 'h-5 text-xxs text-pt-red-light')} />
+)

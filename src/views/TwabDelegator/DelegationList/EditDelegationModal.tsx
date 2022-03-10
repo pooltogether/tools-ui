@@ -1,12 +1,13 @@
 import { Input } from '@components/Input'
 import { Label } from '@components/Label'
+import { useTicket } from '@hooks/v4/useTicket'
 import {
   BottomSheet,
   ModalTitle,
   SquareButton,
   SquareButtonTheme
 } from '@pooltogether/react-components'
-import { dToMs, msToD } from '@pooltogether/utilities'
+import { dToS, sToD } from '@pooltogether/utilities'
 import {
   editDelegationModalOpenAtom,
   delegationIdToEditAtom,
@@ -14,9 +15,12 @@ import {
   addDelegationFundAtom,
   delegationFormDefaultsAtom,
   removeDelegationUpdateAtom,
-  removeDelegationFundAtom
+  removeDelegationFundAtom,
+  addDelegationCreationAtom,
+  removeDelegationCreationAtom
 } from '@twabDelegator/atoms'
 import { DelegationForm } from '@twabDelegator/DelegationForm'
+import { useDelegatorsUpdatedTwabDelegation } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegation'
 import {
   Delegation,
   DelegationFormValues,
@@ -24,24 +28,31 @@ import {
   DelegationId,
   DelegationUpdate
 } from '@twabDelegator/interfaces'
+import { getDelegationFormDefaults } from '@twabDelegator/utils/getDelegationFormDefaults'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useForm } from 'react-hook-form'
-import { useDelegationFund, useDelegationUpdate } from './ActiveState'
+import { useDelegationCreation, useDelegationFund, useDelegationUpdate } from './ActiveState'
 
 export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
   const { chainId } = props
   const [isOpen, setIsOpen] = useAtom(editDelegationModalOpenAtom)
-  const [delegationFormDefaults] = useAtom(delegationFormDefaultsAtom)
   const [delegationId] = useAtom(delegationIdToEditAtom)
+  const { data: delegationData, isFetched } = useDelegatorsUpdatedTwabDelegation(
+    chainId,
+    delegationId
+  )
+
+  console.log({ delegationData, delegationId })
+
+  if (!delegationId) return null
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <ModalTitle chainId={chainId} title={'Edit delegation'} />
+      <ModalTitle chainId={chainId} title={`Edit delegation ${delegationId.slot.toString()}`} />
       <EditDelegationForm
-        delegationFormDefaults={delegationFormDefaults}
+        chainId={chainId}
         delegationId={delegationId}
         closeModal={() => setIsOpen(false)}
       />
@@ -54,30 +65,45 @@ export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
  * @returns
  */
 const EditDelegationForm: React.FC<{
-  delegationFormDefaults: DelegationFormValues
+  chainId: number
   delegationId: DelegationId
   closeModal: () => void
 }> = (props) => {
-  const { delegationFormDefaults, delegationId, closeModal } = props
-  const delegationUpdate = useDelegationUpdate(delegationId)
-  const delegationFund = useDelegationFund(delegationId)
-
+  const { chainId, delegationId, closeModal } = props
+  const { data: delegationData, isFetched } = useDelegatorsUpdatedTwabDelegation(
+    chainId,
+    delegationId
+  )
+  const ticket = useTicket(chainId)
   const addDelegationUpdate = useUpdateAtom(addDelegationUpdateAtom)
+  const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
   const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
   const removeDelegationUpdate = useUpdateAtom(removeDelegationUpdateAtom)
+  const removeDelegationCreation = useUpdateAtom(removeDelegationCreationAtom)
   const removeDelegationFund = useUpdateAtom(removeDelegationFundAtom)
 
-  // TODO: Editing a brand new delegation should update just the creation atom
-  const onSubmit = (data: DelegationFormValues) => {
+  // Should never happen, data is loaded well before this component is rendered, but just in case.
+  if (!isFetched) return null
+
+  const { delegation, delegationCreation, delegationUpdate, delegationFund } = delegationData
+
+  const delegationFormDefaults = getDelegationFormDefaults(
+    ticket.decimals,
+    delegation,
+    delegationCreation,
+    delegationUpdate,
+    delegationFund
+  )
+
+  const onSubmit = (data: DelegationFormValues, resetForm: () => void) => {
     const delegationUpdate: DelegationUpdate = {
       ...delegationId,
       delegatee: data.delegatee,
-      lockDuration: dToMs(data.duration)
+      lockDuration: dToS(data.duration)
     }
     const delegationFund: DelegationFund = {
       ...delegationId,
-      // TODO: Get decimals for ticket token
-      amount: parseUnits(data.balance, 6)
+      amount: parseUnits(data.balance, ticket.decimals)
     }
 
     if (
@@ -85,49 +111,54 @@ const EditDelegationForm: React.FC<{
       delegationFormDefaults.delegatee !== delegationUpdate.delegatee ||
       delegationUpdate.lockDuration !== 0
     ) {
-      addDelegationUpdate(delegationUpdate)
+      if (delegationCreation) {
+        addDelegationCreation(delegationUpdate)
+      } else {
+        addDelegationUpdate(delegationUpdate)
+      }
     }
 
     const defaultAmountUnformatted = delegationFormDefaults.balance
-      ? parseUnits(delegationFormDefaults.balance, 6)
+      ? parseUnits(delegationFormDefaults.balance, ticket.decimals)
       : BigNumber.from(0)
-    if (!delegationFund.amount.eq(defaultAmountUnformatted)) {
+
+    // If we're editing a newly created slot to 0 balance, remove the fund
+    if (!!delegationCreation && delegationFund.amount.isZero()) {
+      removeDelegationFund(delegationId)
+      // If we're setting it back to the default state
+    } else if (!!delegation && delegation.balance.eq(delegationFund.amount)) {
+      removeDelegationFund(delegationId)
+    } else if (!delegationFund.amount.eq(defaultAmountUnformatted)) {
       addDelegationFund(delegationFund)
+      // If we're setting it back to a value already stored on chain
     }
 
+    resetForm()
     closeModal()
   }
 
   return (
     <>
       <DelegationForm
+        key={delegationId.slot.toString()}
+        chainId={chainId}
         onSubmit={onSubmit}
-        defaultValues={{
-          delegatee: delegationUpdate?.delegatee || delegationFormDefaults.delegatee,
-          // TODO: Convert to account for decimals
-          balance: delegationFund?.amount
-            ? formatUnits(delegationFund?.amount, 6)
-            : delegationFormDefaults.balance,
-          duration: delegationUpdate?.lockDuration
-            ? msToD(delegationUpdate?.lockDuration)
-            : delegationFormDefaults.duration
-        }}
+        defaultValues={delegationFormDefaults}
         submitString='Queue update'
       />
-      {/* TODO: Add a "Remove delegation" button for newly created delegations */}
-      {(delegationUpdate || delegationFund) && (
+      {(delegationUpdate || delegationFund || delegationCreation) && (
         <SquareButton
           className='mt-2 w-full'
           type='button'
           theme={SquareButtonTheme.orangeOutline}
           onClick={() => {
-            // TODO: This is clearing ALL updates...
             delegationUpdate && removeDelegationUpdate(delegationId)
             delegationFund && removeDelegationFund(delegationId)
+            delegationCreation && removeDelegationCreation(delegationId)
             closeModal()
           }}
         >
-          Clear update
+          Remove update
         </SquareButton>
       )}
     </>

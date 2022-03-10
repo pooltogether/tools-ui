@@ -56,8 +56,10 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     name: 'Open in Coinbase Wallet',
     iconURL: COINBASE_ICON_URL,
     description: 'Open in Coinbase Wallet app.',
-    // TODO: env var domain name
-    href: 'https://go.cb-w.com/xoXnYwQimhb?cb_url=https://app.pooltogether.com/deposit?network=polygon',
+    href: `https://go.cb-w.com/xoXnYwQimhb?cb_url=${
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}` ||
+      'https://app.pooltogether.com/deposit?network=polygon'
+    }`,
     color: '#315CF5',
     mobile: true,
     mobileOnly: true

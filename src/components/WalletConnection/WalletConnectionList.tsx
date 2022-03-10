@@ -1,5 +1,5 @@
 import { SquareButton, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import METAMASK_ICON_URL from '../../assets/images/metamask.png'
 import classNames from 'classnames'
@@ -83,17 +83,50 @@ const getIsMetaMask = () => window.ethereum && window.ethereum.isMetaMask
 
 interface WalletConnectionButtonProps extends WalletConnectionOptionProps {}
 
-const { usePriorityIsActivating, useSelectedIsActivating } = getPriorityConnector(...CONNECTORS)
+const { useSelectedIsActive, useSelectedError } = getPriorityConnector(...CONNECTORS)
 
 const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) => {
   const { activate, walletKey, wallet } = props
   const { connector, name, iconURL, description, href, color, primary, mobile, mobileOnly } = wallet
-  const isActivating = useSelectedIsActivating(connector)
+  const [isActivating, setIsActivating] = useState(false)
+  const isActive = useSelectedIsActive(connector)
+  const error = useSelectedError(connector)
+
+  useEffect(() => {
+    if (isActive) {
+      setIsActivating(false)
+    }
+  }, [isActive])
+
+  useEffect(() => {
+    if (!!error) {
+      console.error(error)
+
+      if (typeof error === 'object' && !!error.code) {
+        switch (error.code) {
+          // Already a request in the users wallet
+          case -32002:
+            setIsActivating(true)
+            break
+          default:
+            setIsActivating(false)
+            break
+        }
+      } else {
+        setIsActivating(false)
+      }
+    }
+  }, [error])
+
+  console.log({ name, isActive, isActivating, wallet, error })
 
   const button = (
     <SquareButton
       noCenter
-      onClick={activate}
+      onClick={() => {
+        setIsActivating(true)
+        activate()
+      }}
       className={classNames('w-full flex justify-start items-center')}
       theme={SquareButtonTheme.tealOutline}
       disabled={isActivating}

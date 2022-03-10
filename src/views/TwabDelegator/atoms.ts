@@ -1,15 +1,29 @@
 import {
-  Delegation,
   DelegationFormValues,
   DelegationFund,
   DelegationId,
   DelegationUpdate
 } from '@twabDelegator/interfaces'
+import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
+import { QUERY_PARAM } from './constants'
+import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId'
+import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
-// TODO: Reset atoms when switching accounts
+/**
+ *
+ */
+export const delegationChainIdAtom = atom<number>(
+  Number(
+    getUrlQueryParam(
+      QUERY_PARAM.delegationChainId,
+      getDefaultDelegationChainId().toString(),
+      getDelegationSupportedChainIds().map(String)
+    )
+  )
+)
 
 /**
  *
@@ -109,7 +123,7 @@ export const removeDelegationCreationAtom = atom<null, DelegationId>(
     const _delegationCreations = get(delegationCreationsAtom)
     const delegationCreations = _delegationCreations.filter(
       (_delegationUpdate) =>
-        _delegationUpdate.delegator !== delegationId.delegator &&
+        _delegationUpdate.delegator !== delegationId.delegator ||
         !_delegationUpdate.slot.eq(delegationId.slot)
     )
     set(delegationCreationsAtom, delegationCreations)
@@ -143,9 +157,10 @@ export const removeDelegationUpdateAtom = atom<null, DelegationId>(
     const _delegationUpdates = get(delegationUpdatesAtom)
     const delegationUpdates = _delegationUpdates.filter(
       (_delegationUpdate) =>
-        _delegationUpdate.delegator !== delegationId.delegator &&
+        _delegationUpdate.delegator !== delegationId.delegator ||
         !_delegationUpdate.slot.eq(delegationId.slot)
     )
+    console.log({ _delegationUpdates, delegationUpdates })
     set(delegationUpdatesAtom, delegationUpdates)
   }
 )
@@ -176,7 +191,7 @@ export const removeDelegationFundAtom = atom<null, DelegationId>(null, (get, set
   const _delegationFunds = [...get(delegationFundsAtom)]
   const delegationFunds = _delegationFunds.filter(
     (_delegationFund) =>
-      _delegationFund.delegator !== delegationId.delegator &&
+      _delegationFund.delegator !== delegationId.delegator ||
       !_delegationFund.slot.eq(delegationId.slot)
   )
   set(delegationFundsAtom, delegationFunds)
@@ -211,7 +226,7 @@ export const removeDelegationWithdrawalAtom = atom<null, DelegationId>(
     const _delegationFunds = [...get(delegationWithdrawalsAtom)]
     const delegationFunds = _delegationFunds.filter(
       (_delegationFund) =>
-        _delegationFund.delegator !== delegationId.delegator &&
+        _delegationFund.delegator !== delegationId.delegator ||
         !_delegationFund.slot.eq(delegationId.slot)
     )
     set(delegationWithdrawalsAtom, delegationFunds)
@@ -234,13 +249,6 @@ export const createDelegationModalOpenAtom = atom<boolean>(false)
  *
  */
 export const delegationUpdatesModalOpenAtom = atom<boolean>(false)
-
-/**
- *
- */
-export const delegationFormDefaultsAtom = atom<DelegationFormValues>(
-  undefined as DelegationFormValues
-)
 
 /**
  *

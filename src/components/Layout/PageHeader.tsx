@@ -14,10 +14,8 @@ import {
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { useOnboard } from '@pooltogether/bnc-onboard-hooks'
-
-import { useSupportedChainIds } from '@hooks/useSupportedChainIds'
+import { useSupportedChainIds } from '@hooks/app/useSupportedChainIds'
 import { WalletConnection } from '@components/WalletConnection'
-import { ALL_SUPPORTED_CHAIN_IDS } from '@constants/config'
 
 export enum ContentPaneState {
   deposit = 'deposit',

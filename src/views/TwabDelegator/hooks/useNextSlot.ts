@@ -5,6 +5,7 @@ import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
 
 /**
  * Finds the largest slot being used and returns the next index.
+ * TODO: Don't just find the largest. Find the next unused slot. Ex: delegations [1,2,3,5], creations [6,7] -> next slot should be 4. Not a big deal for now.
  * @param chainId
  * @param delegator
  * @returns

@@ -1,6 +1,6 @@
 import FeatherIcon from 'feather-icons-react'
-import { useUsersAddress } from '@hooks/useUsersAddress'
-import { msToD, shorten } from '@pooltogether/utilities'
+import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { sToD, shorten, msToS, sToM } from '@pooltogether/utilities'
 import {
   delegationUpdatesAtom,
   delegationWithdrawalsAtom,
@@ -9,8 +9,8 @@ import {
   addDelegationWithdrawalAtom,
   delegationFundsAtom,
   delegationIdToEditAtom,
-  delegationFormDefaultsAtom,
-  createDelegationModalOpenAtom
+  createDelegationModalOpenAtom,
+  delegationCreationsAtom
 } from '@twabDelegator/atoms'
 import {
   Delegation,
@@ -18,22 +18,24 @@ import {
   DelegationId,
   DelegationUpdate
 } from '@twabDelegator/interfaces'
-import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import {
+  BlockExplorerLink,
   CheckboxInputGroup,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme
 } from '@pooltogether/react-components'
-import { useNextSlot } from '@twabDelegator/hooks/useNextSlot'
 import { formatUnits } from 'ethers/lib/utils'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
-import { CreateDelegationModal } from '@twabDelegator/DelegationList/CreateDelegationModal'
-import { useState } from 'react'
+import { useTicket } from '@hooks/v4/useTicket'
+import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
+import { getBalance } from '@twabDelegator/utils/getBalance'
+import { getDuration } from '@twabDelegator/utils/getDuration'
+import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
@@ -43,23 +45,19 @@ export interface ActiveStateProps extends DelegationListProps {
 }
 
 /**
- * TODO: List newly created delegations
- * TODO: Show edits
  * @param props
  * @returns
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, delegator, transactionPending } = props
   const { data: delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
-  const usersAddress = useUsersAddress()
-  const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   return (
     <>
       <ul className={className}>
         {delegations.map((delegation) => (
           <DelegationRow
             {...delegation}
-            key={`${usersAddress}-${twabDelegatorAddress}-slot-${delegation.delegationId.slot.toString()}`}
+            key={`slot-${delegation.delegationId.slot.toString()}`}
             chainId={chainId}
             listState={listState}
             transactionPending={transactionPending}
@@ -85,11 +83,12 @@ interface DelegationRowProps {
   delegationId: DelegationId
   delegation?: Delegation
   delegationUpdate?: DelegationUpdate
+  delegationCreation?: DelegationUpdate
   delegationFund?: DelegationFund
 }
 
 /**
- *
+ * TODO: Mobile hiding data so it fits on the screen...
  * @param props
  * @returns
  */
@@ -98,61 +97,120 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
     chainId,
     delegationId,
     delegation,
+    delegationCreation,
     delegationUpdate,
     delegationFund,
     listState,
     transactionPending
   } = props
   const { slot } = delegationId
+  const ticket = useTicket(chainId)
 
-  // TODO: Get token decimals
-  const delegatee = delegationUpdate?.delegatee || delegation.delegatee
+  const delegatee = getDelegatee(delegation, delegationCreation, delegationUpdate)
   const delegateeDisplay = shorten({ hash: delegatee })
-  const balance = !!delegationFund?.amount
-    ? formatUnits(delegationFund.amount, 6)
-    : delegation
-    ? formatUnits(delegation.balance, 6)
-    : '0'
-  // TODO: If unlocked, show that
-  // TODO: If duration is set to 2 days, show date it ends
-  const duration = delegationUpdate?.lockDuration ? msToD(delegationUpdate.lockDuration) : 0
-  const lockDisplay = !!delegationUpdate
-    ? `${duration} days`
-    : new Date(delegation.lockUntil.mul(1000).toNumber()).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      })
 
+  const balance = getBalance(delegation, delegationFund)
+  const balanceDisplay = formatUnits(balance, ticket.decimals)
+  const duration = getDuration(delegation, delegationCreation, delegationUpdate)
+  const currentTimeInSeconds = msToS(Date.now()).toFixed(0)
+  const isLocked = delegation?.lockUntil.gt(currentTimeInSeconds) || false
+  const isEdited = !!delegationUpdate || !!delegationCreation
+  const isZeroBalance = delegation?.balance.isZero()
+
+  // TODO: Make slot column smaller
+  // TODO: Make edit column smaller
   return (
     <li
-      className={classNames('grid items-center', {
-        'grid-cols-4': listState === ListState.readOnly,
-        'grid-cols-5': listState === ListState.edit || listState === ListState.withdraw
-      })}
-    >
-      {listState === ListState.withdraw && (
-        <DelegationWithdrawToggle
-          delegationId={delegationId}
-          transactionPending={transactionPending}
-        />
+      className={classNames(
+        'grid items-center',
+        'px-2 py-1 first:border-t border-b border-pt-purple border-opacity-50',
+        {
+          'grid-cols-4': listState !== ListState.edit,
+          'grid-cols-5': listState === ListState.edit,
+          'opacity-50':
+            (listState === ListState.edit || listState === ListState.withdraw) && isLocked
+        }
       )}
-      <span>{slot.toString()}</span>
-      <span>{delegateeDisplay}</span>
-      <span>{balance}</span>
-      <span>{lockDisplay}</span>
-      {listState === ListState.edit && (
-        <span>
-          {(delegationUpdate || delegationFund) && <span>e</span>}
-          <DelegationEditToggle
+    >
+      <div className='flex space-x-2'>
+        {listState === ListState.withdraw && (
+          <DelegationWithdrawToggle
+            {...props}
+            isZeroBalance={isZeroBalance}
+            isLocked={isLocked}
             transactionPending={transactionPending}
-            delegationId={delegationId}
-            delegatee={delegatee}
-            balance={balance}
-            duration={duration}
           />
-        </span>
+        )}
+        <span className='font-bold opacity-60'>{slot.toString()}</span>
+      </div>
+      <DelegateeDisplay chainId={chainId} delegatee={delegatee} />
+      <span>{balanceDisplay}</span>
+      <LockDisplay duration={duration} isEdited={isEdited} />
+      {listState === ListState.edit && (
+        <div className='flex justify-end space-x-1'>
+          <DelegationEditToggle
+            {...props}
+            isZeroBalance={isZeroBalance}
+            isLocked={isLocked}
+            transactionPending={transactionPending}
+          />
+        </div>
       )}
     </li>
+  )
+}
+
+const DelegateeDisplay: React.FC<{ chainId: number; delegatee: string }> = ({
+  chainId,
+  delegatee
+}) => <BlockExplorerLink chainId={chainId} address={delegatee} shorten noIcon />
+
+/**
+ * NOTE: Not updating time live. Relies on a rerender when a delegation goes from locked to unlocked.
+ * @param props
+ */
+const LockDisplay: React.FC<{
+  duration: number
+  isEdited: boolean
+}> = (props) => {
+  const { duration, isEdited } = props
+
+  const isLocked = duration > 0
+
+  const getDurationDisplay = () => {
+    if (!isLocked) {
+      return <span className='font-bold'>unlocked</span>
+    }
+
+    let formattedDuration, units
+    if (duration >= SECONDS_PER_DAY) {
+      formattedDuration = Math.round(sToD(duration))
+      console.log({ formattedDuration })
+      units = formattedDuration === 1 ? 'day' : 'days'
+    } else if (duration >= SECONDS_PER_HOUR) {
+      formattedDuration = Math.round(sToM(duration))
+      units = formattedDuration === 1 ? 'minute' : 'minutes'
+    } else if (duration > 0) {
+      formattedDuration = duration
+      units = formattedDuration === 1 ? 'second' : 'seconds'
+    }
+    return (
+      <div className='flex space-x-1'>
+        <span className='font-bold'>{formattedDuration}</span>
+        <span className='opacity-50'>{`${units}`}</span>
+        {!isEdited && <span className='opacity-50'>left</span>}
+      </div>
+    )
+  }
+
+  const icon = isLocked ? 'lock' : 'unlock'
+
+  const durationDisplay = getDurationDisplay()
+  return (
+    <div className='flex items-center space-x-1'>
+      <FeatherIcon icon={icon} className='w-4 h-4' />
+      {durationDisplay}
+    </div>
   )
 }
 
@@ -161,11 +219,14 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
  * @param props
  * @returns
  */
-const DelegationWithdrawToggle: React.FC<{
-  delegationId: DelegationId
-  transactionPending: boolean
-}> = (props) => {
-  const { delegationId, transactionPending } = props
+const DelegationWithdrawToggle: React.FC<
+  DelegationRowProps & {
+    isZeroBalance: boolean
+    isLocked: boolean
+    transactionPending: boolean
+  }
+> = (props) => {
+  const { delegationId, transactionPending, isZeroBalance, isLocked } = props
   const delegationWithdrawal = useDelegationWithdrawal(delegationId)
   const addDelegationWithdrawal = useUpdateAtom(addDelegationWithdrawalAtom)
   const removeDelegationWithdrawal = useUpdateAtom(removeDelegationWithdrawalAtom)
@@ -173,7 +234,7 @@ const DelegationWithdrawToggle: React.FC<{
 
   return (
     <CheckboxInputGroup
-      disabled={transactionPending}
+      disabled={transactionPending || isLocked || isZeroBalance}
       checked={amount?.isZero()}
       handleClick={() =>
         amount?.isZero()
@@ -184,31 +245,38 @@ const DelegationWithdrawToggle: React.FC<{
   )
 }
 
-const DelegationEditToggle: React.FC<{
-  delegationId: DelegationId
-  delegatee: string
-  balance: string
-  duration: number
-  transactionPending: boolean
-}> = (props) => {
-  const { delegationId, delegatee, balance, duration, transactionPending } = props
+// TODO: Not opening the right one?.
+// Edit a slot. Close modal. Click edit on a different slot. Edits from the first are visible.
+const DelegationEditToggle: React.FC<
+  DelegationRowProps & {
+    isZeroBalance: boolean
+    isLocked: boolean
+    transactionPending: boolean
+  }
+> = (props) => {
+  const {
+    delegationId,
+    transactionPending,
+    isLocked,
+    delegationCreation,
+    delegationFund,
+    delegationUpdate
+  } = props
   const setIsOpen = useUpdateAtom(editDelegationModalOpenAtom)
-  const setDelegationFormDefaults = useUpdateAtom(delegationFormDefaultsAtom)
   const setDelegationIdToEdit = useUpdateAtom(delegationIdToEditAtom)
 
   return (
     <button
+      className='flex space-x-1'
       onClick={() => {
         setDelegationIdToEdit(delegationId)
-        setDelegationFormDefaults({
-          delegatee,
-          balance,
-          duration
-        })
         setIsOpen(true)
       }}
-      disabled={transactionPending}
+      disabled={transactionPending || isLocked}
     >
+      {delegationCreation && <FeatherIcon icon='plus-circle' className='w-4 h-4 text-yellow' />}
+      {delegationFund && <FeatherIcon icon='dollar-sign' className='w-4 h-4 text-yellow' />}
+      {delegationUpdate && <FeatherIcon icon='edit-2' className='w-4 h-4 text-yellow' />}
       <FeatherIcon icon='edit' className='w-4 h-4' />
     </button>
   )
@@ -222,15 +290,16 @@ const AddSlotButton: React.FC<{
   transactionPending: boolean
   className?: string
 }> = (props) => {
-  const { className, listState, setListState, transactionPending } = props
+  const { className, listState, transactionPending, delegator, setListState } = props
+  const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
 
-  if (listState === ListState.withdraw) return null
+  if (listState === ListState.withdraw || usersAddress !== delegator) return null
 
   return (
     <SquareButton
       theme={SquareButtonTheme.tealOutline}
-      className={classNames(className, 'w-24')}
+      className={classNames(className, 'w-32')}
       size={SquareButtonSize.sm}
       onClick={() => {
         setListState(ListState.edit)
@@ -238,8 +307,23 @@ const AddSlotButton: React.FC<{
       }}
       disabled={transactionPending}
     >
-      Add Slot
+      <FeatherIcon icon='plus' className='w-3 h-3 my-auto mr-1' />
+      <span>Add Slot</span>
     </SquareButton>
+  )
+}
+
+/**
+ *
+ * @param delegationId
+ * @returns
+ */
+export const useDelegationCreation = (delegationId: DelegationId) => {
+  const [delegationCreations] = useAtom(delegationCreationsAtom)
+  return delegationCreations.find(
+    (delegationCreation) =>
+      delegationCreation.delegator === delegationId.delegator &&
+      delegationCreation.slot.eq(delegationId.slot)
   )
 }
 

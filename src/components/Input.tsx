@@ -2,9 +2,13 @@ import React from 'react'
 import classNames from 'classnames'
 import { DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
-export const Input: React.FC<
-  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
-> = React.forwardRef((props, ref) => (
+interface InputProps
+  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {}
+
+/**
+ * A base level input component with minimal sizing classNames
+ */
+export const Input: React.FC<InputProps> = React.forwardRef((props, ref) => (
   <input
     {...props}
     ref={ref}
@@ -14,3 +18,24 @@ export const Input: React.FC<
     )}
   />
 ))
+
+/**
+ * An input component with color classNames
+ */
+export const StyledInput: React.FC<InputProps & { invalid?: boolean }> = React.forwardRef(
+  (props, ref) => {
+    const { invalid, className, ...inputProps } = props
+    return (
+      <Input
+        {...inputProps}
+        ref={ref}
+        className={classNames(
+          className,
+          'transition',
+          'focus:outline-none focus:ring-2 focus:ring-pt-teal hover:ring-opacity-50',
+          { 'ring-2 ring-pt-red-light': invalid }
+        )}
+      />
+    )
+  }
+)

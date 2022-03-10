@@ -1,10 +1,4 @@
-import {
-  BlockExplorerLink,
-  BottomSheet,
-  ModalTitle,
-  SquareButton,
-  ThemedClipSpinner
-} from '@pooltogether/react-components'
+import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/react-components'
 import { signERC2612Permit } from 'eth-permit'
 import FeatherIcon from 'feather-icons-react'
 import {
@@ -18,8 +12,6 @@ import {
 import { useAtom } from 'jotai'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
 import { useState } from 'react'
-import { getPriorityConnector } from '@web3-react/core'
-import { CONNECTORS } from '../../../connectors'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
 import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
@@ -27,19 +19,17 @@ import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegation
 import { ListState } from '@twabDelegator/DelegationList'
 import { DelegationId } from '@twabDelegator/interfaces'
 import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
-import { useUsersAddress } from '@hooks/useUsersAddress'
+import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { useTicket } from '@hooks/v4/useTicket'
 import { getTicketContract } from '@utils/getTicketContract'
-import { getTicketContractAddress } from '@utils/getTicketContractAddress'
 import { BigNumber, PopulatedTransaction } from 'ethers'
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
-import { dToMs } from '@pooltogether/utilities'
-import { Transaction, useSendTransaction, useTransaction } from '@atoms/transactions'
+import { TransactionResponse } from '@ethersproject/providers'
+import { useSendTransaction, useTransaction } from '@atoms/transactions'
 import { toast } from 'react-toastify'
-import { TransactionReceiptButton } from '@components/TransactionReceiptButton'
-
-// TODO: Clean up these hooks
-const { usePriorityProvider } = getPriorityConnector(...CONNECTORS)
+import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
+import { TransactionButton } from '@components/Buttons/TransactionButton'
+import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
+import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -72,6 +62,7 @@ export const ConfirmUpdatesModal: React.FC<{
   const [modalState, setModalState] = useState(ConfirmModalState.review)
   const [isOpen, setIsOpen] = useAtom(delegationUpdatesModalOpenAtom)
   const transaction = useTransaction(transactionId)
+  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
 
   let content
   if (modalState === ConfirmModalState.review) {
@@ -79,15 +70,17 @@ export const ConfirmUpdatesModal: React.FC<{
       <div className='flex flex-col space-y-4'>
         <ModalTitle chainId={chainId} title={'Delegation confirmation'} />
         <DelegationLockWarning />
+        <TicketBalanceWarning isBalanceSufficient={isBalanceSufficient} />
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />
         <SubmitTransactionButton
           chainId={chainId}
           delegator={delegator}
+          transactionPending={transactionPending}
+          isBalanceSufficient={isBalanceSufficient}
           setTransactionId={setTransactionId}
           setModalState={setModalState}
           setListState={setListState}
           setSignaturePending={setSignaturePending}
-          transactionPending={transactionPending}
         />
       </div>
     )
@@ -126,14 +119,37 @@ const DelegationLockWarning: React.FC = () => {
   if (!lockCount) return null
 
   return (
-    <div>
-      <FeatherIcon icon='alert-triangle' />
-      <p>
+    <Banner
+      theme={BannerTheme.rainbowBorder}
+      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+    >
+      <FeatherIcon icon='alert-triangle' className='text-yellow' />
+      <p className='text-xs'>
         By delegating you are locking up your funds for the expiry period and relinquishing your
         chances of winning to gift those chances to other wallet addresses.
       </p>
-      <a>Learn more</a>
-    </div>
+      <a className='text-pt-teal hover:opacity-70 underline'>Learn more about Chance Delegating</a>
+    </Banner>
+  )
+}
+
+const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean }> = (props) => {
+  const { isBalanceSufficient } = props
+
+  if (isBalanceSufficient === null || isBalanceSufficient) return null
+
+  return (
+    <Banner
+      theme={BannerTheme.rainbowBorder}
+      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+    >
+      <FeatherIcon icon='alert-triangle' className='text-pt-red-light' />
+      <p className='text-xs'>
+        Delegated amount exceeds current ticket balance. Please lower some delegation amounts or
+        deposit more into PoolTogether.
+      </p>
+      <a className='text-pt-teal hover:opacity-70 underline'>Deposit more</a>
+    </Banner>
   )
 }
 
@@ -141,6 +157,7 @@ interface SubmitTransactionButtonProps {
   chainId: number
   delegator: string
   transactionPending: boolean
+  isBalanceSufficient: boolean
   setSignaturePending: (pending: boolean) => void
   setTransactionId: (id: string) => void
   setModalState: (modalState: ConfirmModalState) => void
@@ -148,8 +165,6 @@ interface SubmitTransactionButtonProps {
 }
 
 /**
- * TODO: Keep track of stake and optimize for gas
- *
  * https://docs.ethers.io/v5/api/contract/contract/#contract-populateTransaction
  * @param props
  * @returns
@@ -159,6 +174,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     chainId,
     delegator,
     transactionPending,
+    isBalanceSufficient,
     setSignaturePending,
     setModalState,
     setListState,
@@ -170,7 +186,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
   const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
   const resetAtoms = useResetDelegationAtoms()
-  const provider = usePriorityProvider()
+  const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const ticket = useTicket(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
@@ -191,28 +207,9 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     )
 
   const submitUpdateTransaction = async () => {
-    setSignaturePending(true)
-    const signer = provider.getSigner()
     const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
     const ticketContract = getTicketContract(chainId)
-
-    console.log('submitUpdateTransaction', {
-      provider,
-      signer,
-      allowance,
-      delegationCreations,
-      delegationUpdates,
-      delegationFunds,
-      delegationWithdrawals,
-      chainId,
-      delegator,
-      twabDelegatorAddress,
-      twabDelegatorContract,
-      ticketAddress: ticketContract.address
-    })
-
     const fnCalls: string[] = []
-
     let totalAmountToFund = BigNumber.from(0)
 
     // Add creations to the list of transactions
@@ -288,7 +285,10 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
     // Ensure allowance is high enough. Get signature for permitAndMulticall.
     if (!totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
+      setSignaturePending(true)
+
       const amountToIncrease = totalAmountToFund.sub(allowance)
+      // TODO: Is this name the same for mainnet tickets? What about when we have multiple pools on the same chain?
       const domain = {
         name: 'PoolTogether ControlledToken',
         version: '1',
@@ -298,12 +298,9 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       const signaturePromise = signERC2612Permit(
         signer,
         domain,
-        // ticketContract.address,
         usersAddress,
         twabDelegatorContract.address,
-        amountToIncrease.toString(),
-        17746719831,
-        0
+        amountToIncrease.toString()
       )
 
       toast.promise(signaturePromise, {
@@ -312,7 +309,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       })
 
       try {
-        // TODO: Signature rejected with wallet connect provider. `send` unavailable. Might need to switch to WAGMI...
+        // TODO: Signature rejected with wallet connect provider. `_provider.send` is unavailable. Maybe try to switch to WAGMI or fiddle with web3-react connectors...
         const signature = await signaturePromise
 
         callTransaction = async () =>
@@ -352,15 +349,16 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setTransactionId(transactionId)
   }
 
-  // TODO: Disable if not on right network
   return (
-    <SquareButton
-      className='w-full flex space-x-2'
+    <TransactionButton
+      className='w-full'
       onClick={submitUpdateTransaction}
-      disabled={!isAllowanceFetched || transactionPending}
+      disabled={!signer || !isAllowanceFetched || transactionPending || !isBalanceSufficient}
+      pending={transactionPending}
+      chainId={chainId}
+      toolTipId={'confirm-delegation-updates'}
     >
-      <span>Confirm updates</span>
-      {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
-    </SquareButton>
+      Confirm updates
+    </TransactionButton>
   )
 }
