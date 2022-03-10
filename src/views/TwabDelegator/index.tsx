@@ -15,13 +15,16 @@ export const TwabDelegator: React.FC = (props) => {
   const { chainId, setChainId } = useDelegationChainId()
   const delegator = useDelegatorAddress()
 
-  console.log({ delegator, chainId })
-
   return (
     <Layout>
       <PagePadding>
-        <DelegationTitle />
-        <UsersDelegationState chainId={chainId} setChainId={setChainId} />
+        <DelegationTitle className='mb-8' />
+        <UsersDelegationState
+          chainId={chainId}
+          delegator={delegator}
+          setChainId={setChainId}
+          className='mb-8'
+        />
         <DelegationList delegator={delegator} chainId={chainId} />
       </PagePadding>
     </Layout>

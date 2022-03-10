@@ -64,7 +64,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
       />
       <ErrorMessage className='mb-1'>{errors.delegatee?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
-        Amount (PTaUSDC)
+        {`Amount (${ticket.symbol})`}
       </Label>
       <StyledInput
         id='balance'
@@ -94,6 +94,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
       <Label className='uppercase' htmlFor='duration'>
         Duration (days)
       </Label>
+      {/* TODO: Probably want to add a toggle here. On is unlocked and duration input is disabled. Off lets users input the number of days. */}
       <StyledInput
         id='duration'
         invalid={!!errors.duration}

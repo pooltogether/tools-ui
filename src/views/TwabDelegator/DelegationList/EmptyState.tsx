@@ -4,6 +4,7 @@ import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether
 import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
+import classNames from 'classnames'
 
 interface EmptyStateProps extends DelegationListProps {
   delegator: string
@@ -20,7 +21,14 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
   const { className, delegator, setListState } = props
 
   return (
-    <div className={className}>
+    <div
+      className={classNames(
+        className,
+        'rounded-lg py-8 px-20 text-center flex-col space-y-4 items-center bg-darkened'
+      )}
+    >
+      <p className='text-pt-purple-dark dark:text-pt-purple-light'>No delegation positions found</p>
+      <p className='font-bold'>Get started by delegating to a wallet or contract</p>
       <CreateSlotButton className='mx-auto' delegator={delegator} setListState={setListState} />
     </div>
   )
@@ -39,7 +47,6 @@ const CreateSlotButton: React.FC<{
 
   return (
     <SquareButton
-      theme={SquareButtonTheme.tealOutline}
       size={SquareButtonSize.sm}
       className={className}
       onClick={() => {
@@ -48,7 +55,7 @@ const CreateSlotButton: React.FC<{
       }}
     >
       <FeatherIcon icon='plus' className='w-3 h-3 my-auto mr-1' />
-      <span>Create Delegation</span>
+      <span>New Delegation</span>
     </SquareButton>
   )
 }

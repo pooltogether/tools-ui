@@ -47,7 +47,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 
   if (usersAddress !== delegator) return null
 
-  // TODO: Show error warning if total spend is higher than users ticket balance
+  // TODO: Return a wrapper with content so we can pass classNames and style the container easier
   if (listState === ListState.edit) {
     return (
       <div className='flex justify-between space-x-2'>

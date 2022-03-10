@@ -1,4 +1,3 @@
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { useState } from 'react'
 import { ActiveState } from './ActiveState'
 import { EmptyState } from './EmptyState'
@@ -10,6 +9,7 @@ import { CreateDelegationModal } from '@twabDelegator/DelegationList/CreateDeleg
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
 import { TransactionState, useTransaction } from '@atoms/transactions'
 import { useResetDelegationAtomsOnAccountChange } from '@twabDelegator/hooks/useResetDelegationAtomsOnAccountChange'
+import classNames from 'classnames'
 
 export interface DelegationListProps {
   className?: string
@@ -28,7 +28,7 @@ export enum ListState {
  * @returns
  */
 export const DelegationList: React.FC<DelegationListProps> = (props) => {
-  const { chainId, delegator } = props
+  const { chainId, delegator, className } = props
   useResetDelegationAtomsOnAccountChange()
   const useQueryResult = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
@@ -46,6 +46,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
       list = (
         <EmptyState
           {...props}
+          className='mb-10'
           delegator={delegator}
           listState={listState}
           setListState={setListState}
@@ -55,6 +56,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
       list = (
         <ActiveState
           {...props}
+          className='mb-10'
           delegator={delegator}
           listState={listState}
           setListState={setListState}
@@ -63,7 +65,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
       )
     }
     return (
-      <>
+      <div className={classNames(className, 'text-xxs xs:text-xs')}>
         {list}
         {delegations.length >= 1 && (
           <ListStateActions
@@ -85,7 +87,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           setTransactionId={setTransactionId}
           setListState={setListState}
         />
-      </>
+      </div>
     )
   } else {
     return <LoadingState {...props} />

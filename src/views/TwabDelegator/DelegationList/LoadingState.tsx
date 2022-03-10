@@ -1,3 +1,5 @@
+import { LoadingLogo } from '@pooltogether/react-components'
+import classNames from 'classnames'
 import { DelegationListProps } from '.'
 
 /**
@@ -7,5 +9,9 @@ import { DelegationListProps } from '.'
  */
 export const LoadingState: React.FC<DelegationListProps> = (props) => {
   const { className } = props
-  return <div className={className}>Loading...</div>
+  return (
+    <div className={classNames(className, 'flex justify-center mt-20')}>
+      <LoadingLogo />
+    </div>
+  )
 }

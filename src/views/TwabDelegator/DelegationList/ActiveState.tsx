@@ -55,8 +55,8 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, delegator, transactionPending } = props
   const { data: delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   return (
-    <>
-      <ul className={className}>
+    <div className={classNames(className, 'flex flex-col')}>
+      <ul>
         {delegations.map((delegation) => (
           <DelegationRow
             {...delegation}
@@ -68,14 +68,14 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         ))}
       </ul>
       <AddSlotButton
-        className='mx-auto mt-4'
+        className='mx-auto mt-8'
         chainId={chainId}
         delegator={delegator}
         listState={listState}
         setListState={setListState}
         transactionPending={transactionPending}
       />
-    </>
+    </div>
   )
 }
 
@@ -127,7 +127,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         {
           'grid-cols-7': listState !== ListState.edit,
           'grid-cols-8': listState === ListState.edit,
-          'opacity-50':
+          'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
             (listState === ListState.edit || listState === ListState.withdraw) && isLocked
         }
       )}
