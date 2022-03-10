@@ -109,9 +109,19 @@ const EditDelegationForm: React.FC<{
     if (
       !delegationFormDefaults.delegatee ||
       delegationFormDefaults.delegatee !== delegationUpdate.delegatee ||
-      delegationUpdate.lockDuration !== 0
+      delegationUpdate.lockDuration !== delegationFormDefaults.duration
     ) {
-      if (delegationCreation) {
+      // If we're not resetting the delegation to original state, remove the edit
+      if (
+        !!delegation &&
+        delegationUpdate.lockDuration === 0 &&
+        delegation.delegatee === delegationUpdate.delegatee
+      ) {
+        removeDelegationUpdate(delegationId)
+      }
+
+      // If we're dealing with a creation, edit it
+      else if (delegationCreation) {
         addDelegationCreation(delegationUpdate)
       } else {
         addDelegationUpdate(delegationUpdate)

@@ -1,6 +1,6 @@
 import FeatherIcon from 'feather-icons-react'
 import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
-import { sToD, shorten, msToS, sToM } from '@pooltogether/utilities'
+import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
 import {
   delegationUpdatesAtom,
   delegationWithdrawalsAtom,
@@ -18,24 +18,27 @@ import {
   DelegationId,
   DelegationUpdate
 } from '@twabDelegator/interfaces'
-import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import {
+  Amount,
   BlockExplorerLink,
   CheckboxInputGroup,
   SquareButton,
   SquareButtonSize,
-  SquareButtonTheme
+  SquareButtonTheme,
+  TokenIcon
 } from '@pooltogether/react-components'
-import { formatUnits } from 'ethers/lib/utils'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
 import { useTicket } from '@hooks/v4/useTicket'
 import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
 import { getBalance } from '@twabDelegator/utils/getBalance'
 import { getDuration } from '@twabDelegator/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
+import { BigNumber } from 'ethers'
+import classNames from 'classnames'
+import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
@@ -104,13 +107,10 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
     transactionPending
   } = props
   const { slot } = delegationId
-  const ticket = useTicket(chainId)
 
   const delegatee = getDelegatee(delegation, delegationCreation, delegationUpdate)
-  const delegateeDisplay = shorten({ hash: delegatee })
 
   const balance = getBalance(delegation, delegationFund)
-  const balanceDisplay = formatUnits(balance, ticket.decimals)
   const duration = getDuration(delegation, delegationCreation, delegationUpdate)
   const currentTimeInSeconds = msToS(Date.now()).toFixed(0)
   const isLocked = delegation?.lockUntil.gt(currentTimeInSeconds) || false
@@ -125,14 +125,14 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         'grid items-center',
         'px-2 py-1 first:border-t border-b border-pt-purple border-opacity-50',
         {
-          'grid-cols-4': listState !== ListState.edit,
-          'grid-cols-5': listState === ListState.edit,
+          'grid-cols-7': listState !== ListState.edit,
+          'grid-cols-8': listState === ListState.edit,
           'opacity-50':
             (listState === ListState.edit || listState === ListState.withdraw) && isLocked
         }
       )}
     >
-      <div className='flex space-x-2'>
+      <div className='flex space-x-2 col-span-1'>
         {listState === ListState.withdraw && (
           <DelegationWithdrawToggle
             {...props}
@@ -143,11 +143,11 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         )}
         <span className='font-bold opacity-60'>{slot.toString()}</span>
       </div>
-      <DelegateeDisplay chainId={chainId} delegatee={delegatee} />
-      <span>{balanceDisplay}</span>
-      <LockDisplay duration={duration} isEdited={isEdited} />
+      <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
+      <BalanceDisplay chainId={chainId} balance={balance} className='col-span-2' />
+      <LockDisplay duration={duration} isEdited={isEdited} className='col-span-2' />
       {listState === ListState.edit && (
-        <div className='flex justify-end space-x-1'>
+        <div className='flex justify-end space-x-1 col-span-1'>
           <DelegationEditToggle
             {...props}
             isZeroBalance={isZeroBalance}
@@ -160,26 +160,59 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
   )
 }
 
-const DelegateeDisplay: React.FC<{ chainId: number; delegatee: string }> = ({
+/**
+ *
+ * @param props
+ * @returns
+ */
+const DelegateeDisplay: React.FC<{ className?: string; chainId: number; delegatee: string }> = ({
+  className,
   chainId,
   delegatee
-}) => <BlockExplorerLink chainId={chainId} address={delegatee} shorten noIcon />
+}) => {
+  const screenSize = useScreenSize()
+  return (
+    <BlockExplorerLink className={className} chainId={chainId} address={delegatee} noIcon>
+      <span>{shorten({ hash: delegatee, short: screenSize === ScreenSize.xs })}</span>
+    </BlockExplorerLink>
+  )
+}
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const BalanceDisplay: React.FC<{ className?: string; chainId: number; balance: BigNumber }> = (
+  props
+) => {
+  const { className, chainId, balance } = props
+  const ticket = useTicket(chainId)
+  const balanceDisplay = numberWithCommas(balance, { decimals: ticket.decimals })
+  return (
+    <div className={classNames(className, 'flex items-center space-x-1')}>
+      <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
+      <span>{balanceDisplay}</span>
+    </div>
+  )
+}
 
 /**
  * NOTE: Not updating time live. Relies on a rerender when a delegation goes from locked to unlocked.
  * @param props
  */
 const LockDisplay: React.FC<{
+  className?: string
   duration: number
   isEdited: boolean
 }> = (props) => {
-  const { duration, isEdited } = props
+  const { className, duration, isEdited } = props
 
   const isLocked = duration > 0
 
   const getDurationDisplay = () => {
     if (!isLocked) {
-      return <span className='font-bold'>unlocked</span>
+      return <span className={classNames(className, 'font-bold')}>unlocked</span>
     }
 
     let formattedDuration, units
@@ -195,7 +228,7 @@ const LockDisplay: React.FC<{
       units = formattedDuration === 1 ? 'second' : 'seconds'
     }
     return (
-      <div className='flex space-x-1'>
+      <div className={'flex space-x-1'}>
         <span className='font-bold'>{formattedDuration}</span>
         <span className='opacity-50'>{`${units}`}</span>
         {!isEdited && <span className='opacity-50'>left</span>}
@@ -207,7 +240,7 @@ const LockDisplay: React.FC<{
 
   const durationDisplay = getDurationDisplay()
   return (
-    <div className='flex items-center space-x-1'>
+    <div className={classNames(className, 'flex items-center space-x-1')}>
       <FeatherIcon icon={icon} className='w-4 h-4' />
       {durationDisplay}
     </div>

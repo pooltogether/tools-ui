@@ -69,8 +69,8 @@ export const ConfirmUpdatesModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-4'>
         <ModalTitle chainId={chainId} title={'Delegation confirmation'} />
-        <DelegationLockWarning />
         <TicketBalanceWarning isBalanceSufficient={isBalanceSufficient} />
+        <DelegationLockWarning />
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />
         <SubmitTransactionButton
           chainId={chainId}
