@@ -65,7 +65,7 @@ const ActiveWalletState = () => {
         </div>
       </div>
       <ul>
-        {transactions?.map((transaction) => (
+        {transactions?.slice(transactions.length - 5).map((transaction) => (
           <li key={transaction.id}>
             {!!transaction.receipt ? (
               <BlockExplorerLink

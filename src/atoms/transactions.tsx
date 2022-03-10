@@ -234,7 +234,9 @@ export const useTransaction = (id: string) => {
  */
 export const useUsersTransactions = (usersAddress: string) => {
   const [transactions] = useAtom(transactionsAtom)
-  return transactions.filter((transaction) => transaction.usersAddress === usersAddress)
+  return transactions.filter(
+    (transaction) => transaction.usersAddress === usersAddress && transaction.response?.hash
+  )
 }
 
 const getErrorDetails = (errorMessage: string) => {
