@@ -91,7 +91,6 @@ interface DelegationRowProps {
 }
 
 /**
- * TODO: Mobile hiding data so it fits on the screen...
  * @param props
  * @returns
  */
@@ -117,8 +116,6 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
   const isEdited = !!delegationUpdate || !!delegationCreation
   const isZeroBalance = delegation?.balance.isZero()
 
-  // TODO: Make slot column smaller
-  // TODO: Make edit column smaller
   return (
     <li
       className={classNames(
@@ -248,7 +245,6 @@ const LockDisplay: React.FC<{
 }
 
 /**
- * TODO: Disable if locked
  * @param props
  * @returns
  */
@@ -278,7 +274,6 @@ const DelegationWithdrawToggle: React.FC<
   )
 }
 
-// TODO: Not opening the right one?.
 // Edit a slot. Close modal. Click edit on a different slot. Edits from the first are visible.
 const DelegationEditToggle: React.FC<
   DelegationRowProps & {

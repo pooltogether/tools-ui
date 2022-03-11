@@ -288,7 +288,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       setSignaturePending(true)
 
       const amountToIncrease = totalAmountToFund.sub(allowance)
-      // TODO: Is this name the same for mainnet tickets? What about when we have multiple pools on the same chain?
       const domain = {
         name: 'PoolTogether ControlledToken',
         version: '1',
