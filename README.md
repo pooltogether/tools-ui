@@ -32,5 +32,4 @@ $ yarn dev
 
 `production` deploys to `tools.pooltogether.com`
 
-`main` deploys to `staging.tools.pooltogether.com`
-
+`staging` deploys to `staging.tools.pooltogether.com`
