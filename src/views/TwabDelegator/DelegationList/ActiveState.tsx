@@ -332,7 +332,7 @@ const AddSlotButton: React.FC<{
   return (
     <SquareButton
       theme={SquareButtonTheme.tealOutline}
-      className={classNames(className, 'w-32')}
+      className={classNames(className)}
       size={SquareButtonSize.sm}
       onClick={() => {
         setListState(ListState.edit)
@@ -341,7 +341,7 @@ const AddSlotButton: React.FC<{
       disabled={transactionPending}
     >
       <FeatherIcon icon='plus' className='w-3 h-3 my-auto mr-1' />
-      <span>Add Slot</span>
+      <span>New Delegation</span>
     </SquareButton>
   )
 }

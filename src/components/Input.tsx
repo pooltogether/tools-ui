@@ -18,6 +18,7 @@ export const Input: React.FC<InputProps> = React.forwardRef((props, ref) => (
     )}
   />
 ))
+Input.displayName = 'Input'
 
 /**
  * An input component with color classNames
@@ -39,3 +40,4 @@ export const StyledInput: React.FC<InputProps & { invalid?: boolean }> = React.f
     )
   }
 )
+StyledInput.displayName = 'StyledInput'

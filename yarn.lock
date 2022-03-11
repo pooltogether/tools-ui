@@ -2044,10 +2044,10 @@
   resolved "https://registry.yarnpkg.com/@pooltogether/pooltogether-rng-contracts/-/pooltogether-rng-contracts-1.4.0.tgz#310b9667a1123cfcce718aa6d8eba7c434a53c75"
   integrity sha512-dNgDpDsCMxUxaz8u6OfpjSBtMOdcp8QkLC3cwJ6E++4ux0qY2ON+ZqJEHIC3q4ZVJ4Xf6FikMJF0a8SVNtl8Zw==
 
-"@pooltogether/react-components@^1.6.30":
-  version "1.6.31"
-  resolved "https://registry.yarnpkg.com/@pooltogether/react-components/-/react-components-1.6.31.tgz#ac4eebc28651d07755cd19466e69e54eb077a8f8"
-  integrity sha512-ALgUq5hLjQ1DGbwNCYDXI9Oc4e8rSmDAL3SHl/7KrzyzzZ7XpQRZY06WN3/UhW3lozJnOaaonB/XENApLw0s5A==
+"@pooltogether/react-components@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@pooltogether/react-components/-/react-components-1.7.0.tgz#7cae682062f19c1b8e5931efda47c1fc9b534ee0"
+  integrity sha512-HSjfe4dE6lUPIbAl7giYhGjCRUeSyKaNUIvTS5SDDmQeIFe5OHxqaksNxpALsLPTDylAEbgMCKEod38ma8PEHQ==
   dependencies:
     "@download/blockies" "^1.0.3"
     "@reach/dialog" "^0.15.0"
@@ -2056,16 +2056,12 @@
     "@reach/visually-hidden" "0.15.0"
     classnames "^2.2.6"
     deep-equal "^2.0.5"
-    i18next "^21.6.0"
-    i18next-browser-languagedetector "^6.1.2"
-    i18next-http-backend "^1.3.1"
     js-cookie "^2.2.1"
     react-content-loader "^6.0.3"
     react-copy-to-clipboard "^5.0.3"
     react-countup "^6.1.0"
     react-device-detect "^1.15.0"
     react-hotkeys "^2.0.0"
-    react-i18next "^11.15.0"
     react-loader-spinner "^4.0.0"
     react-toastify "^6.0.8"
     react-tooltip "^4.2.21"
@@ -2079,6 +2075,11 @@
   version "0.3.8"
   resolved "https://registry.yarnpkg.com/@pooltogether/utilities/-/utilities-0.3.8.tgz#f4fa0e9618c97a152e637575560ee226d9e9752d"
   integrity sha512-+9+Lw7IP6B1wvLXK/Dwi8SPkPetaCd4ayr6fS+xWwJup9xdMZmyRR+sc3VwwF/1whu5GmfhZe2X0OV6FTcXWKw==
+
+"@pooltogether/utilities@^0.3.9":
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/@pooltogether/utilities/-/utilities-0.3.9.tgz#af6ded2c0128face483731205eb7f87e3d4879bc"
+  integrity sha512-rQMRX0oBvFoZISBty+VAmD62fb6gzXzL3f8Z6bnqDQ5EuR8+cM/6a7acW72yb8nl5o1hBlVo6bw4VYHIelLoIg==
 
 "@pooltogether/v4-client-js@^0.11.0":
   version "0.11.0"
@@ -8808,7 +8809,7 @@ html-encoding-sniffer@^2.0.1:
   dependencies:
     whatwg-encoding "^1.0.5"
 
-html-escaper@^2.0.0, html-escaper@^2.0.2:
+html-escaper@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-2.0.2.tgz#dfd60027da36a36dfcbe236262c00a5822681453"
   integrity sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==
@@ -8900,13 +8901,6 @@ i18next-browser-languagedetector@^6.1.2:
   dependencies:
     "@babel/runtime" "^7.14.6"
 
-i18next-http-backend@^1.3.1:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/i18next-http-backend/-/i18next-http-backend-1.3.2.tgz#ce6aff7aa60b6170e006d62b8f9cc1b3de55413e"
-  integrity sha512-SfcoUmsSWnc2LYsDsCq5TCg18cxJXvXymX9N37V+qqMKQY8Gf0rWkjOnRd20sMK633Dq4NF9tvqPbOiFJ49Kbw==
-  dependencies:
-    cross-fetch "3.1.5"
-
 i18next-locize-backend@^4.2.3:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/i18next-locize-backend/-/i18next-locize-backend-4.3.0.tgz#41ca38715854df2d47f2fb1a1f11db921f79449a"
@@ -8925,13 +8919,6 @@ i18next@^20.3.5:
   version "20.6.1"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.6.1.tgz#535e5f6e5baeb685c7d25df70db63bf3cc0aa345"
   integrity sha512-yCMYTMEJ9ihCwEQQ3phLo7I/Pwycf8uAx+sRHwwk5U9Aui/IZYgQRyMqXafQOw5QQ7DM1Z+WyEXWIqSuJHhG2A==
-  dependencies:
-    "@babel/runtime" "^7.12.0"
-
-i18next@^21.6.0:
-  version "21.6.12"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.12.tgz#5080a611af98f4104062a88452b30704b29fa924"
-  integrity sha512-xlGTPdu2g5PZEUIE6TA1mQ9EIAAv9nMFONzgwAIrKL/KTmYYWufQNGgOmp5Og1PvgUji+6i1whz0rMdsz1qaKw==
   dependencies:
     "@babel/runtime" "^7.12.0"
 
@@ -12636,15 +12623,6 @@ react-i18next@11.11.4:
   integrity sha512-ayWFlu8Sc7GAxW1PzMaPtzq+yiozWMxs0P1WeITNVzXAVRhC0Httkzw/IiODBta6seJRBCLrtUeFUSXhAIxlRg==
   dependencies:
     "@babel/runtime" "^7.14.5"
-    html-parse-stringify "^3.0.1"
-
-react-i18next@^11.15.0:
-  version "11.15.5"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.15.5.tgz#3de940a1c5a27956d8265663ca67494881f385e8"
-  integrity sha512-vBWuVEQgrhZrGKpyv8FmJ7Zs5jRQWl794Tte7yzJ0okZqqi3jd6j2pLYNg441WcREsbIOvWdiDXbY7W6E93p1A==
-  dependencies:
-    "@babel/runtime" "^7.14.5"
-    html-escaper "^2.0.2"
     html-parse-stringify "^3.0.1"
 
 react-is@^16.13.1, react-is@^16.7.0:

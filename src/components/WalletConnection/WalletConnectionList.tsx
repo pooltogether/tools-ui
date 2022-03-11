@@ -90,7 +90,7 @@ const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) =>
   const { connector, name, iconURL, description, href, color, primary, mobile, mobileOnly } = wallet
   const [isActivating, setIsActivating] = useState(false)
   const isActive = useSelectedIsActive(connector)
-  const error = useSelectedError(connector)
+  const error: Error & { code?: number } = useSelectedError(connector)
 
   useEffect(() => {
     if (isActive) {
@@ -100,8 +100,6 @@ const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) =>
 
   useEffect(() => {
     if (!!error) {
-      console.error(error)
-
       if (typeof error === 'object' && !!error.code) {
         switch (error.code) {
           // Already a request in the users wallet
@@ -131,14 +129,14 @@ const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) =>
       theme={SquareButtonTheme.tealOutline}
       disabled={isActivating}
     >
-      <img className='w-8 h-8 mx-6' src={iconURL.src} />
+      <img className='w-8 h-8 mx-6' src={typeof iconURL === 'object' && iconURL.src} />
       <span>{name}</span>
       {isActivating && <ThemedClipSpinner className='ml-4' />}
     </SquareButton>
   )
   if (href) {
     return (
-      <a className='w-full' href={href} target='_blank' rel='noopener noreferrer'>
+      <a className='w-full' href={href} target='_blank' rel='noreferrer'>
         {button}
       </a>
     )

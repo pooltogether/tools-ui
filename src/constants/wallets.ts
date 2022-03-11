@@ -8,7 +8,7 @@ import { metaMask, walletConnect, walletLink } from '../connectors'
 export interface WalletInfo {
   connector?: Connector
   name: string
-  iconURL: string
+  iconURL: string | { src: string }
   description: string
   href: string | null
   color: string

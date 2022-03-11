@@ -4,12 +4,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
 import { isMobile } from 'react-device-detect'
 
-import {
-  LoadingLogo,
-  ThemeContext,
-  ThemeContextProvider,
-  ToastContainer
-} from '@pooltogether/react-components'
+import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
   initProviderApiKeys,
@@ -24,7 +19,7 @@ import { CUSTOM_WALLETS_CONFIG } from '../constants/customWalletsConfig'
 
 // Initialize Localization
 import '../services/i18n'
-import { toast, ToastContainerProps } from 'react-toastify'
+import { toast, ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
 
 // Initialize Sentry error logging
@@ -42,6 +37,7 @@ const queryClient = new QueryClient()
 
 /**
  * AppContainer wraps all pages in the app. Used to set up globals.
+ * TODO: Add Sentry
  * @param props
  * @returns
  */

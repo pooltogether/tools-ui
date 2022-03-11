@@ -1,5 +1,3 @@
-import { Input } from '@components/Input'
-import { Label } from '@components/Label'
 import { useTicket } from '@hooks/v4/useTicket'
 import {
   BottomSheet,
@@ -7,13 +5,12 @@ import {
   SquareButton,
   SquareButtonTheme
 } from '@pooltogether/react-components'
-import { dToS, sToD } from '@pooltogether/utilities'
+import { dToS } from '@pooltogether/utilities'
 import {
   editDelegationModalOpenAtom,
   delegationIdToEditAtom,
   addDelegationUpdateAtom,
   addDelegationFundAtom,
-  delegationFormDefaultsAtom,
   removeDelegationUpdateAtom,
   removeDelegationFundAtom,
   addDelegationCreationAtom,
@@ -22,7 +19,6 @@ import {
 import { DelegationForm } from '@twabDelegator/DelegationForm'
 import { useDelegatorsUpdatedTwabDelegation } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegation'
 import {
-  Delegation,
   DelegationFormValues,
   DelegationFund,
   DelegationId,
@@ -30,10 +26,9 @@ import {
 } from '@twabDelegator/interfaces'
 import { getDelegationFormDefaults } from '@twabDelegator/utils/getDelegationFormDefaults'
 import { BigNumber } from 'ethers'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useDelegationCreation, useDelegationFund, useDelegationUpdate } from './ActiveState'
 
 export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
   const { chainId } = props

@@ -23,6 +23,7 @@ export const TransactionReceiptButton = (props: TransactionReceiptButtonProps) =
   return (
     <SquareLink
       target='_blank'
+      rel='noreferrer'
       href={url}
       theme={SquareButtonTheme.tealOutline}
       size={SquareButtonSize.md}
