@@ -2,7 +2,7 @@ import Layout from '@components/Layout'
 import { PagePadding } from '@components/Layout/PagePadding'
 import { DelegationList } from '@twabDelegator/DelegationList'
 import { DelegationTitle } from '@twabDelegator/DelegationTitle'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
 import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { QUERY_PARAM } from './constants'
@@ -11,6 +11,7 @@ import { useAtom } from 'jotai'
 import { delegationChainIdAtom } from './atoms'
 import { useRouter } from 'next/router'
 
+// TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabDelegator: React.FC = (props) => {
   const { chainId, setChainId } = useDelegationChainId()
   const delegator = useDelegatorAddress()

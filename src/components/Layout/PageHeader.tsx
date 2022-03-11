@@ -33,6 +33,7 @@ export const PageHeader = (props) => {
       style={{ zIndex: 3 }}
     >
       <div className='flex flex-row justify-end items-center space-x-4'>
+        {/* TODO: Chain selection */}
         <WalletConnection />
         <Settings />
       </div>
