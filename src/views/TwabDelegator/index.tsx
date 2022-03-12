@@ -20,7 +20,7 @@ export const TwabDelegator: React.FC = (props) => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle />
+        <PageTitle title='Chance Gifting' />
         <DelegationTitle className='mb-8' />
         <UsersDelegationState
           chainId={chainId}
