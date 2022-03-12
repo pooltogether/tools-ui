@@ -1,5 +1,6 @@
 import Layout from '@components/Layout'
 import { PagePadding } from '@components/Layout/PagePadding'
+import { PageTitle } from '@components/Layout/PageTitle'
 import { DelegationList } from '@twabDelegator/DelegationList'
 import { DelegationTitle } from '@twabDelegator/DelegationTitle'
 import { useEffect } from 'react'
@@ -19,6 +20,7 @@ export const TwabDelegator: React.FC = (props) => {
   return (
     <Layout>
       <PagePadding>
+        <PageTitle />
         <DelegationTitle className='mb-8' />
         <UsersDelegationState
           chainId={chainId}
