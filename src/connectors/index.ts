@@ -5,8 +5,6 @@ import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletLink } from '@web3-react/walletlink'
 
-import POOLTOGETHER_LOGO_URL from '../assets/images/pool.svg'
-
 export const [metaMask, metaMaskHooks] = initializeConnector<MetaMask>(
   (actions) => new MetaMask(actions)
 )

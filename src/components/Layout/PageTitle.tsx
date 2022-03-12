@@ -32,7 +32,7 @@ interface PageTitleProps {
 export const PageTitle = (props: PageTitleProps) => {
   const { title } = props
   return (
-    <div className='relative bg-white py-4 px-4 text-center -mx-2 leading-none xs:rounded-lg mb-4 xs:mb-6'>
+    <div className='relative bg-white py-4 px-4 text-center -mx-2 xs:mx-0 leading-none xs:rounded-lg mb-4 xs:mb-6'>
       <Breadcrumbs />
       <p className='mx-auto text-primary xs:text-lg'>{title || 'Apps'}</p>
     </div>
