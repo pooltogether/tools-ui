@@ -64,7 +64,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
 const ListItemContainer: React.FC = (props) => (
   <li
     {...props}
-    className='p-6 xs:px-24 sm:px-32 rounded-xl flex flex-col items-center'
+    className='p-6 xs:px-24 sm:px-32 rounded-xl flex flex-col items-center hover:opacity-90 transition'
     style={{ backgroundColor: '#411D89' }}
   />
 )
