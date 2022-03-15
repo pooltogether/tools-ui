@@ -2,13 +2,17 @@ import { Provider as JotaiProvider } from 'jotai'
 import { Provider as WagmiProvider, defaultChains } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import { WalletLinkConnector } from 'wagmi/connectors/walletLink'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
+import { BaseProvider } from '@ethersproject/providers'
 
 import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
+  APP_ENVIRONMENTS,
+  getStoredIsTestnetsCookie,
   initProviderApiKeys,
   ScreenSize,
   useInitCookieOptions,
@@ -19,10 +23,11 @@ import { initSentry } from '../services/sentry'
 
 // Initialize Localization
 import '../services/i18n'
-import { toast, ToastContainer, ToastContainerProps } from 'react-toastify'
+import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
-import { getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
-import { ALL_SUPPORTED_CHAINS } from '@constants/config'
+import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
+import { SUPPORTED_CHAINS } from '@constants/config'
+import { CHAIN_ID } from '@constants/misc'
 
 // Initialize Sentry error logging
 initSentry()
@@ -33,25 +38,36 @@ const RPC_API_KEYS = {
   infura: process.env.NEXT_PUBLIC_INFURA_ID
 }
 
+// Initialize to testnet or mainnet
+// Relies on a full refresh when switching state
+const isTestnets = getStoredIsTestnetsCookie()
+const appEnv = isTestnets ? APP_ENVIRONMENTS.testnets : APP_ENVIRONMENTS.mainnets
+
 // Initialize read provider API keys
 initProviderApiKeys(RPC_API_KEYS)
 
-console.log({ defaultChains, ALL_SUPPORTED_CHAINS })
 // Initialize WAGMI wallet connectors
+const chains = SUPPORTED_CHAINS[appEnv]
 const connectors = ({ chainId }) => {
-  console.log('connectors', { chainId, url: getRpcUrl(chainId, RPC_API_KEYS) })
   return [
-    new InjectedConnector({ chains: ALL_SUPPORTED_CHAINS, options: { shimDisconnect: true } }),
+    new InjectedConnector({ chains, options: {} }),
     new WalletConnectConnector({
-      chains: ALL_SUPPORTED_CHAINS,
+      chains,
       options: {
-        chainId,
+        chainId: chainId || CHAIN_ID.mainnet,
         rpc: getRpcUrls(
-          ALL_SUPPORTED_CHAINS.map((chain) => chain.id),
+          chains.map((chain) => chain.id),
           RPC_API_KEYS
         ),
         bridge: 'https://pooltogether.bridge.walletconnect.org/',
         qrcode: true
+      }
+    }),
+    new WalletLinkConnector({
+      chains,
+      options: {
+        appName: 'PoolTogether',
+        jsonRpcUrl: getRpcUrl(chainId || CHAIN_ID.mainnet, RPC_API_KEYS)
       }
     })
   ]
@@ -73,7 +89,14 @@ export const AppContainer: React.FC = (props) => {
   const { i18n } = useTranslation()
 
   return (
-    <WagmiProvider autoConnect connectorStorageKey='pooltogether-wallet' connectors={connectors}>
+    <WagmiProvider
+      autoConnect
+      connectorStorageKey='pooltogether-wallet'
+      connectors={connectors}
+      provider={({ chainId }) =>
+        (chainId ? getReadProvider(chainId) : getReadProvider(CHAIN_ID.mainnet)) as BaseProvider
+      }
+    >
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />

@@ -15,11 +15,11 @@ interface WalletConnectionProps {
   className?: string
 }
 
-export const WagmiWalletConnection: React.FC<WalletConnectionProps> = (props) => {
-  const [{ data: accountData }, disconnect] = useAccount({
-    fetchEns: true
-  })
+export const WalletConnectionButton: React.FC<WalletConnectionProps> = (props) => {
+  const [{ data: accountData, loading, error }, disconnect] = useAccount()
   const [isOpen, setIsOpen] = useState(false)
+
+  console.log({ accountData, loading, error })
 
   let button = (
     <SquareButton
@@ -28,7 +28,7 @@ export const WagmiWalletConnection: React.FC<WalletConnectionProps> = (props) =>
       size={SquareButtonSize.sm}
       theme={SquareButtonTheme.teal}
     >
-      WAGMI Connect Wallet
+      Connect Wallet
     </SquareButton>
   )
   if (accountData) {

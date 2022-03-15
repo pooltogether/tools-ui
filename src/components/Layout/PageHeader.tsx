@@ -15,8 +15,8 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { useOnboard } from '@pooltogether/bnc-onboard-hooks'
 import { useSupportedChainIds } from '@hooks/app/useSupportedChainIds'
-import { WalletConnection } from '@components/WalletConnection'
-import { WagmiWalletConnection } from '@components/WagmiWalletConnection'
+import { WalletConnectionButton } from '@components/Wallet/WalletConnectionButton'
+import { NetworkSelectionButton } from '@components/Wallet/NetworkSelectionButton'
 
 export enum ContentPaneState {
   deposit = 'deposit',
@@ -34,9 +34,8 @@ export const PageHeader = (props) => {
       style={{ zIndex: 3 }}
     >
       <div className='flex flex-row justify-end items-center space-x-4'>
-        {/* TODO: Chain selection */}
-        {/* <WalletConnection /> */}
-        <WagmiWalletConnection />
+        <NetworkSelectionButton />
+        <WalletConnectionButton />
         <Settings />
       </div>
     </PageHeaderContainer>
