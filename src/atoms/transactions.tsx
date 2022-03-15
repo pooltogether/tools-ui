@@ -1,6 +1,8 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { getReadProvider } from '@pooltogether/utilities'
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage, useUpdateAtom } from 'jotai/utils'
+import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { v4 as uuid } from 'uuid'
 import { sentryLog } from '../services/sentry'
@@ -58,18 +60,22 @@ export const transactionsAtom = atomWithStorage<Transaction[]>('pooltogether-tra
 /**
  * Write only.
  * Creates a transaction in the storage.
+ * Limits transaction storage to 20 transactions across all addresses.
  */
 export const createTransactionsAtom = atom<
   null,
   { id: string; transactionName: string; chainId: number; usersAddress: string }
 >(null, (get, set, _transaction) => {
-  const transactions = [...get(transactionsAtom)]
+  let transactions = [...get(transactionsAtom)]
   const transaction: Transaction = {
     ..._transaction,
     state: TransactionState.pending,
     status: TransactionStatus.pendingUserConfirmation
   }
   transactions.push(transaction)
+  if (transactions.length > 20) {
+    transactions = transactions.slice(transactions.length - 20)
+  }
   set(transactionsAtom, transactions)
 })
 
@@ -153,8 +159,6 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
       })
       receipt = await receiptPromise
 
-      console.log({ receipt, response })
-
       // Transaction was confirmed on chain
       callbacks?.onComplete?.(id)
       const status =
@@ -171,7 +175,6 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
       callbacks?.refetch?.(id)
     } catch (e) {
       console.error(e.message)
-      console.log({ e, receipt, response })
       if (e?.message?.match('User denied transaction signature')) {
         updateTransaction({
           id,
@@ -237,6 +240,64 @@ export const useUsersTransactions = (usersAddress: string) => {
   return transactions.filter(
     (transaction) => transaction.usersAddress === usersAddress && transaction.response?.hash
   )
+}
+
+/**
+ *
+ * @param usersAddress
+ * @returns
+ */
+export const useUsersPendingTransactions = (usersAddress: string) => {
+  const [transactions] = useAtom(transactionsAtom)
+  return transactions.filter(
+    (transaction) =>
+      transaction.usersAddress === usersAddress && transaction.state === TransactionState.pending
+  )
+}
+
+/**
+ * Only call this hook once at the root of the app.
+ */
+export const useUpdateStoredPendingTransactions = () => {
+  const [_transactions] = useAtom(transactionsAtom)
+  const updateTransaction = useUpdateAtom(updateTransactionsAtom)
+
+  useEffect(() => {
+    const pendingTransactions = _transactions.filter(
+      (transaction) => transaction.state === TransactionState.pending
+    )
+    pendingTransactions.forEach(async (transaction) => {
+      const hash = transaction.response.hash
+      const provider = getReadProvider(transaction.chainId)
+      const id = transaction.id
+      let receipt: TransactionReceipt
+      let response: TransactionResponse
+      try {
+        response = await provider.getTransaction(hash)
+        await response.wait()
+        receipt = await provider.getTransactionReceipt(response.hash)
+        const status =
+          !!receipt.status && receipt.status === 1
+            ? TransactionStatus.success
+            : TransactionStatus.error
+        updateTransaction({
+          id,
+          response,
+          receipt,
+          status,
+          state: TransactionState.complete
+        })
+      } catch (e) {
+        updateTransaction({
+          id,
+          response,
+          receipt,
+          status: TransactionStatus.error,
+          state: TransactionState.complete
+        })
+      }
+    })
+  }, [])
 }
 
 const getErrorDetails = (errorMessage: string) => {

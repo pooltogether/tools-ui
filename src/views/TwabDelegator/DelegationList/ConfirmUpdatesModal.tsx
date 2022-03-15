@@ -30,6 +30,7 @@ import { TransactionReceiptButton } from '@components/Buttons/TransactionReceipt
 import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
+import { useSignTypedData } from 'wagmi'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -197,6 +198,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     ticket.address
   )
 
+  const [, signTypedData] = useSignTypedData()
+
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
   const getDelegation = (delegationId: DelegationId) =>
@@ -294,12 +297,20 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         chainId,
         verifyingContract: ticketContract.address
       }
+
+      // NOTE: Nonce must be passed manually for signERC2612Permit to work with WalletConnect
+      const deadline = (await signer.provider.getBlock('latest')).timestamp + 100
+      const response = await ticketContract.functions.nonces(usersAddress)
+      const nonce: BigNumber = response[0]
+
       const signaturePromise = signERC2612Permit(
         signer,
         domain,
         usersAddress,
         twabDelegatorContract.address,
-        amountToIncrease.toString()
+        amountToIncrease.toString(),
+        deadline,
+        nonce.toNumber()
       )
 
       toast.promise(signaturePromise, {
@@ -325,7 +336,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
           )
       } catch (e) {
         setSignaturePending(false)
-        console.log(e)
+        console.error(e)
         return
       }
     } else {
@@ -343,6 +354,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         await refetch()
         resetAtoms()
         setListState(ListState.readOnly)
+        setModalState(ConfirmModalState.review)
       }
     })
     setTransactionId(transactionId)

@@ -7,7 +7,7 @@ export const AppIndex: React.FC = (props) => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle />
+        <PageTitle title={'App Index'} />
         <AppIndexList />
       </PagePadding>
     </Layout>

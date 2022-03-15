@@ -39,8 +39,6 @@ export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
     delegationId
   )
 
-  console.log({ delegationData, delegationId })
-
   if (!delegationId) return null
 
   return (

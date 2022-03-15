@@ -11,6 +11,10 @@ export NEXT_PUBLIC_ETHERSCAN_API_KEY=
 export NEXT_PUBLIC_INFURA_ID=
 
 # Optional
+# Generate additional files for analyzing builds
+# export ANALYZE=true
+
+# Optional
 # Sentry DSN
 export NEXT_PUBLIC_SENTRY_DSN=
 export NEXT_PUBLIC_SENTRY_ENV=

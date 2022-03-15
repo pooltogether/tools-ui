@@ -1,5 +1,5 @@
 import { APP_ENVIRONMENTS, getStoredIsTestnetsCookie } from '@pooltogether/hooks'
-import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/constants'
+import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
 
 /**
  *

@@ -13,7 +13,7 @@ import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId
 import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
 /**
- *
+ * TODO: URL param is overriding this
  */
 export const delegationChainIdAtom = atom<number>(
   Number(
@@ -160,7 +160,6 @@ export const removeDelegationUpdateAtom = atom<null, DelegationId>(
         _delegationUpdate.delegator !== delegationId.delegator ||
         !_delegationUpdate.slot.eq(delegationId.slot)
     )
-    console.log({ _delegationUpdates, delegationUpdates })
     set(delegationUpdatesAtom, delegationUpdates)
   }
 )
