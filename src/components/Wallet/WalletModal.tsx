@@ -34,13 +34,14 @@ export const WalletModal: React.FC<WalletModalProps> = (props) => {
       onDismiss={closeModal}
       maxWidthClassName='max-w-md'
     >
-      {connected && <ActiveWalletState />}
+      {connected && <ActiveWalletState closeModal={closeModal} />}
       {!connected && <ConnectWalletState closeModal={closeModal} />}
     </BottomSheet>
   )
 }
 
-const ActiveWalletState = () => {
+const ActiveWalletState: React.FC<{ closeModal: () => void }> = (props) => {
+  const { closeModal } = props
   const [{ data: account }, disconnect] = useAccount()
   const [{ data: network }] = useNetwork()
   const address = account?.address
@@ -68,6 +69,7 @@ const ActiveWalletState = () => {
             onClick={() => {
               try {
                 disconnect()
+                closeModal()
               } catch (e) {
                 console.error(e.message)
                 window.location.reload()
@@ -85,6 +87,11 @@ const ActiveWalletState = () => {
         {filteredTransactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
         ))}
+        {filteredTransactions.length === 0 && (
+          <li>
+            <span className='opacity-50'>No transactions yet</span>
+          </li>
+        )}
       </ul>
     </div>
   )

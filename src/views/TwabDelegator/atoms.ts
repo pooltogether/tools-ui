@@ -6,14 +6,35 @@ import {
 } from '@twabDelegator/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
+import { isAddress } from 'ethers/lib/utils'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 import { QUERY_PARAM } from './constants'
 import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId'
 import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
+const defaultDelegator: string = getUrlQueryParam(QUERY_PARAM.delegator, undefined, null, [
+  (v) => isAddress(v)
+])
+export const delegatorAtom = atom<string>(defaultDelegator)
+
 /**
- * TODO: URL param is overriding this
+ * Write-only
+ */
+export const setDelegatorAtom = atom<null, string>(null, (get, set, _delegator) => {
+  if (!_delegator) {
+    set(delegatorAtom, undefined)
+    return
+  }
+  const delegator = _delegator.toLowerCase()
+  const url = new URL(window.location.href)
+  url.searchParams.set(QUERY_PARAM.delegator, delegator)
+  window.history.pushState(null, '', url)
+  set(delegatorAtom, delegator)
+})
+
+/**
+ * TODO: testnet URL param is being set when app is on mainnet
  */
 export const delegationChainIdAtom = atom<number>(
   Number(

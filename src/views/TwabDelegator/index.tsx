@@ -5,17 +5,24 @@ import { DelegationList } from '@twabDelegator/DelegationList'
 import { DelegationTitle } from '@twabDelegator/DelegationTitle'
 import { useEffect } from 'react'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { QUERY_PARAM } from './constants'
-import { isAddress } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
-import { delegationChainIdAtom } from './atoms'
+import { delegationChainIdAtom, delegatorAtom, setDelegatorAtom } from './atoms'
 import { useRouter } from 'next/router'
+import { useUpdateAtom } from 'jotai/utils'
+import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabDelegator: React.FC = (props) => {
   const { chainId, setChainId } = useDelegationChainId()
-  const delegator = useDelegatorAddress()
+  const usersAddress = useUsersAddress()
+  const [delegator] = useAtom(delegatorAtom)
+  const setDelegator = useUpdateAtom(setDelegatorAtom)
+
+  // Lazy way to get the app to react on wallet connection
+  useEffect(() => {
+    setDelegator(usersAddress)
+  }, [usersAddress])
 
   return (
     <Layout>
@@ -28,28 +35,10 @@ export const TwabDelegator: React.FC = (props) => {
           setChainId={setChainId}
           className='mb-8'
         />
-        <DelegationList delegator={delegator} chainId={chainId} />
+        <DelegationList delegator={delegator} chainId={chainId} setDelegator={setDelegator} />
       </PagePadding>
     </Layout>
   )
-}
-
-/**
- * Only used at top level.
- * @returns
- */
-const useDelegatorAddress = () => {
-  const usersAddress = useUsersAddress()
-  let url
-  if (typeof window !== 'undefined') {
-    url = new URL(window.location.href)
-  } else {
-    return usersAddress
-  }
-
-  const delegatorQueryParam = url.searchParams.get(QUERY_PARAM.delegator)?.toLowerCase()
-  const isValid = isAddress(delegatorQueryParam)
-  return isValid ? delegatorQueryParam : usersAddress
 }
 
 /**

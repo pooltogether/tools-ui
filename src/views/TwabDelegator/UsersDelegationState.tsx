@@ -3,7 +3,12 @@ import { SelectNetworkModal } from '@components/SelectNetworkModal'
 import { useTicket } from '@hooks/v4/useTicket'
 import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { useTokenBalance } from '@pooltogether/hooks'
-import { NetworkIcon, ThemedClipSpinner, TokenIcon } from '@pooltogether/react-components'
+import {
+  BlockExplorerLink,
+  NetworkIcon,
+  ThemedClipSpinner,
+  TokenIcon
+} from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId, shorten } from '@pooltogether/utilities'
 import classNames from 'classnames'
 import { useState } from 'react'
@@ -35,7 +40,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
   return (
     <div className={classNames(className, 'flex justify-between')}>
       <div className='flex flex-col'>
-        <span>{shorten({ hash: delegator })}</span>
+        <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
         <div className='flex space-x-2 items-center'>
           <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
           <span className='opacity-60'>{ticket.symbol}</span>
@@ -44,23 +49,25 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
             <FeatherIcon icon='external-link' className='w-3 h-3' />
           </a>
         </div>
-        <div className='flex space-x-4 items-center'>
-          {(!isDelegationBalanceFetched || !isDelegationBalanceFetched) && (
-            <ThemedClipSpinner sizeClassName='w-3 h-3' />
-          )}
-          {isDelegationBalanceFetched && (
-            <div className='flex space-x-1 items-center'>
-              <FeatherIcon icon='gift' className='w-3 h-3 text-pt-teal' />
-              <span className='opacity-60 text-xxs'>{`${delegationBalance.amountPretty} delegated`}</span>
-            </div>
-          )}
-          {isTicketBalanceFetched && (
-            <div className='flex space-x-1 items-center'>
-              <FeatherIcon icon='credit-card' className='w-3 h-3 text-pt-teal' />
-              <span className='opacity-60 text-xxs'>{`${ticketBalance.amountPretty} balance`}</span>
-            </div>
-          )}
-        </div>
+        {delegator && (
+          <div className='flex space-x-4 items-center'>
+            {(!isDelegationBalanceFetched || !isDelegationBalanceFetched) && (
+              <ThemedClipSpinner sizeClassName='w-3 h-3' />
+            )}
+            {isDelegationBalanceFetched && (
+              <div className='flex space-x-1 items-center'>
+                <FeatherIcon icon='gift' className='w-3 h-3 text-pt-teal' />
+                <span className='opacity-60 text-xxs'>{`${delegationBalance.amountPretty} delegated`}</span>
+              </div>
+            )}
+            {isTicketBalanceFetched && (
+              <div className='flex space-x-1 items-center'>
+                <FeatherIcon icon='credit-card' className='w-3 h-3 text-pt-teal' />
+                <span className='opacity-60 text-xxs'>{`${ticketBalance.amountPretty} balance`}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <DelegationNetworkSelection chainId={chainId} setChainId={setChainId} />
     </div>

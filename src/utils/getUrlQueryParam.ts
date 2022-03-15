@@ -5,7 +5,12 @@
  * @param validOptions
  * @returns
  */
-export const getUrlQueryParam = (key: string, defaultValue: string, validOptions: string[]) => {
+export const getUrlQueryParam = (
+  key: string,
+  defaultValue: string = null,
+  validOptions?: string[],
+  validiyChecks?: ((v: any) => boolean)[]
+) => {
   let url
   if (typeof window !== 'undefined') {
     url = new URL(window.location.href)
@@ -14,7 +19,10 @@ export const getUrlQueryParam = (key: string, defaultValue: string, validOptions
   }
   const queryParamValue = url.searchParams.get(key)?.toLowerCase()
   if (!queryParamValue) return defaultValue
-  if (validOptions.includes(queryParamValue)) {
+  if (validOptions?.includes(queryParamValue)) {
+    return queryParamValue
+  }
+  if (validiyChecks?.every((check) => check(queryParamValue))) {
     return queryParamValue
   }
   return defaultValue
