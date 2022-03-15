@@ -1,9 +1,6 @@
-import { getPriorityConnector } from '@web3-react/core'
-import { CONNECTORS } from '../../connectors'
-
-const { usePriorityChainId } = getPriorityConnector(...CONNECTORS)
+import { useWalletChainId } from './useWalletChainId'
 
 export const useIsWalletOnNetwork = (requiredChainId: number) => {
-  const chainId = usePriorityChainId()
+  const chainId = useWalletChainId()
   return chainId === requiredChainId
 }

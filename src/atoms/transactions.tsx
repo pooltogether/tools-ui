@@ -153,8 +153,6 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
       })
       receipt = await receiptPromise
 
-      console.log({ receipt, response })
-
       // Transaction was confirmed on chain
       callbacks?.onComplete?.(id)
       const status =
@@ -171,7 +169,6 @@ export const useSendTransaction = (chainId: number, usersAddress: string) => {
       callbacks?.refetch?.(id)
     } catch (e) {
       console.error(e.message)
-      console.log({ e, receipt, response })
       if (e?.message?.match('User denied transaction signature')) {
         updateTransaction({
           id,

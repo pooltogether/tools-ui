@@ -10,7 +10,6 @@ import { useQuery } from 'react-query'
 export const useMaxLockDuration = (chainId: number) => {
   return useQuery(['useMaxLockDuration', chainId], async () => {
     const twabDelegatorContract = getTwabDelegatorContract(chainId)
-    console.log({ twabDelegatorContract })
     const response = await twabDelegatorContract.functions.MAX_LOCK()
     const maxLockDurationBN: BigNumber = response[0]
     return maxLockDurationBN.toNumber()

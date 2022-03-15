@@ -215,13 +215,12 @@ const LockDisplay: React.FC<{
     let formattedDuration, units
     if (duration >= SECONDS_PER_DAY) {
       formattedDuration = Math.round(sToD(duration))
-      console.log({ formattedDuration })
       units = formattedDuration === 1 ? 'day' : 'days'
     } else if (duration >= SECONDS_PER_HOUR) {
       formattedDuration = Math.round(sToM(duration))
       units = formattedDuration === 1 ? 'minute' : 'minutes'
     } else if (duration > 0) {
-      formattedDuration = duration
+      formattedDuration = Math.round(duration)
       units = formattedDuration === 1 ? 'second' : 'seconds'
     }
     return (

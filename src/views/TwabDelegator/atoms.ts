@@ -160,7 +160,6 @@ export const removeDelegationUpdateAtom = atom<null, DelegationId>(
         _delegationUpdate.delegator !== delegationId.delegator ||
         !_delegationUpdate.slot.eq(delegationId.slot)
     )
-    console.log({ _delegationUpdates, delegationUpdates })
     set(delegationUpdatesAtom, delegationUpdates)
   }
 )

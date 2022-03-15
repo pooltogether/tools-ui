@@ -11,6 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^12.1.0",
     "@pooltogether/bnc-onboard": "1.36.0-b",
     "@pooltogether/bnc-onboard-hooks": "^1.1.1",
     "@pooltogether/current-pool-data": "^3.7.2",
@@ -76,7 +77,8 @@
     "react-toastify": "^8.2.0",
     "react-tooltip": "^4.2.21",
     "tailwindcss": "^2.2.19",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "wagmi": "^0.2.20"
   },
   "devDependencies": {
     "@sentry/cli": "^1.72.2",

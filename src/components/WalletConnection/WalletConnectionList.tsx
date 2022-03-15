@@ -116,8 +116,6 @@ const WalletConnectionButton: React.FC<WalletConnectionButtonProps> = (props) =>
     }
   }, [error])
 
-  console.log({ name, isActive, isActivating, wallet, error })
-
   const button = (
     <SquareButton
       noCenter
