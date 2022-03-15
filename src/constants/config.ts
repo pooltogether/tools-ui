@@ -2,7 +2,6 @@ import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
 import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
 import { getChain } from '@utils/getChain'
 import { allChains, Chain } from 'wagmi'
-console.log({ allChains })
 
 /////////////////////////////////////////////////////////////////////
 // Required constant aggregates from the various tools in the app.

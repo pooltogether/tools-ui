@@ -266,7 +266,6 @@ export const useUpdateStoredPendingTransactions = () => {
     const pendingTransactions = _transactions.filter(
       (transaction) => transaction.state === TransactionState.pending
     )
-    console.log({ pendingTransactions })
     pendingTransactions.forEach(async (transaction) => {
       const hash = transaction.response.hash
       const provider = getReadProvider(transaction.chainId)
