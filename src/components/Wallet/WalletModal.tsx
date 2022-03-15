@@ -1,10 +1,15 @@
-import { Transaction, useUsersTransactions } from '@atoms/transactions'
+import { Transaction, TransactionStatus, useUsersTransactions } from '@atoms/transactions'
+import FeatherIcon from 'feather-icons-react'
+import { TransactionState } from '@pooltogether/hooks'
 import {
   SquareButton,
   BottomSheet,
   SquareButtonTheme,
-  BlockExplorerLink
+  BlockExplorerLink,
+  SquareButtonSize,
+  ThemedClipSpinner
 } from '@pooltogether/react-components'
+import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import classNames from 'classnames'
 
 import React from 'react'
@@ -23,9 +28,14 @@ export const WalletModal: React.FC<WalletModalProps> = (props) => {
   const connected = data?.connected
 
   return (
-    <BottomSheet label='wallet-connection-modal' open={isOpen} onDismiss={closeModal}>
+    <BottomSheet
+      label='wallet-connection-modal'
+      open={isOpen}
+      onDismiss={closeModal}
+      maxWidthClassName='max-w-md'
+    >
       {connected && <ActiveWalletState />}
-      {!connected && <ConnectWalletState />}
+      {!connected && <ConnectWalletState closeModal={closeModal} />}
     </BottomSheet>
   )
 }
@@ -34,23 +44,27 @@ const ActiveWalletState = () => {
   const [{ data: account }, disconnect] = useAccount()
   const [{ data: network }] = useNetwork()
   const address = account?.address
-  const connector = account?.connector
   const connectorName = account?.connector.name
   const chainId = network?.chain.id
   const transactions = useUsersTransactions(address)
+  const filteredTransactions = transactions?.slice(transactions.length - 5).reverse()
 
   return (
-    <>
-      <div className='flex flex-col'>
-        <div className='overflow-ellipsis overflow-hidden flex flex-col'>
-          <h4 className='mb-1'>Account</h4>
-          <span className='text-xs opacity-80 mb-4'>{address}</span>
-          <span>Chain: {chainId}</span>
-          <span>Connection: {connectorName}</span>
+    <div className='flex flex-col px-4 sm:px-0'>
+      <h4 className='mb-2'>Account</h4>
+      <div className='grid grid-cols-2'>
+        <div className='overflow-ellipsis overflow-hidden flex flex-col space-y-1'>
+          <BlockExplorerLink className='opacity-80' shorten address={address} chainId={chainId} />
+          <span className='opacity-80'>{connectorName}</span>
+          <div className='space-x-1 opacity-80'>
+            <span>{getNetworkNiceNameByChainId(chainId)}</span>
+            <span className='text-xxs opacity-80'>{`(${chainId})`}</span>
+          </div>
         </div>
-
-        <div className='flex justify-end mt-6'>
+        <div className='flex flex-col justify-end'>
           <SquareButton
+            className='w-32 ml-auto'
+            size={SquareButtonSize.sm}
             onClick={() => {
               try {
                 disconnect()
@@ -65,31 +79,45 @@ const ActiveWalletState = () => {
           </SquareButton>
         </div>
       </div>
-      <ul>
-        {transactions?.slice(transactions.length - 5).map((transaction) => (
+      <hr />
+      <h5 className='mb-2'>Past Transactions</h5>
+      <ul className='space-y-1'>
+        {filteredTransactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
         ))}
       </ul>
-    </>
+    </div>
   )
 }
 
 const TransactionItem: React.FC<{ transaction: Transaction }> = (props) => {
   const { transaction } = props
   return (
-    <li key={transaction.id}>
-      {!!transaction.receipt ? (
-        <BlockExplorerLink chainId={transaction.chainId} hash={transaction.receipt.transactionHash}>
-          {transaction.transactionName}
-        </BlockExplorerLink>
-      ) : (
-        <span>{transaction.transactionName}</span>
-      )}
+    <li key={transaction.id} className='flex space-x-2 items-center'>
+      <TransactionStatusIcon transaction={transaction} />
+      <BlockExplorerLink chainId={transaction.chainId} txHash={transaction.response.hash}>
+        {transaction.transactionName}
+      </BlockExplorerLink>
     </li>
   )
 }
 
-const ConnectWalletState = () => {
+const TransactionStatusIcon: React.FC<{ transaction: Transaction }> = (props) => {
+  const { transaction } = props
+
+  if (transaction.state === TransactionState.pending) {
+    return <ThemedClipSpinner sizeClassName='w-4 h-4' />
+  } else if (
+    transaction.status === TransactionStatus.error ||
+    transaction.status === TransactionStatus.cancelled
+  ) {
+    return <FeatherIcon icon='x-circle' className='text-pt-red-light w-4 h-4' />
+  } else {
+    return <FeatherIcon icon='check-circle' className='text-pt-teal w-4 h-4' />
+  }
+}
+
+const ConnectWalletState: React.FC<{ closeModal: () => void }> = (props) => {
   return (
     <>
       <h4 className='mb-4'>Connect to a wallet</h4>
@@ -116,7 +144,7 @@ const ConnectWalletState = () => {
           }}
         />
       </p>
-      <WalletConnectionList className='mb-4' />
+      <WalletConnectionList className='mb-4' closeModal={props.closeModal} />
       <a
         className='text-pt-teal transition hover:opacity-70 underline text-sm'
         href='https://docs.ethhub.io/using-ethereum/wallets/intro-to-ethereum-wallets/'

@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Account,
   LanguagePickerDropdown,
-  NetworkSelector,
   PageHeaderContainer,
   SettingsContainer,
   SettingsItem,
@@ -13,7 +11,6 @@ import {
 } from '@pooltogether/react-components'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { useOnboard } from '@pooltogether/bnc-onboard-hooks'
 import { useSupportedChainIds } from '@hooks/app/useSupportedChainIds'
 import { WalletConnectionButton } from '@components/Wallet/WalletConnectionButton'
 import { NetworkSelectionButton } from '@components/Wallet/NetworkSelectionButton'
@@ -77,51 +74,6 @@ const LanguagePicker = () => {
         }}
       />
     </SettingsItem>
-  )
-}
-
-const UsersAccount = () => {
-  const {
-    isWalletConnected,
-    provider,
-    connectWallet,
-    disconnectWallet,
-    walletName,
-    isOnboardReady,
-    address: usersAddress,
-    network: chainId,
-    wallet,
-    network
-  } = useOnboard()
-
-  const supportedNetworks = useSupportedChainIds()
-  const { t } = useTranslation()
-
-  if (!isOnboardReady) return null
-
-  return (
-    <>
-      <NetworkSelector
-        supportedNetworks={supportedNetworks}
-        className='mx-1 my-auto'
-        t={t}
-        network={network}
-        wallet={wallet}
-        chainId={chainId}
-        isWalletConnected={isWalletConnected}
-      />
-      <Account
-        t={t}
-        className='mx-1 my-auto'
-        connectWallet={connectWallet}
-        disconnectWallet={disconnectWallet}
-        isWalletConnected={isWalletConnected}
-        provider={provider}
-        chainId={chainId}
-        usersAddress={usersAddress}
-        walletName={walletName}
-      />
-    </>
   )
 }
 

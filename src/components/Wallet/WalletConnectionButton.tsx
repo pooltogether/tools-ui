@@ -3,13 +3,15 @@ import {
   ProfileName,
   SquareButton,
   SquareButtonSize,
-  SquareButtonTheme
+  SquareButtonTheme,
+  ThemedClipSpinner
 } from '@pooltogether/react-components'
 import React, { useEffect, useState } from 'react'
 
 import { WalletModal } from './WalletModal'
 import classNames from 'classnames'
 import { useAccount } from 'wagmi'
+import { useUsersPendingTransactions } from '@atoms/transactions'
 
 interface WalletConnectionProps {
   className?: string
@@ -18,8 +20,7 @@ interface WalletConnectionProps {
 export const WalletConnectionButton: React.FC<WalletConnectionProps> = (props) => {
   const [{ data: accountData, loading, error }, disconnect] = useAccount()
   const [isOpen, setIsOpen] = useState(false)
-
-  console.log({ accountData, loading, error })
+  const pendingTransactions = useUsersPendingTransactions(accountData?.address)
 
   let button = (
     <SquareButton
@@ -31,7 +32,20 @@ export const WalletConnectionButton: React.FC<WalletConnectionProps> = (props) =
       Connect Wallet
     </SquareButton>
   )
-  if (accountData) {
+  if (pendingTransactions?.length > 0) {
+    button = (
+      <button
+        onClick={() => setIsOpen(true)}
+        className={classNames(
+          props.className,
+          'flex text-pt-teal hover:text-inverse transition-colors font-semibold items-center space-x-2'
+        )}
+      >
+        <ThemedClipSpinner sizeClassName='w-4 h-4' />
+        <span>{`${pendingTransactions.length} pending`}</span>
+      </button>
+    )
+  } else if (accountData) {
     button = (
       <button
         onClick={() => setIsOpen(true)}

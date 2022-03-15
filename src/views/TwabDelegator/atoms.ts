@@ -13,7 +13,7 @@ import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId
 import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
 /**
- *
+ * TODO: URL param is overriding this
  */
 export const delegationChainIdAtom = atom<number>(
   Number(

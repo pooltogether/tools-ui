@@ -354,6 +354,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         await refetch()
         resetAtoms()
         setListState(ListState.readOnly)
+        setModalState(ConfirmModalState.review)
       }
     })
     setTransactionId(transactionId)

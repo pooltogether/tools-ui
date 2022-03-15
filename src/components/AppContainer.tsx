@@ -28,6 +28,7 @@ import { useContext } from 'react'
 import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
 import { SUPPORTED_CHAINS } from '@constants/config'
 import { CHAIN_ID } from '@constants/misc'
+import { useUpdateStoredPendingTransactions } from '@atoms/transactions'
 
 // Initialize Sentry error logging
 initSentry()
@@ -119,6 +120,9 @@ export const AppContainer: React.FC = (props) => {
 }
 
 const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
+  // This doesn't quite fit here, it needs to be nested below Jotai though.
+  useUpdateStoredPendingTransactions()
+
   const { theme } = useContext(ThemeContext)
   const screenSize = useScreenSize()
   return (
