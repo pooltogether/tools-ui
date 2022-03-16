@@ -324,7 +324,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
         callTransaction = async () =>
           twabDelegatorContract.permitAndMulticall(
-            usersAddress.toLowerCase(),
+            usersAddress,
             amountToIncrease,
             {
               deadline: signature.deadline,

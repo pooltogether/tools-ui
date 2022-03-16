@@ -7,7 +7,7 @@ import {
 } from '@twabDelegator/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
-import { isAddress } from 'ethers/lib/utils'
+import { getAddress, isAddress } from 'ethers/lib/utils'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 import { QUERY_PARAM } from './constants'
@@ -17,24 +17,25 @@ import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedCh
 /**
  * The starting delegator value for the delegation view.
  */
-const defaultDelegator: string = getUrlQueryParam(QUERY_PARAM.delegator, undefined, null, [
-  (v) => isAddress(v)
-])
+const getStartingDelegator = () => {
+  const delegator = getUrlQueryParam(QUERY_PARAM.delegator, null, null, [(v) => isAddress(v)])
+  return delegator ? getAddress(delegator) : null
+}
 
 /**
  * The address to use as the delegator for the delegation view
  */
-export const delegatorAtom = atom<string>(defaultDelegator)
+export const delegatorAtom = atom<string>(getStartingDelegator())
 
 /**
  * Write-only
  */
 export const setDelegatorAtom = atom<null, string>(null, (get, set, _delegator) => {
   if (!_delegator) {
-    set(delegatorAtom, undefined)
+    set(delegatorAtom, null)
     return
   }
-  const delegator = _delegator.toLowerCase()
+  const delegator = getAddress(_delegator)
   const url = new URL(window.location.href)
   url.searchParams.set(QUERY_PARAM.delegator, delegator)
   window.history.pushState(null, '', url)
@@ -48,11 +49,9 @@ export const setDelegatorAtom = atom<null, string>(null, (get, set, _delegator) 
 const getStartingDelegationChainId = () => {
   const defaultChainId = getDefaultDelegationChainId()
   const delegationChainAlias = getUrlQueryParam(QUERY_PARAM.delegationChain)
-  console.log({ defaultChainId, delegationChainAlias })
   if (!delegationChainAlias) return defaultChainId
   const queryParamChainId = getChainIdByAlias(delegationChainAlias)
   const supportedChainIds = getDelegationSupportedChainIds()
-  console.log({ queryParamChainId, supportedChainIds })
   if (supportedChainIds.includes(queryParamChainId)) return queryParamChainId
   return defaultChainId
 }

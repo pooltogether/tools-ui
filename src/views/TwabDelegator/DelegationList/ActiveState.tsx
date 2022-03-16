@@ -125,7 +125,8 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
           'grid-cols-7': listState !== ListState.edit,
           'grid-cols-8': listState === ListState.edit,
           'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
-            (listState === ListState.edit || listState === ListState.withdraw) && isLocked
+            ((listState === ListState.edit || listState === ListState.withdraw) && isLocked) ||
+            (listState === ListState.withdraw && isZeroBalance)
         }
       )}
     >

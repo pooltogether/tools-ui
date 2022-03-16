@@ -12,7 +12,7 @@ export const Breadcrumbs = () => {
 
   return (
     <Link href='/'>
-      <a className='flex items-center absolute l-2 t-0 b-0 text-accent-3 font-semibold hover:text-primary opacity-70 hover:opacity-100 text-xxxs xs:text-xxs'>
+      <a className='flex items-center absolute l-2 t-0 b-0 font-semibold hover:text-pt-purple-light opacity-70 text-xxxs xs:text-xxs'>
         <FeatherIcon icon={'arrow-left-circle'} className='w-4 h-4 inline-block' />{' '}
         <span className='inline-block ml-1' style={{ paddingTop: 1 }}>
           Back
@@ -29,9 +29,9 @@ interface PageTitleProps {
 export const PageTitle = (props: PageTitleProps) => {
   const { title } = props
   return (
-    <div className='relative bg-white py-4 px-4 text-center -mx-2 xs:mx-0 leading-none xs:rounded-lg mb-4 xs:mb-6'>
+    <div className='relative bg-darkened py-4 px-4 text-center -mx-2 xs:mx-0 leading-none xs:rounded-lg mb-4 xs:mb-6'>
       <Breadcrumbs />
-      <p className='mx-auto text-primary xs:text-lg'>{title || 'Apps'}</p>
+      <p className='mx-auto xs:text-lg'>{title || 'Apps'}</p>
     </div>
   )
 }

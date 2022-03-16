@@ -8,6 +8,7 @@ import {
   BottomSheet,
   NetworkIcon,
   SquareButton,
+  SquareButtonTheme,
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
@@ -47,8 +48,8 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
     <div className={classNames(className, 'flex justify-between')}>
       <div className='flex flex-col'>
         <div className='space-x-2 flex items-center'>
-          <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
           <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
+          <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
         </div>
         <div className='flex space-x-2 items-center'>
           <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
@@ -115,12 +116,28 @@ const DelegationNetworkSelection: React.FC<{
   )
 }
 
+const ClearDelegatorButton: React.FC<{
+  delegator: string
+  setDelegator: (delegator: string) => void
+}> = (props) => {
+  const { delegator, setDelegator } = props
+  const usersAddress = useUsersAddress()
+
+  return (
+    <button onClick={() => setDelegator(usersAddress)}>
+      <FeatherIcon icon='x' className='text-pt-red-light w-5 h-5  transition hover:opacity-70' />
+    </button>
+  )
+}
+
 const ChangeDelegatorButton: React.FC<{
   delegator: string
   setDelegator: (delegator: string) => void
 }> = (props) => {
   const { delegator, setDelegator } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  if (!delegator) return null
 
   return (
     <>
@@ -169,7 +186,7 @@ const ChangeDelegatorModal: React.FC<{
   }
 
   return (
-    <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
+    <BottomSheet label='delegator-change-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
       <h6 className='text-center uppercase text-sm mb-3 mt-2'>Set a delegator</h6>
       <p className='max-w-xs mx-auto text-xs mb-8 text-center'>
         Enter an address below to view it's delegations
@@ -179,14 +196,17 @@ const ChangeDelegatorModal: React.FC<{
         autoComplete='off'
         className='flex flex-col'
       >
-        <button
-          type='button'
-          className='transition ml-auto font-bold text-pt-teal hover:opacity-70'
-          disabled={!isValid}
-          onClick={() => setValue('delegator', usersAddress, { shouldValidate: true })}
-        >
-          {shorten({ hash: usersAddress })}
-        </button>
+        {/* TODO: Is this clearer than the clear button? Showing a shortcut to fill input with the users address. */}
+        {/* {usersAddress && (
+          <button
+            type='button'
+            className='transition ml-auto font-bold text-pt-teal hover:opacity-70'
+            disabled={!isValid}
+            onClick={() => setValue('delegator', usersAddress, { shouldValidate: true })}
+          >
+            {shorten({ hash: usersAddress })}
+          </button>
+        )} */}
         <StyledInput
           id='delegator'
           invalid={!!errors.delegator}
@@ -205,6 +225,19 @@ const ChangeDelegatorModal: React.FC<{
         <SquareButton className='w-full' disabled={!isValid}>
           View Delegations
         </SquareButton>
+        {usersAddress && delegator && usersAddress !== delegator && (
+          <SquareButton
+            type='button'
+            className='w-full mt-4'
+            theme={SquareButtonTheme.orangeOutline}
+            onClick={() => {
+              setDelegator(usersAddress)
+              setIsOpen(false)
+            }}
+          >
+            Clear Delegator
+          </SquareButton>
+        )}
       </form>
     </BottomSheet>
   )
