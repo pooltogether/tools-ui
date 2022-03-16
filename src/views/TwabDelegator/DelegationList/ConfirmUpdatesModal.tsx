@@ -31,6 +31,9 @@ import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 import { useSignTypedData } from 'wagmi'
+import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
+import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
+import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -70,9 +73,12 @@ export const ConfirmUpdatesModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-4'>
         <ModalTitle chainId={chainId} title={'Delegation confirmation'} />
-        <TicketBalanceWarning isBalanceSufficient={isBalanceSufficient} />
+        <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
-        <DelegationConfirmationList chainId={chainId} delegator={delegator} />
+        <div>
+          <p className='text-xs font-bold mb-1'>Review changes</p>
+          <DelegationConfirmationList chainId={chainId} delegator={delegator} />
+        </div>
         <SubmitTransactionButton
           chainId={chainId}
           delegator={delegator}
@@ -129,13 +135,23 @@ const DelegationLockWarning: React.FC = () => {
         By delegating you are locking up your funds for the expiry period and relinquishing your
         chances of winning to gift those chances to other wallet addresses.
       </p>
-      <a className='text-pt-teal hover:opacity-70 underline'>Learn more about Chance Delegating</a>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>Learn more about Chance Delegating</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
     </Banner>
   )
 }
 
-const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean }> = (props) => {
-  const { isBalanceSufficient } = props
+const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: number }> = (
+  props
+) => {
+  const { isBalanceSufficient, chainId } = props
 
   if (isBalanceSufficient === null || isBalanceSufficient) return null
 
@@ -149,7 +165,15 @@ const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean }> = (props)
         Delegated amount exceeds current ticket balance. Please lower some delegation amounts or
         deposit more into PoolTogether.
       </p>
-      <a className='text-pt-teal hover:opacity-70 underline'>Deposit more</a>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={getPoolTogetherDepositUrl(chainId)}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>Deposit more</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
     </Banner>
   )
 }

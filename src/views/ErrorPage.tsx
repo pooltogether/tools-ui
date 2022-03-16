@@ -81,7 +81,7 @@ export const ErrorLinks = () => {
         <a
           key={link.href}
           target='_blank'
-          rel='noopener noreferrer'
+          rel='noreferrer'
           href={link.href}
           className='flex hover:opacity-70 transition-opacity'
         >

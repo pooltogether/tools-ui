@@ -30,7 +30,7 @@ export enum ListState {
  * @returns
  */
 export const DelegationList: React.FC<DelegationListProps> = (props) => {
-  const { chainId, delegator, className } = props
+  const { chainId, delegator, className, setDelegator } = props
   useResetDelegationAtomsOnAccountChange()
   const useQueryResult = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
@@ -73,6 +73,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
             chainId={chainId}
             listState={listState}
             delegator={delegator}
+            setDelegator={setDelegator}
             setListState={setListState}
             transactionPending={transactionPending}
           />

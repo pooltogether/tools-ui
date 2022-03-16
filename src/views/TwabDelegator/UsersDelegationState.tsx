@@ -20,6 +20,7 @@ import { getTwabDelegatorContractAddress } from './utils/getTwabDelegatorContrac
 import { useForm } from 'react-hook-form'
 import { StyledInput } from '@components/Input'
 import { isAddress } from 'ethers/lib/utils'
+import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -54,7 +55,12 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
         <div className='flex space-x-2 items-center'>
           <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
           <span className='opacity-60'>{ticket.symbol}</span>
-          <a className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'>
+          <a
+            className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'
+            href={getPoolTogetherDepositUrl(chainId)}
+            target='_blank'
+            rel='noreferrer'
+          >
             <span>{`Get ${ticket.symbol}`}</span>
             <FeatherIcon icon='external-link' className='w-3 h-3' />
           </a>
@@ -157,7 +163,7 @@ const ChangeDelegatorButton: React.FC<{
   )
 }
 
-const ChangeDelegatorModal: React.FC<{
+export const ChangeDelegatorModal: React.FC<{
   isOpen: boolean
   delegator: string
   setDelegator: (delegator: string) => void
