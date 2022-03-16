@@ -18,11 +18,13 @@ export const getUrlQueryParam = (
     return defaultValue
   }
   const queryParamValue = url.searchParams.get(key)?.toLowerCase()
-  if (!queryParamValue) return defaultValue
-  if (validOptions?.includes(queryParamValue)) {
+  if (!queryParamValue) {
+    return defaultValue
+  } else if (!validOptions && !validiyChecks) {
     return queryParamValue
-  }
-  if (validiyChecks?.every((check) => check(queryParamValue))) {
+  } else if (validOptions?.includes(queryParamValue)) {
+    return queryParamValue
+  } else if (validiyChecks?.every((check) => check(queryParamValue))) {
     return queryParamValue
   }
   return defaultValue

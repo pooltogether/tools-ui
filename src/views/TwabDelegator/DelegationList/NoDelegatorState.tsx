@@ -25,8 +25,6 @@ export const NoDelegatorState: React.FC<DelegationListProps> = (props) => {
     shouldUnregister: true
   })
 
-  const router = useRouter()
-
   const onSubmit = (v: { delegator: string }) => {
     setDelegator(v.delegator)
   }

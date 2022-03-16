@@ -1,3 +1,4 @@
+import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
 import {
   DelegationFormValues,
   DelegationFund,
@@ -13,9 +14,16 @@ import { QUERY_PARAM } from './constants'
 import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId'
 import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
+/**
+ * The starting delegator value for the delegation view.
+ */
 const defaultDelegator: string = getUrlQueryParam(QUERY_PARAM.delegator, undefined, null, [
   (v) => isAddress(v)
 ])
+
+/**
+ * The address to use as the delegator for the delegation view
+ */
 export const delegatorAtom = atom<string>(defaultDelegator)
 
 /**
@@ -34,17 +42,41 @@ export const setDelegatorAtom = atom<null, string>(null, (get, set, _delegator) 
 })
 
 /**
- * TODO: testnet URL param is being set when app is on mainnet
+ * Tries to get the chain id from a query param, otherwise returns the default
+ * @returns
  */
-export const delegationChainIdAtom = atom<number>(
-  Number(
-    getUrlQueryParam(
-      QUERY_PARAM.delegationChainId,
-      getDefaultDelegationChainId().toString(),
-      getDelegationSupportedChainIds().map(String)
-    )
-  )
-)
+const getStartingDelegationChainId = () => {
+  const defaultChainId = getDefaultDelegationChainId()
+  const delegationChainAlias = getUrlQueryParam(QUERY_PARAM.delegationChain)
+  console.log({ defaultChainId, delegationChainAlias })
+  if (!delegationChainAlias) return defaultChainId
+  const queryParamChainId = getChainIdByAlias(delegationChainAlias)
+  const supportedChainIds = getDelegationSupportedChainIds()
+  console.log({ queryParamChainId, supportedChainIds })
+  if (supportedChainIds.includes(queryParamChainId)) return queryParamChainId
+  return defaultChainId
+}
+
+/**
+ * The chain id to use for the delegation view.
+ * Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
+ */
+export const delegationChainIdAtom = atom<number>(getStartingDelegationChainId())
+
+/**
+ * Write-only
+ */
+export const setDelegationChainAtom = atom<null, number>(null, (get, set, chainId) => {
+  if (!chainId) {
+    set(delegationChainIdAtom, undefined)
+    return
+  }
+  const chainName = getNetworkNameAliasByChainId(chainId)
+  const url = new URL(window.location.href)
+  url.searchParams.set(QUERY_PARAM.delegationChain, chainName)
+  window.history.pushState(null, '', url)
+  set(delegationChainIdAtom, chainId)
+})
 
 /**
  *
