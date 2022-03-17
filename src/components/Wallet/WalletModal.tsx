@@ -46,7 +46,7 @@ const ActiveWalletState: React.FC<{ closeModal: () => void }> = (props) => {
   const [{ data: network }] = useNetwork()
   const address = account?.address
   const connectorName = account?.connector.name
-  const chainId = network?.chain.id
+  const chainId = network?.chain?.id
   const transactions = useUsersTransactions(address)
   const filteredTransactions = transactions?.slice(transactions.length - 5).reverse()
 
