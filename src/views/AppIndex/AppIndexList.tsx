@@ -1,9 +1,10 @@
-import classNames from 'classnames'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 
 import ICON_CHANCE_GIFTING from '../../assets/images/icon--chance-gifting.svg'
-import ICON_PROMO_REWARDS from '../../assets/images/icon--promo-rewards.svg'
+// import ICON_PROMO_REWARDS from '../../assets/images/icon--promo-rewards.svg'
+import ICON_VOTE from '../../assets/images/icon--vote.svg'
+import ICON_INFO from '../../assets/images/icon--info.svg'
 
 interface AppInfo {
   titleKey: string
@@ -20,11 +21,17 @@ const APPS_TO_LIST: AppInfo[] = [
     iconURL: ICON_CHANCE_GIFTING
   },
   {
-    titleKey: 'Promo Rewards',
+    titleKey: 'PoolTogether Governance',
     descriptionKey:
-      'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens',
-    href: 'twab-rewards',
-    iconURL: ICON_PROMO_REWARDS
+      'Create and vote on proposals that control the PoolTogether protocol with POOL.',
+    href: 'https://vote.pooltogether.com',
+    iconURL: ICON_VOTE
+  },
+  {
+    titleKey: 'PoolTogether Info',
+    descriptionKey: 'Analytics for the PoolTogether protocol.',
+    href: 'https://info.pooltogether.com',
+    iconURL: ICON_INFO
   }
 ]
 
