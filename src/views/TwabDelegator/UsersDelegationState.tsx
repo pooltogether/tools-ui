@@ -51,6 +51,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
         <div className='space-x-2 flex items-center'>
           <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
           <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
+          <ClearDelegatorButton delegator={delegator} setDelegator={setDelegator} />
         </div>
         <div className='flex space-x-2 items-center'>
           <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
@@ -128,6 +129,8 @@ const ClearDelegatorButton: React.FC<{
 }> = (props) => {
   const { delegator, setDelegator } = props
   const usersAddress = useUsersAddress()
+
+  if (delegator === usersAddress) return null
 
   return (
     <button onClick={() => setDelegator(usersAddress)}>
