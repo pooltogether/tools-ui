@@ -26,9 +26,9 @@ import '../services/i18n'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
 import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
-import { SUPPORTED_CHAINS } from '@constants/config'
 import { CHAIN_ID } from '@constants/misc'
 import { useUpdateStoredPendingTransactions } from '@atoms/transactions'
+import { getAppEnvChains } from '@utils/getAppEnvChains'
 
 // Initialize Sentry error logging
 initSentry()
@@ -39,16 +39,11 @@ const RPC_API_KEYS = {
   infura: process.env.NEXT_PUBLIC_INFURA_ID
 }
 
-// Initialize to testnet or mainnet
-// Relies on a full refresh when switching state
-const isTestnets = getStoredIsTestnetsCookie()
-const appEnv = isTestnets ? APP_ENVIRONMENTS.testnets : APP_ENVIRONMENTS.mainnets
-
 // Initialize read provider API keys
 initProviderApiKeys(RPC_API_KEYS)
 
 // Initialize WAGMI wallet connectors
-const chains = SUPPORTED_CHAINS[appEnv]
+const chains = getAppEnvChains()
 const connectors = ({ chainId }) => {
   return [
     new InjectedConnector({ chains, options: {} }),

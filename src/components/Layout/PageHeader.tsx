@@ -27,7 +27,7 @@ export const PageHeader = (props) => {
       Link={Link}
       as='https://pooltogether.com'
       href='https://pooltogether.com'
-      className='sticky top-0 bg-body'
+      className='sticky top-0 bg-page-header'
       style={{ zIndex: 3 }}
     >
       <div className='flex flex-row justify-end items-center space-x-4'>

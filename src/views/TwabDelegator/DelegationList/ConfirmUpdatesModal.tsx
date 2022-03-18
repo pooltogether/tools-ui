@@ -31,7 +31,6 @@ import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 import { useSignTypedData } from 'wagmi'
-import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 
@@ -41,7 +40,7 @@ enum ConfirmModalState {
 }
 
 /**
- *
+ * TODO: Show users Ticket balance after the update goes through: 526.12 PTaUSDC - (100 PTaUSDC in update)
  * @param props
  * @returns
  */
@@ -323,7 +322,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       }
 
       // NOTE: Nonce must be passed manually for signERC2612Permit to work with WalletConnect
-      const deadline = (await signer.provider.getBlock('latest')).timestamp + 100
+      const deadline = (await signer.provider.getBlock('latest')).timestamp + 5 * 60
       const response = await ticketContract.functions.nonces(usersAddress)
       const nonce: BigNumber = response[0]
 
@@ -348,7 +347,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
         callTransaction = async () =>
           twabDelegatorContract.permitAndMulticall(
-            usersAddress,
             amountToIncrease,
             {
               deadline: signature.deadline,

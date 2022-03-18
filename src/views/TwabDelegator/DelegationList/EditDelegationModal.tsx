@@ -152,7 +152,6 @@ const EditDelegationForm: React.FC<{
           type='button'
           theme={SquareButtonTheme.orangeOutline}
           onClick={() => {
-            console.log({ delegationUpdate, delegationFund, delegationCreation })
             closeModal()
             delegationUpdate && removeDelegationUpdate(delegationId)
             delegationFund && removeDelegationFund(delegationId)
