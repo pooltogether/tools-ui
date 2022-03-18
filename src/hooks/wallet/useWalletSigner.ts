@@ -1,11 +1,10 @@
-import { useWalletProvider } from './useWalletProvider'
+import { useSigner } from 'wagmi'
 
 /**
  * Returns the signer for the first wallet connected
  * @returns
  */
 export const useWalletSigner = () => {
-  const provider = useWalletProvider()
-  console.log({ provider })
-  return provider?.getSigner()
+  const [{ data, error, loading }, getSigner] = useSigner()
+  return data
 }

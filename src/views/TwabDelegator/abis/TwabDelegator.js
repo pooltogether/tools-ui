@@ -273,7 +273,7 @@ export default [
   {
     inputs: [{ internalType: 'bytes[]', name: '_data', type: 'bytes[]' }],
     name: 'multicall',
-    outputs: [{ internalType: 'bytes[]', name: 'results', type: 'bytes[]' }],
+    outputs: [{ internalType: 'bytes[]', name: '', type: 'bytes[]' }],
     stateMutability: 'nonpayable',
     type: 'function'
   },
@@ -286,7 +286,6 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: '_from', type: 'address' },
       { internalType: 'uint256', name: '_amount', type: 'uint256' },
       {
         components: [

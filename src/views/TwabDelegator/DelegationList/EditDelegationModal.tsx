@@ -34,12 +34,6 @@ export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
   const { chainId } = props
   const [isOpen, setIsOpen] = useAtom(editDelegationModalOpenAtom)
   const [delegationId] = useAtom(delegationIdToEditAtom)
-  const { data: delegationData, isFetched } = useDelegatorsUpdatedTwabDelegation(
-    chainId,
-    delegationId
-  )
-
-  console.log({ delegationData, delegationId })
 
   if (!delegationId) return null
 
@@ -77,10 +71,11 @@ const EditDelegationForm: React.FC<{
   const removeDelegationCreation = useUpdateAtom(removeDelegationCreationAtom)
   const removeDelegationFund = useUpdateAtom(removeDelegationFundAtom)
 
-  // Should never happen, data is loaded well before this component is rendered, but just in case.
-  if (!isFetched) return null
-
-  const { delegation, delegationCreation, delegationUpdate, delegationFund } = delegationData
+  if (!isFetched || !delegationData) return null
+  const delegation = delegationData?.delegation
+  const delegationCreation = delegationData?.delegationCreation
+  const delegationUpdate = delegationData?.delegationUpdate
+  const delegationFund = delegationData?.delegationFund
 
   const delegationFormDefaults = getDelegationFormDefaults(
     ticket.decimals,
@@ -157,10 +152,10 @@ const EditDelegationForm: React.FC<{
           type='button'
           theme={SquareButtonTheme.orangeOutline}
           onClick={() => {
+            closeModal()
             delegationUpdate && removeDelegationUpdate(delegationId)
             delegationFund && removeDelegationFund(delegationId)
             delegationCreation && removeDelegationCreation(delegationId)
-            closeModal()
           }}
         >
           Remove update

@@ -30,6 +30,9 @@ import { TransactionReceiptButton } from '@components/Buttons/TransactionReceipt
 import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
+import { useSignTypedData } from 'wagmi'
+import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
+import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -37,7 +40,7 @@ enum ConfirmModalState {
 }
 
 /**
- *
+ * TODO: Show users Ticket balance after the update goes through: 526.12 PTaUSDC - (100 PTaUSDC in update)
  * @param props
  * @returns
  */
@@ -69,9 +72,12 @@ export const ConfirmUpdatesModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-4'>
         <ModalTitle chainId={chainId} title={'Delegation confirmation'} />
-        <TicketBalanceWarning isBalanceSufficient={isBalanceSufficient} />
+        <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
-        <DelegationConfirmationList chainId={chainId} delegator={delegator} />
+        <div>
+          <p className='text-xs font-bold mb-1'>Review changes</p>
+          <DelegationConfirmationList chainId={chainId} delegator={delegator} />
+        </div>
         <SubmitTransactionButton
           chainId={chainId}
           delegator={delegator}
@@ -128,13 +134,23 @@ const DelegationLockWarning: React.FC = () => {
         By delegating you are locking up your funds for the expiry period and relinquishing your
         chances of winning to gift those chances to other wallet addresses.
       </p>
-      <a className='text-pt-teal hover:opacity-70 underline'>Learn more about Chance Delegating</a>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>Learn more about Chance Delegating</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
     </Banner>
   )
 }
 
-const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean }> = (props) => {
-  const { isBalanceSufficient } = props
+const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: number }> = (
+  props
+) => {
+  const { isBalanceSufficient, chainId } = props
 
   if (isBalanceSufficient === null || isBalanceSufficient) return null
 
@@ -148,7 +164,15 @@ const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean }> = (props)
         Delegated amount exceeds current ticket balance. Please lower some delegation amounts or
         deposit more into PoolTogether.
       </p>
-      <a className='text-pt-teal hover:opacity-70 underline'>Deposit more</a>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={getPoolTogetherDepositUrl(chainId)}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>Deposit more</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
     </Banner>
   )
 }
@@ -196,6 +220,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     twabDelegatorAddress,
     ticket.address
   )
+
+  const [, signTypedData] = useSignTypedData()
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
@@ -288,19 +314,26 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       setSignaturePending(true)
 
       const amountToIncrease = totalAmountToFund.sub(allowance)
-      // TODO: Is this name the same for mainnet tickets? What about when we have multiple pools on the same chain?
       const domain = {
         name: 'PoolTogether ControlledToken',
         version: '1',
         chainId,
         verifyingContract: ticketContract.address
       }
+
+      // NOTE: Nonce must be passed manually for signERC2612Permit to work with WalletConnect
+      const deadline = (await signer.provider.getBlock('latest')).timestamp + 5 * 60
+      const response = await ticketContract.functions.nonces(usersAddress)
+      const nonce: BigNumber = response[0]
+
       const signaturePromise = signERC2612Permit(
         signer,
         domain,
         usersAddress,
         twabDelegatorContract.address,
-        amountToIncrease.toString()
+        amountToIncrease.toString(),
+        deadline,
+        nonce.toNumber()
       )
 
       toast.promise(signaturePromise, {
@@ -314,7 +347,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
         callTransaction = async () =>
           twabDelegatorContract.permitAndMulticall(
-            usersAddress.toLowerCase(),
             amountToIncrease,
             {
               deadline: signature.deadline,
@@ -326,7 +358,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
           )
       } catch (e) {
         setSignaturePending(false)
-        console.log(e)
+        console.error(e)
         return
       }
     } else {
@@ -344,6 +376,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         await refetch()
         resetAtoms()
         setListState(ListState.readOnly)
+        setModalState(ConfirmModalState.review)
       }
     })
     setTransactionId(transactionId)

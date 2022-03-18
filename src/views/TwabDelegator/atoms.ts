@@ -1,3 +1,4 @@
+import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
 import {
   DelegationFormValues,
   DelegationFund,
@@ -6,6 +7,7 @@ import {
 } from '@twabDelegator/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
+import { getAddress, isAddress } from 'ethers/lib/utils'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 import { QUERY_PARAM } from './constants'
@@ -13,17 +15,67 @@ import { getDefaultDelegationChainId } from './utils/getDefaultDelegationChainId
 import { getDelegationSupportedChainIds } from './utils/getDelegationSupportedChainIds'
 
 /**
- *
+ * The starting delegator value for the delegation view.
  */
-export const delegationChainIdAtom = atom<number>(
-  Number(
-    getUrlQueryParam(
-      QUERY_PARAM.delegationChainId,
-      getDefaultDelegationChainId().toString(),
-      getDelegationSupportedChainIds().map(String)
-    )
-  )
-)
+const getStartingDelegator = () => {
+  const delegator = getUrlQueryParam(QUERY_PARAM.delegator, null, null, [(v) => isAddress(v)])
+  return delegator ? getAddress(delegator) : null
+}
+
+/**
+ * The address to use as the delegator for the delegation view
+ */
+export const delegatorAtom = atom<string>(getStartingDelegator())
+
+/**
+ * Write-only
+ */
+export const setDelegatorAtom = atom<null, string>(null, (get, set, _delegator) => {
+  if (!_delegator) {
+    set(delegatorAtom, null)
+    return
+  }
+  const delegator = getAddress(_delegator)
+  const url = new URL(window.location.href)
+  url.searchParams.set(QUERY_PARAM.delegator, delegator)
+  window.history.pushState(null, '', url)
+  set(delegatorAtom, delegator)
+})
+
+/**
+ * Tries to get the chain id from a query param, otherwise returns the default
+ * @returns
+ */
+const getStartingDelegationChainId = () => {
+  const defaultChainId = getDefaultDelegationChainId()
+  const delegationChainAlias = getUrlQueryParam(QUERY_PARAM.delegationChain)
+  if (!delegationChainAlias) return defaultChainId
+  const queryParamChainId = getChainIdByAlias(delegationChainAlias)
+  const supportedChainIds = getDelegationSupportedChainIds()
+  if (supportedChainIds.includes(queryParamChainId)) return queryParamChainId
+  return defaultChainId
+}
+
+/**
+ * The chain id to use for the delegation view.
+ * Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
+ */
+export const delegationChainIdAtom = atom<number>(getStartingDelegationChainId())
+
+/**
+ * Write-only
+ */
+export const setDelegationChainAtom = atom<null, number>(null, (get, set, chainId) => {
+  if (!chainId) {
+    set(delegationChainIdAtom, undefined)
+    return
+  }
+  const chainName = getNetworkNameAliasByChainId(chainId)
+  const url = new URL(window.location.href)
+  url.searchParams.set(QUERY_PARAM.delegationChain, chainName)
+  window.history.pushState(null, '', url)
+  set(delegationChainIdAtom, chainId)
+})
 
 /**
  *
@@ -160,7 +212,6 @@ export const removeDelegationUpdateAtom = atom<null, DelegationId>(
         _delegationUpdate.delegator !== delegationId.delegator ||
         !_delegationUpdate.slot.eq(delegationId.slot)
     )
-    console.log({ _delegationUpdates, delegationUpdates })
     set(delegationUpdatesAtom, delegationUpdates)
   }
 )

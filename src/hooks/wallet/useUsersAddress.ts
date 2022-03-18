@@ -1,12 +1,12 @@
-import { getPriorityConnector } from '@web3-react/core'
-import { CONNECTORS } from '../../connectors'
-
-const { usePriorityAccount } = getPriorityConnector(...CONNECTORS)
+import { getAddress } from 'ethers/lib/utils'
+import { useAccount } from 'wagmi'
 
 /**
- * Returns the address of the first wallet connected
+ * Returns the address of the first wallet connected.
+ * Checksums it for easier checks throughout the app.
  * @returns
  */
 export const useUsersAddress = () => {
-  return usePriorityAccount()?.toLowerCase()
+  const [{ data }] = useAccount()
+  return data ? getAddress(data.address) : null
 }

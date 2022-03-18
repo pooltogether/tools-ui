@@ -10,11 +10,13 @@ import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDel
 import { TransactionState, useTransaction } from '@atoms/transactions'
 import { useResetDelegationAtomsOnAccountChange } from '@twabDelegator/hooks/useResetDelegationAtomsOnAccountChange'
 import classNames from 'classnames'
+import { NoDelegatorState } from './NoDelegatorState'
 
 export interface DelegationListProps {
   className?: string
   chainId: number
   delegator: string
+  setDelegator: (delegator: string) => void
 }
 
 export enum ListState {
@@ -28,7 +30,7 @@ export enum ListState {
  * @returns
  */
 export const DelegationList: React.FC<DelegationListProps> = (props) => {
-  const { chainId, delegator, className } = props
+  const { chainId, delegator, className, setDelegator } = props
   useResetDelegationAtomsOnAccountChange()
   const useQueryResult = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
@@ -37,7 +39,6 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
   const [signaturePending, setSignaturePending] = useState(false)
 
   const transactionPending = transaction?.state === TransactionState.pending || signaturePending
-
   const { data: delegations, isFetched } = useQueryResult
 
   if (isFetched) {
@@ -72,6 +73,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
             chainId={chainId}
             listState={listState}
             delegator={delegator}
+            setDelegator={setDelegator}
             setListState={setListState}
             transactionPending={transactionPending}
           />
@@ -90,6 +92,9 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
       </div>
     )
   } else {
+    if (!delegator) {
+      return <NoDelegatorState {...props} />
+    }
     return <LoadingState {...props} />
   }
 }

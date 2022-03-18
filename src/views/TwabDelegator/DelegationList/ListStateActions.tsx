@@ -1,5 +1,7 @@
 import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import {
+  BottomSheet,
+  ModalTitle,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
@@ -21,6 +23,10 @@ import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDele
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { ListState } from '.'
+import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
+import { useState } from 'react'
+import { NumericKeys } from 'react-hook-form/dist/types/path/common'
+import { DelegationConfirmationList } from './DelegationConfirmationList'
 
 interface ListStateActionsProps {
   chainId: number
@@ -28,11 +34,12 @@ interface ListStateActionsProps {
   delegator: string
   transactionPending: boolean
   setListState: (listState: ListState) => void
+  setDelegator: (delegator: string) => void
 }
 
 // TODO: Cancel confirmation modal
 export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
-  const { chainId, listState, transactionPending, delegator, setListState } = props
+  const { chainId, listState, transactionPending, delegator, setDelegator, setListState } = props
   const [editsCount] = useAtom(delegationUpdatesCountAtom)
   const [creationsCount] = useAtom(delegationCreationsCountAtom)
   const [fundsCount] = useAtom(delegationFundsCountAtom)
@@ -44,27 +51,46 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const resetDelegationWithdrawals = useResetAtom(delegationWithdrawalsAtom)
   const usersAddress = useUsersAddress()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
-
-  if (usersAddress !== delegator) return null
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
   // TODO: Return a wrapper with content so we can pass classNames and style the container easier
-  if (listState === ListState.edit) {
+  if (delegator && usersAddress !== delegator) {
     return (
-      <div className='flex justify-between space-x-2'>
+      <div className='flex justify-end'>
         <SquareButton
-          className='w-24'
+          className='px-8'
           size={SquareButtonSize.sm}
           disabled={transactionPending}
           onClick={() => {
+            setIsOpen(true)
+          }}
+          theme={SquareButtonTheme.tealOutline}
+        >
+          Change Delegator
+        </SquareButton>
+        <ChangeDelegatorModal
+          isOpen={isOpen}
+          delegator={delegator}
+          setDelegator={setDelegator}
+          setIsOpen={setIsOpen}
+        />
+      </div>
+    )
+  } else if (listState === ListState.edit) {
+    return (
+      <div className='flex justify-between space-x-2'>
+        <ConfirmCancellationButton
+          chainId={chainId}
+          delegator={delegator}
+          disabled={transactionPending}
+          cancelUpdates={() => {
             resetDelegationUpdates()
             resetDelegationCreations()
             resetDelegationFunds()
             setListState(ListState.readOnly)
           }}
-          theme={SquareButtonTheme.tealOutline}
-        >
-          Cancel
-        </SquareButton>
+          updatesCount={creationsCount + fundsCount + editsCount}
+        />
         <div className='flex space-x-2 items-center'>
           <EditedIconAndCount count={creationsCount} icon='plus-circle' />
           <EditedIconAndCount count={fundsCount} icon='dollar-sign' />
@@ -87,18 +113,16 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   } else if (listState === ListState.withdraw) {
     return (
       <div className='flex justify-between space-x-2'>
-        <SquareButton
-          className='w-24'
-          size={SquareButtonSize.sm}
-          onClick={() => {
+        <ConfirmCancellationButton
+          chainId={chainId}
+          delegator={delegator}
+          disabled={transactionPending}
+          cancelUpdates={() => {
             resetDelegationWithdrawals()
             setListState(ListState.readOnly)
           }}
-          theme={SquareButtonTheme.tealOutline}
-          disabled={transactionPending}
-        >
-          Cancel
-        </SquareButton>
+          updatesCount={withdrawlsCount}
+        />
         <SquareButton
           className='flex space-x-2'
           size={SquareButtonSize.sm}
@@ -147,5 +171,75 @@ const EditedIconAndCount: React.FC<{ count: number; icon: string }> = ({ count, 
       <span className='text-xxxs'>{count}</span>
       <FeatherIcon icon={icon} className='w-4 h-4 text-yellow' />
     </div>
+  )
+}
+
+interface ConfirmCancellationProps {
+  chainId: number
+  delegator: string
+  updatesCount: number
+  disabled: boolean
+  cancelUpdates: () => void
+}
+
+const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) => {
+  const { disabled, updatesCount, cancelUpdates } = props
+
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  return (
+    <>
+      <SquareButton
+        className='w-24'
+        size={SquareButtonSize.sm}
+        onClick={() => {
+          if (!updatesCount) {
+            cancelUpdates()
+          } else {
+            setIsOpen(true)
+          }
+        }}
+        theme={SquareButtonTheme.tealOutline}
+        disabled={disabled}
+      >
+        Cancel
+      </SquareButton>
+      <ConfirmCancellationModal {...props} isOpen={isOpen} setIsOpen={setIsOpen} />
+    </>
+  )
+}
+
+const ConfirmCancellationModal: React.FC<{
+  chainId: number
+  delegator: string
+  disabled: boolean
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
+  cancelUpdates: () => void
+}> = (props) => {
+  const { chainId, delegator, isOpen, disabled, setIsOpen, cancelUpdates } = props
+  return (
+    <BottomSheet
+      label='cancel-delegation-edits-modal'
+      open={isOpen}
+      onDismiss={() => {
+        setIsOpen(false)
+      }}
+      className='flex flex-col space-y-4'
+    >
+      <ModalTitle chainId={chainId} title={'Confirm cancellation'} />
+      <div>
+        <p className='text-xs font-bold mb-1'>Lost changes</p>
+        <DelegationConfirmationList chainId={chainId} delegator={delegator} />
+      </div>
+      <SquareButton
+        className='w-full'
+        onClick={cancelUpdates}
+        theme={SquareButtonTheme.orangeOutline}
+        disabled={disabled}
+      >
+        Cancel changes
+      </SquareButton>
+    </BottomSheet>
   )
 }

@@ -24,7 +24,7 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
     <div
       className={classNames(
         className,
-        'rounded-lg py-8 px-20 text-center flex-col space-y-4 items-center bg-darkened'
+        'rounded-lg py-8 px-4 xs:px-20 text-center flex-col space-y-4 items-center bg-darkened'
       )}
     >
       <p className='text-pt-purple-dark dark:text-pt-purple-light'>No delegation positions found</p>

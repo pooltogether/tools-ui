@@ -1,23 +1,7 @@
-import { CHAIN_ID } from '@constants/misc'
-import { APP_ENVIRONMENTS, Token } from '@pooltogether/hooks'
-
-export const TWAB_DELEGATOR_DEFAULT_CHAIN_ID = Object.freeze({
-  [APP_ENVIRONMENTS.mainnets]: CHAIN_ID.polygon,
-  [APP_ENVIRONMENTS.testnets]: CHAIN_ID.rinkeby
-})
-
-export const TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS = Object.freeze({
-  [APP_ENVIRONMENTS.mainnets]: [CHAIN_ID.mainnet, CHAIN_ID.polygon, CHAIN_ID.avalanche],
-  [APP_ENVIRONMENTS.testnets]: [CHAIN_ID.rinkeby, CHAIN_ID.mumbai, CHAIN_ID.fuji]
-})
-
-export const TWAB_DELEGATOR_ADDRESS: { [chainId: number]: string } = Object.freeze({
-  [CHAIN_ID.rinkeby]: '0x1CfD2f0c5DF462A58530581dD238de8E825328c3',
-  [CHAIN_ID.mumbai]: '0xa1d913940B8dbb7bDB1F68D8E9C54484D575FefC',
-  [CHAIN_ID.fuji]: '0x02aCC9594161812E3004C174CF1735EdB10e20A4'
-})
-
 export const QUERY_PARAM = Object.freeze({
   delegator: 'delegator',
-  delegationChainId: 'delegation_chain_id'
+  delegationChain: 'delegation_chain'
 })
+
+export const DELEGATION_LEARN_MORE_URL =
+  'https://dev.pooltogether.com/protocol/contracts/v4-twab-delegator'

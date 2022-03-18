@@ -1,24 +1,37 @@
-import classNames from 'classnames'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+
+import ICON_CHANCE_GIFTING from '../../assets/images/icon--chance-gifting.svg'
+// import ICON_PROMO_REWARDS from '../../assets/images/icon--promo-rewards.svg'
+import ICON_VOTE from '../../assets/images/icon--vote.svg'
+import ICON_INFO from '../../assets/images/icon--info.svg'
 
 interface AppInfo {
   titleKey: string
   descriptionKey: string
   href: string
-  // icon:
+  iconURL: string | { src: string }
 }
 
 const APPS_TO_LIST: AppInfo[] = [
   {
-    titleKey: 'delegate',
-    descriptionKey: 'delegate',
-    href: 'delegate'
+    titleKey: 'Chance Gifting',
+    descriptionKey: 'Share your odds with others. Useful for giveaways, competitions, etc.',
+    href: 'delegate',
+    iconURL: ICON_CHANCE_GIFTING
   },
   {
-    titleKey: 'rewards',
-    descriptionKey: 'twab rewards',
-    href: 'twab-rewards'
+    titleKey: 'PoolTogether Governance',
+    descriptionKey:
+      'Create and vote on proposals that control the PoolTogether protocol with POOL.',
+    href: 'https://vote.pooltogether.com',
+    iconURL: ICON_VOTE
+  },
+  {
+    titleKey: 'PoolTogether Info',
+    descriptionKey: 'Analytics for the PoolTogether protocol.',
+    href: 'https://info.pooltogether.com',
+    iconURL: ICON_INFO
   }
 ]
 
@@ -37,14 +50,18 @@ export const AppIndexList: React.FC = () => {
 }
 
 const AppLink: React.FC<AppInfo> = (props) => {
-  const { titleKey, descriptionKey, href } = props
+  const { titleKey, descriptionKey, href, iconURL } = props
   const { t, i18n } = useTranslation()
   return (
     <Link href={href}>
       <a>
         <ListItemContainer>
-          <span>{t(titleKey)}</span>
-          <span>{descriptionKey}</span>
+          <img
+            className='w-8 h-8 xs:w-10 xs:h-10 mx-6 mb-2'
+            src={typeof iconURL === 'object' && iconURL.src}
+          />
+          <h6 className='text-white font-normal mb-2'>{t(titleKey)}</h6>
+          <p className='text-white text-opacity-70 text-center text-xxs'>{descriptionKey}</p>
         </ListItemContainer>
       </a>
     </Link>
@@ -52,5 +69,9 @@ const AppLink: React.FC<AppInfo> = (props) => {
 }
 
 const ListItemContainer: React.FC = (props) => (
-  <li {...props} className='p-4 rounded bg-card flex flex-col items-center' />
+  <li
+    {...props}
+    className='p-6 xs:px-24 sm:px-32 rounded-xl flex flex-col items-center hover:opacity-90 transition'
+    style={{ backgroundColor: '#411D89' }}
+  />
 )

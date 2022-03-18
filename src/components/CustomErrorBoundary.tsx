@@ -1,7 +1,7 @@
 import React from 'react'
 import * as Sentry from '@sentry/react'
-import { useOnboard } from '@pooltogether/bnc-onboard-hooks'
 import { ErrorPage } from '../views/ErrorPage'
+import { useAccount, useConnect } from 'wagmi'
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props) {
@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 export function CustomErrorBoundary(props) {
   const { children } = props
-  const { walletName } = useOnboard()
+  const [{ data }] = useAccount()
 
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return <ErrorBoundary>{children}</ErrorBoundary>
@@ -39,10 +39,9 @@ export function CustomErrorBoundary(props) {
             }
           }}
           beforeCapture={(scope) => {
-            scope.setTag('web3', walletName)
-
+            scope.setTag('web3', data?.connector?.name)
             scope.setContext('wallet', {
-              name: walletName
+              name: data?.connector?.name
             })
           }}
           fallback={({ error, componentStack, resetError }) => <ErrorPage />}

@@ -91,7 +91,6 @@ interface DelegationRowProps {
 }
 
 /**
- * TODO: Mobile hiding data so it fits on the screen...
  * @param props
  * @returns
  */
@@ -117,8 +116,6 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
   const isEdited = !!delegationUpdate || !!delegationCreation
   const isZeroBalance = delegation?.balance.isZero()
 
-  // TODO: Make slot column smaller
-  // TODO: Make edit column smaller
   return (
     <li
       className={classNames(
@@ -128,7 +125,8 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
           'grid-cols-7': listState !== ListState.edit,
           'grid-cols-8': listState === ListState.edit,
           'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
-            (listState === ListState.edit || listState === ListState.withdraw) && isLocked
+            ((listState === ListState.edit || listState === ListState.withdraw) && isLocked) ||
+            (listState === ListState.withdraw && isZeroBalance)
         }
       )}
     >
@@ -218,13 +216,12 @@ const LockDisplay: React.FC<{
     let formattedDuration, units
     if (duration >= SECONDS_PER_DAY) {
       formattedDuration = Math.round(sToD(duration))
-      console.log({ formattedDuration })
       units = formattedDuration === 1 ? 'day' : 'days'
     } else if (duration >= SECONDS_PER_HOUR) {
       formattedDuration = Math.round(sToM(duration))
       units = formattedDuration === 1 ? 'minute' : 'minutes'
     } else if (duration > 0) {
-      formattedDuration = duration
+      formattedDuration = Math.round(duration)
       units = formattedDuration === 1 ? 'second' : 'seconds'
     }
     return (
@@ -248,7 +245,6 @@ const LockDisplay: React.FC<{
 }
 
 /**
- * TODO: Disable if locked
  * @param props
  * @returns
  */
@@ -278,7 +274,6 @@ const DelegationWithdrawToggle: React.FC<
   )
 }
 
-// TODO: Not opening the right one?.
 // Edit a slot. Close modal. Click edit on a different slot. Edits from the first are visible.
 const DelegationEditToggle: React.FC<
   DelegationRowProps & {

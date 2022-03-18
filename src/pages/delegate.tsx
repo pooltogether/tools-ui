@@ -1,6 +1,14 @@
-import { TwabDelegator } from '../views/TwabDelegator'
-import type { NextPage } from 'next'
+import { LoadingScreen } from '@components/LoadingScreen'
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import { NextPage } from 'next/types'
+
+const TwabDelegator = dynamic(
+  () => import('../views/TwabDelegator').then((mod) => mod.TwabDelegator),
+  {
+    loading: () => <LoadingScreen />
+  }
+)
 
 const Home: NextPage = () => {
   return (

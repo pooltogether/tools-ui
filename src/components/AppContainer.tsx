@@ -1,36 +1,73 @@
 import { Provider as JotaiProvider } from 'jotai'
+import { Provider as WagmiProvider, defaultChains } from 'wagmi'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import { WalletLinkConnector } from 'wagmi/connectors/walletLink'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
-import { isMobile } from 'react-device-detect'
+import { BaseProvider } from '@ethersproject/providers'
 
 import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
+  APP_ENVIRONMENTS,
+  getStoredIsTestnetsCookie,
   initProviderApiKeys,
   ScreenSize,
   useInitCookieOptions,
   useInitReducedMotion,
   useScreenSize
 } from '@pooltogether/hooks'
-import { useInitializeOnboard } from '@pooltogether/bnc-onboard-hooks'
-import { initSentry, sentryLog } from '../services/sentry'
-import { CUSTOM_WALLETS_CONFIG } from '../constants/customWalletsConfig'
+import { initSentry } from '../services/sentry'
 
 // Initialize Localization
 import '../services/i18n'
-import { toast, ToastContainer, ToastContainerProps } from 'react-toastify'
+import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
+import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
+import { CHAIN_ID } from '@constants/misc'
+import { useUpdateStoredPendingTransactions } from '@atoms/transactions'
+import { getAppEnvChains } from '@utils/getAppEnvChains'
 
 // Initialize Sentry error logging
 initSentry()
 
-// Initialize read provider API keys
-initProviderApiKeys({
+const RPC_API_KEYS = {
   alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   etherscan: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY,
   infura: process.env.NEXT_PUBLIC_INFURA_ID
-})
+}
+
+// Initialize read provider API keys
+initProviderApiKeys(RPC_API_KEYS)
+
+// Initialize WAGMI wallet connectors
+const chains = getAppEnvChains()
+const connectors = ({ chainId }) => {
+  return [
+    new InjectedConnector({ chains, options: {} }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        chainId: chainId || CHAIN_ID.mainnet,
+        rpc: getRpcUrls(
+          chains.map((chain) => chain.id),
+          RPC_API_KEYS
+        ),
+        bridge: 'https://pooltogether.bridge.walletconnect.org/',
+        qrcode: true
+      }
+    }),
+    new WalletLinkConnector({
+      chains,
+      options: {
+        appName: 'PoolTogether',
+        jsonRpcUrl: getRpcUrl(chainId || CHAIN_ID.mainnet, RPC_API_KEYS)
+      }
+    })
+  ]
+}
 
 // Initialize react-query Query Client
 const queryClient = new QueryClient()
@@ -48,27 +85,39 @@ export const AppContainer: React.FC = (props) => {
   const { i18n } = useTranslation()
 
   return (
-    <JotaiProvider>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools />
-        <ThemeContextProvider>
-          <ThemedToastContainer />
-          <CustomErrorBoundary>
-            {i18n.isInitialized ? (
-              <>{children}</>
-            ) : (
-              <div className='flex flex-col h-screen absolute top-0 w-screen'>
-                <LoadingLogo className='m-auto' />
-              </div>
-            )}
-          </CustomErrorBoundary>
-        </ThemeContextProvider>
-      </QueryClientProvider>
-    </JotaiProvider>
+    <WagmiProvider
+      autoConnect
+      connectorStorageKey='pooltogether-wallet'
+      connectors={connectors}
+      provider={({ chainId }) =>
+        (chainId ? getReadProvider(chainId) : getReadProvider(CHAIN_ID.mainnet)) as BaseProvider
+      }
+    >
+      <JotaiProvider>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools />
+          <ThemeContextProvider>
+            <ThemedToastContainer />
+            <CustomErrorBoundary>
+              {i18n.isInitialized ? (
+                <>{children}</>
+              ) : (
+                <div className='flex flex-col h-screen absolute top-0 w-screen'>
+                  <LoadingLogo className='m-auto' />
+                </div>
+              )}
+            </CustomErrorBoundary>
+          </ThemeContextProvider>
+        </QueryClientProvider>
+      </JotaiProvider>
+    </WagmiProvider>
   )
 }
 
 const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
+  // This doesn't quite fit here, it needs to be nested below Jotai though.
+  useUpdateStoredPendingTransactions()
+
   const { theme } = useContext(ThemeContext)
   const screenSize = useScreenSize()
   return (
@@ -89,12 +138,4 @@ const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
 const useInitPoolTogetherHooks = () => {
   useInitReducedMotion(Boolean(process.env.NEXT_PUBLIC_REDUCE_MOTION))
   useInitCookieOptions(process.env.NEXT_PUBLIC_DOMAIN_NAME)
-  useInitializeOnboard({
-    infuraId: process.env.NEXT_PUBLIC_INFURA_ID,
-    fortmaticKey: process.env.NEXT_PUBLIC_FORTMATIC_API_KEY,
-    portisKey: process.env.NEXT_PUBLIC_PORTIS_API_KEY,
-    defaultNetworkName: 'homestead',
-    customWalletsConfig: CUSTOM_WALLETS_CONFIG,
-    sentryLog
-  })
 }

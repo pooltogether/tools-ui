@@ -2,7 +2,6 @@
 // Event handlers like onClick can't be added to this file
 
 import { Html, Head, Main, NextScript } from 'next/document'
-import { Meta } from '../components/Meta'
 
 export default function Document() {
   const title = 'PoolTogether - v4'
@@ -50,8 +49,6 @@ export default function Document() {
         </>
       </Head>
       <body className='bg-body text-inverse'>
-        <Meta />
-
         <Main />
         <NextScript />
       </body>
