@@ -1,5 +1,5 @@
 import { Provider as JotaiProvider } from 'jotai'
-import { Provider as WagmiProvider, defaultChains } from 'wagmi'
+import { Provider as WagmiProvider } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { WalletLinkConnector } from 'wagmi/connectors/walletLink'
@@ -7,12 +7,9 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
 import { BaseProvider } from '@ethersproject/providers'
-
 import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
-  APP_ENVIRONMENTS,
-  getStoredIsTestnetsCookie,
   initProviderApiKeys,
   ScreenSize,
   useInitCookieOptions,
@@ -20,8 +17,6 @@ import {
   useScreenSize
 } from '@pooltogether/hooks'
 import { initSentry } from '../services/sentry'
-
-// Initialize Localization
 import '../services/i18n'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'

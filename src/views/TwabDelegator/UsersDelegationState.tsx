@@ -12,7 +12,7 @@ import {
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
-import { getNetworkNiceNameByChainId, shorten } from '@pooltogether/utilities'
+import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import classNames from 'classnames'
 import { useState } from 'react'
 import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedChainIds'

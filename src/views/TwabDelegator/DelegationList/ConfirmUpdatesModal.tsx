@@ -18,7 +18,7 @@ import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegators
 import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
 import { ListState } from '@twabDelegator/DelegationList'
 import { DelegationId } from '@twabDelegator/interfaces'
-import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
+import { useTokenAllowance } from '@pooltogether/hooks'
 import { useTicket } from '@hooks/v4/useTicket'
 import { getTicketContract } from '@utils/getTicketContract'
 import { BigNumber, PopulatedTransaction } from 'ethers'
@@ -226,6 +226,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     twabDelegatorAddress,
     ticket.address
   )
+
+  const [, signTypedData] = useSignTypedData()
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
