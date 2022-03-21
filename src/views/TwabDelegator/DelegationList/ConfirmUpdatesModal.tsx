@@ -19,20 +19,23 @@ import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegation
 import { ListState } from '@twabDelegator/DelegationList'
 import { DelegationId } from '@twabDelegator/interfaces'
 import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
 import { useTicket } from '@hooks/v4/useTicket'
 import { getTicketContract } from '@utils/getTicketContract'
 import { BigNumber, PopulatedTransaction } from 'ethers'
 import { TransactionResponse } from '@ethersproject/providers'
-import { useSendTransaction, useTransaction } from '@atoms/transactions'
 import { toast } from 'react-toastify'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TransactionButton } from '@components/Buttons/TransactionButton'
-import { useWalletSigner } from '@hooks/wallet/useWalletSigner'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 import { useSignTypedData } from 'wagmi'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
+import {
+  useSendTransaction,
+  useTransaction,
+  useUsersAddress,
+  useWalletSigner
+} from '@pooltogether/wallet-connection'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -83,6 +86,7 @@ export const ConfirmUpdatesModal: React.FC<{
           delegator={delegator}
           transactionPending={transactionPending}
           isBalanceSufficient={isBalanceSufficient}
+          setIsOpen={setIsOpen}
           setTransactionId={setTransactionId}
           setModalState={setModalState}
           setListState={setListState}
@@ -182,6 +186,7 @@ interface SubmitTransactionButtonProps {
   delegator: string
   transactionPending: boolean
   isBalanceSufficient: boolean
+  setIsOpen: (isOpen: boolean) => void
   setSignaturePending: (pending: boolean) => void
   setTransactionId: (id: string) => void
   setModalState: (modalState: ConfirmModalState) => void
@@ -199,6 +204,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     delegator,
     transactionPending,
     isBalanceSufficient,
+    setIsOpen,
     setSignaturePending,
     setModalState,
     setListState,
@@ -220,8 +226,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     twabDelegatorAddress,
     ticket.address
   )
-
-  const [, signTypedData] = useSignTypedData()
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
@@ -376,6 +380,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         await refetch()
         resetAtoms()
         setListState(ListState.readOnly)
+        setIsOpen(false)
         setModalState(ConfirmModalState.review)
       }
     })

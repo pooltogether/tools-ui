@@ -1,4 +1,4 @@
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
   ModalTitle,

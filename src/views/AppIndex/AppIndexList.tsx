@@ -17,15 +17,15 @@ interface AppInfo {
 
 const APPS_TO_LIST: AppInfo[] = [
   {
-    titleKey: 'Chance Gifting',
-    descriptionKey: 'Share your odds with others. Useful for giveaways, competitions, etc.',
+    titleKey: 'Deposit Delegator',
+    descriptionKey: 'Delegate your chances to win without losing custody of your deposit.',
     href: 'delegate',
     iconURL: ICON_CHANCE_GIFTING
   },
   {
     titleKey: 'Promotional Rewards',
     descriptionKey:
-      'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens',
+      'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens.',
     href: 'promo',
     disabled: true,
     iconURL: ICON_PROMO_REWARDS

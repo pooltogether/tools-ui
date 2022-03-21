@@ -52,6 +52,7 @@ const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string
     }
 
     let response = await batch(provider, ...batchCalls)
+    batchCalls = []
     const slotIndices = Object.keys(response)
 
     slotIndices.forEach((slotIndex) => {
@@ -76,6 +77,7 @@ const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string
     })
 
     // If the highest slot was filled, fetch another page. Otherwise, assume there are no more filled slots.
+
     const lastSlotIndex = slotIndexOffset + pageSize - 1
     const lastDelegationInPage: Delegation = response[lastSlotIndex].getDelegation
     if (lastDelegationInPage.wasCreated) {

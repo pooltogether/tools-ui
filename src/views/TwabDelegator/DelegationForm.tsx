@@ -1,7 +1,8 @@
+import FeatherIcon from 'feather-icons-react'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useTicket } from '@hooks/v4/useTicket'
-import { SquareButton } from '@pooltogether/react-components'
+import { SquareButton, Tooltip } from '@pooltogether/react-components'
 import { sToD } from '@pooltogether/utilities'
 import { DelegationFormValues } from '@twabDelegator/interfaces'
 import classNames from 'classnames'
@@ -91,9 +92,16 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
         })}
       />
       <ErrorMessage className='mb-1'>{errors.balance?.message}</ErrorMessage>
-      <Label className='uppercase' htmlFor='duration'>
-        Duration (days)
-      </Label>
+
+      <Tooltip id={`lock-tooltip-form`} tip={'Duration to lock the delegation'}>
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='duration'>
+            Lock Duration (days)
+          </Label>
+          <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' />
+        </div>
+      </Tooltip>
+
       {/* TODO: Probably want to add a toggle here. On is unlocked and duration input is disabled. Off lets users input the number of days. */}
       <StyledInput
         id='duration'

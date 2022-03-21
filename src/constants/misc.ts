@@ -6,7 +6,6 @@ export const MAX_SAFE_INTEGER = 9007199254740991
 export const CHAIN_ID = NETWORK
 
 // cookie names
-export const TRANSACTIONS_KEY = 'txs'
 export const SHOW_MANAGE_LINKS = 'showManageLinks'
 export const MAGIC_EMAIL = 'magicEmail'
 export const SELECTED_WALLET_COOKIE_KEY = 'selectedWallet'

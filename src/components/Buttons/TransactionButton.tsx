@@ -1,14 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactTooltip from 'react-tooltip'
-import {
-  SquareButton,
-  SquareButtonProps,
-  overrideToolTipPosition,
-  ThemedClipSpinner
-} from '@pooltogether/react-components'
+import { SquareButton, SquareButtonProps, ThemedClipSpinner } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-import { useIsWalletOnNetwork } from '@hooks/wallet/useIsWalletOnNetwork'
+import { useIsWalletOnChainId } from '@pooltogether/wallet-connection'
 
 export interface TransactionButtonProps extends SquareButtonProps {
   chainId: number
@@ -21,7 +15,7 @@ export const TransactionButton = (props: TransactionButtonProps) => {
 
   const { t } = useTranslation()
 
-  const isWalletOnProperNetwork = useIsWalletOnNetwork(chainId)
+  const isWalletOnProperNetwork = useIsWalletOnChainId(chainId)
   const networkName = getNetworkNiceNameByChainId(chainId)
 
   return (

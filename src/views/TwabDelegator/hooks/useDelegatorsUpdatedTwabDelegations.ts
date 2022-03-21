@@ -49,29 +49,40 @@ export const useDelegatorsUpdatedTwabDelegations = (chainId: number, delegator: 
         delegationFund.delegator === delegationId.delegator &&
         delegationFund.slot.eq(delegationId.slot)
     )
+    const delegationCreation = delegationCreations.find(
+      (delegationCreation) =>
+        delegationCreation.delegator === delegationId.delegator &&
+        delegationCreation.slot.eq(delegationId.slot)
+    )
     return {
       delegation,
       delegationId,
       delegationUpdate,
+      delegationCreation,
       delegationFund
     }
   })
 
-  // Add in delegation creations
+  // Add in delegation creations if they aren't there
   delegationCreations.forEach((delegationCreation) => {
-    const delegationFund = delegationFunds.find(
-      (delegationFund) =>
-        delegationFund.delegator === delegationCreation.delegator &&
-        delegationFund.slot.eq(delegationCreation.slot)
+    const isAdded = data.some(
+      (delegationData) => delegationData.delegationCreation === delegationCreation
     )
-    data.push({
-      delegationId: {
-        slot: delegationCreation.slot,
-        delegator: delegationCreation.delegator
-      },
-      delegationCreation: delegationCreation,
-      delegationFund
-    })
+    if (!isAdded) {
+      const delegationFund = delegationFunds.find(
+        (delegationFund) =>
+          delegationFund.delegator === delegationCreation.delegator &&
+          delegationFund.slot.eq(delegationCreation.slot)
+      )
+      data.push({
+        delegationId: {
+          slot: delegationCreation.slot,
+          delegator: delegationCreation.delegator
+        },
+        delegationCreation: delegationCreation,
+        delegationFund
+      })
+    }
   })
 
   data.sort((a, b) => (a.delegationId.slot.gt(b.delegationId.slot) ? 1 : -1))

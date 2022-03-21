@@ -1,7 +1,7 @@
 import FeatherIcon from 'feather-icons-react'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
 import { useTicket } from '@hooks/v4/useTicket'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BlockExplorerLink,

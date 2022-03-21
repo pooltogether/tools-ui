@@ -7,10 +7,10 @@ import { EditDelegationModal } from './EditDelegationModal'
 import { ConfirmUpdatesModal } from './ConfirmUpdatesModal'
 import { CreateDelegationModal } from '@twabDelegator/DelegationList/CreateDelegationModal'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
-import { TransactionState, useTransaction } from '@atoms/transactions'
 import { useResetDelegationAtomsOnAccountChange } from '@twabDelegator/hooks/useResetDelegationAtomsOnAccountChange'
 import classNames from 'classnames'
 import { NoDelegatorState } from './NoDelegatorState'
+import { TransactionState, useTransaction } from '@pooltogether/wallet-connection'
 
 export interface DelegationListProps {
   className?: string

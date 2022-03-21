@@ -13,7 +13,7 @@ import {
   setDelegatorAtom
 } from './atoms'
 import { useUpdateAtom } from 'jotai/utils'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabDelegator: React.FC = () => {
@@ -33,7 +33,7 @@ export const TwabDelegator: React.FC = () => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle title='Chance Gifting' />
+        <PageTitle title='Deposit Delegator' />
         <DelegationTitle className='mb-8' />
         <UsersDelegationState
           chainId={chainId}

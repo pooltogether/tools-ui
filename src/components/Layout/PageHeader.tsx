@@ -9,11 +9,10 @@ import {
   ThemeSettingsItem,
   SocialLinks
 } from '@pooltogether/react-components'
+import { FullWalletConnectionButton } from '@pooltogether/wallet-connection'
 import Link from 'next/link'
-import { useTranslation } from 'react-i18next'
-import { useSupportedChainIds } from '@hooks/app/useSupportedChainIds'
-import { WalletConnectionButton } from '@components/Wallet/WalletConnectionButton'
-import { NetworkSelectionButton } from '@components/Wallet/NetworkSelectionButton'
+import { Trans, useTranslation } from 'react-i18next'
+import { useSupportedChains } from '@hooks/app/useSupportedChains'
 
 export enum ContentPaneState {
   deposit = 'deposit',
@@ -22,6 +21,8 @@ export enum ContentPaneState {
 }
 
 export const PageHeader = (props) => {
+  const chains = useSupportedChains()
+
   return (
     <PageHeaderContainer
       Link={Link}
@@ -31,8 +32,32 @@ export const PageHeader = (props) => {
       style={{ zIndex: 3 }}
     >
       <div className='flex flex-row justify-end items-center space-x-4'>
-        <NetworkSelectionButton />
-        <WalletConnectionButton />
+        <FullWalletConnectionButton
+          chains={chains}
+          TosDisclaimer={
+            <Trans
+              i18nKey='connectWalletTermsAndDisclaimerBlurb'
+              components={{
+                termsLink: (
+                  <a
+                    className='text-pt-teal transition hover:opacity-70 underline'
+                    href='https://pooltogether.com/terms/'
+                    target='_blank'
+                    rel='noreferrer'
+                  />
+                ),
+                disclaimerLink: (
+                  <a
+                    className='text-pt-teal transition hover:opacity-70 underline'
+                    href='https://pooltogether.com/protocol-disclaimer/'
+                    target='_blank'
+                    rel='noreferrer'
+                  />
+                )
+              }}
+            />
+          }
+        />
         <Settings />
       </div>
     </PageHeaderContainer>

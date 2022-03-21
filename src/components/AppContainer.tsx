@@ -27,8 +27,8 @@ import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
 import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
 import { CHAIN_ID } from '@constants/misc'
-import { useUpdateStoredPendingTransactions } from '@atoms/transactions'
-import { getAppEnvChains } from '@utils/getAppEnvChains'
+import { getSupportedChains } from '@utils/getSupportedChains'
+import { useUpdateStoredPendingTransactions } from '@pooltogether/wallet-connection'
 
 // Initialize Sentry error logging
 initSentry()
@@ -43,7 +43,7 @@ const RPC_API_KEYS = {
 initProviderApiKeys(RPC_API_KEYS)
 
 // Initialize WAGMI wallet connectors
-const chains = getAppEnvChains()
+const chains = getSupportedChains()
 const connectors = ({ chainId }) => {
   return [
     new InjectedConnector({ chains, options: {} }),
@@ -55,7 +55,8 @@ const connectors = ({ chainId }) => {
           chains.map((chain) => chain.id),
           RPC_API_KEYS
         ),
-        bridge: 'https://pooltogether.bridge.walletconnect.org/',
+        // NOTE: I think this bridge URL is for app.pooltogether.com only
+        // bridge: 'https://pooltogether.bridge.walletconnect.org/',
         qrcode: true
       }
     }),

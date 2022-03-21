@@ -1,5 +1,5 @@
 import FeatherIcon from 'feather-icons-react'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
 import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
 import { useUpdateAtom } from 'jotai/utils'

@@ -1,5 +1,5 @@
 import FeatherIcon from 'feather-icons-react'
-import { useUsersAddress } from '@hooks/wallet/useUsersAddress'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
 import {
   delegationUpdatesAtom,
@@ -28,7 +28,8 @@ import {
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
-  TokenIcon
+  TokenIcon,
+  Tooltip
 } from '@pooltogether/react-components'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
 import { useTicket } from '@hooks/v4/useTicket'
@@ -57,10 +58,11 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <ul>
+        <ListHeaders listState={listState} />
         {delegations.map((delegation) => (
           <DelegationRow
             {...delegation}
-            key={`slot-${delegation.delegationId.slot.toString()}`}
+            key={`slot-${delegation.delegationId.slot.toString()}-${listState}`}
             chainId={chainId}
             listState={listState}
             transactionPending={transactionPending}
@@ -78,6 +80,41 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
     </div>
   )
 }
+
+const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
+  const { listState } = props
+  return (
+    <li
+      className={classNames(
+        'grid items-center',
+        'px-2 py-1 border-b border-pt-purple border-opacity-50',
+        {
+          'grid-cols-7': listState !== ListState.edit,
+          'grid-cols-8': listState === ListState.edit
+        }
+      )}
+    >
+      <span className='col-span-1' />
+      <Header>Address</Header>
+      <Header>Amount</Header>
+
+      <Tooltip id={`lock-tooltip-header`} tip={'Duration to lock the delegation'}>
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <span className='uppercase opacity-70 font-bold text-xxs'>Lock</span>
+          <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' style={{ top: -1 }} />
+        </div>
+      </Tooltip>
+      {listState === ListState.edit && <span className='col-span-1' />}
+    </li>
+  )
+}
+
+const Header = (props) => (
+  <span
+    {...props}
+    className={classNames(props.className, 'col-span-2 uppercase opacity-70 font-bold text-xxs')}
+  />
+)
 
 interface DelegationRowProps {
   listState: ListState
@@ -142,8 +179,18 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         <span className='font-bold opacity-60'>{slot.toString()}</span>
       </div>
       <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
-      <BalanceDisplay chainId={chainId} balance={balance} className='col-span-2' />
-      <LockDisplay duration={duration} isEdited={isEdited} className='col-span-2' />
+      <BalanceDisplay
+        chainId={chainId}
+        listState={listState}
+        balance={balance}
+        className='col-span-2'
+      />
+      <LockDisplay
+        listState={listState}
+        duration={duration}
+        isEdited={isEdited}
+        className='col-span-2'
+      />
       {listState === ListState.edit && (
         <div className='flex justify-end space-x-1 col-span-1'>
           <DelegationEditToggle
@@ -181,14 +228,21 @@ const DelegateeDisplay: React.FC<{ className?: string; chainId: number; delegate
  * @param props
  * @returns
  */
-const BalanceDisplay: React.FC<{ className?: string; chainId: number; balance: BigNumber }> = (
-  props
-) => {
-  const { className, chainId, balance } = props
+const BalanceDisplay: React.FC<{
+  className?: string
+  chainId: number
+  balance: BigNumber
+  listState: ListState
+}> = (props) => {
+  const { className, chainId, balance, listState } = props
   const ticket = useTicket(chainId)
   const balanceDisplay = numberWithCommas(balance, { decimals: ticket.decimals })
   return (
-    <div className={classNames(className, 'flex items-center space-x-1')}>
+    <div
+      className={classNames(className, 'flex items-center space-x-1', {
+        'opacity-50': balance.isZero() && listState === ListState.readOnly
+      })}
+    >
       <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
       <span>{balanceDisplay}</span>
     </div>
@@ -202,15 +256,24 @@ const BalanceDisplay: React.FC<{ className?: string; chainId: number; balance: B
 const LockDisplay: React.FC<{
   className?: string
   duration: number
+  listState: ListState
   isEdited: boolean
 }> = (props) => {
-  const { className, duration, isEdited } = props
+  const { className, duration, isEdited, listState } = props
 
   const isLocked = duration > 0
 
   const getDurationDisplay = () => {
     if (!isLocked) {
-      return <span className={classNames(className, 'font-bold')}>unlocked</span>
+      return (
+        <span
+          className={classNames(className, 'font-bold', {
+            'opacity-50': listState === ListState.readOnly
+          })}
+        >
+          unlocked
+        </span>
+      )
     }
 
     let formattedDuration, units

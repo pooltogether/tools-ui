@@ -6,7 +6,7 @@ import {
 } from '@pooltogether/react-components'
 import { useTranslation } from 'react-i18next'
 import React from 'react'
-import { Transaction } from '@atoms/transactions'
+import { Transaction } from '@pooltogether/wallet-connection'
 
 interface TransactionReceiptButtonProps {
   className?: string
