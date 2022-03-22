@@ -21,6 +21,7 @@ import { useForm } from 'react-hook-form'
 import { StyledInput } from '@components/Input'
 import { isAddress } from 'ethers/lib/utils'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
+import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -39,11 +40,8 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
     delegator,
     ticket.address
   )
-  const { data: delegationBalance, isFetched: isDelegationBalanceFetched } = useTokenBalance(
-    chainId,
-    delegator,
-    twabDelegator
-  )
+  const { data: delegationBalance, isFetched: isDelegationBalanceFetched } =
+    useTotalAmountDelegated(chainId, delegator)
 
   return (
     <div className={classNames(className, 'flex justify-between')}>

@@ -18,7 +18,7 @@ import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegators
 import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
 import { ListState } from '@twabDelegator/DelegationList'
 import { DelegationId } from '@twabDelegator/interfaces'
-import { useTokenAllowance } from '@pooltogether/hooks'
+import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
 import { useTicket } from '@hooks/v4/useTicket'
 import { getTicketContract } from '@utils/getTicketContract'
 import { BigNumber, PopulatedTransaction } from 'ethers'
@@ -36,6 +36,7 @@ import {
   useUsersAddress,
   useWalletSigner
 } from '@pooltogether/wallet-connection'
+import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -219,6 +220,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const ticket = useTicket(chainId)
+  const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,
@@ -226,8 +228,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     twabDelegatorAddress,
     ticket.address
   )
-
-  const [, signTypedData] = useSignTypedData()
+  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
+  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
@@ -383,6 +385,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         resetAtoms()
         setListState(ListState.readOnly)
         setIsOpen(false)
+        refetchDelegationBalance()
+        refetchTicketBalance()
         setModalState(ConfirmModalState.review)
       }
     })
