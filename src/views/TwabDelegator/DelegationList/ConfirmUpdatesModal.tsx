@@ -350,15 +350,18 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       })
 
       try {
-        // TODO: Signature rejected with wallet connect provider. `_provider.send` is unavailable. Maybe try to switch to WAGMI or fiddle with web3-react connectors...
         const signature = await signaturePromise
+
+        // Overwrite v for hardware wallet signatures
+        // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover
+        const v = signature.v < 27 ? signature.v + 27 : signature.v
 
         callTransaction = async () =>
           twabDelegatorContract.permitAndMulticall(
             amountToIncrease,
             {
               deadline: signature.deadline,
-              v: signature.v,
+              v,
               r: signature.r,
               s: signature.s
             },
