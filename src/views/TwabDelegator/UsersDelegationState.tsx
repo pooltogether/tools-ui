@@ -151,7 +151,7 @@ const ClearDelegatorButton: React.FC<{
 
   return (
     <button onClick={() => setDelegator(usersAddress)}>
-      <FeatherIcon icon='x' className='text-pt-red-light w-5 h-5  transition hover:opacity-70' />
+      <FeatherIcon icon='x' className='text-pt-red-light w-4 h-4 transition hover:opacity-70' />
     </button>
   )
 }

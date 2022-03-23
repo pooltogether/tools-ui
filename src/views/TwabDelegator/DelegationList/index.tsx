@@ -66,7 +66,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
       )
     }
     return (
-      <div className={classNames(className, 'text-xxs xs:text-xs')}>
+      <div className={classNames(className, 'text-xxxs xs:text-xs')}>
         {list}
         {delegations.length >= 1 && (
           <ListStateActions

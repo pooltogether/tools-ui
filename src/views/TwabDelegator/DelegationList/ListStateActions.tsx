@@ -93,9 +93,19 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           updatesCount={creationsCount + fundsCount + editsCount}
         />
         <div className='flex space-x-2 items-center'>
-          <EditedIconAndCount count={creationsCount} icon='plus-circle' tooltipText='Create slot' />
-          <EditedIconAndCount count={fundsCount} icon='dollar-sign' tooltipText='Fund delegatee' />
-          <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
+          <div className='flex flex-col space-y-1 items-center'>
+            <EditedIconAndCount
+              count={creationsCount}
+              icon='plus-circle'
+              tooltipText='Create slot'
+            />
+            <EditedIconAndCount
+              count={fundsCount}
+              icon='dollar-sign'
+              tooltipText='Fund delegatee'
+            />
+            <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
+          </div>
           {isBalanceSufficient !== null && !isBalanceSufficient && (
             <Tooltip
               id={`tooltip-edited-icon-${Math.random()}`}
@@ -120,7 +130,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
     return (
       <>
         <div className='hidden xs:flex items-center justify-between space-x-2'>{jsx}</div>
-        <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-light justify-between space-x-2'>
+        <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
           {jsx}
         </div>
       </>
