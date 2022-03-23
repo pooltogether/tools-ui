@@ -267,7 +267,7 @@ const LockDisplay: React.FC<{
     if (!isLocked) {
       return (
         <span
-          className={classNames(className, 'font-bold', {
+          className={classNames(className, '', {
             'opacity-50': listState === ListState.readOnly
           })}
         >
@@ -368,7 +368,7 @@ const DelegationEditToggle: React.FC<
       {delegationCreation && <FeatherIcon icon='plus-circle' className='w-4 h-4 text-yellow' />}
       {delegationFund && <FeatherIcon icon='dollar-sign' className='w-4 h-4 text-yellow' />}
       {delegationUpdate && <FeatherIcon icon='edit-2' className='w-4 h-4 text-yellow' />}
-      <FeatherIcon icon='edit' className='w-4 h-4' />
+      <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
     </button>
   )
 }

@@ -24,11 +24,13 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
     <div
       className={classNames(
         className,
-        'rounded-lg py-8 px-4 xs:px-20 text-center flex-col space-y-4 items-center bg-darkened'
+        'rounded-lg py-8 px-4 xs:px-12 text-center flex-col space-y-4 items-center bg-darkened'
       )}
     >
-      <p className='text-pt-purple-dark dark:text-pt-purple-light'>No delegation positions found</p>
-      <p className='font-bold'>Get started by delegating to a wallet or contract</p>
+      <p className='uppercase text-xxs font-semibold text-pt-purple-dark dark:text-pt-purple-light'>
+        No delegation positions found
+      </p>
+      <p className='font-bold text-xs'>Get started by delegating to a wallet or contract:</p>
       <CreateSlotButton className='mx-auto' delegator={delegator} setListState={setListState} />
     </div>
   )
@@ -54,7 +56,7 @@ const CreateSlotButton: React.FC<{
         setIsOpen(true)
       }}
     >
-      <FeatherIcon icon='plus' className='w-3 h-3 my-auto mr-1' />
+      <FeatherIcon icon='plus' strokeWidth={4} className='w-4 h-4 my-auto mr-1' />
       <span>New Delegation</span>
     </SquareButton>
   )

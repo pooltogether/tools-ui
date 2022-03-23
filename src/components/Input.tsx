@@ -14,7 +14,7 @@ export const Input: React.FC<InputProps> = React.forwardRef((props, ref) => (
     ref={ref}
     className={classNames(
       props.className,
-      'py-2 px-4 xs:py-3 xs:px-5 rounded font-semibold xs:text-lg disabled:opacity-50'
+      'py-2 px-4 xs:py-3 xs:px-5 rounded-lg font-semibold xs:text-lg disabled:opacity-50'
     )}
   />
 ))

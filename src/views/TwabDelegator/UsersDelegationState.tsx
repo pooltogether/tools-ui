@@ -1,7 +1,7 @@
 import FeatherIcon from 'feather-icons-react'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
 import { useTicket } from '@hooks/v4/useTicket'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BlockExplorerLink,
@@ -44,48 +44,62 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
     useTotalAmountDelegated(chainId, delegator)
 
   return (
-    <div className={classNames(className, 'flex justify-between')}>
-      <div className='flex flex-col'>
-        <div className='space-x-2 flex items-center'>
-          <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
-          <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
-          <ClearDelegatorButton delegator={delegator} setDelegator={setDelegator} />
-        </div>
-        <div className='flex space-x-2 items-center'>
-          <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
-          <span className='opacity-60'>{ticket.symbol}</span>
-          <a
-            className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'
-            href={getPoolTogetherDepositUrl(chainId)}
-            target='_blank'
-            rel='noreferrer'
-          >
-            <span>{`Get ${ticket.symbol}`}</span>
-            <FeatherIcon icon='external-link' className='w-3 h-3' />
-          </a>
-        </div>
-        {delegator && (
-          <div className='flex flex-col xs:flex-row xs:space-x-4 xs:items-center'>
-            {(!isDelegationBalanceFetched || !isDelegationBalanceFetched) && (
-              <ThemedClipSpinner sizeClassName='w-3 h-3' />
-            )}
-            {isDelegationBalanceFetched && (
-              <div className='flex space-x-1 items-center'>
-                <FeatherIcon icon='gift' className='w-3 h-3 text-pt-teal' />
-                <span className='opacity-60 text-xxs'>{`${delegationBalance.amountPretty} delegated`}</span>
-              </div>
-            )}
-            {isTicketBalanceFetched && (
-              <div className='flex space-x-1 items-center'>
-                <FeatherIcon icon='credit-card' className='w-3 h-3 text-pt-teal' />
-                <span className='opacity-60 text-xxs'>{`${ticketBalance.amountPretty} balance`}</span>
-              </div>
-            )}
+    <>
+      <div className='flex items-center bg-pt-purple-dark rounded-full py-2 px-4'>
+        <div className='w-full flex justify-between'>
+          <div className='flex space-x-2 items-center'>
+            <AccountAvatar sizeClassName='w-4 h-4' address={delegator} />
+            <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
+            <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
+            <ClearDelegatorButton delegator={delegator} setDelegator={setDelegator} />
           </div>
-        )}
+          <DelegationNetworkSelection chainId={chainId} setChainId={setChainId} />
+        </div>
       </div>
-      <DelegationNetworkSelection chainId={chainId} setChainId={setChainId} />
-    </div>
+
+      <div className={classNames(className, 'flex justify-between')}>
+        <div className='flex flex-col space-y-1 mt-4 ml-4'>
+          <div className='flex space-x-2 items-center'>
+            <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
+            <span className='font-semibold opacity-60 text-xxs'>{ticket.symbol}</span>
+            <a
+              className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'
+              href={getPoolTogetherDepositUrl(chainId)}
+              target='_blank'
+              rel='noreferrer'
+            >
+              <span>{`Get ${ticket.symbol}`}</span>
+              <FeatherIcon icon='external-link' className='w-3 h-3' />
+            </a>
+          </div>
+          {delegator && (
+            <div className='flex flex-col space-y-1'>
+              {(!isDelegationBalanceFetched || !isDelegationBalanceFetched) && (
+                <ThemedClipSpinner sizeClassName='w-3 h-3' />
+              )}
+              {isTicketBalanceFetched && (
+                <div className='flex space-x-2 items-center'>
+                  <FeatherIcon icon='credit-card' className='w-4 h-4 text-pt-teal' />
+                  <div className='flex space-x-1 items-center text-xxs'>
+                    <span className='opacity-80 font-semibold'>{`${ticketBalance.amountPretty}`}</span>
+                    <span className='opacity-50'>balance</span>
+                  </div>
+                </div>
+              )}
+              {isDelegationBalanceFetched && (
+                <div className='flex space-x-2 items-center'>
+                  <FeatherIcon icon='gift' className='w-4 h-4 text-pt-teal' />
+                  <div className='flex space-x-1 items-center text-xxs'>
+                    <span className='opacity-80 font-semibold'>{`${delegationBalance.amountPretty}`}</span>
+                    <span className='opacity-50'>delegated</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -99,13 +113,18 @@ const DelegationNetworkSelection: React.FC<{
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className='flex transition hover:opacity-70'>
-        <NetworkIcon chainId={chainId} className='mr-2' sizeClassName='w-5 h-5' />
-        <div className='flex flex-col items-start'>
-          <span className='capitalize leading-none tracking-wider text-lg'>
+      <button
+        onClick={() => setIsOpen(true)}
+        className='flex items-center transition hover:opacity-80'
+      >
+        <NetworkIcon chainId={chainId} className='mr-2' sizeClassName='w-4 h-4' />
+        <div className='flex items-center space-x-2'>
+          <span className='capitalize leading-none tracking-wider text-xs'>
             {getNetworkNiceNameByChainId(chainId)}
           </span>
-          <span className='text-pt-teal text-xxxs'>change network</span>
+          <span className='text-pt-teal text-xxxs'>
+            <FeatherIcon icon='settings' className='w-3 h-3' />
+          </span>
         </div>
       </button>
       <SelectNetworkModal
@@ -150,9 +169,9 @@ const ChangeDelegatorButton: React.FC<{
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className='transition hover:text-pt-teal items-center'
+        className='transition text-highlight-3 hover:text-pt-teal items-center'
       >
-        <FeatherIcon icon='refresh-cw' className='w-4 h-4' />
+        <FeatherIcon icon='search' className='w-3 h-3' />
       </button>
       <ChangeDelegatorModal
         isOpen={isOpen}
@@ -195,7 +214,7 @@ export const ChangeDelegatorModal: React.FC<{
   return (
     <BottomSheet label='delegator-change-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
       <h6 className='text-center uppercase text-sm mb-3 mt-2'>Set a delegator</h6>
-      <p className='max-w-xs mx-auto text-xs mb-8 text-center'>
+      <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
         Enter an address below to view it's delegations
       </p>
       <form

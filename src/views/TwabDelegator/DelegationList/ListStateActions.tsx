@@ -5,7 +5,8 @@ import {
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
-  ThemedClipSpinner
+  ThemedClipSpinner,
+  Tooltip
 } from '@pooltogether/react-components'
 import FeatherIcon from 'feather-icons-react'
 import {
@@ -77,8 +78,8 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
       </div>
     )
   } else if (listState === ListState.edit) {
-    return (
-      <div className='flex justify-between space-x-2'>
+    const jsx = (
+      <>
         <ConfirmCancellationButton
           chainId={chainId}
           delegator={delegator}
@@ -92,9 +93,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           updatesCount={creationsCount + fundsCount + editsCount}
         />
         <div className='flex space-x-2 items-center'>
-          <EditedIconAndCount count={creationsCount} icon='plus-circle' />
-          <EditedIconAndCount count={fundsCount} icon='dollar-sign' />
-          <EditedIconAndCount count={editsCount} icon='edit-2' />
+          <EditedIconAndCount count={creationsCount} icon='plus-circle' tooltipText='Create slot' />
+          <EditedIconAndCount count={fundsCount} icon='dollar-sign' tooltipText='Fund delegatee' />
+          <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
           {isBalanceSufficient !== null && !isBalanceSufficient && (
             <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
           )}
@@ -108,7 +109,16 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
           </SquareButton>
         </div>
-      </div>
+      </>
+    )
+
+    return (
+      <>
+        <div className='hidden xs:flex items-center justify-between space-x-2'>{jsx}</div>
+        <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-light justify-between space-x-2'>
+          {jsx}
+        </div>
+      </>
     )
   } else if (listState === ListState.withdraw) {
     return (
@@ -164,12 +174,20 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   )
 }
 
-const EditedIconAndCount: React.FC<{ count: number; icon: string }> = ({ count, icon }) => {
+const EditedIconAndCount: React.FC<{ count: number; icon: string; tooltipText: string }> = ({
+  count,
+  icon,
+  tooltipText
+}) => {
   if (count < 1) return null
   return (
     <div className='flex space-x-1'>
-      <span className='text-xxxs'>{count}</span>
-      <FeatherIcon icon={icon} className='w-4 h-4 text-yellow' />
+      <Tooltip id={`tooltip-edited-icon-${Math.random()}`} tip={tooltipText}>
+        <div className='col-span-2 flex space-x-1 items-center'>
+          <span className='text-xxxs'>{count}</span>
+          <FeatherIcon icon={icon} className='w-4 h-4 text-yellow' />
+        </div>
+      </Tooltip>
     </div>
   )
 }
@@ -189,21 +207,23 @@ const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) =>
 
   return (
     <>
-      <SquareButton
-        className='w-24'
-        size={SquareButtonSize.sm}
-        onClick={() => {
-          if (!updatesCount) {
-            cancelUpdates()
-          } else {
-            setIsOpen(true)
-          }
-        }}
-        theme={SquareButtonTheme.tealOutline}
-        disabled={disabled}
-      >
-        Cancel
-      </SquareButton>
+      <div>
+        <SquareButton
+          className='w-24'
+          size={SquareButtonSize.sm}
+          onClick={() => {
+            if (!updatesCount) {
+              cancelUpdates()
+            } else {
+              setIsOpen(true)
+            }
+          }}
+          theme={SquareButtonTheme.tealOutline}
+          disabled={disabled}
+        >
+          Cancel
+        </SquareButton>
+      </div>
       <ConfirmCancellationModal {...props} isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   )

@@ -63,7 +63,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
           }
         })}
       />
-      <ErrorMessage className='mb-1'>{errors.delegatee?.message}</ErrorMessage>
+      <ErrorMessage className='mb-2'>{errors.delegatee?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
         {`Amount (${ticket.symbol})`}
       </Label>
@@ -91,7 +91,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
           }
         })}
       />
-      <ErrorMessage className='mb-1'>{errors.balance?.message}</ErrorMessage>
+      <ErrorMessage className='mb-2'>{errors.balance?.message}</ErrorMessage>
 
       <Tooltip id={`lock-tooltip-form`} tip={'Duration to lock the delegation'}>
         <div className='col-span-2 flex space-x-2 items-center'>
@@ -134,5 +134,5 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
 }
 
 const ErrorMessage: React.FC<{ className?: string }> = (props) => (
-  <p {...props} className={classNames(props.className, 'h-5 text-xxs text-pt-red-light')} />
+  <p {...props} className={classNames(props.className, 'h-5 mt-1 text-xxs text-pt-red-light')} />
 )

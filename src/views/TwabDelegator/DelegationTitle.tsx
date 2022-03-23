@@ -5,12 +5,12 @@ import { DELEGATION_LEARN_MORE_URL } from './constants'
 export const DelegationTitle: React.FC<{ className?: string }> = (props) => {
   return (
     <div className={classNames(props.className, 'flex flex-col font-averta')}>
-      <p className='text-accent-1 text-xs'>
+      <p className='text-accent-1 text-xxs'>
         When you delegate, you're giving the chosen address additional chances to win without losing
         custody of your underlying deposit.
       </p>
       <a
-        className='transition underline text-pt-teal hover:opacity-70 flex items-center space-x-1'
+        className='transition underline text-pt-teal hover:opacity-70 flex items-center space-x-1 text-xxs'
         href={DELEGATION_LEARN_MORE_URL}
         target='_blank'
         rel='noreferrer'
