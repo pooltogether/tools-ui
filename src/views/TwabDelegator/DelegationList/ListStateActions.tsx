@@ -97,7 +97,12 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           <EditedIconAndCount count={fundsCount} icon='dollar-sign' tooltipText='Fund delegatee' />
           <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
           {isBalanceSufficient !== null && !isBalanceSufficient && (
-            <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
+            <Tooltip
+              id={`tooltip-edited-icon-${Math.random()}`}
+              tip={'Your balance is not sufficient to fund these delegations'}
+            >
+              <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
+            </Tooltip>
           )}
           <SquareButton
             className='flex space-x-2'
@@ -134,7 +139,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           updatesCount={withdrawlsCount}
         />
         <SquareButton
-          className='flex space-x-2'
+          className='flex space-x-2 w-40'
           size={SquareButtonSize.sm}
           onClick={() => setIsConfirmationModalOpen(true)}
           disabled={!withdrawlsCount}
@@ -155,7 +160,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   return (
     <div className='flex justify-end space-x-2'>
       <SquareButton
-        className='w-24'
+        className='w-32'
         size={SquareButtonSize.sm}
         onClick={() => setListState(ListState.withdraw)}
         disabled={transactionPending}

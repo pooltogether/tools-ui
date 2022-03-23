@@ -97,10 +97,9 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
       <span className='col-span-1' />
       <Header>Address</Header>
       <Header>Amount</Header>
-
       <Tooltip id={`lock-tooltip-header`} tip={'Duration to lock the delegation'}>
         <div className='col-span-2 flex space-x-2 items-center'>
-          <span className='uppercase opacity-70 font-bold text-xxs'>Lock</span>
+          <span className='uppercase opacity-50 font-bold text-xxxs'>Duration</span>
           <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' style={{ top: -1 }} />
         </div>
       </Tooltip>
@@ -112,7 +111,7 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
 const Header = (props) => (
   <span
     {...props}
-    className={classNames(props.className, 'col-span-2 uppercase opacity-70 font-bold text-xxs')}
+    className={classNames(props.className, 'col-span-2 uppercase opacity-50 font-bold text-xxxs')}
   />
 )
 
@@ -157,7 +156,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
     <li
       className={classNames(
         'grid items-center',
-        'px-2 py-1 first:border-t border-b border-pt-purple border-opacity-50',
+        'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50',
         {
           'grid-cols-7': listState !== ListState.edit,
           'grid-cols-8': listState === ListState.edit,
@@ -301,7 +300,7 @@ const LockDisplay: React.FC<{
   const durationDisplay = getDurationDisplay()
   return (
     <div className={classNames(className, 'flex items-center space-x-1')}>
-      <FeatherIcon icon={icon} className='w-4 h-4' />
+      <FeatherIcon icon={icon} className='w-3 h-3' />
       {durationDisplay}
     </div>
   )
@@ -365,11 +364,24 @@ const DelegationEditToggle: React.FC<
       }}
       disabled={transactionPending || isLocked}
     >
-      {delegationCreation && <FeatherIcon icon='plus-circle' className='w-4 h-4 text-yellow' />}
-      {delegationFund && <FeatherIcon icon='dollar-sign' className='w-4 h-4 text-yellow' />}
-      {delegationUpdate && <FeatherIcon icon='edit-2' className='w-4 h-4 text-yellow' />}
+      {delegationCreation && <StateChangeIcon icon='plus-circle' tooltipText='Create slot' />}
+      {delegationFund && <StateChangeIcon icon='dollar-sign' tooltipText='Fund delegatee' />}
+      {delegationUpdate && <StateChangeIcon icon='edit-2' tooltipText='Edit delegatee' />}
       <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
     </button>
+  )
+}
+
+const StateChangeIcon: React.FC<{
+  icon: string
+  tooltipText: string
+}> = (props) => {
+  const { icon, tooltipText } = props
+
+  return (
+    <Tooltip id={`tooltip-edited-icon-${Math.random()}`} tip={tooltipText}>
+      <FeatherIcon icon={icon} className='w-4 h-4 text-yellow' />
+    </Tooltip>
   )
 }
 
@@ -390,7 +402,7 @@ const AddSlotButton: React.FC<{
   return (
     <SquareButton
       theme={SquareButtonTheme.tealOutline}
-      className={classNames(className)}
+      className={classNames('w-48', className)}
       size={SquareButtonSize.sm}
       onClick={() => {
         setListState(ListState.edit)
