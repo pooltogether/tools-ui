@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import FeatherIcon from 'feather-icons-react'
+import { useAtom } from 'jotai'
+import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
@@ -8,7 +12,7 @@ import {
   ThemedClipSpinner,
   Tooltip
 } from '@pooltogether/react-components'
-import FeatherIcon from 'feather-icons-react'
+
 import {
   delegationUpdatesCountAtom,
   delegationFundsAtom,
@@ -21,13 +25,10 @@ import {
   delegationCreationsAtom
 } from '@twabDelegator/atoms'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
-import { useAtom } from 'jotai'
-import { useResetAtom, useUpdateAtom } from 'jotai/utils'
-import { ListState } from '.'
 import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
-import { useState } from 'react'
-import { NumericKeys } from 'react-hook-form/dist/types/path/common'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
+import { ListState } from '.'
+import { WithdrawSvg } from '@components/SvgComponents'
 
 interface ListStateActionsProps {
   chainId: number
@@ -57,135 +58,148 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   // TODO: Return a wrapper with content so we can pass classNames and style the container easier
   if (delegator && usersAddress !== delegator) {
     return (
-      <div className='flex justify-end'>
-        <SquareButton
-          className='px-8'
-          size={SquareButtonSize.sm}
-          disabled={transactionPending}
-          onClick={() => {
-            setIsOpen(true)
-          }}
-          theme={SquareButtonTheme.tealOutline}
-        >
-          Change Delegator
-        </SquareButton>
-        <ChangeDelegatorModal
-          isOpen={isOpen}
-          delegator={delegator}
-          setDelegator={setDelegator}
-          setIsOpen={setIsOpen}
-        />
-      </div>
+      <FixedFooterNav>
+        <div className='w-full flex justify-end'>
+          <SquareButton
+            className='px-8'
+            size={SquareButtonSize.sm}
+            disabled={transactionPending}
+            onClick={() => {
+              setIsOpen(true)
+            }}
+            theme={SquareButtonTheme.tealOutline}
+          >
+            Change Delegator
+          </SquareButton>
+          <ChangeDelegatorModal
+            isOpen={isOpen}
+            delegator={delegator}
+            setDelegator={setDelegator}
+            setIsOpen={setIsOpen}
+          />
+        </div>
+      </FixedFooterNav>
     )
   } else if (listState === ListState.edit) {
-    const jsx = (
-      <>
-        <ConfirmCancellationButton
-          chainId={chainId}
-          delegator={delegator}
-          disabled={transactionPending}
-          cancelUpdates={() => {
-            resetDelegationUpdates()
-            resetDelegationCreations()
-            resetDelegationFunds()
-            setListState(ListState.readOnly)
-          }}
-          updatesCount={creationsCount + fundsCount + editsCount}
-        />
-        <div className='flex space-x-2 items-center'>
-          <div className='flex flex-col space-y-1 items-center'>
-            <EditedIconAndCount
-              count={creationsCount}
-              icon='plus-circle'
-              tooltipText='Create slot'
-            />
-            <EditedIconAndCount
-              count={fundsCount}
-              icon='dollar-sign'
-              tooltipText='Fund delegatee'
-            />
-            <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
-          </div>
-          {isBalanceSufficient !== null && !isBalanceSufficient && (
-            <Tooltip
-              id={`tooltip-edited-icon-${Math.random()}`}
-              tip={'Your balance is not sufficient to fund these delegations'}
-            >
-              <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
-            </Tooltip>
-          )}
-          <SquareButton
-            className='flex space-x-2'
-            size={SquareButtonSize.sm}
-            onClick={() => setIsConfirmationModalOpen(true)}
-            disabled={!fundsCount && !editsCount && !creationsCount}
-          >
-            <span>{transactionPending ? 'Saving changes' : 'Save Changes'}</span>
-            {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
-          </SquareButton>
-        </div>
-      </>
-    )
-
     return (
-      <>
-        <div className='hidden xs:flex items-center justify-between space-x-2'>{jsx}</div>
-        <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
-          {jsx}
-        </div>
-      </>
+      <FixedFooterNav>
+        <>
+          <ConfirmCancellationButton
+            chainId={chainId}
+            delegator={delegator}
+            disabled={transactionPending}
+            cancelUpdates={() => {
+              resetDelegationUpdates()
+              resetDelegationCreations()
+              resetDelegationFunds()
+              setListState(ListState.readOnly)
+            }}
+            updatesCount={creationsCount + fundsCount + editsCount}
+          />
+          <div className='flex space-x-2 items-center'>
+            <div className='flex flex-col space-y-1 items-center'>
+              <EditedIconAndCount
+                count={creationsCount}
+                icon='plus-circle'
+                tooltipText='Create slot'
+              />
+              <EditedIconAndCount
+                count={fundsCount}
+                icon='dollar-sign'
+                tooltipText='Fund delegatee'
+              />
+              <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
+            </div>
+            {isBalanceSufficient !== null && !isBalanceSufficient && (
+              <Tooltip
+                id={`tooltip-edited-icon-${Math.random()}`}
+                tip={'Your balance is not sufficient to fund these delegations'}
+              >
+                <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
+              </Tooltip>
+            )}
+            <SquareButton
+              className='flex space-x-2'
+              size={SquareButtonSize.sm}
+              onClick={() => setIsConfirmationModalOpen(true)}
+              disabled={!fundsCount && !editsCount && !creationsCount}
+            >
+              <span>{transactionPending ? 'Saving changes' : 'Save Changes'}</span>
+              {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
+            </SquareButton>
+          </div>
+        </>
+      </FixedFooterNav>
     )
   } else if (listState === ListState.withdraw) {
     return (
-      <div className='flex justify-between space-x-2'>
-        <ConfirmCancellationButton
-          chainId={chainId}
-          delegator={delegator}
-          disabled={transactionPending}
-          cancelUpdates={() => {
-            resetDelegationWithdrawals()
-            setListState(ListState.readOnly)
-          }}
-          updatesCount={withdrawlsCount}
-        />
-        <SquareButton
-          className='flex space-x-2 w-40'
-          size={SquareButtonSize.sm}
-          onClick={() => setIsConfirmationModalOpen(true)}
-          disabled={!withdrawlsCount}
-        >
-          <span>
-            {transactionPending
-              ? 'Withdrawing'
-              : withdrawlsCount
-              ? `Withdraw (${withdrawlsCount})`
-              : 'Withdraw'}
-          </span>
-          {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
-        </SquareButton>
-      </div>
+      <FixedFooterNav>
+        <div className='w-full flex justify-between space-x-2'>
+          <ConfirmCancellationButton
+            chainId={chainId}
+            delegator={delegator}
+            disabled={transactionPending}
+            cancelUpdates={() => {
+              resetDelegationWithdrawals()
+              setListState(ListState.readOnly)
+            }}
+            updatesCount={withdrawlsCount}
+          />
+          <SquareButton
+            className='flex space-x-2 w-40'
+            size={SquareButtonSize.sm}
+            onClick={() => setIsConfirmationModalOpen(true)}
+            disabled={!withdrawlsCount}
+          >
+            <span>
+              {transactionPending
+                ? 'Withdrawing'
+                : withdrawlsCount
+                ? `Withdraw (${withdrawlsCount})`
+                : 'Withdraw'}
+            </span>
+            {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
+          </SquareButton>
+        </div>
+      </FixedFooterNav>
     )
   }
 
   return (
-    <div className='flex justify-end space-x-2'>
-      <SquareButton
-        className='w-32'
-        size={SquareButtonSize.sm}
-        onClick={() => setListState(ListState.withdraw)}
-        disabled={transactionPending}
-      >
-        Withdraw
-      </SquareButton>
-      <SquareButton
-        className='w-24'
-        size={SquareButtonSize.sm}
-        onClick={() => setListState(ListState.edit)}
-        disabled={transactionPending}
-      >
-        Edit
-      </SquareButton>
-    </div>
+    <FixedFooterNav>
+      <div className='w-full flex justify-end space-x-2'>
+        <SquareButton
+          className='w-32'
+          size={SquareButtonSize.sm}
+          onClick={() => setListState(ListState.withdraw)}
+          disabled={transactionPending}
+        >
+          <div className='text-primary w-4 h-4 mr-1'>
+            <WithdrawSvg />
+          </div>{' '}
+          Withdraw
+        </SquareButton>
+        <SquareButton
+          className='w-24'
+          size={SquareButtonSize.sm}
+          onClick={() => setListState(ListState.edit)}
+          disabled={transactionPending}
+        >
+          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> Edit
+        </SquareButton>
+      </div>
+    </FixedFooterNav>
+  )
+}
+
+const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  return (
+    <>
+      <div className='hidden xs:flex items-center justify-between space-x-2'>{children}</div>
+      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
+        {children}
+      </div>
+    </>
   )
 }
 

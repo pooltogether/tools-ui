@@ -1,4 +1,6 @@
 import FeatherIcon from 'feather-icons-react'
+import { constants } from 'ethers/lib'
+import { isAddress } from 'ethers/lib/utils'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
 import { useTicket } from '@hooks/v4/useTicket'
 import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
@@ -19,7 +21,6 @@ import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedCh
 import { getTwabDelegatorContractAddress } from './utils/getTwabDelegatorContractAddress'
 import { useForm } from 'react-hook-form'
 import { StyledInput } from '@components/Input'
-import { isAddress } from 'ethers/lib/utils'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 
@@ -45,11 +46,16 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
 
   return (
     <>
-      <div className='flex items-center bg-pt-purple-dark rounded-full py-2 px-4'>
+      <div className='flex items-center bg-white dark:bg-pt-purple-dark rounded-full py-2 px-4'>
         <div className='w-full flex justify-between'>
           <div className='flex space-x-2 items-center'>
-            <AccountAvatar sizeClassName='w-4 h-4' address={delegator} />
-            <BlockExplorerLink chainId={chainId} address={delegator} shorten noIcon />
+            <AccountAvatar sizeClassName='w-4 h-4' address={delegator || constants.AddressZero} />
+            <BlockExplorerLink
+              chainId={chainId}
+              address={delegator || constants.AddressZero}
+              shorten
+              noIcon
+            />
             <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
             <ClearDelegatorButton delegator={delegator} setDelegator={setDelegator} />
           </div>

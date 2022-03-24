@@ -1,17 +1,17 @@
+import React from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 
-import ICON_CHANCE_GIFTING from '../../assets/images/icon--chance-gifting.svg'
-import ICON_PROMO_REWARDS from '../../assets/images/icon--promo-rewards.svg'
-import ICON_VOTE from '../../assets/images/icon--vote.svg'
-import ICON_INFO from '../../assets/images/icon--info.svg'
 import classNames from 'classnames'
+
+import { DiceSvg, GiftSvg, VoteSvg, GraphSvg } from '@components/SvgComponents'
 
 interface AppInfo {
   titleKey: string
   descriptionKey: string
-  iconURL: string | { src: string }
   href: string
+  icon: any
+  iconClasses?: string
   disabled?: boolean
 }
 
@@ -20,7 +20,7 @@ const APPS_TO_LIST: AppInfo[] = [
     titleKey: 'Deposit Delegator',
     descriptionKey: 'Delegate your chances to win without losing custody of your deposit.',
     href: 'delegate',
-    iconURL: ICON_CHANCE_GIFTING
+    icon: DiceSvg
   },
   {
     titleKey: 'Promotional Rewards',
@@ -28,20 +28,22 @@ const APPS_TO_LIST: AppInfo[] = [
       'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens.',
     href: 'promo',
     disabled: true,
-    iconURL: ICON_PROMO_REWARDS
+    icon: GiftSvg
   },
   {
     titleKey: 'PoolTogether Governance',
     descriptionKey:
       'Create and vote on proposals that control the PoolTogether protocol with POOL.',
     href: 'https://vote.pooltogether.com',
-    iconURL: ICON_VOTE
+    icon: VoteSvg,
+    iconClasses: 'mt-1 w-6'
   },
   {
     titleKey: 'PoolTogether Info',
     descriptionKey: 'Analytics for the PoolTogether protocol.',
     href: 'https://info.pooltogether.com',
-    iconURL: ICON_INFO
+    icon: GraphSvg,
+    iconClasses: 'mt-1 w-5'
   }
 ]
 
@@ -60,43 +62,40 @@ export const AppIndexList: React.FC = () => {
 }
 
 const AppLink: React.FC<AppInfo> = (props) => {
-  const { titleKey, descriptionKey, disabled, href, iconURL } = props
-  const { t, i18n } = useTranslation()
+  const { titleKey, descriptionKey, disabled, href, icon, iconClasses } = props
+  const { t } = useTranslation()
+
   return (
-    <Link href={href}>
-      <a
-        className={classNames({
-          'pointer-events-none': disabled
-        })}
-      >
-        <ListItemContainer disabled={disabled}>
+    <ListItemContainer disabled={disabled}>
+      <Link href={href}>
+        <a
+          className={classNames(
+            'flex flex-col items-center w-full p-6 xs:px-24 sm:px-32 bg-pt-purple-bright hover:bg-pt-purple transition',
+            {
+              'opacity-50': props.disabled,
+              'pointer-events-none': disabled
+            }
+          )}
+        >
           {disabled && (
             <div className='shadow-md absolute top-14 -right-12 transform rotate-45 px-12 bg-pt-teal text-pt-purple font-bold'>
               COMING SOON
             </div>
           )}
-          <img
-            className='w-8 h-8 xs:w-10 xs:h-10 mx-6 mb-2'
-            src={typeof iconURL === 'object' && iconURL.src}
-          />
+          <div className='w-12 h-12 mx-6 p-2 mb-2 bg-green rounded-full text-black'>
+            <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>
+          </div>
           <h6 className='text-white font-normal mb-2'>{t(titleKey)}</h6>
           <p className='text-white text-opacity-70 text-center text-xxs'>{descriptionKey}</p>
-        </ListItemContainer>
-      </a>
-    </Link>
+        </a>
+      </Link>
+    </ListItemContainer>
   )
 }
 
 const ListItemContainer: React.FC<{ disabled: boolean }> = (props) => (
   <li
     {...props}
-    className={classNames(
-      'p-6 xs:px-24 sm:px-32 rounded-xl flex flex-col items-center overflow-hidden transition relative',
-      {
-        'opacity-50': props.disabled,
-        'hover:opacity-90': !props.disabled
-      }
-    )}
-    style={{ backgroundColor: '#411D89' }}
+    className={classNames('rounded-xl flex flex-col items-center overflow-hidden relative')}
   />
 )

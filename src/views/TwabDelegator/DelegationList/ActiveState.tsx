@@ -97,12 +97,19 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
       <span className='col-span-1' />
       <Header>Address</Header>
       <Header>Amount</Header>
-      <Tooltip id={`lock-tooltip-header`} tip={'Duration to lock the delegation'}>
-        <div className='col-span-2 flex space-x-2 items-center'>
-          <span className='uppercase opacity-50 font-bold text-xxxs'>Duration</span>
-          <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' style={{ top: -1 }} />
-        </div>
-      </Tooltip>
+      <Header className='flex items-center'>
+        Duration{' '}
+        <span className='normal-case'>
+          <Tooltip id={`lock-tooltip-header`} tip={'Duration the delegation is locked for in days'}>
+            <FeatherIcon
+              icon={'help-circle'}
+              className='w-3 h-3 opacity-70 ml-1'
+              style={{ top: -1 }}
+            />
+          </Tooltip>
+        </span>
+      </Header>
+
       {listState === ListState.edit && <span className='col-span-1' />}
     </li>
   )
@@ -410,7 +417,7 @@ const AddSlotButton: React.FC<{
       }}
       disabled={transactionPending}
     >
-      <FeatherIcon icon='plus' className='w-3 h-3 my-auto mr-1' />
+      <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
       <span>New Delegation</span>
     </SquareButton>
   )

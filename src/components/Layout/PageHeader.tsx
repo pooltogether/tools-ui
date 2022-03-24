@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Link from 'next/link'
 import {
   LanguagePickerDropdown,
   PageHeaderContainer,
@@ -9,9 +10,9 @@ import {
   ThemeSettingsItem,
   SocialLinks
 } from '@pooltogether/react-components'
-import { FullWalletConnectionButton } from '@pooltogether/wallet-connection'
-import Link from 'next/link'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+
+import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { useSupportedChains } from '@hooks/app/useSupportedChains'
 
 export enum ContentPaneState {
@@ -32,32 +33,7 @@ export const PageHeader = (props) => {
       style={{ zIndex: 3 }}
     >
       <div className='flex flex-row justify-end items-center space-x-4'>
-        <FullWalletConnectionButton
-          chains={chains}
-          TosDisclaimer={
-            <Trans
-              i18nKey='connectWalletTermsAndDisclaimerBlurb'
-              components={{
-                termsLink: (
-                  <a
-                    className='text-pt-teal transition hover:opacity-70 underline'
-                    href='https://pooltogether.com/terms/'
-                    target='_blank'
-                    rel='noreferrer'
-                  />
-                ),
-                disclaimerLink: (
-                  <a
-                    className='text-pt-teal transition hover:opacity-70 underline'
-                    href='https://pooltogether.com/protocol-disclaimer/'
-                    target='_blank'
-                    rel='noreferrer'
-                  />
-                )
-              }}
-            />
-          }
-        />
+        <FullWalletConnectionButtonWrapper />
         <Settings />
       </div>
     </PageHeaderContainer>

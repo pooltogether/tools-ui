@@ -1,10 +1,11 @@
-import { StyledInput } from '@components/Input'
-import { Label } from '@components/Label'
-import { LoadingLogo, SquareButton } from '@pooltogether/react-components'
+import React from 'react'
 import classNames from 'classnames'
-import { isAddress } from 'ethers/lib/utils'
-import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
+import { isAddress } from 'ethers/lib/utils'
+import { SquareButton } from '@pooltogether/react-components'
+
+import { StyledInput } from '@components/Input'
+import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { DelegationListProps } from '.'
 
 /**
@@ -30,36 +31,47 @@ export const NoDelegatorState: React.FC<DelegationListProps> = (props) => {
   }
 
   return (
-    <div
-      className={classNames(
-        className,
-        'rounded-lg py-8 px-4 xs:px-20 text-center flex-col items-center bg-darkened'
-      )}
-    >
-      <p className='text-pt-purple-dark dark:text-pt-purple-light mb-2'>No Wallet Connected</p>
-      <p className='font-bold mb-1'>Connect a wallet to view your delegations</p>
-      <hr />
-      <p className='font-bold mb-4'>Enter an address below to view it's delegations</p>
-      <form onSubmit={handleSubmit((v) => onSubmit(v))} autoComplete='off'>
-        <StyledInput
-          id='delegator'
-          invalid={!!errors.delegator}
-          className='w-full mb-4'
-          placeholder='0xabc...'
-          {...register('delegator', {
-            required: {
-              value: true,
-              message: 'Delegator is required'
-            },
-            validate: {
-              isAddress: (v) => isAddress(v) || 'Invalid address'
-            }
-          })}
-        />
-        <SquareButton className='w-full' disabled={!isValid}>
-          View Delegations
-        </SquareButton>
-      </form>
-    </div>
+    <>
+      <div
+        className={classNames(
+          className,
+          'rounded-lg py-8 px-4 xs:px-20 text-center flex-col items-center bg-darkened'
+        )}
+      >
+        <p className='text-pt-purple-dark dark:text-pt-purple-light mb-2'>No Wallet Connected</p>
+        <p className='font-bold mb-1'>Connect a wallet to view your delegations:</p>
+
+        <FullWalletConnectionButtonWrapper className='flex flex-col items-center mt-3' />
+      </div>
+      <div
+        className={classNames(
+          'rounded-lg py-8 px-4 xs:px-20 text-center flex-col items-center bg-pt-purple-dark mt-4'
+        )}
+      >
+        <p className='font-bold mb-4 text-xs'>
+          ... or enter an address below to view it's delegations:
+        </p>
+        <form onSubmit={handleSubmit((v) => onSubmit(v))} autoComplete='off'>
+          <StyledInput
+            id='delegator'
+            invalid={!!errors.delegator}
+            className='w-full mb-4'
+            placeholder='0xabc...'
+            {...register('delegator', {
+              required: {
+                value: true,
+                message: 'Delegator is required'
+              },
+              validate: {
+                isAddress: (v) => isAddress(v) || 'Invalid address'
+              }
+            })}
+          />
+          <SquareButton className='w-full' disabled={!isValid}>
+            View Delegations
+          </SquareButton>
+        </form>
+      </div>
+    </>
   )
 }

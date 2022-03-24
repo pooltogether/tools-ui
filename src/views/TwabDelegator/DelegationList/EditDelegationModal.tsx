@@ -1,7 +1,7 @@
 import { useTicket } from '@hooks/v4/useTicket'
 import {
   BottomSheet,
-  ModalTitle,
+  BottomSheetTitle,
   SquareButton,
   SquareButtonTheme
 } from '@pooltogether/react-components'
@@ -39,7 +39,7 @@ export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <ModalTitle chainId={chainId} title={`Edit delegation ${delegationId.slot.toString()}`} />
+      <BottomSheetTitle chainId={chainId} title={`Edit de ${delegationId.slot.toString()}`} />
       <EditDelegationForm
         chainId={chainId}
         delegationId={delegationId}
