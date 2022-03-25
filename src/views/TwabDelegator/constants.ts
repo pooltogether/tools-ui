@@ -4,4 +4,4 @@ export const QUERY_PARAM = Object.freeze({
 })
 
 export const DELEGATION_LEARN_MORE_URL =
-  'https://dev.pooltogether.com/protocol/contracts/v4-twab-delegator'
+  'https://docs.pooltogether.com/how-to/deposit-delegator'
