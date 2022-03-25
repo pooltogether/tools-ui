@@ -46,7 +46,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
       autoComplete='off'
     >
       <Label className='uppercase' htmlFor='delegatee'>
-        Delegatee
+        Delegatee *
       </Label>
       <StyledInput
         id='delegatee'
@@ -65,7 +65,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
       />
       <ErrorMessage className='mb-2'>{errors.delegatee?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
-        {`Amount (${ticket.symbol})`}
+        {`Amount (${ticket.symbol})`} *
       </Label>
       <StyledInput
         id='balance'
@@ -96,7 +96,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
       <Tooltip id={`lock-tooltip-form`} tip={'Duration to lock the delegation'}>
         <div className='col-span-2 flex space-x-2 items-center'>
           <Label className='uppercase' htmlFor='duration'>
-            Lock Duration (days)
+            Optional Lock Duration (Days)
           </Label>
           <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' />
         </div>

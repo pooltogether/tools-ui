@@ -22,7 +22,6 @@ import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import {
-  Amount,
   BlockExplorerLink,
   CheckboxInputGroup,
   SquareButton,
@@ -40,6 +39,7 @@ import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 import { BigNumber } from 'ethers'
 import classNames from 'classnames'
 import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
+import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
@@ -174,7 +174,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
       )}
     >
       <div className='flex space-x-2 col-span-1'>
-        {listState === ListState.withdraw && (
+        {!isLocked && listState === ListState.withdraw && (
           <DelegationWithdrawToggle
             {...props}
             isZeroBalance={isZeroBalance}
@@ -182,6 +182,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
             transactionPending={transactionPending}
           />
         )}
+        {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>}
         <span className='font-bold opacity-60'>{slot.toString()}</span>
       </div>
       <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
@@ -197,7 +198,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
         isEdited={isEdited}
         className='col-span-2'
       />
-      {listState === ListState.edit && (
+      {!isLocked && listState === ListState.edit && (
         <div className='flex justify-end space-x-1 col-span-1'>
           <DelegationEditToggle
             {...props}
@@ -273,7 +274,7 @@ const LockDisplay: React.FC<{
     if (!isLocked) {
       return (
         <span
-          className={classNames(className, '', {
+          className={classNames(className, 'hidden xs:inline-block', {
             'opacity-50': listState === ListState.readOnly
           })}
         >
@@ -297,17 +298,17 @@ const LockDisplay: React.FC<{
       <div className={'flex space-x-1'}>
         <span className='font-bold'>{formattedDuration}</span>
         <span className='opacity-50'>{`${units}`}</span>
-        {!isEdited && <span className='opacity-50'>left</span>}
+        {!isEdited && <span className='opacity-50 hidden xs:inline-block'>left</span>}
       </div>
     )
   }
 
-  const icon = isLocked ? 'lock' : 'unlock'
+  const icon = isLocked ? <LockedSvg /> : <UnlockedSvg />
 
   const durationDisplay = getDurationDisplay()
   return (
     <div className={classNames(className, 'flex items-center space-x-1')}>
-      <FeatherIcon icon={icon} className='w-3 h-3' />
+      <div className='opacity-30 w-4 h-4'>{icon}</div>
       {durationDisplay}
     </div>
   )

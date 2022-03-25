@@ -1,5 +1,5 @@
 import { useTicket } from '@hooks/v4/useTicket'
-import { BottomSheet, ModalTitle } from '@pooltogether/react-components'
+import { BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import { dToS } from '@pooltogether/utilities'
 import {
   addDelegationFundAtom,
@@ -28,7 +28,7 @@ export const CreateDelegationModal: React.FC<{
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <ModalTitle chainId={chainId} title={'Create delegation'} />
+      <BottomSheetTitle chainId={chainId} title={'Create delegation'} />
       <CreateDelegationForm
         chainId={chainId}
         delegationId={{

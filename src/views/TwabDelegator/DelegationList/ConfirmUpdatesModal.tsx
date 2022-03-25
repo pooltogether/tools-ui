@@ -1,4 +1,4 @@
-import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/react-components'
+import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import { signERC2612Permit } from 'eth-permit'
 import FeatherIcon from 'feather-icons-react'
 import {
@@ -75,7 +75,7 @@ export const ConfirmUpdatesModal: React.FC<{
   if (modalState === ConfirmModalState.review) {
     content = (
       <div className='flex flex-col space-y-4'>
-        <ModalTitle chainId={chainId} title={'Delegation confirmation'} />
+        <BottomSheetTitle chainId={chainId} title={'Delegation confirmation'} />
         <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
         <div>
@@ -98,7 +98,7 @@ export const ConfirmUpdatesModal: React.FC<{
   } else {
     content = (
       <div className='flex flex-col space-y-12'>
-        <ModalTitle chainId={chainId} title={'Delegation transaction submitted'} />
+        <BottomSheetTitle chainId={chainId} title={'Delegation transaction submitted'} />
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )

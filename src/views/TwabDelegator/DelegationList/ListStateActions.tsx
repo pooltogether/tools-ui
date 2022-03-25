@@ -5,7 +5,7 @@ import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
-  ModalTitle,
+  BottomSheetTitle,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
@@ -276,7 +276,7 @@ const ConfirmCancellationModal: React.FC<{
       }}
       className='flex flex-col space-y-4'
     >
-      <ModalTitle chainId={chainId} title={'Confirm cancellation'} />
+      <BottomSheetTitle chainId={chainId} title={'Confirm cancellation'} />
       <div>
         <p className='text-xs font-bold mb-1'>Lost changes</p>
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />
