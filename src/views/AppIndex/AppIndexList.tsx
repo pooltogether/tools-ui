@@ -26,7 +26,7 @@ const APPS_TO_LIST: AppInfo[] = [
     titleKey: 'Promotional Rewards',
     descriptionKey:
       'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens.',
-    href: 'promo',
+    href: 'rewards',
     icon: GiftSvg
   },
   {

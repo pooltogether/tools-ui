@@ -12,12 +12,13 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Promo - PoolTogether</title>
+        <title>Promotional Rewards - PoolTogether</title>
         <meta name='description' content='Create and manage promotional reward campaigns.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
       <main>
+        wtf
         <TwabRewards />
       </main>
 
