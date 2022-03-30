@@ -4,24 +4,21 @@ import { NextPage } from 'next/types'
 
 import { LoadingScreen } from '@components/LoadingScreen'
 
-const TwabDelegator = dynamic(
-  () => import('../views/TwabDelegator').then((mod) => mod.TwabDelegator),
-  {
-    loading: () => <LoadingScreen />
-  }
-)
+const TwabRewards = dynamic(() => import('../views/TwabRewards').then((mod) => mod.TwabDelegator), {
+  loading: () => <LoadingScreen />
+})
 
 const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Delegate - PoolTogether</title>
-        <meta name='description' content='Manage your deposit delegations.' />
+        <title>Promo - PoolTogether</title>
+        <meta name='description' content='Create and manage promotional reward campaigns.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
       <main>
-        <TwabDelegator />
+        <TwabRewards />
       </main>
 
       <footer></footer>

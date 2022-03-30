@@ -27,7 +27,6 @@ const APPS_TO_LIST: AppInfo[] = [
     descriptionKey:
       'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens.',
     href: 'promo',
-    disabled: true,
     icon: GiftSvg
   },
   {
@@ -77,11 +76,6 @@ const AppLink: React.FC<AppInfo> = (props) => {
             }
           )}
         >
-          {disabled && (
-            <div className='shadow-md absolute top-14 -right-12 transform rotate-45 px-12 bg-pt-teal text-pt-purple font-bold'>
-              COMING SOON
-            </div>
-          )}
           <div className='w-12 h-12 mx-6 p-2 mb-2 bg-green rounded-full text-black'>
             <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>
           </div>
