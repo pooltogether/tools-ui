@@ -67,7 +67,10 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
     }
     return (
       <div className={classNames(className, 'text-xxxs xs:text-xs')}>
-        {list}
+        <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
+          Delegations
+        </p>
+
         {delegations.length >= 1 && (
           <ListStateActions
             chainId={chainId}
@@ -78,6 +81,9 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
             transactionPending={transactionPending}
           />
         )}
+
+        <div className='xs:mx-2'>{list}</div>
+
         <EditDelegationModal chainId={chainId} />
         <CreateDelegationModal chainId={chainId} delegator={delegator} />
         <ConfirmUpdatesModal

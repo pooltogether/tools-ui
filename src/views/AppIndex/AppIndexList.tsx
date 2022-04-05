@@ -17,29 +17,27 @@ interface AppInfo {
 
 const APPS_TO_LIST: AppInfo[] = [
   {
-    titleKey: 'Deposit Delegator',
-    descriptionKey: 'Delegate your chances to win without losing custody of your deposit.',
+    titleKey: 'depositDelegator',
+    descriptionKey: 'depositDelegatorDescription',
     href: 'delegate',
     icon: DiceSvg
   },
   {
-    titleKey: 'Promotional Rewards',
-    descriptionKey:
-      'Reward PoolTogether depositors on specific pools or chains with any ERC20 tokens.',
+    titleKey: 'promotionalRewards',
+    descriptionKey: 'promotionalRewardsDescription',
     href: 'rewards',
     icon: GiftSvg
   },
   {
-    titleKey: 'PoolTogether Governance',
-    descriptionKey:
-      'Create and vote on proposals that control the PoolTogether protocol with POOL.',
+    titleKey: 'pooltogetherGovernance',
+    descriptionKey: 'pooltogetherGovernanceDescription',
     href: 'https://vote.pooltogether.com',
     icon: VoteSvg,
     iconClasses: 'mt-1 w-6'
   },
   {
-    titleKey: 'PoolTogether Info',
-    descriptionKey: 'Analytics for the PoolTogether protocol.',
+    titleKey: 'pooltogetherInfo',
+    descriptionKey: 'pooltogetherInfoDescription',
     href: 'https://info.pooltogether.com',
     icon: GraphSvg,
     iconClasses: 'mt-1 w-5'
@@ -80,7 +78,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
             <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>
           </div>
           <h6 className='text-white font-normal mb-2'>{t(titleKey)}</h6>
-          <p className='text-white text-opacity-70 text-center text-xxs'>{descriptionKey}</p>
+          <p className='text-white text-opacity-70 text-center text-xxs'>{t(descriptionKey)}</p>
         </a>
       </Link>
     </ListItemContainer>

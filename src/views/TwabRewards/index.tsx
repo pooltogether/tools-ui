@@ -33,7 +33,7 @@ export const TwabRewards: React.FC = () => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle title='Deposit Rewards' />
+        <PageTitle title='Promotional Rewards' />
         <RewardsTitle className='mb-8' />
         <UsersRewardsState
           chainId={chainId}

@@ -29,6 +29,7 @@ import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
 import { ListState } from '.'
 import { WithdrawSvg } from '@components/SvgComponents'
+import { useTranslation } from 'react-i18next'
 
 interface ListStateActionsProps {
   chainId: number
@@ -54,6 +55,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const usersAddress = useUsersAddress()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { t } = useTranslation()
 
   // TODO: Return a wrapper with content so we can pass classNames and style the container easier
   if (delegator && usersAddress !== delegator) {
@@ -69,7 +71,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             }}
             theme={SquareButtonTheme.tealOutline}
           >
-            Change Delegator
+            {t('changeDelegator')}
           </SquareButton>
           <ChangeDelegatorModal
             isOpen={isOpen}
@@ -97,23 +99,27 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             updatesCount={creationsCount + fundsCount + editsCount}
           />
           <div className='flex space-x-2 items-center'>
-            <div className='flex flex-col space-y-1 items-center'>
+            <div className='flex flex-col space-y-1 justify-between items-center'>
               <EditedIconAndCount
                 count={creationsCount}
                 icon='plus-circle'
-                tooltipText='Create slot'
+                tooltipText={t('createSlot')}
               />
               <EditedIconAndCount
                 count={fundsCount}
                 icon='dollar-sign'
-                tooltipText='Fund delegatee'
+                tooltipText={t('fundDelegatee')}
               />
-              <EditedIconAndCount count={editsCount} icon='edit-2' tooltipText='Edit delegatee' />
+              <EditedIconAndCount
+                count={editsCount}
+                icon='edit-2'
+                tooltipText={t('editDelegatee')}
+              />
             </div>
             {isBalanceSufficient !== null && !isBalanceSufficient && (
               <Tooltip
                 id={`tooltip-edited-icon-${Math.random()}`}
-                tip={'Your balance is not sufficient to fund these delegations'}
+                tip={t('insufficientBalanceForDelegations')}
               >
                 <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
               </Tooltip>
@@ -124,7 +130,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               onClick={() => setIsConfirmationModalOpen(true)}
               disabled={!fundsCount && !editsCount && !creationsCount}
             >
-              <span>{transactionPending ? 'Saving changes' : 'Save Changes'}</span>
+              <span className='capitalize'>
+                {transactionPending ? t('savingChanges') : t('saveChanges')}
+              </span>
               {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
             </SquareButton>
           </div>
@@ -153,10 +161,10 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           >
             <span>
               {transactionPending
-                ? 'Withdrawing'
+                ? t('withdrawing')
                 : withdrawlsCount
-                ? `Withdraw (${withdrawlsCount})`
-                : 'Withdraw'}
+                ? `${t('withdraw')} (${withdrawlsCount})`
+                : t('withdraw')}
             </span>
             {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
           </SquareButton>
@@ -167,7 +175,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 
   return (
     <FixedFooterNav>
-      <div className='w-full flex justify-end space-x-2'>
+      <div className='w-full flex justify-center space-x-2'>
         <SquareButton
           className='w-32'
           size={SquareButtonSize.sm}
@@ -176,8 +184,8 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
         >
           <div className='text-primary w-4 h-4 mr-1'>
             <WithdrawSvg />
-          </div>{' '}
-          Withdraw
+          </div>
+          {t('withdraw')}
         </SquareButton>
         <SquareButton
           className='w-24'
@@ -185,7 +193,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           onClick={() => setListState(ListState.edit)}
           disabled={transactionPending}
         >
-          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> Edit
+          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
         </SquareButton>
       </div>
     </FixedFooterNav>
@@ -195,7 +203,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   return (
     <>
-      <div className='hidden xs:flex items-center justify-between space-x-2'>{children}</div>
+      <div className='hidden xs:flex items-center justify-between w-full flex items-center justify-end mb-8'>
+        {children}
+      </div>
       <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
         {children}
       </div>
@@ -233,6 +243,7 @@ const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) =>
   const { disabled, updatesCount, cancelUpdates } = props
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -250,7 +261,7 @@ const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) =>
           theme={SquareButtonTheme.tealOutline}
           disabled={disabled}
         >
-          Cancel
+          {t('cancel')}
         </SquareButton>
       </div>
       <ConfirmCancellationModal {...props} isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -267,6 +278,8 @@ const ConfirmCancellationModal: React.FC<{
   cancelUpdates: () => void
 }> = (props) => {
   const { chainId, delegator, isOpen, disabled, setIsOpen, cancelUpdates } = props
+  const { t } = useTranslation()
+
   return (
     <BottomSheet
       label='cancel-delegation-edits-modal'
@@ -276,9 +289,9 @@ const ConfirmCancellationModal: React.FC<{
       }}
       className='flex flex-col space-y-4'
     >
-      <BottomSheetTitle chainId={chainId} title={'Confirm cancellation'} />
+      <BottomSheetTitle chainId={chainId} title={t('confirmCancellation')} />
       <div>
-        <p className='text-xs font-bold mb-1'>Lost changes</p>
+        <p className='text-xs font-bold mb-1'>{t('Lost changes')}</p>
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />
       </div>
       <SquareButton
@@ -287,7 +300,7 @@ const ConfirmCancellationModal: React.FC<{
         theme={SquareButtonTheme.orangeOutline}
         disabled={disabled}
       >
-        Cancel changes
+        {t('cancelChanges')}
       </SquareButton>
     </BottomSheet>
   )

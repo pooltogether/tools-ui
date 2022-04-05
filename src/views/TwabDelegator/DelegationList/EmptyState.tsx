@@ -5,6 +5,7 @@ import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import classNames from 'classnames'
+import { useTranslation } from 'react-i18next'
 
 interface EmptyStateProps extends DelegationListProps {
   delegator: string
@@ -19,6 +20,7 @@ interface EmptyStateProps extends DelegationListProps {
  */
 export const EmptyState: React.FC<EmptyStateProps> = (props) => {
   const { className, delegator, setListState } = props
+  const { t } = useTranslation()
 
   return (
     <div
@@ -28,9 +30,9 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
       )}
     >
       <p className='uppercase text-xxs font-semibold text-pt-purple-dark dark:text-pt-purple-light'>
-        No delegation positions found
+        {t('noDelegationsFound')}
       </p>
-      <p className='font-bold text-xs'>Get started by delegating to a wallet or contract:</p>
+      <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
       <CreateSlotButton className='mx-auto' delegator={delegator} setListState={setListState} />
     </div>
   )
@@ -44,6 +46,7 @@ const CreateSlotButton: React.FC<{
   const { className, delegator, setListState } = props
   const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
+  const { t } = useTranslation()
 
   if (delegator !== usersAddress) return null
 
@@ -57,7 +60,7 @@ const CreateSlotButton: React.FC<{
       }}
     >
       <FeatherIcon icon='plus' strokeWidth={4} className='w-4 h-4 my-auto mr-1' />
-      <span>New Delegation</span>
+      <span>{t('newDelegation')}</span>
     </SquareButton>
   )
 }

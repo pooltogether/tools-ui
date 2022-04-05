@@ -14,6 +14,7 @@ import {
 } from './atoms'
 import { useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { useTranslation } from 'react-i18next'
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabDelegator: React.FC = () => {
@@ -22,6 +23,7 @@ export const TwabDelegator: React.FC = () => {
   const usersAddress = useUsersAddress()
   const [delegator] = useAtom(delegatorAtom)
   const setDelegator = useUpdateAtom(setDelegatorAtom)
+  const { t } = useTranslation()
 
   // Lazy way to get the app to react on wallet connection
   useEffect(() => {
@@ -33,7 +35,7 @@ export const TwabDelegator: React.FC = () => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle title='Deposit Delegator' />
+        <PageTitle title={t('depositDelegator')} />
         <DelegationTitle className='mb-8' />
         <UsersDelegationState
           chainId={chainId}

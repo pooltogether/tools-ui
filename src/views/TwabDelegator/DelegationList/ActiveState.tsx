@@ -40,6 +40,7 @@ import { BigNumber } from 'ethers'
 import classNames from 'classnames'
 import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
+import { useTranslation } from 'react-i18next'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
@@ -83,6 +84,8 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
 
 const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
   const { listState } = props
+  const { t } = useTranslation()
+
   return (
     <li
       className={classNames(
@@ -95,15 +98,15 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
       )}
     >
       <span className='col-span-1' />
-      <Header>Address</Header>
-      <Header>Amount</Header>
+      <Header>{t('address')}</Header>
+      <Header>{t('amount')}</Header>
       <Header className='flex items-center'>
-        Duration{' '}
+        <span>{t('duration')}</span>
         <span className='normal-case'>
           <Tooltip id={`lock-tooltip-header`} tip={'Duration the delegation is locked for in days'}>
             <FeatherIcon
               icon={'help-circle'}
-              className='w-3 h-3 opacity-70 ml-1'
+              className='w-3 h-3 ml-1 opacity-50'
               style={{ top: -1 }}
             />
           </Tooltip>
@@ -118,7 +121,7 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
 const Header = (props) => (
   <span
     {...props}
-    className={classNames(props.className, 'col-span-2 uppercase opacity-50 font-bold text-xxxs')}
+    className={classNames(props.className, 'col-span-2 uppercase font-bold text-xxxs')}
   />
 )
 
@@ -267,6 +270,7 @@ const LockDisplay: React.FC<{
   isEdited: boolean
 }> = (props) => {
   const { className, duration, isEdited, listState } = props
+  const { t } = useTranslation()
 
   const isLocked = duration > 0
 
@@ -274,11 +278,11 @@ const LockDisplay: React.FC<{
     if (!isLocked) {
       return (
         <span
-          className={classNames(className, 'hidden xs:inline-block', {
+          className={classNames(className, 'hidden xs:inline-block lowercase', {
             'opacity-50': listState === ListState.readOnly
           })}
         >
-          unlocked
+          {t('unlocked')}
         </span>
       )
     }
@@ -286,19 +290,19 @@ const LockDisplay: React.FC<{
     let formattedDuration, units
     if (duration >= SECONDS_PER_DAY) {
       formattedDuration = Math.round(sToD(duration))
-      units = formattedDuration === 1 ? 'day' : 'days'
+      units = t('lowercaseDay', { count: formattedDuration })
     } else if (duration >= SECONDS_PER_HOUR) {
       formattedDuration = Math.round(sToM(duration))
-      units = formattedDuration === 1 ? 'minute' : 'minutes'
+      units = t('lowercaseMinute', { count: formattedDuration })
     } else if (duration > 0) {
       formattedDuration = Math.round(duration)
-      units = formattedDuration === 1 ? 'second' : 'seconds'
+      units = t('lowercaseSecond', { count: formattedDuration })
     }
     return (
       <div className={'flex space-x-1'}>
         <span className='font-bold'>{formattedDuration}</span>
         <span className='opacity-50'>{`${units}`}</span>
-        {!isEdited && <span className='opacity-50 hidden xs:inline-block'>left</span>}
+        {!isEdited && <span className='opacity-50 hidden xs:inline-block'>{t('left')}</span>}
       </div>
     )
   }
@@ -362,6 +366,7 @@ const DelegationEditToggle: React.FC<
   } = props
   const setIsOpen = useUpdateAtom(editDelegationModalOpenAtom)
   const setDelegationIdToEdit = useUpdateAtom(delegationIdToEditAtom)
+  const { t } = useTranslation()
 
   return (
     <button
@@ -372,9 +377,9 @@ const DelegationEditToggle: React.FC<
       }}
       disabled={transactionPending || isLocked}
     >
-      {delegationCreation && <StateChangeIcon icon='plus-circle' tooltipText='Create slot' />}
-      {delegationFund && <StateChangeIcon icon='dollar-sign' tooltipText='Fund delegatee' />}
-      {delegationUpdate && <StateChangeIcon icon='edit-2' tooltipText='Edit delegatee' />}
+      {delegationCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
+      {delegationFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
+      {delegationUpdate && <StateChangeIcon icon='edit-2' tooltipText={t('editDelegatee')} />}
       <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
     </button>
   )
@@ -404,6 +409,7 @@ const AddSlotButton: React.FC<{
   const { className, listState, transactionPending, delegator, setListState } = props
   const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
+  const { t } = useTranslation()
 
   if (listState === ListState.withdraw || usersAddress !== delegator) return null
 
@@ -419,7 +425,7 @@ const AddSlotButton: React.FC<{
       disabled={transactionPending}
     >
       <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
-      <span>New Delegation</span>
+      <span>{t('newDelegation')}</span>
     </SquareButton>
   )
 }

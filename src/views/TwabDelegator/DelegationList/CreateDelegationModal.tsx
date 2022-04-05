@@ -17,6 +17,7 @@ import {
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'react-i18next'
 
 export const CreateDelegationModal: React.FC<{
   chainId: number
@@ -25,10 +26,11 @@ export const CreateDelegationModal: React.FC<{
   const { chainId, delegator } = props
   const [isOpen, setIsOpen] = useAtom(createDelegationModalOpenAtom)
   const nextSlotId = useNextSlot(chainId, delegator)
+  const { t } = useTranslation()
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <BottomSheetTitle chainId={chainId} title={'Create delegation'} />
+      <BottomSheetTitle chainId={chainId} title={t('createDelegation')} />
       <CreateDelegationForm
         chainId={chainId}
         delegationId={{
@@ -52,6 +54,7 @@ const CreateDelegationForm: React.FC<{
 }> = (props) => {
   const { chainId, delegationId, closeModal } = props
   const ticket = useTicket(chainId)
+  const { t } = useTranslation()
 
   const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
   const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
@@ -86,7 +89,7 @@ const CreateDelegationForm: React.FC<{
         balance: '',
         duration: 0
       }}
-      submitString='Queue Creation'
+      submitString={t('queueCreation')}
     />
   )
 }
