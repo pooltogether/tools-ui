@@ -4,9 +4,11 @@ import { NextPage } from 'next/types'
 
 import { LoadingScreen } from '@components/LoadingScreen'
 
-const TwabRewards = dynamic(() => import('../views/TwabRewards').then((mod) => mod.TwabDelegator), {
-  loading: () => <LoadingScreen />
-})
+import { TwabRewards } from '../views/TwabRewards'
+
+// const TwabRewards = dynamic(() => import('../views/TwabRewards').then((mod) => mod.TwabDelegator), {
+//   loading: () => <LoadingScreen />
+// })
 
 const Home: NextPage = () => {
   return (
@@ -18,7 +20,6 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        wtf
         <TwabRewards />
       </main>
 

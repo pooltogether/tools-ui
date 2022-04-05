@@ -17,29 +17,29 @@ import { getRewardsSupportedChainIds } from './utils/getRewardsSupportedChainIds
 /**
  * The starting address for the rewards view.
  */
-const getStartingAddress = () => {
-  const address = getUrlQueryParam(QUERY_PARAM.address, null, null, [(v) => isAddress(v)])
-  return address ? getAddress(address) : null
+const getStartingAccount = () => {
+  const account = getUrlQueryParam(QUERY_PARAM.account, null, null, [(v) => isAddress(v)])
+  return account ? getAddress(account) : null
 }
 
 /**
  * The address to use as the delegator for the rewards view
  */
-export const addressAtom = atom<string>(getStartingAddress())
+export const currentAccountAtom = atom<string>(getStartingAccount())
 
 /**
  * Write-only
  */
-export const setAddressAtom = atom<null, string>(null, (get, set, _address) => {
-  if (!_address) {
-    set(addressAtom, null)
+export const setCurrentAccountAtom = atom<null, string>(null, (get, set, _currentAccount) => {
+  if (!_currentAccount) {
+    set(currentAccountAtom, null)
     return
   }
-  const address = getAddress(_address)
+  const currentAccount = getAddress(_currentAccount)
   const url = new URL(window.location.href)
-  url.searchParams.set(QUERY_PARAM.address, address)
+  url.searchParams.set(QUERY_PARAM.account, currentAccount)
   window.history.pushState(null, '', url)
-  set(addressAtom, address)
+  set(currentAccountAtom, currentAccount)
 })
 
 /**

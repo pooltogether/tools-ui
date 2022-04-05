@@ -6,8 +6,8 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>PoolTogether App Index</title>
-        <meta name='description' content='An index of apps supporting the PoolTogether protocol.' />
+        <title>PoolTogether Tools Index</title>
+        <meta name='description' content='A list of apps supporting the PoolTogether protocol.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 

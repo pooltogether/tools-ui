@@ -47,7 +47,7 @@ const APPS_TO_LIST: AppInfo[] = [
 ]
 
 /**
- * App list is the list of apps to display in the App Index
+ * App list is the list of apps to display in the Tools Index
  * @returns
  */
 export const AppIndexList: React.FC = () => {
