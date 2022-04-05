@@ -37,6 +37,7 @@ import {
   useWalletSigner
 } from '@pooltogether/wallet-connection'
 import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
+import { useTranslation } from 'react-i18next'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -69,17 +70,18 @@ export const ConfirmUpdatesModal: React.FC<{
   const [modalState, setModalState] = useState(ConfirmModalState.review)
   const [isOpen, setIsOpen] = useAtom(delegationUpdatesModalOpenAtom)
   const transaction = useTransaction(transactionId)
+  const { t } = useTranslation()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
 
   let content
   if (modalState === ConfirmModalState.review) {
     content = (
       <div className='flex flex-col space-y-4'>
-        <BottomSheetTitle chainId={chainId} title={'Delegation confirmation'} />
+        <BottomSheetTitle chainId={chainId} title={t('delegationConfirmation')} />
         <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
         <div>
-          <p className='text-xs font-bold mb-1'>Review changes</p>
+          <p className='text-xs font-bold mb-1 capitalize'>{t('reviewChanges')}</p>
           <DelegationConfirmationList chainId={chainId} delegator={delegator} />
         </div>
         <SubmitTransactionButton
@@ -98,7 +100,7 @@ export const ConfirmUpdatesModal: React.FC<{
   } else {
     content = (
       <div className='flex flex-col space-y-12'>
-        <BottomSheetTitle chainId={chainId} title={'Delegation transaction submitted'} />
+        <BottomSheetTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )
@@ -126,6 +128,7 @@ export const ConfirmUpdatesModal: React.FC<{
  */
 const DelegationLockWarning: React.FC = () => {
   const [lockCount] = useAtom(delegationUpdatedLocksCountAtom)
+  const { t } = useTranslation()
 
   if (!lockCount) return null
 
@@ -135,17 +138,14 @@ const DelegationLockWarning: React.FC = () => {
       innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-yellow' />
-      <p className='text-xs'>
-        By delegating you are locking up your funds for the expiry period and relinquishing your
-        chances of winning to gift those chances to other wallet addresses.
-      </p>
+      <p className='text-xs'>{t('delegationConfirmationDescription')}</p>
       <a
         className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
         href={DELEGATION_LEARN_MORE_URL}
         target='_blank'
         rel='noreferrer'
       >
-        <span>Learn more about Chance Delegating</span>
+        <span>{t('learnMoreAboutDepositDelegation')}</span>
         <FeatherIcon icon='external-link' className='w-3 h-3' />
       </a>
     </Banner>
@@ -156,6 +156,7 @@ const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: nu
   props
 ) => {
   const { isBalanceSufficient, chainId } = props
+  const { t } = useTranslation()
 
   if (isBalanceSufficient === null || isBalanceSufficient) return null
 
@@ -165,17 +166,14 @@ const TicketBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: nu
       innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-pt-red-light' />
-      <p className='text-xs'>
-        Delegated amount exceeds current ticket balance. Please lower some delegation amounts or
-        deposit more into PoolTogether.
-      </p>
+      <p className='text-xs'>{t('delegatedAmountTooLarge')}</p>
       <a
         className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
         href={getPoolTogetherDepositUrl(chainId)}
         target='_blank'
         rel='noreferrer'
       >
-        <span>Deposit more</span>
+        <span>{t('depositMore')}</span>
         <FeatherIcon icon='external-link' className='w-3 h-3' />
       </a>
     </Banner>
@@ -230,6 +228,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   )
   const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
   const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
+  const { t } = useTranslation()
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
@@ -345,8 +344,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       )
 
       toast.promise(signaturePromise, {
-        pending: 'Signature is pending',
-        error: 'Signature rejected'
+        pending: t('signatureIsPending'),
+        error: t('signatureRejected')
       })
 
       try {
@@ -376,7 +375,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
     }
 
-    const transactionId = sendTransaction('Update delegations', callTransaction, {
+    const transactionId = sendTransaction(t('updateDelegations'), callTransaction, {
       onSent: () => {
         setSignaturePending(false)
       },
@@ -405,7 +404,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       chainId={chainId}
       toolTipId={'confirm-delegation-updates'}
     >
-      Confirm updates
+      {t('confirmUpdates')}
     </TransactionButton>
   )
 }

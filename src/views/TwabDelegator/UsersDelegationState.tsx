@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form'
 import { StyledInput } from '@components/Input'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
+import { useTranslation } from 'react-i18next'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -43,6 +44,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
   )
   const { data: delegationBalance, isFetched: isDelegationBalanceFetched } =
     useTotalAmountDelegated(chainId, delegator)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -88,7 +90,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
                   <FeatherIcon icon='credit-card' className='w-4 h-4 text-pt-teal' />
                   <div className='flex space-x-1 items-center text-xxs'>
                     <span className='opacity-80 font-semibold'>{`${ticketBalance.amountPretty}`}</span>
-                    <span className='opacity-50'>balance</span>
+                    <span className='opacity-50 lowercase'>{t('balance')}</span>
                   </div>
                 </div>
               )}
@@ -97,7 +99,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
                   <FeatherIcon icon='gift' className='w-4 h-4 text-pt-teal' />
                   <div className='flex space-x-1 items-center text-xxs'>
                     <span className='opacity-80 font-semibold'>{`${delegationBalance.amountPretty}`}</span>
-                    <span className='opacity-50'>delegated</span>
+                    <span className='opacity-50 lowercase'>{t('delegated')}</span>
                   </div>
                 </div>
               )}
@@ -116,6 +118,7 @@ const DelegationNetworkSelection: React.FC<{
   const { chainId, setChainId } = props
   const [isOpen, setIsOpen] = useState(false)
   const chainIds = useDelegationSupportedChainIds()
+  const { t } = useTranslation()
 
   return (
     <>
@@ -136,7 +139,7 @@ const DelegationNetworkSelection: React.FC<{
       <SelectNetworkModal
         label='select-delegation-modal'
         isOpen={isOpen}
-        description={'Select a network to manage delegations on'}
+        description={t('delegetionNetworkSelectDescription')}
         selectedChainId={chainId}
         chainIds={chainIds}
         setSelectedChainId={setChainId}
@@ -198,6 +201,7 @@ export const ChangeDelegatorModal: React.FC<{
   const { isOpen, delegator, setDelegator, setIsOpen } = props
 
   const usersAddress = useUsersAddress()
+  const { t } = useTranslation()
 
   const {
     register,
@@ -219,9 +223,9 @@ export const ChangeDelegatorModal: React.FC<{
 
   return (
     <BottomSheet label='delegator-change-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <h6 className='text-center uppercase text-sm mb-3 mt-2'>Set a delegator</h6>
+      <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('setADelegator')}</h6>
       <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
-        Enter an address below to view it's delegations
+        {t('enterAddressToViewDelegations')}
       </p>
       <form
         onSubmit={handleSubmit((v) => onSubmit(v))}
@@ -247,27 +251,27 @@ export const ChangeDelegatorModal: React.FC<{
           {...register('delegator', {
             required: {
               value: true,
-              message: 'Delegator is required'
+              message: t('delegatorRequired')
             },
             validate: {
-              isAddress: (v) => isAddress(v) || 'Invalid address'
+              isAddress: (v) => isAddress(v) || (t('invalidAddress') as string)
             }
           })}
         />
-        <SquareButton className='w-full' disabled={!isValid}>
-          View Delegations
+        <SquareButton className='w-full capitalize' disabled={!isValid}>
+          {t('viewDelegations')}
         </SquareButton>
         {usersAddress && delegator && usersAddress !== delegator && (
           <SquareButton
             type='button'
-            className='w-full mt-4'
+            className='w-full mt-4 capitalize'
             theme={SquareButtonTheme.orangeOutline}
             onClick={() => {
               setDelegator(usersAddress)
               setIsOpen(false)
             }}
           >
-            Clear Delegator
+            {t('clearDelegator')}
           </SquareButton>
         )}
       </form>
