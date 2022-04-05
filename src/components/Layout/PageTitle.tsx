@@ -2,9 +2,11 @@ import React from 'react'
 import FeatherIcon from 'feather-icons-react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 
 export const Breadcrumbs = () => {
   const router = useRouter()
+  const { t } = useTranslation()
 
   if (router.pathname === '/') {
     return null
@@ -15,7 +17,7 @@ export const Breadcrumbs = () => {
       <a className='flex items-center absolute l-2 t-0 b-0 font-semibold hover:text-pt-purple-light opacity-70 text-xxxs xs:text-xxs'>
         <FeatherIcon icon={'arrow-left-circle'} className='w-4 h-4 inline-block' />{' '}
         <span className='inline-block ml-1' style={{ paddingTop: 1 }}>
-          Back
+          {t('back')}
         </span>
       </a>
     </Link>

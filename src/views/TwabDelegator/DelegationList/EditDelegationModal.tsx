@@ -29,6 +29,7 @@ import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'react-i18next'
 
 export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
   const { chainId } = props
@@ -66,6 +67,7 @@ const EditDelegationForm: React.FC<{
     chainId,
     delegationId
   )
+  const { t } = useTranslation()
   const ticket = useTicket(chainId)
   const addDelegationUpdate = useUpdateAtom(addDelegationUpdateAtom)
   const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
@@ -147,7 +149,7 @@ const EditDelegationForm: React.FC<{
         chainId={chainId}
         onSubmit={onSubmit}
         defaultValues={delegationFormDefaults}
-        submitString='Queue update'
+        submitString={t('queueUpdate')}
       />
       {(delegationUpdate || delegationFund || delegationCreation) && (
         <SquareButton
@@ -161,7 +163,7 @@ const EditDelegationForm: React.FC<{
             delegationCreation && removeDelegationCreation(delegationId)
           }}
         >
-          Remove update
+          {t('removeUpdate')}
         </SquareButton>
       )}
     </>
