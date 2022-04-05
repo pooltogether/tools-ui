@@ -106,7 +106,7 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
           <Tooltip id={`lock-tooltip-header`} tip={'Duration the delegation is locked for in days'}>
             <FeatherIcon
               icon={'help-circle'}
-              className='w-3 h-3 opacity-70 ml-1'
+              className='w-3 h-3 ml-1 opacity-50'
               style={{ top: -1 }}
             />
           </Tooltip>
@@ -121,7 +121,7 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
 const Header = (props) => (
   <span
     {...props}
-    className={classNames(props.className, 'col-span-2 uppercase opacity-50 font-bold text-xxxs')}
+    className={classNames(props.className, 'col-span-2 uppercase font-bold text-xxxs')}
   />
 )
 
