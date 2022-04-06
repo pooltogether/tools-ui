@@ -99,7 +99,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             updatesCount={creationsCount + fundsCount + editsCount}
           />
           <div className='flex space-x-2 items-center'>
-            <div className='flex flex-col space-y-1 items-center'>
+            <div className='flex flex-col space-y-1 justify-between items-center'>
               <EditedIconAndCount
                 count={creationsCount}
                 icon='plus-circle'
@@ -163,7 +163,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               {transactionPending
                 ? t('withdrawing')
                 : withdrawlsCount
-                ? `${t('withdraw')}} (${withdrawlsCount})`
+                ? `${t('withdraw')} (${withdrawlsCount})`
                 : t('withdraw')}
             </span>
             {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
@@ -175,7 +175,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 
   return (
     <FixedFooterNav>
-      <div className='w-full flex justify-end space-x-2'>
+      <div className='w-full flex justify-center space-x-2'>
         <SquareButton
           className='w-32'
           size={SquareButtonSize.sm}
@@ -203,7 +203,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   return (
     <>
-      <div className='hidden xs:flex items-center justify-between space-x-2'>{children}</div>
+      <div className='hidden xs:flex items-center justify-between w-full flex items-center justify-end mb-8'>
+        {children}
+      </div>
       <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
         {children}
       </div>
