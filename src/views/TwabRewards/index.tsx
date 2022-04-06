@@ -1,7 +1,7 @@
 import Layout from '@components/Layout'
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
-// import { RewardsList } from '@twabRewards/RewardsList'
+import { PromotionsList } from '@twabRewards/PromotionsList'
 import { RewardsTitle } from '@twabRewards/RewardsTitle'
 import { useEffect } from 'react'
 import { UsersRewardsState } from '@twabRewards/UsersRewardsState'
@@ -20,12 +20,12 @@ export const TwabRewards: React.FC = () => {
   const [chainId] = useAtom(rewardsChainIdAtom)
   const setChainId = useUpdateAtom(setRewardsChainAtom)
   const usersAddress = useUsersAddress()
-  const [address] = useAtom(currentAccountAtom)
+  const [currentAccount] = useAtom(currentAccountAtom)
   const setCurrentAccount = useUpdateAtom(setCurrentAccountAtom)
 
   // Lazy way to get the app to react on wallet connection
   useEffect(() => {
-    if (!address) {
+    if (!currentAccount) {
       setCurrentAccount(usersAddress)
     }
   }, [usersAddress])
@@ -37,12 +37,16 @@ export const TwabRewards: React.FC = () => {
         <RewardsTitle className='mb-8' />
         <UsersRewardsState
           chainId={chainId}
-          address={address}
+          currentAccount={currentAccount}
           setCurrentAccount={setCurrentAccount}
           setChainId={setChainId}
           className='mb-8'
         />
-        {/* <RewardsList delegator={delegator} chainId={chainId} setRewards={setRewards} /> */}
+        <PromotionsList
+          currentAccount={currentAccount}
+          chainId={chainId}
+          setCurrentAccount={setCurrentAccount}
+        />
       </PagePadding>
     </Layout>
   )
