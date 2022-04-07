@@ -4,38 +4,39 @@ import { dToS } from '@pooltogether/utilities'
 import {
   addDelegationFundAtom,
   addDelegationCreationAtom,
-  createDelegationModalOpenAtom
-} from '@twabDelegator/atoms'
-import { DelegationForm } from '@twabDelegator/DelegationForm'
-import { useNextSlot } from '@twabDelegator/hooks/useNextSlot'
+  createPromotionModalOpenAtom
+} from '@twabRewards/atoms'
+import { PromotionForm } from '@twabRewards/PromotionForm'
+// import { useNextSlot } from '@twabRewards/hooks/useNextSlot'
 import {
-  DelegationFormValues,
+  PromotionFormValues,
   DelegationFund,
   DelegationId,
   DelegationUpdate
-} from '@twabDelegator/interfaces'
+} from '@twabRewards/interfaces'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'react-i18next'
 
-export const CreateDelegationModal: React.FC<{
+export const CreatePromotionModal: React.FC<{
   chainId: number
-  delegator: string
+  currentAccount: string
 }> = (props) => {
-  const { chainId, delegator } = props
-  const [isOpen, setIsOpen] = useAtom(createDelegationModalOpenAtom)
-  const nextSlotId = useNextSlot(chainId, delegator)
+  const { chainId, currentAccount } = props
+  const [isOpen, setIsOpen] = useAtom(createPromotionModalOpenAtom)
+  // const nextSlotId = useNextSlot(chainId, currentAccount)
   const { t } = useTranslation()
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <BottomSheetTitle chainId={chainId} title={t('createDelegation')} />
-      <CreateDelegationForm
+      <BottomSheetTitle chainId={chainId} title={t('createPromotion', 'Create promotion')} />
+      <CreatePromotionForm
         chainId={chainId}
         delegationId={{
-          slot: nextSlotId,
-          delegator
+          // slot: nextSlotId,
+          slot: 1,
+          currentAccount
         }}
         closeModal={() => setIsOpen(false)}
       />
@@ -47,21 +48,21 @@ export const CreateDelegationModal: React.FC<{
  * @param props
  * @returns
  */
-const CreateDelegationForm: React.FC<{
+const CreatePromotionForm: React.FC<{
   chainId: number
-  delegationId: DelegationId
+  currentAccount: DelegationId
   closeModal: () => void
 }> = (props) => {
-  const { chainId, delegationId, closeModal } = props
+  const { chainId, currentAccount, closeModal } = props
   const ticket = useTicket(chainId)
   const { t } = useTranslation()
 
   const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
   const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
 
-  const onSubmit = (data: DelegationFormValues, resetForm: () => void) => {
+  const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
     const delegationCreation: DelegationUpdate = {
-      ...delegationId,
+      ...currentAccount,
       delegatee: data.delegatee,
       lockDuration: dToS(data.duration)
     }
@@ -81,7 +82,7 @@ const CreateDelegationForm: React.FC<{
   }
 
   return (
-    <DelegationForm
+    <PromotionForm
       chainId={chainId}
       onSubmit={onSubmit}
       defaultValues={{

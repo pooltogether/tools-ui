@@ -11,8 +11,8 @@ import {
   promotionIdToEditAtom,
   createPromotionModalOpenAtom,
   promotionCreationsAtom
-} from '@twabDelegator/atoms'
-import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabDelegator/interfaces'
+} from '@twabRewards/atoms'
+import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabRewards/interfaces'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { PromotionListProps, ListState } from '.'
@@ -26,9 +26,9 @@ import {
   Tooltip
 } from '@pooltogether/react-components'
 import { useTicket } from '@hooks/v4/useTicket'
-import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
-import { getBalance } from '@twabDelegator/utils/getBalance'
-import { getDuration } from '@twabDelegator/utils/getDuration'
+import { getDelegatee } from '@twabRewards/utils/getDelegatee'
+import { getBalance } from '@twabRewards/utils/getBalance'
+import { getDuration } from '@twabRewards/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 import { BigNumber } from 'ethers'
 import classNames from 'classnames'
@@ -202,12 +202,6 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
         <span>{epochDuration}</span>
         <span>{numberOfEpochs}</span>
       </div>
-      {/* 
-      {token}
-      {tokensPerEpoch}
-      {startTimestamp}
-      {epochDuration}
-      {numberOfEpochs} */}
       {/* <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
       <BalanceDisplay
         chainId={chainId}

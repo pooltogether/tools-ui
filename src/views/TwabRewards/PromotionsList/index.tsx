@@ -6,9 +6,7 @@ import { ActiveState } from './ActiveState'
 import { EmptyState } from './EmptyState'
 import { ListStateActions } from './ListStateActions'
 import { LoadingState } from './LoadingState'
-// import { EditPromotionModal } from './EditPromotionModal'
-// import { ConfirmUpdatesModal } from './ConfirmUpdatesModal'
-// import { CreatePromotionModal } from './CreatePromotionModal'
+import { CreatePromotionModal } from './CreatePromotionModal'
 import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
 // import { useResetPromotionAtomsOnAccountChange } from '@twabRewards/hooks/useResetPromotionAtomsOnAccountChange'
 import { NoAccountState } from './NoAccountState'
@@ -78,31 +76,19 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
         <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
           Promotions
         </p>
-        {/* 
         {promotions.length >= 1 && (
           <ListStateActions
-            chainId={chainId}
             listState={listState}
             currentAccount={currentAccount}
             setCurrentAccount={setCurrentAccount}
             setListState={setListState}
             transactionPending={transactionPending}
           />
-        )} */}
+        )}
 
         <div className='xs:mx-2'>{list}</div>
 
-        {/* <EditPromotionModal chainId={chainId} />
         <CreatePromotionModal chainId={chainId} currentAccount={currentAccount} />
-        <ConfirmUpdatesModal
-          chainId={chainId}
-          currentAccount={currentAccount}
-          transactionId={transactionId}
-          transactionPending={transactionPending}
-          setSignaturePending={setSignaturePending}
-          setTransactionId={setTransactionId}
-          setListState={setListState}
-        /> */}
       </div>
     )
   } else {
