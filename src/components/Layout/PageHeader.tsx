@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 
 import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { useSupportedChains } from '@hooks/app/useSupportedChains'
+import { SUPPORTED_LANGUAGES } from '@constants/languages'
 
 export enum ContentPaneState {
   deposit = 'deposit',
@@ -67,6 +68,7 @@ const LanguagePicker = () => {
   return (
     <SettingsItem label={t('language')}>
       <LanguagePickerDropdown
+        langs={SUPPORTED_LANGUAGES}
         className='dark:text-white'
         currentLang={currentLang}
         changeLang={(newLang) => {
