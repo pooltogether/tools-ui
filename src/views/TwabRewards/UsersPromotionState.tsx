@@ -25,7 +25,7 @@ import { useRewardsSupportedChainIds } from './hooks/useRewardsSupportedChainIds
 // import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 import { getTwabRewardsContractAddress } from './utils/getTwabRewardsContractAddress'
 
-interface UsersRewardsStateProps {
+interface UsersPromotionStateProps {
   className?: string
   chainId: number
   address: string
@@ -33,7 +33,7 @@ interface UsersRewardsStateProps {
   setCurrentAccount: (address: string) => void
 }
 
-export const UsersRewardsState: React.FC<UsersRewardsStateProps> = (props) => {
+export const UsersPromotionState: React.FC<UsersPromotionStateProps> = (props) => {
   const { className, chainId, setChainId, setCurrentAccount, address } = props
   const ticket = useTicket(chainId)
   const twabRewards = getTwabRewardsContractAddress(chainId)

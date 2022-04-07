@@ -1,27 +1,26 @@
-import { DelegationId } from '@twabDelegator/interfaces'
+import { PromotionId } from '@twabRewards/interfaces'
 import { useAccountsUpdatedPromotions } from './useAccountsUpdatedPromotions'
 
 /**
  *
  * @param chainId
- * @param delegator
- * @param delegationId
+ * @param promotionId
  * @returns
  */
-export const useAccountsUpdatedPromotion = (chainId: number, delegationId: DelegationId) => {
-  const useQueryResult = useAccountsUpdatedPromotions(chainId, delegationId?.delegator)
+export const useAccountsUpdatedPromotion = (chainId: number, promotionId: PromotionId) => {
+  const useQueryResult = useAccountsUpdatedPromotions(chainId, promotionId?.account)
   if (!useQueryResult.isFetched)
     return {
       ...useQueryResult,
       data: null
     }
-  const delegation = useQueryResult.data.find(
-    (delegation) =>
-      delegation.delegationId.delegator === delegationId.delegator &&
-      delegation.delegationId.slot.eq(delegationId.slot)
+  const promotion = useQueryResult.data.find(
+    (promotion) =>
+      promotion.promotionId.account === promotionId.account &&
+      promotion.promotionId.slot.eq(promotionId.slot)
   )
   return {
     ...useQueryResult,
-    data: delegation
+    data: promotion
   }
 }

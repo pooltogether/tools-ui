@@ -1,10 +1,5 @@
 import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
-import {
-  DelegationFormValues,
-  DelegationFund,
-  DelegationId,
-  DelegationUpdate
-} from '@twabDelegator/interfaces'
+import { DelegationFund, DelegationId, DelegationUpdate } from '@twabDelegator/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
 import { getAddress, isAddress } from 'ethers/lib/utils'

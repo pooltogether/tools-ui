@@ -4,7 +4,7 @@ import { PageTitle } from '@components/Layout/PageTitle'
 import { PromotionsList } from '@twabRewards/PromotionsList'
 import { RewardsTitle } from '@twabRewards/RewardsTitle'
 import { useEffect } from 'react'
-import { UsersRewardsState } from '@twabRewards/UsersRewardsState'
+import { UsersPromotionState } from '@twabRewards/UsersPromotionState'
 import { useAtom } from 'jotai'
 import {
   rewardsChainIdAtom,
@@ -35,7 +35,7 @@ export const TwabRewards: React.FC = () => {
       <PagePadding>
         <PageTitle title='Promotional Rewards' />
         <RewardsTitle className='mb-8' />
-        <UsersRewardsState
+        <UsersPromotionState
           chainId={chainId}
           currentAccount={currentAccount}
           setCurrentAccount={setCurrentAccount}

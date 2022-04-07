@@ -41,10 +41,13 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
   const transactionPending = transaction?.state === TransactionState.pending || signaturePending
   const { data: promotions, isFetched } = useQueryResult
+  console.log({ promotions, transactionPending })
 
+  console.log({ currentAccount })
   if (isFetched) {
     let list
     if (promotions.length === 0) {
+      console.log('in')
       list = (
         <EmptyState
           {...props}
@@ -55,23 +58,27 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
         />
       )
     } else {
-      list = (
-        <ActiveState
-          {...props}
-          className='mb-10'
-          currentAccount={currentAccount}
-          listState={listState}
-          setListState={setListState}
-          transactionPending={transactionPending}
-        />
-      )
+      console.log('here')
+
+      list = <div></div>
+      // list = (
+      //   <ActiveState
+      //     {...props}
+      //     className='mb-10'
+      //     currentAccount={currentAccount}
+      //     listState={listState}
+      //     setListState={setListState}
+      //     transactionPending={transactionPending}
+      //   />
+      // )
     }
+
     return (
       <div className={classNames(className, 'text-xxxs xs:text-xs')}>
         <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
           Promotions
         </p>
-
+        {/* 
         {promotions.length >= 1 && (
           <ListStateActions
             chainId={chainId}
@@ -81,7 +88,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
             setListState={setListState}
             transactionPending={transactionPending}
           />
-        )}
+        )} */}
 
         <div className='xs:mx-2'>{list}</div>
 

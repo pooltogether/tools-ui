@@ -2,15 +2,15 @@ import FeatherIcon from 'feather-icons-react'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
 import {
-  delegationUpdatesAtom,
-  delegationWithdrawalsAtom,
+  promotionUpdatesAtom,
+  promotionWithdrawalsAtom,
   editPromotionModalOpenAtom,
   removePromotionWithdrawalAtom,
   addPromotionWithdrawalAtom,
-  delegationFundsAtom,
-  delegationIdToEditAtom,
+  promotionFundsAtom,
+  promotionIdToEditAtom,
   createPromotionModalOpenAtom,
-  delegationCreationsAtom
+  promotionCreationsAtom
 } from '@twabDelegator/atoms'
 import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabDelegator/interfaces'
 import { useAtom } from 'jotai'
@@ -51,14 +51,15 @@ export interface ActiveStateProps extends PromotionListProps {
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, delegator, transactionPending } = props
   const { data: promotions } = useAccountsUpdatedPromotions(chainId, delegator)
+  console.log(promotions)
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <ul>
         <ListHeaders listState={listState} />
-        {promotions.map((delegation) => (
+        {promotions.map((promotion) => (
           <PromotionRow
-            {...delegation}
-            key={`slot-${delegation.delegationId.slot.toString()}-${listState}`}
+            {...promotion}
+            key={`slot-${promotion.promotionId.slot.toString()}-${listState}`}
             chainId={chainId}
             listState={listState}
             transactionPending={transactionPending}
@@ -98,7 +99,7 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
       <Header className='flex items-center'>
         <span>{t('duration')}</span>
         <span className='normal-case'>
-          <Tooltip id={`lock-tooltip-header`} tip={'Duration the delegation is locked for in days'}>
+          <Tooltip id={`lock-tooltip-header`} tip={'Duration the promotion is locked for in days'}>
             <FeatherIcon
               icon={'help-circle'}
               className='w-3 h-3 ml-1 opacity-50'
@@ -124,11 +125,11 @@ interface PromotionRowProps {
   listState: ListState
   chainId: number
   transactionPending: boolean
-  delegationId: PromotionId
-  delegation?: Promotion
-  delegationUpdate?: PromotionUpdate
-  delegationCreation?: PromotionUpdate
-  delegationFund?: PromotionFund
+  promotionId: PromotionId
+  promotion?: Promotion
+  promotionUpdate?: PromotionUpdate
+  promotionCreation?: PromotionUpdate
+  promotionFund?: PromotionFund
 }
 
 /**
@@ -138,24 +139,29 @@ interface PromotionRowProps {
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
   const {
     chainId,
-    delegationId,
-    delegation,
-    delegationCreation,
-    delegationUpdate,
-    delegationFund,
+    promotionId,
+    promotion,
+    // promotionCreation,
+    // promotionUpdate,
+    // promotionFund,
     listState,
     transactionPending
   } = props
-  const { slot } = delegationId
+  const { slot } = promotionId
 
-  const delegatee = getDelegatee(delegation, delegationCreation, delegationUpdate)
+  const token = '0xface'
+  const tokensPerEpoch = BigNumber.from(10)
+  const startTimestamp = Date.now()
+  const epochDuration = 55
+  const numberOfEpochs = 66
+  // const delegatee = getDelegatee(promotion, promotionCreation, promotionUpdate)
 
-  const balance = getBalance(delegation, delegationFund)
-  const duration = getDuration(delegation, delegationCreation, delegationUpdate)
-  const currentTimeInSeconds = msToS(Date.now()).toFixed(0)
-  const isLocked = delegation?.lockUntil.gt(currentTimeInSeconds) || false
-  const isEdited = !!delegationUpdate || !!delegationCreation
-  const isZeroBalance = delegation?.balance.isZero()
+  // const balance = getBalance(promotion, promotionFund)
+  // const duration = getDuration(promotion, promotionCreation, promotionUpdate)
+  // const currentTimeInSeconds = msToS(Date.now()).toFixed(0)
+  // const isLocked = promotion?.lockUntil.gt(currentTimeInSeconds) || false
+  // const isEdited = !!promotionUpdate || !!promotionCreation
+  // const isZeroBalance = promotion?.balance.isZero()
 
   return (
     <li
@@ -164,15 +170,16 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
         'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50',
         {
           'grid-cols-7': listState !== ListState.edit,
-          'grid-cols-8': listState === ListState.edit,
-          'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
-            ((listState === ListState.edit || listState === ListState.withdraw) && isLocked) ||
-            (listState === ListState.withdraw && isZeroBalance)
+          'grid-cols-8': listState === ListState.edit
+          // 'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
+          //   listState === ListState.edit ||
+          //   listState === ListState.withdraw ||
+          //   (listState === ListState.withdraw && isZeroBalance)
         }
       )}
     >
       <div className='flex space-x-2 col-span-1'>
-        {!isLocked && listState === ListState.withdraw && (
+        {/* {!isLocked && listState === ListState.withdraw && (
           <PromotionWithdrawToggle
             {...props}
             isZeroBalance={isZeroBalance}
@@ -180,10 +187,16 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
             transactionPending={transactionPending}
           />
         )}
-        {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>}
-        <span className='font-bold opacity-60'>{slot.toString()}</span>
+        {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>} */}
+        {/* <span className='font-bold opacity-60'>{slot.toString()}</span> */}22
       </div>
-      <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
+
+      {token}
+      {tokensPerEpoch}
+      {startTimestamp}
+      {epochDuration}
+      {numberOfEpochs}
+      {/* <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
       <BalanceDisplay
         chainId={chainId}
         listState={listState}
@@ -195,8 +208,8 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
         duration={duration}
         isEdited={isEdited}
         className='col-span-2'
-      />
-      {!isLocked && listState === ListState.edit && (
+      /> */}
+      {/* {!isLocked && listState === ListState.edit && (
         <div className='flex justify-end space-x-1 col-span-1'>
           <PromotionEditToggle
             {...props}
@@ -205,7 +218,7 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
             transactionPending={transactionPending}
           />
         </div>
-      )}
+      )} */}
     </li>
   )
 }
@@ -255,7 +268,7 @@ const BalanceDisplay: React.FC<{
 }
 
 /**
- * NOTE: Not updating time live. Relies on a rerender when a delegation goes from locked to unlocked.
+ * NOTE: Not updating time live. Relies on a rerender when a promotion goes from locked to unlocked.
  * @param props
  */
 const LockDisplay: React.FC<{
@@ -324,11 +337,11 @@ const PromotionWithdrawToggle: React.FC<
     transactionPending: boolean
   }
 > = (props) => {
-  const { delegationId, transactionPending, isZeroBalance, isLocked } = props
-  const delegationWithdrawal = usePromotionWithdrawal(delegationId)
+  const { promotionId, transactionPending, isZeroBalance, isLocked } = props
+  const promotionWithdrawal = usePromotionWithdrawal(promotionId)
   const addPromotionWithdrawal = useUpdateAtom(addPromotionWithdrawalAtom)
   const removePromotionWithdrawal = useUpdateAtom(removePromotionWithdrawalAtom)
-  const amount = delegationWithdrawal?.amount
+  const amount = promotionWithdrawal?.amount
 
   return (
     <CheckboxInputGroup
@@ -336,8 +349,8 @@ const PromotionWithdrawToggle: React.FC<
       checked={amount?.isZero()}
       handleClick={() =>
         amount?.isZero()
-          ? removePromotionWithdrawal(delegationId)
-          : addPromotionWithdrawal(delegationId)
+          ? removePromotionWithdrawal(promotionId)
+          : addPromotionWithdrawal(promotionId)
       }
     />
   )
@@ -352,29 +365,29 @@ const PromotionEditToggle: React.FC<
   }
 > = (props) => {
   const {
-    delegationId,
+    promotionId,
     transactionPending,
     isLocked,
-    delegationCreation,
-    delegationFund,
-    delegationUpdate
+    promotionCreation,
+    promotionFund,
+    promotionUpdate
   } = props
   const setIsOpen = useUpdateAtom(editPromotionModalOpenAtom)
-  const setPromotionIdToEdit = useUpdateAtom(delegationIdToEditAtom)
+  const setPromotionIdToEdit = useUpdateAtom(promotionIdToEditAtom)
   const { t } = useTranslation()
 
   return (
     <button
       className='flex space-x-1'
       onClick={() => {
-        setPromotionIdToEdit(delegationId)
+        setPromotionIdToEdit(promotionId)
         setIsOpen(true)
       }}
       disabled={transactionPending || isLocked}
     >
-      {delegationCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
-      {delegationFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
-      {delegationUpdate && <StateChangeIcon icon='edit-2' tooltipText={t('editDelegatee')} />}
+      {promotionCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
+      {promotionFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
+      {promotionUpdate && <StateChangeIcon icon='edit-2' tooltipText={t('editDelegatee')} />}
       <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
     </button>
   )
@@ -427,56 +440,55 @@ const AddSlotButton: React.FC<{
 
 /**
  *
- * @param delegationId
+ * @param promotionId
  * @returns
  */
-export const usePromotionCreation = (delegationId: PromotionId) => {
-  const [delegationCreations] = useAtom(delegationCreationsAtom)
-  return delegationCreations.find(
-    (delegationCreation) =>
-      delegationCreation.delegator === delegationId.delegator &&
-      delegationCreation.slot.eq(delegationId.slot)
+export const usePromotionCreation = (promotionId: PromotionId) => {
+  const [promotionCreations] = useAtom(promotionCreationsAtom)
+  return promotionCreations.find(
+    (promotionCreation) =>
+      promotionCreation.delegator === promotionId.delegator &&
+      promotionCreation.slot.eq(promotionId.slot)
   )
 }
 
 /**
  *
- * @param delegationId
+ * @param promotionId
  * @returns
  */
-export const usePromotionUpdate = (delegationId: PromotionId) => {
-  const [delegationUpdates] = useAtom(delegationUpdatesAtom)
-  return delegationUpdates.find(
-    (delegationUpdate) =>
-      delegationUpdate.delegator === delegationId.delegator &&
-      delegationUpdate.slot.eq(delegationId.slot)
+export const usePromotionUpdate = (promotionId: PromotionId) => {
+  const [promotionUpdates] = useAtom(promotionUpdatesAtom)
+  return promotionUpdates.find(
+    (promotionUpdate) =>
+      promotionUpdate.delegator === promotionId.delegator &&
+      promotionUpdate.slot.eq(promotionId.slot)
   )
 }
 
 /**
  *
- * @param delegationId
+ * @param promotionId
  * @returns
  */
-export const usePromotionFund = (delegationId: PromotionId) => {
-  const [delegationFunds] = useAtom(delegationFundsAtom)
-  return delegationFunds.find(
-    (delegationFund) =>
-      delegationFund.delegator === delegationId.delegator &&
-      delegationFund.slot.eq(delegationId.slot)
+export const usePromotionFund = (promotionId: PromotionId) => {
+  const [promotionFunds] = useAtom(promotionFundsAtom)
+  return promotionFunds.find(
+    (promotionFund) =>
+      promotionFund.delegator === promotionId.delegator && promotionFund.slot.eq(promotionId.slot)
   )
 }
 
 /**
  *
- * @param delegationId
+ * @param promotionId
  * @returns
  */
-export const usePromotionWithdrawal = (delegationId: PromotionId) => {
-  const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
-  return delegationWithdrawals.find(
-    (delegationWithdrawal) =>
-      delegationWithdrawal.delegator === delegationId.delegator &&
-      delegationWithdrawal.slot.eq(delegationId.slot)
+export const usePromotionWithdrawal = (promotionId: PromotionId) => {
+  const [promotionWithdrawals] = useAtom(promotionWithdrawalsAtom)
+  return promotionWithdrawals.find(
+    (promotionWithdrawal) =>
+      promotionWithdrawal.delegator === promotionId.delegator &&
+      promotionWithdrawal.slot.eq(promotionId.slot)
   )
 }

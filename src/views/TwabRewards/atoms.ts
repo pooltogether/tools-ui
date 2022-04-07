@@ -1,10 +1,5 @@
 import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
-// import {
-//   RewardsFormValues,
-//   RewardsFund,
-//   RewardsId,
-//   RewardsUpdate
-// } from '@twabDelegator/interfaces'
+import { PromotionId, PromotionUpdate } from '@twabRewards/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
 import { getAddress, isAddress } from 'ethers/lib/utils'
@@ -77,219 +72,236 @@ export const setRewardsChainAtom = atom<null, number>(null, (get, set, chainId) 
   set(rewardsChainIdAtom, chainId)
 })
 
-// /**
-//  *
-//  */
-// export const rewardsCreationsAtom = atomWithReset<RewardsUpdate[]>([])
+/**
+ *
+ */
+export const promotionCreationsAtom = atomWithReset<PromotionUpdate[]>([])
 
-// /**
-//  *
-//  */
-// export const rewardsUpdatesAtom = atomWithReset<RewardsUpdate[]>([])
+/**
+ *
+ */
+export const promotionUpdatesAtom = atomWithReset<PromotionUpdate[]>([])
 
-// /**
-//  *
-//  */
-// export const rewardsFundsAtom = atomWithReset<RewardsFund[]>([])
+/**
+ *
+ */
+export const promotionFundsAtom = atomWithReset<PromotionFund[]>([])
 
-// /**
-//  *
-//  */
-// export const rewardsWithdrawalsAtom = atomWithReset<RewardsFund[]>([])
+/**
+ *
+ */
+export const promotionWithdrawalsAtom = atomWithReset<PromotionFund[]>([])
 
-// /**
-//  * Read-only
-//  */
-// export const rewardsCreationsCountAtom = atom<number>((get) => {
-//   const rewardsCreations = get(rewardsCreationsAtom)
-//   return rewardsCreations.length
-// })
+/**
+ * Read-only
+ */
+export const promotionCreationsCountAtom = atom<number>((get) => {
+  const promotionCreations = get(promotionCreationsAtom)
+  return promotionCreations.length
+})
 
-// /**
-//  * Read-only
-//  */
-// export const rewardsUpdatesCountAtom = atom<number>((get) => {
-//   const rewardsUpdates = get(rewardsUpdatesAtom)
-//   return rewardsUpdates.length
-// })
+/**
+ * Read-only
+ */
+export const promotionUpdatesCountAtom = atom<number>((get) => {
+  const promotionUpdates = get(promotionUpdatesAtom)
+  return promotionUpdates.length
+})
 
-// /**
-//  * Read-only
-//  */
-// export const rewardsUpdatedLocksCountAtom = atom<number>((get) => {
-//   const rewardsUpdates = get(rewardsUpdatesAtom)
-//   const rewardsCreations = get(rewardsCreationsAtom)
-//   const updateLocks = rewardsUpdates.reduce(
-//     (count, rewardsUpdate) => (rewardsUpdate.lockDuration ? count + 1 : count),
-//     0
-//   )
+/**
+ * Read-only
+ */
+export const promotionUpdatedLocksCountAtom = atom<number>((get) => {
+  const promotionUpdates = get(promotionUpdatesAtom)
+  const promotionCreations = get(promotionCreationsAtom)
+  const updateLocks = promotionUpdates.reduce(
+    (count, promotionUpdate) => (promotionUpdate.lockDuration ? count + 1 : count),
+    0
+  )
 
-//   const creationLocks = rewardsCreations.reduce(
-//     (count, rewardsCreation) => (rewardsCreation.lockDuration ? count + 1 : count),
-//     0
-//   )
+  const creationLocks = promotionCreations.reduce(
+    (count, promotionCreation) => (promotionCreation.lockDuration ? count + 1 : count),
+    0
+  )
 
-//   return updateLocks + creationLocks
-// })
+  return updateLocks + creationLocks
+})
 
-// /**
-//  * Read-only
-//  */
-// export const rewardsWithdrawlsCountAtom = atom<number>((get) => {
-//   const rewardsFunds = get(rewardsWithdrawalsAtom)
-//   return rewardsFunds.length
-// })
+/**
+ * Read-only
+ */
+export const promotionWithdrawlsCountAtom = atom<number>((get) => {
+  const promotionFunds = get(promotionWithdrawalsAtom)
+  return promotionFunds.length
+})
 
-// /**
-//  * Read-only
-//  */
-// export const rewardsFundsCountAtom = atom<number>((get) => {
-//   const rewardsFunds = get(rewardsFundsAtom)
-//   return rewardsFunds.length
-// })
+/**
+ * Read-only
+ */
+export const promotionFundsCountAtom = atom<number>((get) => {
+  const promotionFunds = get(promotionFundsAtom)
+  return promotionFunds.length
+})
 
-// /**
-//  * Write-only
-//  */
-// export const addRewardsCreationAtom = atom<null, RewardsUpdate>(null, (get, set, rewardsUpdate) => {
-//   const rewardsCreations = [...get(rewardsCreationsAtom)]
+/**
+ * Write-only
+ */
+export const addPromotionCreationAtom = atom<null, PromotionUpdate>(
+  null,
+  (get, set, promotionUpdate) => {
+    const promotionCreations = [...get(promotionCreationsAtom)]
 
-//   const index = findRewardsUpdateIndex(rewardsUpdate, rewardsCreations)
-//   if (index !== -1) {
-//     rewardsCreations[index] = rewardsUpdate
-//   } else {
-//     rewardsCreations.push(rewardsUpdate)
-//   }
-//   set(rewardsCreationsAtom, rewardsCreations)
-// })
+    const index = findPromotionUpdateIndex(promotionUpdate, promotionCreations)
+    if (index !== -1) {
+      promotionCreations[index] = promotionUpdate
+    } else {
+      promotionCreations.push(promotionUpdate)
+    }
+    set(promotionCreationsAtom, promotionCreations)
+  }
+)
 
-// /**
-//  * Write-only
-//  */
-// export const removeRewardsCreationAtom = atom<null, RewardsId>(null, (get, set, rewardsId) => {
-//   const _rewardsCreations = get(rewardsCreationsAtom)
-//   const rewardsCreations = _rewardsCreations.filter(
-//     (_rewardsUpdate) =>
-//       _rewardsUpdate.delegator !== rewardsId.delegator || !_rewardsUpdate.slot.eq(rewardsId.slot)
-//   )
-//   set(rewardsCreationsAtom, rewardsCreations)
-// })
+/**
+ * Write-only
+ */
+export const removePromotionCreationAtom = atom<null, PromotionId>(
+  null,
+  (get, set, promotionId) => {
+    const _promotionCreations = get(promotionCreationsAtom)
+    const promotionCreations = _promotionCreations.filter(
+      (_promotionUpdate) =>
+        _promotionUpdate.delegator !== promotionId.delegator ||
+        !_promotionUpdate.slot.eq(promotionId.slot)
+    )
+    set(promotionCreationsAtom, promotionCreations)
+  }
+)
 
-// /**
-//  * Write-only
-//  */
-// export const addRewardsUpdateAtom = atom<null, RewardsUpdate>(null, (get, set, rewardsUpdate) => {
-//   const rewardsUpdates = [...get(rewardsUpdatesAtom)]
+/**
+ * Write-only
+ */
+export const addPromotionUpdateAtom = atom<null, PromotionUpdate>(
+  null,
+  (get, set, promotionUpdate) => {
+    const promotionUpdates = [...get(promotionUpdatesAtom)]
 
-//   const index = findRewardsUpdateIndex(rewardsUpdate, rewardsUpdates)
-//   if (index !== -1) {
-//     rewardsUpdates[index] = rewardsUpdate
-//   } else {
-//     rewardsUpdates.push(rewardsUpdate)
-//   }
-//   set(rewardsUpdatesAtom, rewardsUpdates)
-// })
+    const index = findPromotionUpdateIndex(promotionUpdate, promotionUpdates)
+    if (index !== -1) {
+      promotionUpdates[index] = promotionUpdate
+    } else {
+      promotionUpdates.push(promotionUpdate)
+    }
+    set(promotionUpdatesAtom, promotionUpdates)
+  }
+)
 
-// /**
-//  * Write-only
-//  */
-// export const removeRewardsUpdateAtom = atom<null, RewardsId>(null, (get, set, rewardsId) => {
-//   const _rewardsUpdates = get(rewardsUpdatesAtom)
-//   const rewardsUpdates = _rewardsUpdates.filter(
-//     (_rewardsUpdate) =>
-//       _rewardsUpdate.delegator !== rewardsId.delegator || !_rewardsUpdate.slot.eq(rewardsId.slot)
-//   )
-//   set(rewardsUpdatesAtom, rewardsUpdates)
-// })
+/**
+ * Write-only
+ */
+export const removePromotionUpdateAtom = atom<null, PromotionId>(null, (get, set, promotionId) => {
+  const _promotionUpdates = get(promotionUpdatesAtom)
+  const promotionUpdates = _promotionUpdates.filter(
+    (_promotionUpdate) =>
+      _promotionUpdate.delegator !== promotionId.delegator ||
+      !_promotionUpdate.slot.eq(promotionId.slot)
+  )
+  set(promotionUpdatesAtom, promotionUpdates)
+})
 
-// /**
-//  * Write-only
-//  * Queues up an update to fund a rewards
-//  */
-// export const addRewardsFundAtom = atom<null, RewardsFund>(null, (get, set, rewardsFund) => {
-//   const rewardsFunds = [...get(rewardsFundsAtom)]
-//   const index = findRewardsUpdateIndex(rewardsFund, rewardsFunds)
-//   if (index !== -1) {
-//     rewardsFunds[index] = rewardsFund
-//   } else {
-//     rewardsFunds.push(rewardsFund)
-//   }
-//   set(rewardsFundsAtom, rewardsFunds)
-// })
+/**
+ * Write-only
+ * Queues up an update to fund a promotion
+ */
+export const addPromotionFundAtom = atom<null, PromotionFund>(null, (get, set, promotionFund) => {
+  const promotionFunds = [...get(promotionFundsAtom)]
+  const index = findPromotionUpdateIndex(promotionFund, promotionFunds)
+  if (index !== -1) {
+    promotionFunds[index] = promotionFund
+  } else {
+    promotionFunds.push(promotionFund)
+  }
+  set(promotionFundsAtom, promotionFunds)
+})
 
-// /**
-//  * Write-only
-//  * Removes the fund queued for an update
-//  */
-// export const removeRewardsFundAtom = atom<null, RewardsId>(null, (get, set, rewardsId) => {
-//   const _rewardsFunds = [...get(rewardsFundsAtom)]
-//   const rewardsFunds = _rewardsFunds.filter(
-//     (_rewardsFund) =>
-//       _rewardsFund.delegator !== rewardsId.delegator || !_rewardsFund.slot.eq(rewardsId.slot)
-//   )
-//   set(rewardsFundsAtom, rewardsFunds)
-// })
+/**
+ * Write-only
+ * Removes the fund queued for an update
+ */
+export const removePromotionFundAtom = atom<null, PromotionId>(null, (get, set, promotionId) => {
+  const _promotionFunds = [...get(promotionFundsAtom)]
+  const promotionFunds = _promotionFunds.filter(
+    (_promotionFund) =>
+      _promotionFund.delegator !== promotionId.delegator ||
+      !_promotionFund.slot.eq(promotionId.slot)
+  )
+  set(promotionFundsAtom, promotionFunds)
+})
 
-// /**
-//  * Write-only
-//  * Queues up an update to set the balance of a rewards to 0
-//  */
-// export const addRewardsWithdrawalAtom = atom<null, RewardsId>(null, (get, set, rewardsId) => {
-//   const rewardsFunds = [...get(rewardsWithdrawalsAtom)]
-//   const index = findRewardsUpdateIndex(rewardsId, rewardsFunds)
-//   const rewardsFund: RewardsFund = { ...rewardsId, amount: BigNumber.from(0) }
-//   if (index !== -1) {
-//     rewardsFunds[index] = rewardsFund
-//   } else {
-//     rewardsFunds.push(rewardsFund)
-//   }
-//   set(rewardsWithdrawalsAtom, rewardsFunds)
-// })
+/**
+ * Write-only
+ * Queues up an update to set the balance of a promotion to 0
+ */
+export const addPromotionWithdrawalAtom = atom<null, PromotionId>(null, (get, set, promotionId) => {
+  const promotionFunds = [...get(promotionWithdrawalsAtom)]
+  const index = findPromotionUpdateIndex(promotionId, promotionFunds)
+  const promotionFund: PromotionFund = { ...promotionId, amount: BigNumber.from(0) }
+  if (index !== -1) {
+    promotionFunds[index] = promotionFund
+  } else {
+    promotionFunds.push(promotionFund)
+  }
+  set(promotionWithdrawalsAtom, promotionFunds)
+})
 
-// /**
-//  * Write-only
-//  * Removes the withdrawal queued for an update
-//  */
-// export const removeRewardsWithdrawalAtom = atom<null, RewardsId>(null, (get, set, rewardsId) => {
-//   const _rewardsFunds = [...get(rewardsWithdrawalsAtom)]
-//   const rewardsFunds = _rewardsFunds.filter(
-//     (_rewardsFund) =>
-//       _rewardsFund.delegator !== rewardsId.delegator || !_rewardsFund.slot.eq(rewardsId.slot)
-//   )
-//   set(rewardsWithdrawalsAtom, rewardsFunds)
-// })
+/**
+ * Write-only
+ * Removes the withdrawal queued for an update
+ */
+export const removePromotionWithdrawalAtom = atom<null, PromotionId>(
+  null,
+  (get, set, promotionId) => {
+    const _promotionFunds = [...get(promotionWithdrawalsAtom)]
+    const promotionFunds = _promotionFunds.filter(
+      (_promotionFund) =>
+        _promotionFund.delegator !== promotionId.delegator ||
+        !_promotionFund.slot.eq(promotionId.slot)
+    )
+    set(promotionWithdrawalsAtom, promotionFunds)
+  }
+)
 
-// ///////////////////////////// Modals /////////////////////////////
+///////////////////////////Modals /////////////////////////////
 
-// /**
-//  *
-//  */
-// export const editRewardsModalOpenAtom = atom<boolean>(false)
+/**
+ *
+ */
+export const editPromotionModalOpenAtom = atom<boolean>(false)
 
-// /**
-//  *
-//  */
-// export const createRewardsModalOpenAtom = atom<boolean>(false)
+/**
+ *
+ */
+export const createPromotionModalOpenAtom = atom<boolean>(false)
 
-// /**
-//  *
-//  */
-// export const rewardsUpdatesModalOpenAtom = atom<boolean>(false)
+/**
+ *
+ */
+export const promotionUpdatesModalOpenAtom = atom<boolean>(false)
 
-// /**
-//  *
-//  */
-// export const rewardsIdToEditAtom = atom<RewardsId>(undefined as RewardsId)
+/**
+ *
+ */
+export const promotionIdToEditAtom = atom<PromotionId>(undefined as PromotionId)
 
-// ///////////////////////////// Helpers /////////////////////////////
+///////////////////////////Helpers /////////////////////////////
 
-// /**
-//  *
-//  * @param rewardsId
-//  * @param rewardss
-//  * @returns
-//  */
-// const findRewardsUpdateIndex = (rewardsId: RewardsId, rewardss: RewardsId[]) =>
-//   rewardss.findIndex(
-//     (rewardss) => rewardss.slot.eq(rewardsId.slot) && rewardss.delegator === rewardsId.delegator
-//   )
+/**
+ *
+ * @param promotionId
+ * @param promotions
+ * @returns
+ */
+const findPromotionUpdateIndex = (promotionId: PromotionId, promotions: PromotionId[]) =>
+  promotions.findIndex(
+    (promotions) =>
+      promotions.slot.eq(promotionId.slot) && promotions.delegator === promotionId.delegator
+  )

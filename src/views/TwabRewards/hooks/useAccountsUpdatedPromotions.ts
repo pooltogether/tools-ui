@@ -1,28 +1,22 @@
 import {
-  delegationCreationsAtom,
-  delegationFundsAtom,
-  delegationUpdatesAtom
-} from '@twabDelegator/atoms'
-import {
-  Delegation,
-  DelegationFund,
-  DelegationId,
-  DelegationUpdate
-} from '@twabDelegator/interfaces'
+  promotionCreationsAtom,
+  promotionFundsAtom,
+  promotionUpdatesAtom
+} from '@twabRewards/atoms'
+import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabRewards/interfaces'
 import { useAtom } from 'jotai'
 import { useAccountsPromotions } from './useAccountsPromotions'
 
 /**
- * // TODO: Make this more efficient.
  * @param chainId
- * @param delegator
+ * @param account
  * @returns
  */
-export const useAccountsUpdatedPromotions = (chainId: number, delegator: string) => {
-  const useQueryResult = useAccountsPromotions(chainId, delegator)
-  const [delegationUpdates] = useAtom(delegationUpdatesAtom)
-  const [delegationCreations] = useAtom(delegationCreationsAtom)
-  const [delegationFunds] = useAtom(delegationFundsAtom)
+export const useAccountsUpdatedPromotions = (chainId: number, account: string) => {
+  const useQueryResult = useAccountsPromotions(chainId, account)
+  const [promotionUpdates] = useAtom(promotionUpdatesAtom)
+  const [promotionCreations] = useAtom(promotionCreationsAtom)
+  const [promotionFunds] = useAtom(promotionFundsAtom)
 
   if (!useQueryResult.isFetched) {
     return {
@@ -31,61 +25,60 @@ export const useAccountsUpdatedPromotions = (chainId: number, delegator: string)
     }
   }
 
+  console.log(useQueryResult.data)
   const data: {
-    delegationId: DelegationId
-    delegation?: Delegation
-    delegationUpdate?: DelegationUpdate
-    delegationCreation?: DelegationUpdate
-    delegationFund?: DelegationFund
-  }[] = useQueryResult.data.map((delegationWithId) => {
-    const { delegation, delegationId } = delegationWithId
-    const delegationUpdate = delegationUpdates.find(
-      (delegationUpdate) =>
-        delegationUpdate.delegator === delegationId.delegator &&
-        delegationUpdate.slot.eq(delegationId.slot)
-    )
-    const delegationFund = delegationFunds.find(
-      (delegationFund) =>
-        delegationFund.delegator === delegationId.delegator &&
-        delegationFund.slot.eq(delegationId.slot)
-    )
-    const delegationCreation = delegationCreations.find(
-      (delegationCreation) =>
-        delegationCreation.delegator === delegationId.delegator &&
-        delegationCreation.slot.eq(delegationId.slot)
-    )
+    // promotionId: PromotionId
+    promotion?: Promotion
+    // promotionUpdate?: PromotionUpdate
+    // promotionCreation?: PromotionUpdate
+    // promotionFund?: PromotionFund
+  }[] = useQueryResult.data?.map((promotionData) => {
+    const { promotion } = promotionData
+    console.log(promotion)
+    // const promotionUpdate = promotionUpdates.find(
+    //   (promotionUpdate) =>
+    //     promotionUpdate.account === promotionId.account && promotionUpdate.slot.eq(promotionId.slot)
+    // )
+    // const promotionFund = promotionFunds.find(
+    //   (promotionFund) =>
+    //     promotionFund.account === promotionId.account && promotionFund.slot.eq(promotionId.slot)
+    // )
+    // const promotionCreation = promotionCreations.find(
+    //   (promotionCreation) =>
+    //     promotionCreation.account === promotionId.account &&
+    //     promotionCreation.slot.eq(promotionId.slot)
+    // )
     return {
-      delegation,
-      delegationId,
-      delegationUpdate,
-      delegationCreation,
-      delegationFund
+      promotion
+      // promotionUpdate,
+      // promotionCreation,
+      // promotionFund
     }
   })
 
-  // Add in delegation creations if they aren't there
-  delegationCreations.forEach((delegationCreation) => {
-    const isAdded = data.some(
-      (delegationData) => delegationData.delegationCreation === delegationCreation
-    )
-    if (!isAdded) {
-      const delegationFund = delegationFunds.find(
-        (delegationFund) =>
-          delegationFund.delegator === delegationCreation.delegator &&
-          delegationFund.slot.eq(delegationCreation.slot)
-      )
-      data.push({
-        delegationId: {
-          slot: delegationCreation.slot,
-          delegator: delegationCreation.delegator
-        },
-        delegationCreation: delegationCreation,
-        delegationFund
-      })
-    }
-  })
+  // Add in promotion creations if they aren't there
+  // promotionCreations.forEach((promotionCreation) => {
+  //   const isAdded = data.some(
+  //     (promotionData) => promotionData.promotionCreation === promotionCreation
+  //   )
+  //   if (!isAdded) {
+  //     const promotionFund = promotionFunds.find(
+  //       (promotionFund) =>
+  //         promotionFund.account === promotionCreation.account &&
+  //         promotionFund.slot.eq(promotionCreation.slot)
+  //     )
+  //     data.push({
+  //       promotionId: {
+  //         slot: promotionCreation.slot,
+  //         account: promotionCreation.account
+  //       },
+  //       promotionCreation: promotionCreation,
+  //       promotionFund
+  //     })
+  //   }
+  // })
 
-  data.sort((a, b) => (a.delegationId.slot.gt(b.delegationId.slot) ? 1 : -1))
+  // data.sort((a, b) => (a.promotionId.slot.gt(b.promotionId.slot) ? 1 : -1))
 
   return {
     ...useQueryResult,
