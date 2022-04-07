@@ -78,10 +78,9 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
         </p>
         {promotions.length >= 1 && (
           <ListStateActions
-            listState={listState}
+            chainId={chainId}
             currentAccount={currentAccount}
             setCurrentAccount={setCurrentAccount}
-            setListState={setListState}
             transactionPending={transactionPending}
           />
         )}

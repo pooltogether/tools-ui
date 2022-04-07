@@ -7,6 +7,6 @@ export const Label: React.FC<
   <label
     {...props}
     className={classNames(props.className, 'text-xxs font-bold opacity-50')}
-    style={{ paddingBottom: 1 }}
+    style={{ paddingBottom: 3 }}
   />
 )

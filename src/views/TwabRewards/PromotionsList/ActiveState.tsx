@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
@@ -31,7 +32,6 @@ import { getBalance } from '@twabRewards/utils/getBalance'
 import { getDuration } from '@twabRewards/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 import { BigNumber } from 'ethers'
-import classNames from 'classnames'
 import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
@@ -53,33 +53,27 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
   console.log(promotions)
   return (
-    <div className={classNames(className, 'flex flex-col')}>
-      <ul>
-        <ListHeaders listState={listState} />
-        {promotions.map((promotionData) => {
-          const { promotion } = promotionData
-          console.log(promotion)
-          console.log(promotion.createdAt)
-          return (
-            <PromotionRow
-              key={`slot-${promotion.createdAt.toString()}-${listState}`}
-              promotion={promotion}
-              chainId={chainId}
-              listState={listState}
-              transactionPending={transactionPending}
-            />
-          )
-        })}
-      </ul>
-      <AddSlotButton
-        className='mx-auto mt-8'
-        chainId={chainId}
-        currentAccount={currentAccount}
-        listState={listState}
-        setListState={setListState}
-        transactionPending={transactionPending}
-      />
-    </div>
+    <>
+      <div className={classNames(className, 'flex flex-col')}>
+        <ul>
+          <ListHeaders listState={listState} />
+          {promotions.map((promotionData) => {
+            const { promotion } = promotionData
+            console.log(promotion)
+            console.log(promotion.createdAt)
+            return (
+              <PromotionRow
+                key={`slot-${promotion.createdAt.toString()}-${listState}`}
+                promotion={promotion}
+                chainId={chainId}
+                listState={listState}
+                transactionPending={transactionPending}
+              />
+            )
+          })}
+        </ul>
+      </div>
+    </>
   )
 }
 
@@ -409,38 +403,6 @@ const StateChangeIcon: React.FC<{
     <Tooltip id={`tooltip-edited-icon-${Math.random()}`} tip={tooltipText}>
       <FeatherIcon icon={icon} className='w-4 h-4 text-yellow' />
     </Tooltip>
-  )
-}
-
-const AddSlotButton: React.FC<{
-  chainId: number
-  currentAccount: string
-  listState: ListState
-  setListState: (listState: ListState) => void
-  transactionPending: boolean
-  className?: string
-}> = (props) => {
-  const { className, listState, transactionPending, currentAccount, setListState } = props
-  const usersAddress = useUsersAddress()
-  const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
-  const { t } = useTranslation()
-
-  if (listState === ListState.withdraw || usersAddress !== currentAccount) return null
-
-  return (
-    <SquareButton
-      theme={SquareButtonTheme.tealOutline}
-      className={classNames('w-48', className)}
-      size={SquareButtonSize.sm}
-      onClick={() => {
-        setListState(ListState.edit)
-        setIsOpen(true)
-      }}
-      disabled={transactionPending}
-    >
-      <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
-      <span>{t('newPromotion')}</span>
-    </SquareButton>
   )
 }
 

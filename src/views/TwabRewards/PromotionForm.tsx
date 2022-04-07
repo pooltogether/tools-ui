@@ -63,7 +63,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           }
         })}
       />
-      <ErrorMessage className='mb-2'>{errors.delegatee?.message}</ErrorMessage>
+      <ErrorMessage className='mb-4'>{errors.delegatee?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
         {`Amount (${ticket.symbol})`} *
       </Label>
@@ -91,7 +91,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           }
         })}
       />
-      <ErrorMessage className='mb-2'>{errors.balance?.message}</ErrorMessage>
+      <ErrorMessage className='mb-4'>{errors.balance?.message}</ErrorMessage>
 
       <Tooltip id={`lock-tooltip-form`} tip={'Duration to lock the delegation'}>
         <div className='col-span-2 flex space-x-2 items-center'>

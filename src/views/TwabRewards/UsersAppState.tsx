@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'react-i18next'
 import { constants } from 'ethers/lib'
 import { isAddress } from 'ethers/lib/utils'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
@@ -25,46 +26,50 @@ import { useRewardsSupportedChainIds } from './hooks/useRewardsSupportedChainIds
 // import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 import { getTwabRewardsContractAddress } from './utils/getTwabRewardsContractAddress'
 
-interface UsersPromotionStateProps {
+interface UsersAppStateProps {
   className?: string
   chainId: number
-  address: string
+  currentAccount: string
   setChainId: (chainId: number) => void
-  setCurrentAccount: (address: string) => void
+  setCurrentAccount: (currentAccount: string) => void
 }
 
-export const UsersPromotionState: React.FC<UsersPromotionStateProps> = (props) => {
-  const { className, chainId, setChainId, setCurrentAccount, address } = props
+export const UsersAppState: React.FC<UsersAppStateProps> = (props) => {
+  const { className, chainId, setChainId, setCurrentAccount, currentAccount } = props
   const ticket = useTicket(chainId)
   const twabRewards = getTwabRewardsContractAddress(chainId)
   // const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
   //   chainId,
-  //   address,
-  //   ticket.address
+  //   currentAccount,
+  //   ticket.currentAccount
   // )
   // const { data: delegationBalance, isFetched: isRewardsBalanceFetched } = useTotalAmountDelegated(
   //   chainId,
-  //   address
+  //   currentAccount
   // )
+  console.log({ currentAccount })
 
   return (
     <>
       <div className='flex items-center bg-white dark:bg-pt-purple-dark rounded-full py-2 px-4'>
         <div className='w-full flex justify-between'>
           <div className='flex space-x-2 items-center'>
-            <AccountAvatar sizeClassName='w-4 h-4' address={address || constants.AddressZero} />
+            <AccountAvatar
+              sizeClassName='w-4 h-4'
+              address={currentAccount || constants.AddressZero}
+            />
             <BlockExplorerLink
               chainId={chainId}
-              address={address || constants.AddressZero}
+              address={currentAccount || constants.AddressZero}
               shorten
               noIcon
             />
             <ChangeCurrentAccountButton
-              currentAccount={address}
+              currentAccount={currentAccount}
               setCurrentAccount={setCurrentAccount}
             />
             <ClearCurrentAccountButton
-              currentAccount={address}
+              currentAccount={currentAccount}
               setCurrentAccount={setCurrentAccount}
             />
           </div>
@@ -75,7 +80,7 @@ export const UsersPromotionState: React.FC<UsersPromotionStateProps> = (props) =
       <div className={classNames(className, 'flex justify-between')}>
         <div className='flex flex-col space-y-1 mt-4 ml-4'>
           {/* <div className='flex space-x-2 items-center'>
-            <TokenIcon chainId={chainId} address={ticket.address} sizeClassName='w-4 h-4' />
+            <TokenIcon chainId={chainId} currentAccount={ticket.currentAccount} sizeClassName='w-4 h-4' />
             <span className='font-semibold opacity-60 text-xxs'>{ticket.symbol}</span>
             <a
               className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'
@@ -87,7 +92,7 @@ export const UsersPromotionState: React.FC<UsersPromotionStateProps> = (props) =
               <FeatherIcon icon='external-link' className='w-3 h-3' />
             </a>
           </div> */}
-          {address && (
+          {currentAccount && (
             <div className='flex flex-col space-y-1'>
               {/* {(!isRewardsBalanceFetched || !isRewardsBalanceFetched) && (
                 <ThemedClipSpinner sizeClassName='w-3 h-3' />
@@ -205,6 +210,7 @@ export const ChangeAccountModal: React.FC<{
   setIsOpen: (isOpen: boolean) => void
 }> = (props) => {
   const { isOpen, currentAccount, setCurrentAccount, setIsOpen } = props
+  const { t } = useTranslation()
 
   const usersAddress = useUsersAddress()
 
@@ -232,16 +238,20 @@ export const ChangeAccountModal: React.FC<{
       open={isOpen}
       onDismiss={() => setIsOpen(false)}
     >
-      <h6 className='text-center uppercase text-sm mb-3 mt-2'>Set account</h6>
+      <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('setAccount', 'Set account')}</h6>
       <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
-        Enter an address below to view it's promotions and rewards
+        {t(
+          'enterAccountAddressBelowToViewPromotions',
+          "Enter an account address below to view it's promotions and rewards"
+        )}
+        :
       </p>
       <form
         onSubmit={handleSubmit((v) => onSubmit(v))}
         autoComplete='off'
         className='flex flex-col'
       >
-        {/* TODO: Is this clearer than the clear button? Showing a shortcut to fill input with the users address. */}
+        {/* TODO: Is this clearer than the clear button? Showing a shortcut to fill input with the users currentAccount. */}
         {/* {usersAddress && (
           <button
             type='button'
@@ -260,10 +270,10 @@ export const ChangeAccountModal: React.FC<{
           {...register('currentAccount', {
             required: {
               value: true,
-              message: 'Account address is required'
+              message: 'Account currentAccount is required'
             },
             validate: {
-              isAddress: (v) => isAddress(v) || 'Invalid address'
+              isAddress: (v) => isAddress(v) || 'Invalid currentAccount'
             }
           })}
         />

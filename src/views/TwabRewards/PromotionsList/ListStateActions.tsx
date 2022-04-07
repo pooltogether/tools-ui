@@ -1,23 +1,24 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
+import classNames from 'classnames'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import { useUpdateAtom } from 'jotai/utils'
+import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 
-import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
-import { ListState } from '.'
-import { WithdrawSvg } from '@components/SvgComponents'
+import { ChangeAccountModal } from '@twabRewards/UsersAppState'
 import { useTranslation } from 'react-i18next'
 
 interface ListStateActionsProps {
+  chainId: number
   currentAccount: string
   transactionPending: boolean
-  setListState: (listState: ListState) => void
   setCurrentAccount: (currentAccount: string) => void
 }
 
 // TODO: Cancel confirmation modal
 export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
-  const { transactionPending, currentAccount, setCurrentAccount, setListState } = props
+  const { chainId, transactionPending, currentAccount, setCurrentAccount } = props
   const usersAddress = useUsersAddress()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -38,7 +39,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           >
             {t('changeDelegator')}
           </SquareButton>
-          <ChangeDelegatorModal
+          <ChangeAccountModal
             isOpen={isOpen}
             currentAccount={currentAccount}
             setCurrentAccount={setCurrentAccount}
@@ -51,7 +52,14 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 
   return (
     <FixedFooterNav>
-      <div className='w-full flex justify-center space-x-2'>
+      <AddPromotionButton
+        className='mx-auto mt-8'
+        chainId={chainId}
+        currentAccount={currentAccount}
+        transactionPending={transactionPending}
+      />
+
+      {/* <div className='w-full flex justify-center space-x-2'>
         <SquareButton
           className='w-32'
           size={SquareButtonSize.sm}
@@ -70,8 +78,8 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           disabled={transactionPending}
         >
           <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
-        </SquareButton>
-      </div>
+        </SquareButton> 
+      </div>*/}
     </FixedFooterNav>
   )
 }
@@ -86,5 +94,34 @@ const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }
         {children}
       </div>
     </>
+  )
+}
+
+const AddPromotionButton: React.FC<{
+  chainId: number
+  currentAccount: string
+  transactionPending: boolean
+  className?: string
+}> = (props) => {
+  const { className, transactionPending, currentAccount } = props
+  const usersAddress = useUsersAddress()
+  const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
+  const { t } = useTranslation()
+
+  if (usersAddress !== currentAccount) return null
+
+  return (
+    <SquareButton
+      theme={SquareButtonTheme.tealOutline}
+      className={classNames('w-48', className)}
+      size={SquareButtonSize.sm}
+      onClick={() => {
+        setIsOpen(true)
+      }}
+      disabled={transactionPending}
+    >
+      <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
+      <span>{t('newPromotion')}</span>
+    </SquareButton>
   )
 }
