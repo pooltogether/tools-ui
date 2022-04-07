@@ -59,18 +59,18 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
       )
     } else {
       console.log('here')
+      console.log(promotions)
 
-      list = <div></div>
-      // list = (
-      //   <ActiveState
-      //     {...props}
-      //     className='mb-10'
-      //     currentAccount={currentAccount}
-      //     listState={listState}
-      //     setListState={setListState}
-      //     transactionPending={transactionPending}
-      //   />
-      // )
+      list = (
+        <ActiveState
+          {...props}
+          className='mb-10'
+          currentAccount={currentAccount}
+          listState={listState}
+          setListState={setListState}
+          transactionPending={transactionPending}
+        />
+      )
     }
 
     return (

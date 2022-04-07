@@ -38,7 +38,7 @@ import { useTranslation } from 'react-i18next'
 import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
 
 export interface ActiveStateProps extends PromotionListProps {
-  delegator: string
+  currentAccount: string
   listState: ListState
   transactionPending: boolean
   setListState: (listState: ListState) => void
@@ -49,27 +49,32 @@ export interface ActiveStateProps extends PromotionListProps {
  * @returns
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
-  const { chainId, className, listState, setListState, delegator, transactionPending } = props
-  const { data: promotions } = useAccountsUpdatedPromotions(chainId, delegator)
+  const { chainId, className, listState, setListState, currentAccount, transactionPending } = props
+  const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
   console.log(promotions)
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <ul>
         <ListHeaders listState={listState} />
-        {promotions.map((promotion) => (
-          <PromotionRow
-            {...promotion}
-            key={`slot-${promotion.promotionId.slot.toString()}-${listState}`}
-            chainId={chainId}
-            listState={listState}
-            transactionPending={transactionPending}
-          />
-        ))}
+        {promotions.map((promotionData) => {
+          const { promotion } = promotionData
+          console.log(promotion)
+          console.log(promotion.createdAt)
+          return (
+            <PromotionRow
+              key={`slot-${promotion.createdAt.toString()}-${listState}`}
+              promotion={promotion}
+              chainId={chainId}
+              listState={listState}
+              transactionPending={transactionPending}
+            />
+          )
+        })}
       </ul>
       <AddSlotButton
         className='mx-auto mt-8'
         chainId={chainId}
-        delegator={delegator}
+        currentAccount={currentAccount}
         listState={listState}
         setListState={setListState}
         transactionPending={transactionPending}
@@ -125,11 +130,11 @@ interface PromotionRowProps {
   listState: ListState
   chainId: number
   transactionPending: boolean
-  promotionId: PromotionId
+  // fId: PromotionId
   promotion?: Promotion
-  promotionUpdate?: PromotionUpdate
-  promotionCreation?: PromotionUpdate
-  promotionFund?: PromotionFund
+  // promotionUpdate?: PromotionUpdate
+  // promotionCreation?: PromotionUpdate
+  // promotionFund?: PromotionFund
 }
 
 /**
@@ -139,7 +144,7 @@ interface PromotionRowProps {
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
   const {
     chainId,
-    promotionId,
+    // promotionId,
     promotion,
     // promotionCreation,
     // promotionUpdate,
@@ -147,13 +152,15 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
     listState,
     transactionPending
   } = props
-  const { slot } = promotionId
+  // const { slot } = promotionId
 
-  const token = '0xface'
-  const tokensPerEpoch = BigNumber.from(10)
-  const startTimestamp = Date.now()
-  const epochDuration = 55
-  const numberOfEpochs = 66
+  const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
+  console.log({ token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs })
+  // const token = '0xface'
+  // const tokensPerEpoch = BigNumber.from(10)
+  // const startTimestamp = Date.now()
+  // const epochDuration = 55
+  // const numberOfEpochs = 66
   // const delegatee = getDelegatee(promotion, promotionCreation, promotionUpdate)
 
   // const balance = getBalance(promotion, promotionFund)
@@ -188,14 +195,19 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
           />
         )}
         {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>} */}
-        {/* <span className='font-bold opacity-60'>{slot.toString()}</span> */}22
+        {/* <span className='font-bold opacity-60'>{slot.toString()}</span> */}
+        <span>{token}</span>
+        <span>{tokensPerEpoch.toString()}</span>
+        <span>{startTimestamp.toString()}</span>
+        <span>{epochDuration}</span>
+        <span>{numberOfEpochs}</span>
       </div>
-
+      {/* 
       {token}
       {tokensPerEpoch}
       {startTimestamp}
       {epochDuration}
-      {numberOfEpochs}
+      {numberOfEpochs} */}
       {/* <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
       <BalanceDisplay
         chainId={chainId}
@@ -408,18 +420,18 @@ const StateChangeIcon: React.FC<{
 
 const AddSlotButton: React.FC<{
   chainId: number
-  delegator: string
+  currentAccount: string
   listState: ListState
   setListState: (listState: ListState) => void
   transactionPending: boolean
   className?: string
 }> = (props) => {
-  const { className, listState, transactionPending, delegator, setListState } = props
+  const { className, listState, transactionPending, currentAccount, setListState } = props
   const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
   const { t } = useTranslation()
 
-  if (listState === ListState.withdraw || usersAddress !== delegator) return null
+  if (listState === ListState.withdraw || usersAddress !== currentAccount) return null
 
   return (
     <SquareButton
