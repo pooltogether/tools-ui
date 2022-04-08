@@ -76,7 +76,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
               target='_blank'
               rel='noreferrer'
             >
-              <span>{`Get ${ticket.symbol}`}</span>
+              <span>{t('getTicker', { ticker: ticket.symbol })}</span>
               <FeatherIcon icon='external-link' className='w-3 h-3' />
             </a>
           </div>
