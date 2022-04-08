@@ -7,7 +7,7 @@ import { EmptyState } from './EmptyState'
 import { ListStateActions } from './ListStateActions'
 import { LoadingState } from './LoadingState'
 import { CreatePromotionModal } from './CreatePromotionModal'
-import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
+import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
 // import { useResetPromotionAtomsOnAccountChange } from '@twabRewards/hooks/useResetPromotionAtomsOnAccountChange'
 import { NoAccountState } from './NoAccountState'
 
@@ -31,7 +31,8 @@ export enum ListState {
 export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const { chainId, currentAccount, className, setCurrentAccount } = props
   // useResetPromotionAtomsOnAccountChange()
-  const useQueryResult = useAccountsUpdatedPromotions(chainId, currentAccount)
+  // const useQueryResult = useAccountsUpdatedPromotions(chainId, currentAccount)
+  const useQueryResult = useAccountsPromotions(chainId, currentAccount)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
   const [transactionId, setTransactionId] = useState<string>()
   const transaction = useTransaction(transactionId)

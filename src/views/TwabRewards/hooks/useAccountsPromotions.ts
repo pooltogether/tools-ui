@@ -1,23 +1,21 @@
+import gql from 'graphql-tag'
 import { BigNumber } from 'ethers'
 import { useQuery } from 'react-query'
-import { batch, contract } from '@pooltogether/etherplex'
-import { getReadProvider } from '@pooltogether/utilities'
 import { NO_REFETCH } from '@pooltogether/hooks/dist/constants'
 
-import TwabRewardsAbi from '@twabRewards/abis/TwabRewards'
-import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 import { Promotion, PromotionId } from '@twabRewards/interfaces'
+import { useTwabRewardsSubgraphClient } from '@twabRewards/hooks/useTwabRewardsSubgraphClient'
 
 /**
  *
  * @param chainId
  * @param account
- * @returns
+ * @returns Promotion[]
  */
 export const useAccountsPromotions = (chainId: number, account: string) => {
   return useQuery(
-    ['useAccountsPromotions', account, chainId],
-    async () => getUsersPromotionsWithIds(chainId, account),
+    ['useAccountPromotions', account, chainId],
+    async () => getAccountsPromotions(chainId, account),
     {
       ...NO_REFETCH,
       enabled: !!account
@@ -25,45 +23,70 @@ export const useAccountsPromotions = (chainId: number, account: string) => {
   )
 }
 
+export const getAccountsPromotions = async (chainId, account) => {
+  const query = promotionsQuery()
+  const variables = {
+    accountAddress: account.toLowerCase()
+  }
+
+  const client = useTwabRewardsSubgraphClient(chainId)
+
+  return client.request(query, variables).catch((e) => {
+    console.error(e.message)
+    return null
+  })
+}
+
+const promotionFragment = gql`
+  fragment promotionFragment on Promotion {
+    id
+    creator
+    createdAt
+    startTimestamp
+    numberOfEpochs
+    epochDuration
+    tokensPerEpoch
+    rewardsUnclaimed
+    token
+    ticket
+  }
+`
+
+const promotionsQuery = () => {
+  return gql`
+    query promotionsQuery($accountAddress: String!) {
+      promotions(creator: $accountAddress) {
+        ...promotionFragment
+      }
+    }
+    ${promotionFragment}
+  `
+}
+
+const retryCodes = [408, 500, 502, 503, 504, 522, 524]
+const sleep = async (retry) => await new Promise((r) => setTimeout(r, 500 * retry))
+
 /**
- * @param chainId
- * @param account
+ * Custom fetch wrapper for the query clients so we can handle errors better and retry queries
+ * NOTE: retries is starting at 3 so we don't actually retrys
+ * @param {*} request
+ * @param {*} options
+ * @param {*} retry
  * @returns
  */
-const getUsersPromotionsWithIds = async (chainId: number, account: string) => {
-  const provider = getReadProvider(chainId)
-  const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
+const theGraphCustomFetch = async (request, options, retry = 3) =>
+  fetch(request, options)
+    .then(async (response) => {
+      if (response.ok) return response
 
-  const pageSize = 10
-  let slotIndexOffset = 0
-  let batchCalls = []
+      if (retry < 3 && retryCodes.includes(response.status)) {
+        await sleep(retry)
+        return theGraphCustomFetch(request, options, retry + 1)
+      }
 
-  const promotions: { promotion: Promotion }[] = []
-
-  const twabRewardsContract = contract(twabRewardsAddress, TwabRewardsAbi, twabRewardsAddress)
-  batchCalls.push(twabRewardsContract.getPromotion(BigNumber.from(1)))
-  const response = await batch(provider, ...batchCalls)
-
-  // hard-coded array until we have subgraph // console.log({ response })
-  const arr = [0]
-  arr.forEach((index) => {
-    const promotionResponse: Promotion = response[twabRewardsAddress].getPromotion[index]
-    console.log({ twabRewardsAddress })
-    console.log({ promotionResponse })
-
-    const promotion = {
-      creator: promotionResponse.creator,
-      startTimestamp: promotionResponse.startTimestamp,
-      numberOfEpochs: promotionResponse.numberOfEpochs,
-      createdAt: promotionResponse.createdAt,
-      token: promotionResponse.token,
-      tokensPerEpoch: promotionResponse.tokensPerEpoch,
-      rewardsUnclaimed: promotionResponse.rewardsUnclaimed
-    }
-    promotions.push({
-      promotion
+      throw new Error(JSON.stringify(response))
     })
-  })
-
-  return promotions
-}
+    .catch((reason) => {
+      console.log(reason)
+      return reason
+    })

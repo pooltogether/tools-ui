@@ -35,7 +35,8 @@ import { BigNumber } from 'ethers'
 import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
-import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
+import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
+// import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
 
 export interface ActiveStateProps extends PromotionListProps {
   currentAccount: string
@@ -50,15 +51,16 @@ export interface ActiveStateProps extends PromotionListProps {
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, currentAccount, transactionPending } = props
-  const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
+  // const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
+  const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
+  const { promotions } = promotionsData
   console.log(promotions)
   return (
     <>
       <div className={classNames(className, 'flex flex-col')}>
         <ul>
           <ListHeaders listState={listState} />
-          {promotions.map((promotionData) => {
-            const { promotion } = promotionData
+          {promotions.map((promotion) => {
             console.log(promotion)
             console.log(promotion.createdAt)
             return (
