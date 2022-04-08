@@ -1,7 +1,14 @@
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
+import { format } from 'date-fns'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
+import { sToD, shorten, msToS, sToM, prettyNumber, numberWithCommas } from '@pooltogether/utilities'
+import { BigNumber } from 'ethers'
+import { ScreenSize, useScreenSize, useTokenBalance } from '@pooltogether/hooks'
+import { useAtom } from 'jotai'
+import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'react-i18next'
+
 import {
   promotionUpdatesAtom,
   promotionWithdrawalsAtom,
@@ -14,8 +21,6 @@ import {
   promotionCreationsAtom
 } from '@twabRewards/atoms'
 import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabRewards/interfaces'
-import { useAtom } from 'jotai'
-import { useUpdateAtom } from 'jotai/utils'
 import { PromotionListProps, ListState } from '.'
 import {
   BlockExplorerLink,
@@ -31,10 +36,8 @@ import { getDelegatee } from '@twabRewards/utils/getDelegatee'
 import { getBalance } from '@twabRewards/utils/getBalance'
 import { getDuration } from '@twabRewards/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
-import { BigNumber } from 'ethers'
-import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
+
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
-import { useTranslation } from 'react-i18next'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
 // import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
 
@@ -53,6 +56,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, currentAccount, transactionPending } = props
   // const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
   const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
+
   const { promotions } = promotionsData
   console.log(promotions)
   return (
@@ -61,11 +65,10 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         <ul>
           <ListHeaders listState={listState} />
           {promotions.map((promotion) => {
-            console.log(promotion)
-            console.log(promotion.createdAt)
             return (
               <PromotionRow
                 key={`slot-${promotion.createdAt.toString()}-${listState}`}
+                currentAccount={currentAccount}
                 promotion={promotion}
                 chainId={chainId}
                 listState={listState}
@@ -87,19 +90,14 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
     <li
       className={classNames(
         'grid items-center',
-        'px-2 py-1 border-b border-pt-purple border-opacity-50',
-        {
-          'grid-cols-7': listState !== ListState.edit,
-          'grid-cols-8': listState === ListState.edit
-        }
+        'px-2 py-1 border-b border-pt-purple border-opacity-50 grid-cols-8'
       )}
     >
-      <span className='col-span-1' />
-      <Header>{t('address')}</Header>
-      <Header>{t('amount')}</Header>
-      <Header className='flex items-center'>
-        <span>{t('duration')}</span>
-        <span className='normal-case'>
+      <Header>{t('token')}</Header>
+      <Header className='col-span-2 text-center'>{t('tokensPerEpoch', 'Tokens per epoch')}</Header>
+      <Header className='col-span-2 text-center'>
+        <span>{t('startsAt', 'Starts at')}</span>
+        {/* <span className='normal-case'>
           <Tooltip id={`lock-tooltip-header`} tip={'Duration the promotion is locked for in days'}>
             <FeatherIcon
               icon={'help-circle'}
@@ -107,24 +105,26 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
               style={{ top: -1 }}
             />
           </Tooltip>
-        </span>
+        </span> */}
       </Header>
+      <Header className='col-span-2 text-center'>
+        {t('epochDuration', 'Epoch duration')} ({t('days')})
+      </Header>
+      <Header className='text-center'>{t('epochs', 'Epochs')}</Header>
 
-      {listState === ListState.edit && <span className='col-span-1' />}
+      {/* {listState === ListState.edit && <span className='col-span-1' />} */}
     </li>
   )
 }
 
 const Header = (props) => (
-  <span
-    {...props}
-    className={classNames(props.className, 'col-span-2 uppercase font-bold text-xxxs')}
-  />
+  <span {...props} className={classNames(props.className, 'uppercase font-bold text-xxxs')} />
 )
 
 interface PromotionRowProps {
   listState: ListState
   chainId: number
+  currentAccount: string
   transactionPending: boolean
   // fId: PromotionId
   promotion?: Promotion
@@ -140,6 +140,7 @@ interface PromotionRowProps {
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
   const {
     chainId,
+    currentAccount,
     // promotionId,
     promotion,
     // promotionCreation,
@@ -170,34 +171,19 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
     <li
       className={classNames(
         'grid items-center',
-        'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50',
-        {
-          'grid-cols-7': listState !== ListState.edit,
-          'grid-cols-8': listState === ListState.edit
-          // 'opacity-50 dark:bg-white dark:bg-opacity-5 bg-actually-black bg-opacity-20':
-          //   listState === ListState.edit ||
-          //   listState === ListState.withdraw ||
-          //   (listState === ListState.withdraw && isZeroBalance)
-        }
+        'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 grid-cols-8 text-xxs'
       )}
     >
-      <div className='flex space-x-2 col-span-1'>
-        {/* {!isLocked && listState === ListState.withdraw && (
-          <PromotionWithdrawToggle
-            {...props}
-            isZeroBalance={isZeroBalance}
-            isLocked={isLocked}
-            transactionPending={transactionPending}
-          />
-        )}
-        {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>} */}
-        {/* <span className='font-bold opacity-60'>{slot.toString()}</span> */}
-        <span>{token}</span>
-        <span>{tokensPerEpoch.toString()}</span>
-        <span>{startTimestamp.toString()}</span>
-        <span>{epochDuration}</span>
-        <span>{numberOfEpochs}</span>
-      </div>
+      <TokenDisplay chainId={chainId} token={token} />
+      <TokensPerEpochDisplay
+        chainId={chainId}
+        account={currentAccount}
+        token={token}
+        tokensPerEpoch={tokensPerEpoch}
+      />
+      <StartTimestampDisplay startTimestamp={startTimestamp} />
+      <EpochDurationDisplay epochDuration={epochDuration} />
+      <NumberOfEpochsDisplay numberOfEpochs={numberOfEpochs} />
       {/* <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
       <BalanceDisplay
         chainId={chainId}
@@ -230,18 +216,86 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
  * @param props
  * @returns
  */
-const DelegateeDisplay: React.FC<{ className?: string; chainId: number; delegatee: string }> = ({
+const TokenDisplay: React.FC<{ className?: string; chainId: number; token: string }> = ({
   className,
   chainId,
-  delegatee
+  token
 }) => {
-  const screenSize = useScreenSize()
   return (
-    <BlockExplorerLink className={className} chainId={chainId} address={delegatee} noIcon>
-      <span>{shorten({ hash: delegatee, short: screenSize === ScreenSize.xs })}</span>
+    <BlockExplorerLink
+      className={classNames(className, 'flex items-center')}
+      chainId={chainId}
+      address={token}
+      noIcon
+    >
+      <TokenIcon sizeClassName='w-4 h-4' className='mr-2' chainId={chainId} address={token} />
+      <span>{shorten({ hash: token, short: true })}</span>
     </BlockExplorerLink>
   )
 }
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const TokensPerEpochDisplay: React.FC<{
+  chainId: number
+  account: string
+  token: string
+  tokensPerEpoch: string
+}> = ({ chainId, account, token, tokensPerEpoch }) => {
+  const queryResult = useTokenBalance(chainId, account, token)
+  if (!queryResult.isFetched || !queryResult.data) {
+    return null
+  }
+
+  const { decimals } = queryResult.data
+  return (
+    <span className='text-center col-span-2'>
+      {prettyNumber(BigNumber.from(tokensPerEpoch), decimals)}
+    </span>
+  )
+}
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const StartTimestampDisplay: React.FC<{
+  startTimestamp: number
+}> = ({ startTimestamp }) => (
+  <span className='col-span-2 text-center'>
+    {format(new Date(startTimestamp * 1000), 'MMM do yyyy')},
+    <br />
+    {format(new Date(startTimestamp * 1000), 'p')}
+  </span>
+)
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const EpochDurationDisplay: React.FC<{
+  epochDuration: string
+}> = ({ epochDuration }) => {
+  const secondsToDays = (seconds) => seconds / 86400
+
+  return (
+    <span className='col-span-2 text-center'>{numberWithCommas(secondsToDays(epochDuration))}</span>
+  )
+}
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const NumberOfEpochsDisplay: React.FC<{
+  numberOfEpochs: string
+}> = ({ numberOfEpochs }) => <span className='text-center'>{numberOfEpochs}</span>
 
 /**
  *

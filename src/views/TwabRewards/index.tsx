@@ -22,7 +22,6 @@ export const TwabRewards: React.FC = () => {
   const usersAddress = useUsersAddress()
   const [currentAccount] = useAtom(currentAccountAtom)
   const setCurrentAccount = useUpdateAtom(setCurrentAccountAtom)
-  console.log({ wtf: currentAccount })
 
   // Lazy way to get the app to react on wallet connection
   useEffect(() => {
