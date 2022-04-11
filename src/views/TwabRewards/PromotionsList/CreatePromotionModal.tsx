@@ -61,24 +61,21 @@ const CreatePromotionForm: React.FC<{
   const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
 
   const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
-    const delegationCreation: DelegationUpdate = {
-      ...currentAccount,
-      delegatee: data.delegatee,
-      lockDuration: dToS(data.duration)
-    }
-    const delegationFund: DelegationFund = {
-      ...delegationId,
-
-      amount: parseUnits(data.balance, ticket.decimals)
-    }
-
-    addDelegationCreation(delegationCreation)
-    if (!delegationFund.amount.isZero()) {
-      addDelegationFund(delegationFund)
-    }
-
-    resetForm()
-    closeModal()
+    // const delegationCreation: DelegationUpdate = {
+    //   ...currentAccount,
+    //   delegatee: data.delegatee,
+    //   lockDuration: dToS(data.duration)
+    // }
+    // const delegationFund: DelegationFund = {
+    //   ...delegationId,
+    //   amount: parseUnits(data.balance, ticket.decimals)
+    // }
+    // addDelegationCreation(delegationCreation)
+    // if (!delegationFund.amount.isZero()) {
+    //   addDelegationFund(delegationFund)
+    // }
+    // resetForm()
+    // closeModal()
   }
 
   return (
@@ -86,9 +83,11 @@ const CreatePromotionForm: React.FC<{
       chainId={chainId}
       onSubmit={onSubmit}
       defaultValues={{
-        delegatee: '',
-        balance: '',
-        duration: 0
+        token: '',
+        startTimestamp: Date.now(),
+        epochDuration: 0,
+        numberOfEpochs: 0,
+        tokensPerEpoch: 0
       }}
       submitString={t('queueCreation')}
     />

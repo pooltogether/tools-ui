@@ -4,7 +4,7 @@ import { TransactionState, useTransaction } from '@pooltogether/wallet-connectio
 
 import { ActiveState } from './ActiveState'
 import { EmptyState } from './EmptyState'
-import { ListStateActions } from './ListStateActions'
+import { PromotionListActions } from './PromotionListActions'
 import { LoadingState } from './LoadingState'
 import { CreatePromotionModal } from './CreatePromotionModal'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
@@ -77,14 +77,12 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
         <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
           Promotions
         </p>
-        {promotions.length >= 1 && (
-          <ListStateActions
-            chainId={chainId}
-            currentAccount={currentAccount}
-            setCurrentAccount={setCurrentAccount}
-            transactionPending={transactionPending}
-          />
-        )}
+        <PromotionListActions
+          chainId={chainId}
+          currentAccount={currentAccount}
+          setCurrentAccount={setCurrentAccount}
+          transactionPending={transactionPending}
+        />
 
         <div className='xs:mx-2'>{list}</div>
 

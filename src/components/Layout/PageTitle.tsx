@@ -14,7 +14,7 @@ export const Breadcrumbs = () => {
 
   return (
     <Link href='/'>
-      <a className='flex items-center absolute l-2 t-0 b-0 font-semibold hover:text-pt-purple-light opacity-70 text-xxxs xs:text-xxs'>
+      <a className='flex items-center absolute l-2 t-0 b-0 font-semibold hover:opacity-100 opacity-50 text-xxxs xs:text-xxs transition'>
         <FeatherIcon icon={'arrow-left-circle'} className='w-4 h-4 inline-block' />{' '}
         <span className='inline-block ml-1' style={{ paddingTop: 1 }}>
           {t('back')}

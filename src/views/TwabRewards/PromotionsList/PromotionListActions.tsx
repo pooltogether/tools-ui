@@ -9,7 +9,7 @@ import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { ChangeAccountModal } from '@twabRewards/UsersAppState'
 import { useTranslation } from 'react-i18next'
 
-interface ListStateActionsProps {
+interface PromotionListActionsProps {
   chainId: number
   currentAccount: string
   transactionPending: boolean
@@ -17,7 +17,7 @@ interface ListStateActionsProps {
 }
 
 // TODO: Cancel confirmation modal
-export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
+export const PromotionListActions: React.FC<PromotionListActionsProps> = (props) => {
   const { chainId, transactionPending, currentAccount, setCurrentAccount } = props
   const usersAddress = useUsersAddress()
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -53,7 +53,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   return (
     <FixedFooterNav>
       <AddPromotionButton
-        className='mx-auto mt-8'
+        className='mx-auto xs:mt-8'
         chainId={chainId}
         currentAccount={currentAccount}
         transactionPending={transactionPending}
@@ -108,6 +108,9 @@ const AddPromotionButton: React.FC<{
   const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
   const { t } = useTranslation()
 
+  console.log(usersAddress !== currentAccount)
+  console.log(usersAddress)
+  console.log(currentAccount)
   if (usersAddress !== currentAccount) return null
 
   return (

@@ -46,87 +46,143 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       autoComplete='off'
     >
       <Label className='uppercase' htmlFor='delegatee'>
-        Delegatee *
+        Token to distribute
       </Label>
       <StyledInput
-        id='delegatee'
+        id='token'
         invalid={!!errors.delegatee}
         className='w-full'
         placeholder='0xabc...'
-        {...register('delegatee', {
+        {...register('token', {
           required: {
             value: true,
-            message: 'Delegatee is required'
+            message: 'Token is required'
           },
           validate: {
             isAddress: (v) => isAddress(v) || 'Invalid address'
           }
         })}
       />
-      <ErrorMessage className='mb-4'>{errors.delegatee?.message}</ErrorMessage>
+      <ErrorMessage>{errors.token?.message}</ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
-        {`Amount (${ticket.symbol})`} *
+        Promotion start time:
       </Label>
       <StyledInput
-        id='balance'
-        invalid={!!errors.balance}
+        id='startTime'
+        invalid={!!errors.startTime}
         className='w-full'
         placeholder='10'
-        {...register('balance', {
+        {...register('startTime', {
           required: {
             value: true,
-            message: 'Balance is required'
+            message: 'Start time is required'
           },
           validate: {
-            isNumber: (v) => !isNaN(Number(v)) || 'Balance must be a number',
+            isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
             isValidBigNumber: (v) => {
               try {
                 parseUnits(v, ticket.decimals)
                 return true
               } catch (e) {
-                return 'Invalid balance'
+                return 'Invalid startTime'
               }
             },
             isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
           }
         })}
       />
-      <ErrorMessage className='mb-4'>{errors.balance?.message}</ErrorMessage>
-
-      <Tooltip id={`lock-tooltip-form`} tip={'Duration to lock the delegation'}>
+      <ErrorMessage>{errors.startTime?.message}</ErrorMessage>
+      <Tooltip id={`promo-form-epoch-duration-tooltip`} tip={'Enter 0.5 for 12 hours, etc'}>
         <div className='col-span-2 flex space-x-2 items-center'>
           <Label className='uppercase' htmlFor='duration'>
-            Optional Lock Duration (Days)
+            Epoch Duration (Days)
           </Label>
           <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' />
         </div>
       </Tooltip>
-
-      {/* TODO: Probably want to add a toggle here. On is unlocked and duration input is disabled. Off lets users input the number of days. */}
       <StyledInput
-        id='duration'
-        invalid={!!errors.duration}
+        id='epochDuration'
+        invalid={!!errors.epochDuration}
         className='w-1/3'
         placeholder='0'
-        // disabled={!isMaxLockFetched}
-        {...register('duration', {
+        {...register('epochDuration', {
           required: {
             value: true,
-            message: 'Duration is required'
+            message: 'Epoch Duration is required'
           },
           valueAsNumber: true,
           min: {
-            value: 0,
-            message: 'Minimum duration of 0 days'
+            value: 0.001,
+            message: 'Minimum Epoch Duration of 0.001 days'
+          },
+          max: {
+            value: 30,
+            message: `Maximum duration of ${30} days`
           }
-          // max: {
-          //   value: sToD(maxLockDuration),
-          //   message: `Maximum duration of ${sToD(maxLockDuration)} days`
-          // }
         })}
       />
-      <ErrorMessage>{errors.duration?.message}</ErrorMessage>
-      {/* <SquareButton className='mt-4' disabled={!isValid || !isMaxLockFetched} type='submit'> */}
+      <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
+
+      <div className='col-span-2 flex space-x-2 items-center'>
+        <Label className='uppercase' htmlFor='duration'>
+          Tokens per epoch
+        </Label>
+      </div>
+
+      <div className='flex space-x-2 items-center'>
+        <StyledInput
+          id='epochDuration'
+          invalid={!!errors.epochDuration}
+          className='w-1/3'
+          placeholder='0'
+          {...register('epochDuration', {
+            required: {
+              value: true,
+              message: 'Epoch Duration is required'
+            },
+            valueAsNumber: true,
+            min: {
+              value: 0.001,
+              message: 'Minimum Epoch Duration of 0.001 days'
+            },
+            max: {
+              value: 30,
+              message: `Maximum duration of ${30} days`
+            }
+          })}
+        />{' '}
+        <div className='ml-4 font-semibold text-pt-purple-light'>USDC</div>
+      </div>
+      <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
+
+      <Label className='uppercase' htmlFor='balance'>
+        Number of epochs:
+      </Label>
+      <StyledInput
+        id='startTime'
+        invalid={!!errors.startTime}
+        className='w-full'
+        placeholder='10'
+        {...register('startTime', {
+          required: {
+            value: true,
+            message: 'Start time is required'
+          },
+          validate: {
+            isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+            isValidBigNumber: (v) => {
+              try {
+                parseUnits(v, ticket.decimals)
+                return true
+              } catch (e) {
+                return 'Invalid startTime'
+              }
+            },
+            isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+          }
+        })}
+      />
+      <ErrorMessage>{errors.startTime?.message}</ErrorMessage>
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
       </SquareButton>
@@ -134,6 +190,14 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   )
 }
 
-const ErrorMessage: React.FC<{ className?: string }> = (props) => (
-  <p {...props} className={classNames(props.className, 'h-5 mt-1 text-xxs text-pt-red-light')} />
-)
+const ErrorMessage: React.FC<{ className?: string }> = (props) => {
+  return (
+    <p
+      {...props}
+      className={classNames(props.className, 'xs:h-5 xs:block mt-1 text-xxs text-pt-red-light', {
+        'h-5 mb-4': Boolean(props.children),
+        'mb-0 h-1': !Boolean(props.children)
+      })}
+    />
+  )
+}
