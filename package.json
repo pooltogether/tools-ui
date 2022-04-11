@@ -29,6 +29,7 @@
     "@reach/visually-hidden": "^0.15.2",
     "@sentry/react": "^6.17.5",
     "@sentry/tracing": "^6.17.5",
+    "antd": "^4.19.5",
     "autoprefixer": "^10.3.1",
     "beautiful-react-hooks": "^1.0.2",
     "classnames": "^2.3.1",
