@@ -108,9 +108,6 @@ const AddPromotionButton: React.FC<{
   const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
   const { t } = useTranslation()
 
-  console.log(usersAddress !== currentAccount)
-  console.log(usersAddress)
-  console.log(currentAccount)
   if (usersAddress !== currentAccount) return null
 
   return (

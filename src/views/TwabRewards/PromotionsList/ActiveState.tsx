@@ -58,7 +58,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
 
   const { promotions } = promotionsData
-  console.log(promotions)
+
   return (
     <>
       <div className={classNames(className, 'flex flex-col')}>
@@ -152,17 +152,6 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
   // const { slot } = promotionId
 
   const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
-  console.log({ token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs })
-  // const token = '0xface'
-  // const tokensPerEpoch = BigNumber.from(10)
-  // const startTimestamp = Date.now()
-  // const epochDuration = 55
-  // const numberOfEpochs = 66
-  // const delegatee = getDelegatee(promotion, promotionCreation, promotionUpdate)
-
-  // const balance = getBalance(promotion, promotionFund)
-  // const duration = getDuration(promotion, promotionCreation, promotionUpdate)
-  // const currentTimeInSeconds = msToS(Date.now()).toFixed(0)
   // const isLocked = promotion?.lockUntil.gt(currentTimeInSeconds) || false
   // const isEdited = !!promotionUpdate || !!promotionCreation
   // const isZeroBalance = promotion?.balance.isZero()
