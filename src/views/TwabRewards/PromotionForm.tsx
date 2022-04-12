@@ -165,13 +165,11 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             })}
           />
           <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
-
           <div className='col-span-2 flex space-x-2 items-center'>
             <Label className='uppercase' htmlFor='duration'>
               Tokens per epoch
             </Label>
           </div>
-
           <div className='flex space-x-2 items-center'>
             <StyledInput
               id='epochDuration'
@@ -197,7 +195,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             <div className='ml-4 font-semibold text-pt-purple-light'>USDC</div>
           </div>
           <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
-
           <Label className='uppercase' htmlFor='balance'>
             Number of epochs:
           </Label>
