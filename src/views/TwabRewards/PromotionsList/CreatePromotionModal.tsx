@@ -2,17 +2,16 @@ import { useTicket } from '@hooks/v4/useTicket'
 import { BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import { dToS } from '@pooltogether/utilities'
 import {
-  addDelegationFundAtom,
-  addDelegationCreationAtom,
+  // addDelegationFundAtom,
+  // addDelegationCreationAtom,
   createPromotionModalOpenAtom
 } from '@twabRewards/atoms'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 // import { useNextSlot } from '@twabRewards/hooks/useNextSlot'
 import {
-  PromotionFormValues,
-  DelegationFund,
-  DelegationId,
-  DelegationUpdate
+  PromotionFormValues
+  // DelegationFund,
+  // DelegationUpdate
 } from '@twabRewards/interfaces'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
@@ -33,11 +32,7 @@ export const CreatePromotionModal: React.FC<{
       <BottomSheetTitle chainId={chainId} title={t('createPromotion', 'Create promotion')} />
       <CreatePromotionForm
         chainId={chainId}
-        delegationId={{
-          // slot: nextSlotId,
-          slot: 1,
-          currentAccount
-        }}
+        currentAccount={currentAccount}
         closeModal={() => setIsOpen(false)}
       />
     </BottomSheet>
@@ -50,15 +45,15 @@ export const CreatePromotionModal: React.FC<{
  */
 const CreatePromotionForm: React.FC<{
   chainId: number
-  currentAccount: DelegationId
+  currentAccount: string
   closeModal: () => void
 }> = (props) => {
   const { chainId, currentAccount, closeModal } = props
-  const ticket = useTicket(chainId)
+  // const ticket = useTicket(chainId)
   const { t } = useTranslation()
 
-  const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
-  const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
+  // const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
+  // const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
 
   const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
     // const delegationCreation: DelegationUpdate = {
@@ -85,9 +80,9 @@ const CreatePromotionForm: React.FC<{
       defaultValues={{
         token: '',
         startTimestamp: Date.now(),
-        epochDuration: 0,
-        numberOfEpochs: 0,
-        tokensPerEpoch: 0
+        epochDuration: 30,
+        numberOfEpochs: 10,
+        tokensPerEpoch: ''
       }}
       submitString={t('queueCreation')}
     />

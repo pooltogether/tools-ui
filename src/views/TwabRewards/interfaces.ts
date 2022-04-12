@@ -22,7 +22,7 @@ export interface PromotionFund extends PromotionId {
 
 export interface PromotionFormValues {
   token: string
-  tokensPerEpoch: BigNumber
+  tokensPerEpoch: string
   startTimestamp: number
   epochDuration: number
   numberOfEpochs: number

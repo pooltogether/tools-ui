@@ -10,18 +10,18 @@ import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'react-i18next'
 
 import {
-  promotionUpdatesAtom,
-  promotionWithdrawalsAtom,
+  // promotionUpdatesAtom,
+  // promotionWithdrawalsAtom,
   editPromotionModalOpenAtom,
-  removePromotionWithdrawalAtom,
-  addPromotionWithdrawalAtom,
-  promotionFundsAtom,
+  // removePromotionWithdrawalAtom,
+  // addPromotionWithdrawalAtom,
+  // promotionFundsAtom,
   promotionIdToEditAtom,
-  createPromotionModalOpenAtom,
-  promotionCreationsAtom
+  createPromotionModalOpenAtom
+  // promotionCreationsAtom
 } from '@twabRewards/atoms'
 import { Promotion, PromotionFund, PromotionId, PromotionUpdate } from '@twabRewards/interfaces'
-import { PromotionListProps, ListState } from '.'
+import { PromotionsListProps, ListState } from '.'
 import {
   BlockExplorerLink,
   CheckboxInputGroup,
@@ -32,16 +32,15 @@ import {
   Tooltip
 } from '@pooltogether/react-components'
 import { useTicket } from '@hooks/v4/useTicket'
-import { getDelegatee } from '@twabRewards/utils/getDelegatee'
-import { getBalance } from '@twabRewards/utils/getBalance'
-import { getDuration } from '@twabRewards/utils/getDuration'
+// import { getDelegatee } from '@twabRewards/utils/getDelegatee'
+// import { getBalance } from '@twabRewards/utils/getBalance'
+// import { getDuration } from '@twabRewards/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
-// import { useAccountsUpdatedPromotions } from '@twabRewards/hooks/useAccountsUpdatedPromotions'
 
-export interface ActiveStateProps extends PromotionListProps {
+export interface ActiveStateProps extends PromotionsListProps {
   currentAccount: string
   listState: ListState
   transactionPending: boolean
@@ -54,7 +53,6 @@ export interface ActiveStateProps extends PromotionListProps {
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, currentAccount, transactionPending } = props
-  // const { data: promotions } = useAccountsUpdatedPromotions(chainId, currentAccount)
   const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
 
   const { promotions } = promotionsData
@@ -232,7 +230,7 @@ const TokensPerEpochDisplay: React.FC<{
   chainId: number
   account: string
   token: string
-  tokensPerEpoch: string
+  tokensPerEpoch: BigNumber
 }> = ({ chainId, account, token, tokensPerEpoch }) => {
   const queryResult = useTokenBalance(chainId, account, token)
   if (!queryResult.isFetched || !queryResult.data) {
@@ -268,7 +266,7 @@ const StartTimestampDisplay: React.FC<{
  * @returns
  */
 const EpochDurationDisplay: React.FC<{
-  epochDuration: string
+  epochDuration: number
 }> = ({ epochDuration }) => {
   const secondsToDays = (seconds) => seconds / 86400
 
@@ -283,7 +281,7 @@ const EpochDurationDisplay: React.FC<{
  * @returns
  */
 const NumberOfEpochsDisplay: React.FC<{
-  numberOfEpochs: string
+  numberOfEpochs: number
 }> = ({ numberOfEpochs }) => <span className='text-center'>{numberOfEpochs}</span>
 
 /**
@@ -375,68 +373,68 @@ const LockDisplay: React.FC<{
  * @param props
  * @returns
  */
-const PromotionWithdrawToggle: React.FC<
-  PromotionRowProps & {
-    isZeroBalance: boolean
-    isLocked: boolean
-    transactionPending: boolean
-  }
-> = (props) => {
-  const { promotionId, transactionPending, isZeroBalance, isLocked } = props
-  const promotionWithdrawal = usePromotionWithdrawal(promotionId)
-  const addPromotionWithdrawal = useUpdateAtom(addPromotionWithdrawalAtom)
-  const removePromotionWithdrawal = useUpdateAtom(removePromotionWithdrawalAtom)
-  const amount = promotionWithdrawal?.amount
+// const PromotionWithdrawToggle: React.FC<
+//   PromotionRowProps & {
+//     isZeroBalance: boolean
+//     isLocked: boolean
+//     transactionPending: boolean
+//   }
+// > = (props) => {
+//   const { promotionId, transactionPending, isZeroBalance, isLocked } = props
+//   const promotionWithdrawal = usePromotionWithdrawal(promotionId)
+//   const addPromotionWithdrawal = useUpdateAtom(addPromotionWithdrawalAtom)
+//   const removePromotionWithdrawal = useUpdateAtom(removePromotionWithdrawalAtom)
+//   const amount = promotionWithdrawal?.amount
 
-  return (
-    <CheckboxInputGroup
-      disabled={transactionPending || isLocked || isZeroBalance}
-      checked={amount?.isZero()}
-      handleClick={() =>
-        amount?.isZero()
-          ? removePromotionWithdrawal(promotionId)
-          : addPromotionWithdrawal(promotionId)
-      }
-    />
-  )
-}
+//   return (
+//     <CheckboxInputGroup
+//       disabled={transactionPending || isLocked || isZeroBalance}
+//       checked={amount?.isZero()}
+//       handleClick={() =>
+//         amount?.isZero()
+//           ? removePromotionWithdrawal(promotionId)
+//           : addPromotionWithdrawal(promotionId)
+//       }
+//     />
+//   )
+// }
 
-// Edit a slot. Close modal. Click edit on a different slot. Edits from the first are visible.
-const PromotionEditToggle: React.FC<
-  PromotionRowProps & {
-    isZeroBalance: boolean
-    isLocked: boolean
-    transactionPending: boolean
-  }
-> = (props) => {
-  const {
-    promotionId,
-    transactionPending,
-    isLocked,
-    promotionCreation,
-    promotionFund,
-    promotionUpdate
-  } = props
-  const setIsOpen = useUpdateAtom(editPromotionModalOpenAtom)
-  const setPromotionIdToEdit = useUpdateAtom(promotionIdToEditAtom)
-  const { t } = useTranslation()
+// // Edit a slot. Close modal. Click edit on a different slot. Edits from the first are visible.
+// const PromotionEditToggle: React.FC<
+//   PromotionRowProps & {
+//     isZeroBalance: boolean
+//     isLocked: boolean
+//     transactionPending: boolean
+//   }
+// > = (props) => {
+//   const {
+//     promotionId,
+//     transactionPending,
+//     isLocked,
+//     promotionCreation,
+//     promotionFund,
+//     promotionUpdate
+//   } = props
+//   const setIsOpen = useUpdateAtom(editPromotionModalOpenAtom)
+//   const setPromotionIdToEdit = useUpdateAtom(promotionIdToEditAtom)
+//   const { t } = useTranslation()
 
-  return (
-    <button
-      className='flex space-x-1'
-      onClick={() => {
-        setPromotionIdToEdit(promotionId)
-        setIsOpen(true)
-      }}
-      disabled={transactionPending || isLocked}
-    >
-      {promotionCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
-      {promotionFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
-      {promotionUpdate && <StateChangeIcon icon='edit-2' tooltipText={t('editDelegatee')} />}
-      <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
-    </button>
-  )
-}
+//   return (
+//     <button
+//       className='flex space-x-1'
+//       onClick={() => {
+//         setPromotionIdToEdit(promotionId)
+//         setIsOpen(true)
+//       }}
+//       disabled={transactionPending || isLocked}
+//     >
+//       {promotionCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
+//       {promotionFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
+//       {promotionUpdate && <StateChangeIcon icon='edit-2' tooltipText={t('editDelegatee')} />}
+//       <FeatherIcon icon='edit' className='w-4 h-4 text-highlight-3' />
+//     </button>
+//   )
+// }
 
 const StateChangeIcon: React.FC<{
   icon: string
@@ -456,52 +454,52 @@ const StateChangeIcon: React.FC<{
  * @param promotionId
  * @returns
  */
-export const usePromotionCreation = (promotionId: PromotionId) => {
-  const [promotionCreations] = useAtom(promotionCreationsAtom)
-  return promotionCreations.find(
-    (promotionCreation) =>
-      promotionCreation.delegator === promotionId.delegator &&
-      promotionCreation.slot.eq(promotionId.slot)
-  )
-}
+// export const usePromotionCreation = (promotionId: PromotionId) => {
+//   const [promotionCreations] = useAtom(promotionCreationsAtom)
+//   return promotionCreations.find(
+//     (promotionCreation) =>
+//       promotionCreation.delegator === promotionId.delegator &&
+//       promotionCreation.slot.eq(promotionId.slot)
+//   )
+// }
 
 /**
  *
  * @param promotionId
  * @returns
  */
-export const usePromotionUpdate = (promotionId: PromotionId) => {
-  const [promotionUpdates] = useAtom(promotionUpdatesAtom)
-  return promotionUpdates.find(
-    (promotionUpdate) =>
-      promotionUpdate.delegator === promotionId.delegator &&
-      promotionUpdate.slot.eq(promotionId.slot)
-  )
-}
+// export const usePromotionUpdate = (promotionId: PromotionId) => {
+//   const [promotionUpdates] = useAtom(promotionUpdatesAtom)
+//   return promotionUpdates.find(
+//     (promotionUpdate) =>
+//       promotionUpdate.delegator === promotionId.delegator &&
+//       promotionUpdate.slot.eq(promotionId.slot)
+//   )
+// }
 
 /**
  *
  * @param promotionId
  * @returns
  */
-export const usePromotionFund = (promotionId: PromotionId) => {
-  const [promotionFunds] = useAtom(promotionFundsAtom)
-  return promotionFunds.find(
-    (promotionFund) =>
-      promotionFund.delegator === promotionId.delegator && promotionFund.slot.eq(promotionId.slot)
-  )
-}
+// export const usePromotionFund = (promotionId: PromotionId) => {
+//   const [promotionFunds] = useAtom(promotionFundsAtom)
+//   return promotionFunds.find(
+//     (promotionFund) =>
+//       promotionFund.delegator === promotionId.delegator && promotionFund.slot.eq(promotionId.slot)
+//   )
+// }
 
 /**
  *
  * @param promotionId
  * @returns
  */
-export const usePromotionWithdrawal = (promotionId: PromotionId) => {
-  const [promotionWithdrawals] = useAtom(promotionWithdrawalsAtom)
-  return promotionWithdrawals.find(
-    (promotionWithdrawal) =>
-      promotionWithdrawal.delegator === promotionId.delegator &&
-      promotionWithdrawal.slot.eq(promotionId.slot)
-  )
-}
+// export const usePromotionWithdrawal = (promotionId: PromotionId) => {
+//   const [promotionWithdrawals] = useAtom(promotionWithdrawalsAtom)
+//   return promotionWithdrawals.find(
+//     (promotionWithdrawal) =>
+//       promotionWithdrawal.delegator === promotionId.delegator &&
+//       promotionWithdrawal.slot.eq(promotionId.slot)
+//   )
+// }

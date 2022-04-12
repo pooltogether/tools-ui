@@ -3,12 +3,12 @@ import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
 import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
 import { useUpdateAtom } from 'jotai/utils'
-import { PromotionListProps, ListState } from '.'
+import { PromotionsListProps, ListState } from '.'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 
-interface EmptyStateProps extends PromotionListProps {
-  delegator: string
+interface EmptyStateProps extends PromotionsListProps {
+  currentAccount: string
   listState: ListState
   setListState: (listState: ListState) => void
 }
@@ -19,7 +19,7 @@ interface EmptyStateProps extends PromotionListProps {
  * @returns
  */
 export const EmptyState: React.FC<EmptyStateProps> = (props) => {
-  const { className, delegator, setListState } = props
+  const { className, currentAccount, setListState } = props
   const { t } = useTranslation()
 
   return (
@@ -33,7 +33,11 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
         {t('noDelegationsFound')}
       </p>
       <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
-      <CreateSlotButton className='mx-auto' delegator={delegator} setListState={setListState} />
+      {/* <CreateSlotButton
+        className='mx-auto'
+        currentAccount={currentAccount}
+        setListState={setListState}
+      /> */}
     </div>
   )
 }

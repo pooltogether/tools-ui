@@ -31,7 +31,6 @@ export enum ListState {
 export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const { chainId, currentAccount, className, setCurrentAccount } = props
   // useResetPromotionAtomsOnAccountChange()
-  // const useQueryResult = useAccountsUpdatedPromotions(chainId, currentAccount)
   const useQueryResult = useAccountsPromotions(chainId, currentAccount)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
   const [transactionId, setTransactionId] = useState<string>()

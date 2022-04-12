@@ -7,7 +7,7 @@ import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 // import { useMaxLockDuration } from './hooks/useMaxLockDuration'
 
-import { PromotionFormValues } from '@twabDelegator/interfaces'
+import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useTicket } from '@hooks/v4/useTicket'
@@ -108,30 +108,30 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         Promotion start time:
       </Label>
       <StyledInput
-        id='startTime'
-        invalid={!!errors.startTime}
+        id='startTimestamp'
+        invalid={!!errors.startTimestamp}
         className='w-1/3'
         placeholder='10'
-        {...register('startTime', {
+        {...register('startTimestamp', {
           required: {
             value: true,
             message: 'Start time is required'
           },
           validate: {
             isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-            isValidBigNumber: (v) => {
-              try {
-                parseUnits(v, tokenData.decimals)
-                return true
-              } catch (e) {
-                return 'Invalid startTime'
-              }
-            },
+            // isValidBigNumber: (v) => {
+            //   try {
+            //     parseUnits(v, tokenData.decimals)
+            //     return true
+            //   } catch (e) {
+            //     return 'Invalid startTime'
+            //   }
+            // },
             isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
           }
         })}
       />
-      <ErrorMessage>{errors.startTime?.message}</ErrorMessage>
+      <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
 
       {tokenAddressIsValid && (
         <>
@@ -203,29 +203,29 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           </Label>
           <StyledInput
             id='startTime'
-            invalid={!!errors.startTime}
+            invalid={!!errors.startTimestamp}
             className='w-1/3'
             placeholder='10'
-            {...register('startTime', {
+            {...register('startTimestamp', {
               required: {
                 value: true,
                 message: 'Start time is required'
               },
               validate: {
                 isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-                isValidBigNumber: (v) => {
-                  try {
-                    parseUnits(v, tokenData.decimals)
-                    return true
-                  } catch (e) {
-                    return 'Invalid startTime'
-                  }
-                },
+                // isValidBigNumber: (v) => {
+                //   try {
+                //     parseUnits(v, tokenData.decimals)
+                //     return true
+                //   } catch (e) {
+                //     return 'Invalid start time'
+                //   }
+                // },
                 isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
               }
             })}
           />
-          <ErrorMessage>{errors.startTime?.message}</ErrorMessage>
+          <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
         </>
       )}
 
