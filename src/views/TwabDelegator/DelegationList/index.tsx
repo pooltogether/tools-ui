@@ -49,6 +49,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           {...props}
           className='mb-10'
           delegator={delegator}
+          setDelegator={setDelegator}
           listState={listState}
           setListState={setListState}
         />
