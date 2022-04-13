@@ -188,7 +188,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             id='tokensPerEpoch'
             invalid={!!errors.tokensPerEpoch}
             className='w-1/3'
-            placeholder='0'
+            placeholder='eg. 1000'
             {...register('tokensPerEpoch', {
               required: {
                 value: true,
@@ -240,11 +240,11 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             id='epochDuration'
             invalid={!!errors.epochDuration}
             className='w-1/3'
-            placeholder='0'
+            placeholder='eg. 7'
             {...register('epochDuration', {
               required: {
                 value: true,
-                message: 'Epoch Duration is required'
+                message: 'Epoch Duration in days is required'
               },
               valueAsNumber: true,
               max: {
@@ -274,7 +274,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           id='numberOfEpochs'
           invalid={!!errors.numberOfEpochs}
           className='w-1/3'
-          placeholder='10'
+          placeholder='eg. 12'
           {...register('numberOfEpochs', {
             required: {
               value: true,
