@@ -6,10 +6,12 @@ import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
+import { shorten } from '@pooltogether/utilities'
 
 interface EmptyStateProps extends DelegationListProps {
   delegator: string
   listState: ListState
+  setDelegator: (delegator: string) => void
   setListState: (listState: ListState) => void
 }
 
@@ -19,8 +21,11 @@ interface EmptyStateProps extends DelegationListProps {
  * @returns
  */
 export const EmptyState: React.FC<EmptyStateProps> = (props) => {
-  const { className, delegator, setListState } = props
+  const { className, delegator, setDelegator, setListState } = props
   const { t } = useTranslation()
+
+  const usersAddress = useUsersAddress()
+  const isUserDelegator = delegator === usersAddress
 
   return (
     <div
@@ -32,23 +37,40 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
       <p className='uppercase text-xxs font-semibold text-pt-purple-dark dark:text-pt-purple-light'>
         {t('noDelegationsFound')}
       </p>
-      <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
-      <CreateSlotButton className='mx-auto' delegator={delegator} setListState={setListState} />
+
+      {!isUserDelegator && (
+        <>
+          <p className='font-bold text-xs'>
+            {t('userHasNoDelegations', { user: shorten({ hash: delegator }) })}
+          </p>
+          <button
+            className='text-pt-red-light transition hover:opacity-70 flex items-center mx-auto space-x-2 border-pt-red-light border py-1 px-2 rounded'
+            onClick={() => setDelegator(usersAddress)}
+          >
+            <span>{t('clearDelegator')}</span>
+            <FeatherIcon icon='x' className='w-4 h-4' />
+          </button>
+        </>
+      )}
+
+      {isUserDelegator && (
+        <>
+          <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
+          <CreateSlotButton className='mx-auto' setListState={setListState} />
+        </>
+      )}
     </div>
   )
 }
 
 const CreateSlotButton: React.FC<{
   setListState: (listState: ListState) => void
-  delegator: string
   className?: string
 }> = (props) => {
-  const { className, delegator, setListState } = props
-  const usersAddress = useUsersAddress()
+  const { className, setListState } = props
+
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
   const { t } = useTranslation()
-
-  if (delegator !== usersAddress) return null
 
   return (
     <SquareButton
