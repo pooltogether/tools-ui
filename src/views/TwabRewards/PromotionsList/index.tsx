@@ -39,18 +39,12 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
   const transactionPending = transaction?.state === TransactionState.pending || signaturePending
   const { data: promotions, isFetched } = useQueryResult
-  console.log({ promotions, transactionPending })
 
-  console.log({ currentAccount })
   if (isFetched) {
     let list
     if (promotions.length === 0) {
-      console.log('in')
       list = <EmptyState {...props} className='mb-10' currentAccount={currentAccount} />
     } else {
-      console.log('here')
-      console.log(promotions)
-
       list = (
         <ActiveState
           {...props}

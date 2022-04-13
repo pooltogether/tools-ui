@@ -47,7 +47,6 @@ export const UsersAppState: React.FC<UsersAppStateProps> = (props) => {
   //   chainId,
   //   currentAccount
   // )
-  console.log({ currentAccount })
 
   return (
     <>
@@ -238,7 +237,9 @@ export const ChangeAccountModal: React.FC<{
       open={isOpen}
       onDismiss={() => setIsOpen(false)}
     >
-      <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('setAccount', 'Set account')}</h6>
+      <h6 className='text-center uppercase text-sm mb-3 mt-2 dark:text-white'>
+        {t('setAccount', 'Set account')}
+      </h6>
       <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
         {t(
           'enterAccountAddressBelowToViewPromotions',

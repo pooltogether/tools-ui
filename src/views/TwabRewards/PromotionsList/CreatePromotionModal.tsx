@@ -5,6 +5,7 @@ import {
   // addDelegationCreationAtom,
   createPromotionModalOpenAtom
 } from '@twabRewards/atoms'
+import { format } from 'date-fns'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 // import { useNextSlot } from '@twabRewards/hooks/useNextSlot'
 import {
@@ -48,29 +49,9 @@ const CreatePromotionForm: React.FC<{
   closeModal: () => void
 }> = (props) => {
   const { chainId, currentAccount, closeModal } = props
-  // const ticket = useTicket(chainId)
   const { t } = useTranslation()
 
-  // const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
-  // const addDelegationFund = useUpdateAtom(addDelegationFundAtom)
-
-  const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
-    // const delegationCreation: DelegationUpdate = {
-    //   ...currentAccount,
-    //   delegatee: data.delegatee,
-    //   lockDuration: dToS(data.duration)
-    // }
-    // const delegationFund: DelegationFund = {
-    //   ...delegationId,
-    //   amount: parseUnits(data.balance, ticket.decimals)
-    // }
-    // addDelegationCreation(delegationCreation)
-    // if (!delegationFund.amount.isZero()) {
-    //   addDelegationFund(delegationFund)
-    // }
-    // resetForm()
-    // closeModal()
-  }
+  const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {}
 
   return (
     <PromotionForm
@@ -79,11 +60,13 @@ const CreatePromotionForm: React.FC<{
       defaultValues={{
         token: '',
         startTimestamp: msToS(Date.now()),
-        epochDuration: 30,
-        numberOfEpochs: 10,
-        tokensPerEpoch: ''
+        epochDuration: 7,
+        numberOfEpochs: 12,
+        tokensPerEpoch: '',
+        dateString: format(new Date(), 'yyyy/MM/dd'),
+        timeString: format(new Date(), 'HH:mm')
       }}
-      submitString={t('queueCreation')}
+      submitString={t('createPromotion', 'Create promotion')}
     />
   )
 }

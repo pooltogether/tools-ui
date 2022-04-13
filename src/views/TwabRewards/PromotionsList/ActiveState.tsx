@@ -254,7 +254,6 @@ const StartTimestampDisplay: React.FC<{
   startTimestamp: number
 }> = ({ startTimestamp }) => (
   <span className='col-span-2 text-center'>
-    {console.log(startTimestamp)}
     {format(new Date(sToMs(startTimestamp)), 'MMM do yyyy')},
     <br />
     {format(new Date(sToMs(startTimestamp)), 'p')}

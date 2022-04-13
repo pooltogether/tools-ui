@@ -1,21 +1,19 @@
-import { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import moment from 'moment'
 import { msToS } from '@pooltogether/utilities'
 import { format } from 'date-fns'
-import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useForm } from 'react-hook-form'
-import { TokenIcon, SquareButton, Tooltip } from '@pooltogether/react-components'
+import { isAddress } from 'ethers/lib/utils'
+import { useTranslation } from 'react-i18next'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { DatePicker, TimePicker } from 'antd'
-// import { useMaxLockDuration } from './hooks/useMaxLockDuration'
+import { TokenIcon, SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
 
 import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
-import { useTicket } from '@hooks/v4/useTicket'
 
 interface PromotionFormProps {
   onSubmit: (data: PromotionFormValues, resetForm: () => void) => void
@@ -32,11 +30,8 @@ interface PromotionFormProps {
 export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   const { onSubmit, defaultValues, submitString, chainId } = props
 
-  const [dateString, setDateString] = useState('')
-  const [timeString, setTimeString] = useState('')
-
   const usersAddress = useUsersAddress()
-  // const { data: maxLockDuration, isFetched: isMaxLockFetched } = useMaxLockDuration(chainId)
+  const { t } = useTranslation()
 
   const {
     register,
@@ -44,6 +39,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     reset,
     getValues,
     setValue,
+    trigger,
+    watch,
     formState: { errors, isValid }
   } = useForm<PromotionFormValues>({
     mode: 'onTouched',
@@ -51,24 +48,32 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     shouldUnregister: true
   })
 
-  const startTimestamp = getValues('startTimestamp')
-
-  const tokenAddress = getValues('token')
-  const { data: tokenData } = useTokenBalance(chainId, usersAddress, tokenAddress)
-  const tokenAddressIsValid = tokenData?.name && tokenAddress && !Boolean(errors.token?.message)
-
   register('dateString', { value: '' })
   register('timeString', { value: '' })
+
+  const tokenAddress = watch('token')
+  const { data: tokenData, isFetched: tokenDataIsFetched } = useTokenBalance(
+    chainId,
+    usersAddress,
+    tokenAddress
+  )
+  const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
+  console.log({ tokenData })
+  console.log(!tokenDataIsFetched)
+  console.log(tokenAddressIsValid)
+
+  const startTimestamp = getValues('startTimestamp')
 
   const clearTokenField = () => {
     setValue('token', '')
   }
 
   const updateStartTimestamp = async () => {
-    const dateString = getValues('dateString')
-    const timeString = getValues('timeString')
-    const dateTimeString = `${dateString}:${timeString}`
+    const date = getValues('dateString')
+    const time = getValues('timeString')
+    const dateTimeString = `${date}:${time}`
     setValue('startTimestamp', msToS(Date.parse(dateTimeString)))
+    trigger()
   }
 
   const handleDateChange = async (val, dateString) => {
@@ -91,17 +96,18 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       autoComplete='off'
     >
       <Label className='uppercase' htmlFor='token'>
-        Token to distribute
+        {t('tokenToDistribute', 'Token to distribute')}:{' '}
+        {!tokenDataIsFetched && tokenAddressIsValid && <ThemedClipSpinner />}
       </Label>
       <div
         className={classNames(
-          'bg-pt-purple-darkest rounded-xl px-4 py-2 flex items-center justify-between font-semibold',
+          'bg-pt-purple-darker rounded-xl px-4 py-2 flex items-center justify-between font-semibold',
           {
-            hidden: !tokenAddressIsValid
+            hidden: !tokenAddressIsValid && !tokenData?.name
           }
         )}
       >
-        <div className='flex items-center'>
+        <div className='flex items-center text-white'>
           {tokenData?.address && (
             <TokenIcon
               sizeClassName='w-4 h-4'
@@ -116,7 +122,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           onClick={clearTokenField}
           className='inline-flex items-center font-semibold underline text-pt-teal ml-3'
         >
-          <FeatherIcon icon='x' className='w-3 h-3 mr-1' /> Change token
+          <FeatherIcon icon='x' className='w-3 h-3 mr-1' /> {t('changeToken', 'Change token')}
         </button>
       </div>
       <StyledInput
@@ -129,73 +135,91 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         {...register('token', {
           required: {
             value: true,
-            message: 'Token is required'
+            message: t('tokenIsRequired', 'Token is required')
           },
           validate: {
             isAddress: (v) => isAddress(v) || 'Invalid address'
           }
         })}
       />
+
       <ErrorMessage>{errors.token?.message}</ErrorMessage>
-      <Label className='uppercase' htmlFor='balance'>
-        Promotion start time:
-      </Label>
-      <div className='flex items-center space-x-1'>
-        <DatePicker
-          format={dateFormat}
-          defaultValue={moment(format(new Date(), 'yyyy/MM/dd'), dateFormat)}
-          onChange={handleDateChange}
-          getPopupContainer={(triggerNode): HTMLElement => {
-            return triggerNode.parentNode as HTMLElement
-          }}
-          className='w-40'
-        />
-        <TimePicker
-          format={timeFormat}
-          defaultValue={moment(new Date().toTimeString().split(' ')[0], timeFormat)}
-          onChange={handleTimeChange}
-          getPopupContainer={(triggerNode): HTMLElement => {
-            return triggerNode.parentNode as HTMLElement
-          }}
-          className='w-40'
-        />
-        <span>{format(new Date(startTimestamp * 1000), 'MMM do yyyy')}</span>
-      </div>
-      <StyledInput
-        id='startTimestamp'
-        invalid={!!errors.startTimestamp}
-        className='w-1/3'
-        placeholder='10'
-        {...register('startTimestamp', {
-          required: {
-            value: true,
-            message: 'Start time is required'
-          },
-          validate: {
-            isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-            // isValidBigNumber: (v) => {
-            //   try {
-            //     parseUnits(v, tokenData.decimals)
-            //     return true
-            //   } catch (e) {
-            //     return 'Invalid startTime'
-            //   }
-            // },
-            isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
-          }
+
+      <fieldset
+        className={classNames('w-full', {
+          hidden: !tokenAddressIsValid && !tokenData?.name
         })}
-      />
-      <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
-      {tokenAddressIsValid && (
-        <>
-          <Tooltip id={`promo-form-epoch-duration-tooltip`} tip={'Enter 0.5 for 12 hours, etc'}>
-            <div className='col-span-2 flex space-x-2 items-center'>
-              <Label className='uppercase' htmlFor='duration'>
-                Epoch Duration (Days)
-              </Label>
-              <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-70' />
-            </div>
+      >
+        <Label className='uppercase' htmlFor='balance'>
+          {t('promotionStartTime', 'Promotion start time')}:
+        </Label>
+        <div className='flex items-center space-x-1'>
+          <DatePicker
+            format={dateFormat}
+            defaultValue={moment(format(new Date(), 'yyyy/MM/dd'), dateFormat)}
+            onChange={handleDateChange}
+            getPopupContainer={(triggerNode): HTMLElement => {
+              return triggerNode.parentNode as HTMLElement
+            }}
+            className='w-40'
+          />
+          <TimePicker
+            format={timeFormat}
+            defaultValue={moment(new Date().toTimeString().split(' ')[0], timeFormat)}
+            onChange={handleTimeChange}
+            getPopupContainer={(triggerNode): HTMLElement => {
+              return triggerNode.parentNode as HTMLElement
+            }}
+            className='w-40'
+          />
+        </div>
+        <div className='opacity-40 mt-1 bg-pt-purple-dark px-3 py-1 rounded-lg w-fit-content text-white'>
+          {format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}
+        </div>
+        {/* <StyledInput
+          id='startTimestamp'
+          invalid={!!errors.startTimestamp}
+          className='w-1/3'
+          placeholder='10'
+          {...register('startTimestamp', {
+            required: {
+              value: true,
+              message: 'Start time is required'
+            },
+            validate: {
+              isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+              // isValidBigNumber: (v) => {
+              //   try {
+              //     parseUnits(v, tokenData.decimals)
+              //     return true
+              //   } catch (e) {
+              //     return 'Invalid startTime'
+              //   }
+              // },
+              isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+            }
+          })}
+        /> */}
+        <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
+      </fieldset>
+
+      <fieldset
+        className={classNames('w-full', {
+          hidden: !tokenAddressIsValid && !tokenData?.name
+        })}
+      >
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='duration'>
+            {t('epochDuration', 'Epoch Duration')}:
+          </Label>
+          <Tooltip
+            id={`promo-form-epoch-duration-tooltip`}
+            tip={'For hours, enter 0.5 for 12 hours, etc'}
+          >
+            <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-50' />
           </Tooltip>
+        </div>
+        <div className='flex space-x-2 items-center'>
           <StyledInput
             id='epochDuration'
             invalid={!!errors.epochDuration}
@@ -216,57 +240,80 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
                 message: `Maximum duration of ${30} days`
               }
             })}
-          />
-          <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
-          <div className='col-span-2 flex space-x-2 items-center'>
-            <Label className='uppercase' htmlFor='duration'>
-              Tokens per epoch
-            </Label>
-          </div>
-          <div className='flex space-x-2 items-center'>
-            <StyledInput
-              id='tokensPerEpoch'
-              invalid={!!errors.tokensPerEpoch}
-              className='w-1/3'
-              placeholder='0'
-              {...register('tokensPerEpoch', {
-                required: {
-                  value: true,
-                  message: 'Tokens per epoch is required'
-                },
-                valueAsNumber: true,
-                min: {
-                  value: 1,
-                  message: 'Minimum Tokens per epoch is 1'
-                }
-              })}
-            />{' '}
-            <div className='ml-4 font-semibold text-pt-purple-light'>{tokenData.name}</div>
-          </div>
-          <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
-          <Label className='uppercase' htmlFor='balance'>
-            Number of epochs:
+          />{' '}
+          <div className='ml-4 font-semibold text-pt-purple-light'>{t('days')}</div>
+        </div>
+        <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
+      </fieldset>
+
+      <fieldset
+        className={classNames('w-full', {
+          hidden: !tokenAddressIsValid && !tokenData?.name
+        })}
+      >
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='duration'>
+            {t('tokensPerEpoch', 'Tokens per epoch')}
           </Label>
+        </div>
+        <div className='flex space-x-2 items-center'>
           <StyledInput
-            id='numberOfEpochs'
-            invalid={!!errors.numberOfEpochs}
+            id='tokensPerEpoch'
+            invalid={!!errors.tokensPerEpoch}
             className='w-1/3'
-            placeholder='10'
-            {...register('numberOfEpochs', {
+            placeholder='0'
+            {...register('tokensPerEpoch', {
               required: {
                 value: true,
-                message: 'Number of epochs is required'
+                message: t('tokensPerEpochIsRequired', 'Tokens per epoch is required')
               },
               valueAsNumber: true,
-              validate: {
-                isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
-                isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number'
+              min: {
+                value: 1,
+                message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 1')
               }
             })}
-          />
-          <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
-        </>
-      )}
+          />{' '}
+          <div className='ml-4 font-semibold text-pt-purple-light flex items-center space-x-1'>
+            {tokenData?.name && (
+              <>
+                <TokenIcon sizeClassName='w-4 h-4' chainId={chainId} address={tokenData.address} />{' '}
+                <span>{tokenData.name}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
+      </fieldset>
+
+      <fieldset
+        className={classNames('w-full', {
+          hidden: !tokenAddressIsValid && !tokenData?.name
+        })}
+      >
+        <Label className='uppercase' htmlFor='balance'>
+          {t('numberOfEpochs', 'Number of epochs')}:
+        </Label>
+        <StyledInput
+          id='numberOfEpochs'
+          invalid={!!errors.numberOfEpochs}
+          className='w-1/3'
+          placeholder='10'
+          {...register('numberOfEpochs', {
+            required: {
+              value: true,
+              message: 'Number of epochs is required'
+            },
+            valueAsNumber: true,
+            validate: {
+              isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
+              isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number'
+            }
+          })}
+        />
+        <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
+      </fieldset>
+
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
       </SquareButton>

@@ -1,6 +1,7 @@
 body .ant-picker {
   @apply rounded-lg bg-pt-purple-darker text-white border-0 text-xs;
   border: 2px solid #291357;
+  cursor: pointer;
 }
 
 body .ant-picker-input > input {
@@ -22,4 +23,8 @@ body .ant-picker-clear {
 body .ant-picker:hover,
 body .ant-picker-focused {
   border: 2px solid #35f0d0;
+}
+
+body .ant-picker-input > input:hover {
+  cursor: pointer !important;
 }

@@ -37,7 +37,7 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
             }}
             theme={SquareButtonTheme.tealOutline}
           >
-            {t('changeDelegator')}
+            {t('changeAccount', 'Change account')}
           </SquareButton>
           <ChangeAccountModal
             isOpen={isOpen}
