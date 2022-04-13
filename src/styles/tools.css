@@ -1,9 +1,10 @@
 body .ant-picker {
-  @apply rounded-lg bg-pt-purple-darker text-white border-0;
+  @apply rounded-lg bg-pt-purple-darker text-white border-0 text-xs;
+  border: 2px solid #291357;
 }
 
 body .ant-picker-input > input {
-  @apply font-semibold;
+  @apply font-semibold text-xs;
 }
 
 body .ant-picker-input > input {
@@ -14,6 +15,11 @@ body .anticon svg {
   fill: rgb(17, 107, 204);
 }
 
-body .anticon.anticon-close-circle svg {
-  /* fill: blue; */
+body .ant-picker-clear {
+  display: none;
+}
+
+body .ant-picker:hover,
+body .ant-picker-focused {
+  border: 2px solid #35f0d0;
 }

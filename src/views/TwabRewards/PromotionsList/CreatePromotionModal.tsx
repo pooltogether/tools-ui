@@ -1,6 +1,5 @@
-import { useTicket } from '@hooks/v4/useTicket'
 import { BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
-import { dToS } from '@pooltogether/utilities'
+import { msToS } from '@pooltogether/utilities'
 import {
   // addDelegationFundAtom,
   // addDelegationCreationAtom,
@@ -79,7 +78,7 @@ const CreatePromotionForm: React.FC<{
       onSubmit={onSubmit}
       defaultValues={{
         token: '',
-        startTimestamp: Date.now(),
+        startTimestamp: msToS(Date.now()),
         epochDuration: 30,
         numberOfEpochs: 10,
         tokensPerEpoch: ''

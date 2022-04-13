@@ -18,31 +18,32 @@ export function ErrorPage() {
         <div className='content mx-auto'>
           <div className='mb-4 text-inverse pt-32 px-2 xs:pt-32 space-y-4'>
             <h1 className=''>👋</h1>
-            <h4 className=''>{t('anErrorOccurredAndWeveBeenNotified')}</h4>
+            <h4 className='dark:text-white'>{t('anErrorOccurredAndWeveBeenNotified')}</h4>
             <h6 className='text-accent-1'>{t('pleaseTryAgainSoon')}</h6>
             <ErrorLinks />
-          </div>
-          <span>
-            {t('stillHavingProblems', 'Still having problems?')}{' '}
-            <button
-              className='font-semibold text-pt-red-light transition-colors hover:text-pt-red'
-              onClick={() => {
-                if (
-                  window.confirm(
-                    t(
-                      'clearingStorageWarning',
-                      'Continuing will clear the websites storage in your browser. This DOES NOT have any effect on your deposits.'
+
+            <div>
+              {t('stillHavingProblems', 'Still having problems?')}{' '}
+              <button
+                className='font-semibold text-pt-red-light transition-colors hover:text-pt-red'
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      t(
+                        'clearingStorageWarning',
+                        'Continuing will clear the websites storage in your browser. This DOES NOT have any effect on your deposits.'
+                      )
                     )
-                  )
-                ) {
-                  localStorage.clear()
-                  window.location.reload()
-                }
-              }}
-            >
-              {t('tryClearingLocalStorage', 'Try clearing local storage')}.
-            </button>
-          </span>
+                  ) {
+                    localStorage.clear()
+                    window.location.reload()
+                  }
+                }}
+              >
+                {t('tryClearingLocalStorage', 'Try clearing local storage')}.
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>

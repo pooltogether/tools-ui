@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
+import moment from 'moment'
+import { msToS } from '@pooltogether/utilities'
+import { format } from 'date-fns'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useForm } from 'react-hook-form'
 import { TokenIcon, SquareButton, Tooltip } from '@pooltogether/react-components'
@@ -47,8 +50,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     defaultValues,
     shouldUnregister: true
   })
+
   const startTimestamp = getValues('startTimestamp')
-  console.log({ startTimestamp })
 
   const tokenAddress = getValues('token')
   const { data: tokenData } = useTokenBalance(chainId, usersAddress, tokenAddress)
@@ -62,36 +65,24 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   }
 
   const updateStartTimestamp = async () => {
-    console.log('######## LAST ###########')
     const dateString = getValues('dateString')
     const timeString = getValues('timeString')
-
-    console.log(dateString)
-    console.log(timeString)
     const dateTimeString = `${dateString}:${timeString}`
-    console.log({ dateTimeString })
-    console.log(Date.parse(dateTimeString))
-    setValue('startTimestamp', Date.parse(dateString) / 1000)
+    setValue('startTimestamp', msToS(Date.parse(dateTimeString)))
   }
 
   const handleDateChange = async (val, dateString) => {
-    console.log('######## DATE ###########')
-
-    console.log(dateString)
-    console.log(Date.parse(dateString))
     setValue('dateString', dateString)
-    // await setDateString(dateString)
     updateStartTimestamp()
   }
 
   const handleTimeChange = async (val, timeString) => {
-    console.log('######## TIME ###########')
-
-    console.log({ timeString })
     setValue('timeString', timeString)
-    // setTimeString(timeString)
     updateStartTimestamp()
   }
+
+  const dateFormat = 'YYYY-MM-DD'
+  const timeFormat = 'HH:mm'
 
   return (
     <form
@@ -146,24 +137,30 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         })}
       />
       <ErrorMessage>{errors.token?.message}</ErrorMessage>
-
       <Label className='uppercase' htmlFor='balance'>
         Promotion start time:
       </Label>
-
-      <DatePicker
-        onChange={handleDateChange}
-        getPopupContainer={(triggerNode): HTMLElement => {
-          return triggerNode.parentNode as HTMLElement
-        }}
-      />
-      <TimePicker
-        onChange={handleTimeChange}
-        getPopupContainer={(triggerNode): HTMLElement => {
-          return triggerNode.parentNode as HTMLElement
-        }}
-      />
-
+      <div className='flex items-center space-x-1'>
+        <DatePicker
+          format={dateFormat}
+          defaultValue={moment(format(new Date(), 'yyyy/MM/dd'), dateFormat)}
+          onChange={handleDateChange}
+          getPopupContainer={(triggerNode): HTMLElement => {
+            return triggerNode.parentNode as HTMLElement
+          }}
+          className='w-40'
+        />
+        <TimePicker
+          format={timeFormat}
+          defaultValue={moment(new Date().toTimeString().split(' ')[0], timeFormat)}
+          onChange={handleTimeChange}
+          getPopupContainer={(triggerNode): HTMLElement => {
+            return triggerNode.parentNode as HTMLElement
+          }}
+          className='w-40'
+        />
+        <span>{format(new Date(startTimestamp * 1000), 'MMM do yyyy')}</span>
+      </div>
       <StyledInput
         id='startTimestamp'
         invalid={!!errors.startTimestamp}
@@ -189,7 +186,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         })}
       />
       <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
-
       {tokenAddressIsValid && (
         <>
           <Tooltip id={`promo-form-epoch-duration-tooltip`} tip={'Enter 0.5 for 12 hours, etc'}>
@@ -271,7 +267,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
         </>
       )}
-
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
       </SquareButton>

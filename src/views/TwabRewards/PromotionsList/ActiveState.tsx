@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
 import { format } from 'date-fns'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { sToD, shorten, msToS, sToM, prettyNumber, numberWithCommas } from '@pooltogether/utilities'
+import { sToD, shorten, sToMs, sToM, prettyNumber, numberWithCommas } from '@pooltogether/utilities'
 import { BigNumber } from 'ethers'
 import { ScreenSize, useScreenSize, useTokenBalance } from '@pooltogether/hooks'
 import { useAtom } from 'jotai'
@@ -254,9 +254,10 @@ const StartTimestampDisplay: React.FC<{
   startTimestamp: number
 }> = ({ startTimestamp }) => (
   <span className='col-span-2 text-center'>
-    {format(new Date(startTimestamp * 1000), 'MMM do yyyy')},
+    {console.log(startTimestamp)}
+    {format(new Date(sToMs(startTimestamp)), 'MMM do yyyy')},
     <br />
-    {format(new Date(startTimestamp * 1000), 'p')}
+    {format(new Date(sToMs(startTimestamp)), 'p')}
   </span>
 )
 
