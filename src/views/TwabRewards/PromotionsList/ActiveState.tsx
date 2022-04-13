@@ -91,10 +91,8 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
         'px-2 py-1 border-b border-pt-purple border-opacity-50 grid-cols-8'
       )}
     >
-      <Header>{t('token')}</Header>
-      <Header className='col-span-2 text-center'>{t('tokensPerEpoch', 'Tokens per epoch')}</Header>
-      <Header className='col-span-2 text-center'>
-        <span>{t('startsAt', 'Starts at')}</span>
+      <Header className='col-span-2'>
+        <span>{t('starts', 'Starts')}</span>
         {/* <span className='normal-case'>
           <Tooltip id={`lock-tooltip-header`} tip={'Duration the promotion is locked for in days'}>
             <FeatherIcon
@@ -105,6 +103,8 @@ const ListHeaders: React.FC<{ listState: ListState }> = (props) => {
           </Tooltip>
         </span> */}
       </Header>
+      <Header>{t('token')}</Header>
+      <Header className='col-span-2 text-center'>{t('tokensPerEpoch', 'Tokens per epoch')}</Header>
       <Header className='col-span-2 text-center'>
         {t('epochDuration', 'Epoch duration')} ({t('days')})
       </Header>
@@ -161,6 +161,7 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
         'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 grid-cols-8 text-xxs'
       )}
     >
+      <StartTimestampDisplay startTimestamp={startTimestamp} />
       <TokenDisplay chainId={chainId} token={token} />
       <TokensPerEpochDisplay
         chainId={chainId}
@@ -168,7 +169,6 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
         token={token}
         tokensPerEpoch={tokensPerEpoch}
       />
-      <StartTimestampDisplay startTimestamp={startTimestamp} />
       <EpochDurationDisplay epochDuration={epochDuration} />
       <NumberOfEpochsDisplay numberOfEpochs={numberOfEpochs} />
       {/* <DelegateeDisplay chainId={chainId} delegatee={delegatee} className='col-span-2' />
@@ -253,7 +253,7 @@ const TokensPerEpochDisplay: React.FC<{
 const StartTimestampDisplay: React.FC<{
   startTimestamp: number
 }> = ({ startTimestamp }) => (
-  <span className='col-span-2 text-center'>
+  <span className='col-span-2'>
     {format(new Date(sToMs(startTimestamp)), 'MMM do yyyy')},
     <br />
     {format(new Date(sToMs(startTimestamp)), 'p')}

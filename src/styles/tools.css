@@ -9,7 +9,7 @@ body .ant-picker-input > input {
 }
 
 body .ant-picker-input > input {
-  @apply text-white text-opacity-50;
+  @apply text-white;
 }
 
 body .anticon svg {

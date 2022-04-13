@@ -51,7 +51,11 @@ const CreatePromotionForm: React.FC<{
   const { chainId, currentAccount, closeModal } = props
   const { t } = useTranslation()
 
-  const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {}
+  const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
+    console.log(data)
+  }
+  // onSubmit={handleSubmit(setApproveView)}
+  // onSubmit={handleSubmit(setReviewView)}
 
   return (
     <PromotionForm
@@ -62,11 +66,11 @@ const CreatePromotionForm: React.FC<{
         startTimestamp: msToS(Date.now()),
         epochDuration: 7,
         numberOfEpochs: 12,
-        tokensPerEpoch: '',
+        tokensPerEpoch: '1000',
         dateString: format(new Date(), 'yyyy/MM/dd'),
         timeString: format(new Date(), 'HH:mm')
       }}
-      submitString={t('createPromotion', 'Create promotion')}
+      submitString={t('reviewPromotion', 'Review promotion')}
     />
   )
 }

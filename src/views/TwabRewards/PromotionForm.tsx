@@ -1,10 +1,10 @@
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import moment from 'moment'
-import { msToS } from '@pooltogether/utilities'
+import { msToS, numberWithCommas } from '@pooltogether/utilities'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
-import { isAddress } from 'ethers/lib/utils'
+import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
@@ -44,12 +44,26 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     formState: { errors, isValid }
   } = useForm<PromotionFormValues>({
     mode: 'onTouched',
-    defaultValues,
-    shouldUnregister: true
+    defaultValues
   })
 
   register('dateString', { value: '' })
   register('timeString', { value: '' })
+  // register('startTimestamp', {
+  //   required: {
+  //     value: true,
+  //     message: 'Start time is required'
+  //   },
+  //   validate: {
+  //     isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+  //     isPositive: (v) => Number(v) >= 0 || 'Start time must be a positive number'
+  //   }
+  // })
+
+  const startTimestamp = getValues('startTimestamp')
+  const tokensPerEpoch = watch('tokensPerEpoch')
+  const epochDuration = watch('epochDuration')
+  const numberOfEpochs = watch('numberOfEpochs')
 
   const tokenAddress = watch('token')
   const { data: tokenData, isFetched: tokenDataIsFetched } = useTokenBalance(
@@ -58,11 +72,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     tokenAddress
   )
   const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
-  console.log({ tokenData })
-  console.log(!tokenDataIsFetched)
-  console.log(tokenAddressIsValid)
-
-  const startTimestamp = getValues('startTimestamp')
 
   const clearTokenField = () => {
     setValue('token', '')
@@ -99,32 +108,16 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         {t('tokenToDistribute', 'Token to distribute')}:{' '}
         {!tokenDataIsFetched && tokenAddressIsValid && <ThemedClipSpinner />}
       </Label>
-      <div
-        className={classNames(
-          'bg-pt-purple-darker rounded-xl px-4 py-2 flex items-center justify-between font-semibold',
-          {
-            hidden: !tokenAddressIsValid && !tokenData?.name
-          }
-        )}
-      >
-        <div className='flex items-center text-white'>
-          {tokenData?.address && (
-            <TokenIcon
-              sizeClassName='w-4 h-4'
-              className='mr-2'
-              chainId={chainId}
-              address={tokenData?.address}
-            />
-          )}
-          {tokenData?.name}
-        </div>
+      <ValidFieldDisplay hidden={!tokenAddressIsValid && !tokenData?.name}>
+        <TokenDisplay chainId={chainId} tokenData={tokenData} />
+
         <button
           onClick={clearTokenField}
           className='inline-flex items-center font-semibold underline text-pt-teal ml-3'
         >
           <FeatherIcon icon='x' className='w-3 h-3 mr-1' /> {t('changeToken', 'Change token')}
         </button>
-      </div>
+      </ValidFieldDisplay>
       <StyledInput
         id='token'
         invalid={!!errors.token}
@@ -173,34 +166,57 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             className='w-40'
           />
         </div>
-        <div className='opacity-40 mt-1 bg-pt-purple-dark px-3 py-1 rounded-lg w-fit-content text-white'>
+        <SummaryWell className='w-fit-content'>
           {format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}
-        </div>
-        {/* <StyledInput
-          id='startTimestamp'
-          invalid={!!errors.startTimestamp}
-          className='w-1/3'
-          placeholder='10'
-          {...register('startTimestamp', {
-            required: {
-              value: true,
-              message: 'Start time is required'
-            },
-            validate: {
-              isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-              // isValidBigNumber: (v) => {
-              //   try {
-              //     parseUnits(v, tokenData.decimals)
-              //     return true
-              //   } catch (e) {
-              //     return 'Invalid startTime'
-              //   }
-              // },
-              isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
-            }
-          })}
-        /> */}
+        </SummaryWell>
+
         <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
+      </fieldset>
+
+      <fieldset
+        className={classNames('w-full', {
+          hidden: !tokenAddressIsValid && !tokenData?.name
+        })}
+      >
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='duration'>
+            {t('tokensPerEpoch', 'Tokens per epoch')}
+          </Label>
+        </div>
+        <div className='flex space-x-2 items-center'>
+          <StyledInput
+            id='tokensPerEpoch'
+            invalid={!!errors.tokensPerEpoch}
+            className='w-1/3'
+            placeholder='0'
+            {...register('tokensPerEpoch', {
+              required: {
+                value: true,
+                message: t('tokensPerEpochIsRequired', 'Tokens per epoch is required')
+              },
+              min: {
+                value: 0.01,
+                message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 0.01')
+              },
+              validate: {
+                isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+                isValidBigNumber: (v) => {
+                  try {
+                    parseUnits(v, tokenData.decimals)
+                    return true
+                  } catch (e) {
+                    return 'Invalid startTime'
+                  }
+                },
+                isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+              }
+            })}
+          />{' '}
+          <div className='ml-4 font-semibold text-pt-purple-light flex items-center space-x-1'>
+            <TokenDisplay chainId={chainId} tokenData={tokenData} />
+          </div>
+        </div>
+        <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
       </fieldset>
 
       <fieldset
@@ -231,59 +247,19 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
                 message: 'Epoch Duration is required'
               },
               valueAsNumber: true,
-              min: {
-                value: 0.001,
-                message: 'Minimum Epoch Duration of 0.001 days'
-              },
               max: {
                 value: 30,
                 message: `Maximum duration of ${30} days`
+              },
+              validate: {
+                isNumber: (v) => !isNaN(Number(v)) || 'Epoch Duration must be a number',
+                isPositive: (v) => Number(v) >= 0 || 'Epoch Duration must be a positive number'
               }
             })}
           />{' '}
           <div className='ml-4 font-semibold text-pt-purple-light'>{t('days')}</div>
         </div>
         <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
-      </fieldset>
-
-      <fieldset
-        className={classNames('w-full', {
-          hidden: !tokenAddressIsValid && !tokenData?.name
-        })}
-      >
-        <div className='col-span-2 flex space-x-2 items-center'>
-          <Label className='uppercase' htmlFor='duration'>
-            {t('tokensPerEpoch', 'Tokens per epoch')}
-          </Label>
-        </div>
-        <div className='flex space-x-2 items-center'>
-          <StyledInput
-            id='tokensPerEpoch'
-            invalid={!!errors.tokensPerEpoch}
-            className='w-1/3'
-            placeholder='0'
-            {...register('tokensPerEpoch', {
-              required: {
-                value: true,
-                message: t('tokensPerEpochIsRequired', 'Tokens per epoch is required')
-              },
-              valueAsNumber: true,
-              min: {
-                value: 1,
-                message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 1')
-              }
-            })}
-          />{' '}
-          <div className='ml-4 font-semibold text-pt-purple-light flex items-center space-x-1'>
-            {tokenData?.name && (
-              <>
-                <TokenIcon sizeClassName='w-4 h-4' chainId={chainId} address={tokenData.address} />{' '}
-                <span>{tokenData.name}</span>
-              </>
-            )}
-          </div>
-        </div>
-        <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
       </fieldset>
 
       <fieldset
@@ -305,14 +281,44 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
               message: 'Number of epochs is required'
             },
             valueAsNumber: true,
+            pattern: /^[0-9]+$/,
+            max: {
+              value: 255,
+              message: `Maximum number of epochs is 255`
+            },
             validate: {
               isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
-              isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number'
+              isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number',
+              wholeNumber: (v) =>
+                /^[0-9]+$/.test(v.toString()) || 'Number of epochs must be a whole number'
             }
           })}
         />
-        <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
+        <ErrorMessage>{errors.numberOfEpochs?.message}</ErrorMessage>
       </fieldset>
+
+      <SummaryWell hidden={!tokenAddressIsValid && !tokenData?.name} className='w-full'>
+        <div className='flex items-center '>
+          <span className='mr-1'>
+            <strong>
+              {numberOfEpochs} {epochDuration}-day
+            </strong>{' '}
+            epochs will distribute
+          </span>
+          <span className='mr-1'>
+            <strong>{numberWithCommas(tokensPerEpoch)}</strong>
+          </span>{' '}
+          <TokenDisplay chainId={chainId} tokenData={tokenData} />
+        </div>
+        <div className='flex items-center space-x-2'>
+          <span>
+            <strong>
+              Total: <span>{numberWithCommas(Number(tokensPerEpoch) * numberOfEpochs)} </span>
+            </strong>
+          </span>
+          <TokenDisplay chainId={chainId} tokenData={tokenData} />
+        </div>
+      </SummaryWell>
 
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
@@ -330,5 +336,58 @@ const ErrorMessage: React.FC<{ className?: string }> = (props) => {
         'mb-0 h-1': !Boolean(props.children)
       })}
     />
+  )
+}
+
+const ValidFieldDisplay = (props) => {
+  const { children, hidden } = props
+  return (
+    <div
+      className={classNames(
+        'bg-pt-purple-darker rounded-xl px-4 py-2 flex items-center justify-between font-semibold',
+        {
+          hidden
+        }
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+const SummaryWell = (props) => {
+  const { className, children, hidden } = props
+  return (
+    <div
+      className={classNames(
+        className,
+        'bg-opacity-40 mt-1 bg-pt-purple-dark px-3 py-1 rounded-lg text-white text-opacity-70',
+        {
+          hidden
+        }
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+const TokenDisplay = (props) => {
+  const { chainId, tokenData } = props
+  if (!tokenData) {
+    return null
+  }
+  return (
+    <div className='inline-flex items-center text-white'>
+      {tokenData?.address && (
+        <TokenIcon
+          sizeClassName='w-4 h-4'
+          className='mr-2'
+          chainId={chainId}
+          address={tokenData?.address}
+        />
+      )}
+      <span className='mr-1'>{tokenData?.name}</span>
+    </div>
   )
 }
