@@ -115,7 +115,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           onClick={clearTokenField}
           className='inline-flex items-center font-semibold underline text-pt-teal ml-3'
         >
-          <FeatherIcon icon='x' className='w-3 h-3 mr-1' /> {t('changeToken', 'Change token')}
+          <FeatherIcon icon='x' className='w-3 h-3 xs:w-5 xs:h-5 mr-1' />{' '}
+          {t('changeToken', 'Change token')}
         </button>
       </ValidFieldDisplay>
       <StyledInput
@@ -154,7 +155,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             getPopupContainer={(triggerNode): HTMLElement => {
               return triggerNode.parentNode as HTMLElement
             }}
-            className='w-40'
+            className='w-40 xs:w-1/2'
           />
           <TimePicker
             format={timeFormat}
@@ -163,7 +164,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             getPopupContainer={(triggerNode): HTMLElement => {
               return triggerNode.parentNode as HTMLElement
             }}
-            className='w-40'
+            className='w-40 xs:w-1/2'
           />
         </div>
         <SummaryWell className='w-fit-content'>
@@ -301,23 +302,25 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         <div className='flex items-center '>
           <span className='mr-1'>
             <strong>
-              {numberOfEpochs} {epochDuration}-day
+              {numberOfEpochs ? numberOfEpochs : 'y'} {epochDuration ? epochDuration : 'x'}-day
             </strong>{' '}
             epochs will distribute
           </span>
           <span className='mr-1'>
-            <strong>{numberWithCommas(tokensPerEpoch)}</strong>
+            <strong>{Boolean(tokensPerEpoch) ? numberWithCommas(tokensPerEpoch) : 'n'}</strong>
           </span>{' '}
           <TokenDisplay chainId={chainId} tokenData={tokenData} />
         </div>
-        <div className='flex items-center space-x-2'>
-          <span>
-            <strong>
-              Total: <span>{numberWithCommas(Number(tokensPerEpoch) * numberOfEpochs)} </span>
-            </strong>
-          </span>
-          <TokenDisplay chainId={chainId} tokenData={tokenData} />
-        </div>
+        {Boolean(numberOfEpochs) && Boolean(epochDuration) && Boolean(tokensPerEpoch) && (
+          <div className='flex items-center space-x-2'>
+            <span>
+              <strong>
+                Total: <span>{numberWithCommas(Number(tokensPerEpoch) * numberOfEpochs)} </span>
+              </strong>
+            </span>
+            <TokenDisplay chainId={chainId} tokenData={tokenData} />
+          </div>
+        )}
       </SummaryWell>
 
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
@@ -344,7 +347,7 @@ const ValidFieldDisplay = (props) => {
   return (
     <div
       className={classNames(
-        'bg-pt-purple-darker rounded-xl px-4 py-2 flex items-center justify-between font-semibold',
+        'bg-pt-purple-darker rounded-xl py-2 px-4 xs:py-3 xs:px-5 xs:text-lg flex items-center justify-between font-semibold',
         {
           hidden
         }
