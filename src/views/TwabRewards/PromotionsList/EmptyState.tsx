@@ -1,16 +1,14 @@
 import FeatherIcon from 'feather-icons-react'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
-import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
+import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { useUpdateAtom } from 'jotai/utils'
-import { PromotionsListProps, ListState } from '.'
+import { PromotionsListProps } from '.'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 
 interface EmptyStateProps extends PromotionsListProps {
   currentAccount: string
-  listState: ListState
-  setListState: (listState: ListState) => void
 }
 
 /**
@@ -19,7 +17,7 @@ interface EmptyStateProps extends PromotionsListProps {
  * @returns
  */
 export const EmptyState: React.FC<EmptyStateProps> = (props) => {
-  const { className, currentAccount, setListState } = props
+  const { className, currentAccount } = props
   const { t } = useTranslation()
 
   return (
@@ -33,38 +31,32 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
         {t('noDelegationsFound')}
       </p>
       <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
-      {/* <CreateSlotButton
-        className='mx-auto'
-        currentAccount={currentAccount}
-        setListState={setListState}
-      /> */}
+      <CreatePromotionButton className='mx-auto' currentAccount={currentAccount} />
     </div>
   )
 }
 
-const CreateSlotButton: React.FC<{
-  setListState: (listState: ListState) => void
-  delegator: string
+const CreatePromotionButton: React.FC<{
+  currentAccount: string
   className?: string
 }> = (props) => {
-  const { className, delegator, setListState } = props
+  const { className, currentAccount } = props
   const usersAddress = useUsersAddress()
-  const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
+  const setIsOpen = useUpdateAtom(createPromotionModalOpenAtom)
   const { t } = useTranslation()
 
-  if (delegator !== usersAddress) return null
+  if (currentAccount !== usersAddress) return null
 
   return (
     <SquareButton
       size={SquareButtonSize.sm}
       className={className}
       onClick={() => {
-        setListState(ListState.edit)
         setIsOpen(true)
       }}
     >
       <FeatherIcon icon='plus' strokeWidth={4} className='w-4 h-4 my-auto mr-1' />
-      <span>{t('newDelegation')}</span>
+      <span>{t('newPromotion')}</span>
     </SquareButton>
   )
 }

@@ -46,15 +46,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
     let list
     if (promotions.length === 0) {
       console.log('in')
-      list = (
-        <EmptyState
-          {...props}
-          className='mb-10'
-          currentAccount={currentAccount}
-          listState={listState}
-          setListState={setListState}
-        />
-      )
+      list = <EmptyState {...props} className='mb-10' currentAccount={currentAccount} />
     } else {
       console.log('here')
       console.log(promotions)

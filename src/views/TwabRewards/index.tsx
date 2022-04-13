@@ -14,7 +14,6 @@ import {
 } from './atoms'
 import { useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { DatePicker, TimePicker } from 'antd'
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabRewards: React.FC = () => {
@@ -34,9 +33,6 @@ export const TwabRewards: React.FC = () => {
   return (
     <Layout>
       <PagePadding>
-        <DatePicker />
-        <TimePicker />
-
         <PageTitle title='Promotional Rewards' />
         <RewardsTitle className='mb-8' />
         <UsersAppState

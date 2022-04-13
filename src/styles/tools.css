@@ -1,0 +1,19 @@
+body .ant-picker {
+  @apply rounded-lg bg-pt-purple-darker text-white border-0;
+}
+
+body .ant-picker-input > input {
+  @apply font-semibold;
+}
+
+body .ant-picker-input > input {
+  @apply text-white text-opacity-50;
+}
+
+body .anticon svg {
+  fill: rgb(17, 107, 204);
+}
+
+body .anticon.anticon-close-circle svg {
+  /* fill: blue; */
+}

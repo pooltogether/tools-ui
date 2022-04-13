@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
@@ -5,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { TokenIcon, SquareButton, Tooltip } from '@pooltogether/react-components'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { DatePicker, TimePicker } from 'antd'
 // import { useMaxLockDuration } from './hooks/useMaxLockDuration'
 
 import { PromotionFormValues } from '@twabRewards/interfaces'
@@ -27,6 +29,9 @@ interface PromotionFormProps {
 export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   const { onSubmit, defaultValues, submitString, chainId } = props
 
+  const [dateString, setDateString] = useState('')
+  const [timeString, setTimeString] = useState('')
+
   const usersAddress = useUsersAddress()
   // const { data: maxLockDuration, isFetched: isMaxLockFetched } = useMaxLockDuration(chainId)
 
@@ -42,12 +47,50 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     defaultValues,
     shouldUnregister: true
   })
+  const startTimestamp = getValues('startTimestamp')
+  console.log({ startTimestamp })
+
   const tokenAddress = getValues('token')
   const { data: tokenData } = useTokenBalance(chainId, usersAddress, tokenAddress)
   const tokenAddressIsValid = tokenData?.name && tokenAddress && !Boolean(errors.token?.message)
 
+  register('dateString', { value: '' })
+  register('timeString', { value: '' })
+
   const clearTokenField = () => {
     setValue('token', '')
+  }
+
+  const updateStartTimestamp = async () => {
+    console.log('######## LAST ###########')
+    const dateString = getValues('dateString')
+    const timeString = getValues('timeString')
+
+    console.log(dateString)
+    console.log(timeString)
+    const dateTimeString = `${dateString}:${timeString}`
+    console.log({ dateTimeString })
+    console.log(Date.parse(dateTimeString))
+    setValue('startTimestamp', Date.parse(dateString) / 1000)
+  }
+
+  const handleDateChange = async (val, dateString) => {
+    console.log('######## DATE ###########')
+
+    console.log(dateString)
+    console.log(Date.parse(dateString))
+    setValue('dateString', dateString)
+    // await setDateString(dateString)
+    updateStartTimestamp()
+  }
+
+  const handleTimeChange = async (val, timeString) => {
+    console.log('######## TIME ###########')
+
+    console.log({ timeString })
+    setValue('timeString', timeString)
+    // setTimeString(timeString)
+    updateStartTimestamp()
   }
 
   return (
@@ -107,6 +150,20 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       <Label className='uppercase' htmlFor='balance'>
         Promotion start time:
       </Label>
+
+      <DatePicker
+        onChange={handleDateChange}
+        getPopupContainer={(triggerNode): HTMLElement => {
+          return triggerNode.parentNode as HTMLElement
+        }}
+      />
+      <TimePicker
+        onChange={handleTimeChange}
+        getPopupContainer={(triggerNode): HTMLElement => {
+          return triggerNode.parentNode as HTMLElement
+        }}
+      />
+
       <StyledInput
         id='startTimestamp'
         invalid={!!errors.startTimestamp}
@@ -172,53 +229,42 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           </div>
           <div className='flex space-x-2 items-center'>
             <StyledInput
-              id='epochDuration'
-              invalid={!!errors.epochDuration}
+              id='tokensPerEpoch'
+              invalid={!!errors.tokensPerEpoch}
               className='w-1/3'
               placeholder='0'
-              {...register('epochDuration', {
+              {...register('tokensPerEpoch', {
                 required: {
                   value: true,
-                  message: 'Epoch Duration is required'
+                  message: 'Tokens per epoch is required'
                 },
                 valueAsNumber: true,
                 min: {
-                  value: 0.001,
-                  message: 'Minimum Epoch Duration of 0.001 days'
-                },
-                max: {
-                  value: 30,
-                  message: `Maximum duration of ${30} days`
+                  value: 1,
+                  message: 'Minimum Tokens per epoch is 1'
                 }
               })}
             />{' '}
-            <div className='ml-4 font-semibold text-pt-purple-light'>USDC</div>
+            <div className='ml-4 font-semibold text-pt-purple-light'>{tokenData.name}</div>
           </div>
-          <ErrorMessage>{errors.epochDuration?.message}</ErrorMessage>
+          <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
           <Label className='uppercase' htmlFor='balance'>
             Number of epochs:
           </Label>
           <StyledInput
-            id='startTime'
-            invalid={!!errors.startTimestamp}
+            id='numberOfEpochs'
+            invalid={!!errors.numberOfEpochs}
             className='w-1/3'
             placeholder='10'
-            {...register('startTimestamp', {
+            {...register('numberOfEpochs', {
               required: {
                 value: true,
-                message: 'Start time is required'
+                message: 'Number of epochs is required'
               },
+              valueAsNumber: true,
               validate: {
-                isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-                // isValidBigNumber: (v) => {
-                //   try {
-                //     parseUnits(v, tokenData.decimals)
-                //     return true
-                //   } catch (e) {
-                //     return 'Invalid start time'
-                //   }
-                // },
-                isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+                isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
+                isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number'
               }
             })}
           />
