@@ -71,7 +71,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
         id='balance'
         invalid={!!errors.balance}
         className='w-full'
-        placeholder='10'
+        placeholder='eg. 1000'
         {...register('balance', {
           required: {
             value: true,
@@ -107,7 +107,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
         id='duration'
         invalid={!!errors.duration}
         className='w-1/3'
-        placeholder='0'
+        placeholder='eg. 0'
         disabled={!isMaxLockFetched}
         {...register('duration', {
           required: {
