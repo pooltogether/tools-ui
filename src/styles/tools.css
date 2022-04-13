@@ -1,11 +1,17 @@
 body .ant-picker {
-  @apply rounded-lg bg-pt-purple-darker text-white border-0 text-xs;
+  @apply rounded-lg bg-pt-purple-darker text-white border-0 text-xs px-4 py-0;
   border: 2px solid #291357;
   cursor: pointer;
 }
 
 body .ant-picker-input > input {
-  @apply font-semibold text-xs py-2 px-4 xs:py-3 xs:px-5 text-white xs:text-lg;
+  @apply font-semibold text-xxs text-white py-2;
+}
+
+@screen xs {
+  body .ant-picker-input > input {
+    @apply py-3 text-lg;
+  }
 }
 
 body .ant-picker-input > input:hover {

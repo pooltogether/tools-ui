@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 // import { useNextSlot } from '@twabRewards/hooks/useNextSlot'
 import {
+  Promotion,
   PromotionFormValues
   // DelegationFund,
   // DelegationUpdate
@@ -53,6 +54,16 @@ const CreatePromotionForm: React.FC<{
 
   const onSubmit = (data: PromotionFormValues, resetForm: () => void) => {
     console.log(data)
+    const { tokensPerEpoch, epochDuration, numberOfEpochs, startTimestamp, token, tokenDecimals } =
+      data
+    const params: Promotion = {
+      epochDuration,
+      numberOfEpochs,
+      startTimestamp: Math.round(startTimestamp),
+      token,
+      tokensPerEpoch: parseUnits(tokensPerEpoch, tokenDecimals)
+    }
+    // submitTx(params)
   }
   // onSubmit={handleSubmit(setApproveView)}
   // onSubmit={handleSubmit(setReviewView)}

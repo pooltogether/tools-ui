@@ -26,6 +26,7 @@ export interface PromotionFormValues {
   startTimestamp: number
   epochDuration: number
   numberOfEpochs: number
+  tokenDecimals: string
   dateString?: string
   timeString?: string
 }

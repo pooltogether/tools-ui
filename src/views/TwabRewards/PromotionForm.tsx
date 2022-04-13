@@ -14,6 +14,7 @@ import { TokenIcon, SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogeth
 import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
+import { useEffect } from 'react'
 
 interface PromotionFormProps {
   onSubmit: (data: PromotionFormValues, resetForm: () => void) => void
@@ -47,18 +48,19 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     defaultValues
   })
 
+  register('tokenDecimals', { value: null })
   register('dateString', { value: '' })
   register('timeString', { value: '' })
-  // register('startTimestamp', {
-  //   required: {
-  //     value: true,
-  //     message: 'Start time is required'
-  //   },
-  //   validate: {
-  //     isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-  //     isPositive: (v) => Number(v) >= 0 || 'Start time must be a positive number'
-  //   }
-  // })
+  register('startTimestamp', {
+    required: {
+      value: true,
+      message: 'Start time is required'
+    },
+    validate: {
+      isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+      isPositive: (v) => Number(v) >= 0 || 'Start time must be a positive number'
+    }
+  })
 
   const startTimestamp = getValues('startTimestamp')
   const tokensPerEpoch = watch('tokensPerEpoch')
@@ -72,6 +74,12 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     tokenAddress
   )
   const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
+
+  useEffect(() => {
+    if (tokenData?.decimals) {
+      setValue('tokenDecimals', tokenData.decimals)
+    }
+  }, [tokenData])
 
   const clearTokenField = () => {
     setValue('token', '')
