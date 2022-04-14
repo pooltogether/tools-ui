@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import moment from 'moment'
-import { msToS, numberWithCommas } from '@pooltogether/utilities'
+import { BigNumber } from 'ethers'
+import { msToS } from '@pooltogether/utilities'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
@@ -9,12 +11,14 @@ import { useTranslation } from 'react-i18next'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { DatePicker, TimePicker } from 'antd'
-import { TokenIcon, SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
+import { SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
 
 import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
-import { useEffect } from 'react'
+import { PromotionSummary } from './PromotionSummary'
+import { SummaryWell } from './SummaryWell'
+import { TokenDisplay } from './TokenDisplay'
 
 interface PromotionFormProps {
   onSubmit: (data: PromotionFormValues, resetForm: () => void) => void
@@ -305,30 +309,14 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         <ErrorMessage>{errors.numberOfEpochs?.message}</ErrorMessage>
       </fieldset>
 
-      <SummaryWell hidden={!tokenAddressIsValid && !tokenData?.name} className='w-full'>
-        <div className='flex items-center '>
-          <span className='mr-1'>
-            <strong>
-              {numberOfEpochs ? numberOfEpochs : 'y'} {epochDuration ? epochDuration : 'x'}-day
-            </strong>{' '}
-            epochs will distribute
-          </span>
-          <span className='mr-1'>
-            <strong>{Boolean(tokensPerEpoch) ? numberWithCommas(tokensPerEpoch) : 'n'}</strong>
-          </span>{' '}
-          <TokenDisplay chainId={chainId} tokenData={tokenData} />
-        </div>
-        {Boolean(numberOfEpochs) && Boolean(epochDuration) && Boolean(tokensPerEpoch) && (
-          <div className='flex items-center space-x-2'>
-            <span>
-              <strong>
-                Total: <span>{numberWithCommas(Number(tokensPerEpoch) * numberOfEpochs)} </span>
-              </strong>
-            </span>
-            <TokenDisplay chainId={chainId} tokenData={tokenData} />
-          </div>
-        )}
-      </SummaryWell>
+      <PromotionSummary
+        chainId={chainId}
+        hidden={!tokenAddressIsValid && !tokenData?.name}
+        numberOfEpochs={numberOfEpochs}
+        tokensPerEpoch={parseUnits(tokensPerEpoch, tokenData?.decimals)}
+        epochDuration={epochDuration}
+        token={tokenAddress}
+      />
 
       <SquareButton className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
@@ -361,43 +349,6 @@ const ValidFieldDisplay = (props) => {
       )}
     >
       {children}
-    </div>
-  )
-}
-
-const SummaryWell = (props) => {
-  const { className, children, hidden } = props
-  return (
-    <div
-      className={classNames(
-        className,
-        'bg-opacity-40 mt-1 bg-pt-purple-dark px-3 py-1 rounded-lg text-white text-opacity-70',
-        {
-          hidden
-        }
-      )}
-    >
-      {children}
-    </div>
-  )
-}
-
-const TokenDisplay = (props) => {
-  const { chainId, tokenData } = props
-  if (!tokenData) {
-    return null
-  }
-  return (
-    <div className='inline-flex items-center text-white'>
-      {tokenData?.address && (
-        <TokenIcon
-          sizeClassName='w-4 h-4'
-          className='mr-2'
-          chainId={chainId}
-          address={tokenData?.address}
-        />
-      )}
-      <span className='mr-1'>{tokenData?.name}</span>
     </div>
   )
 }

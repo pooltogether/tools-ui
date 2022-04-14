@@ -19,6 +19,7 @@ import { TransactionReceiptButton } from '@components/Buttons/TransactionReceipt
 import { REWARDS_LEARN_MORE_URL } from '@twabRewards/constants'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
+import { PromotionSummary } from '@twabRewards/PromotionSummary'
 import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
 // import { buildApproveTx } from '@twabRewards/transactions/buildApproveTx'
 // import { buildCreateTx } from '@twabRewards/transactions/buildCreateTx'
@@ -52,10 +53,18 @@ export const CreatePromotionModal: React.FC<{
   const [params, setParams] = useState(undefined)
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
   const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
-  console.log({ params })
+
+  const setFormView = () => {
+    setModalState(CreatePromotionModalState.FORM)
+  }
 
   const setReviewView = () => {
     setModalState(CreatePromotionModalState.REVIEW)
+  }
+
+  const dismissModal = () => {
+    setIsOpen(false)
+    setFormView()
   }
 
   let content
@@ -79,10 +88,11 @@ export const CreatePromotionModal: React.FC<{
         />
         <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <PromotionFundsLockWarning />
-        <div>
-          <p className='text-xs font-bold mb-1 capitalize'>{t('review')}</p>
+        <div className='text-xs font-bold pt-4'>
+          <div className='capitalize'>{t('review')}:</div>
+          <PromotionSummary {...params} chainId={chainId} />
         </div>
-        put summary here
+
         <SubmitTransactionButton
           chainId={chainId}
           params={params}
@@ -107,7 +117,7 @@ export const CreatePromotionModal: React.FC<{
   }
 
   return (
-    <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
+    <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={dismissModal}>
       {content}
     </BottomSheet>
   )
@@ -439,7 +449,7 @@ const PromotionFundsLockWarning: React.FC = () => {
         )}
       </p>
       <a
-        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        className='transition text-pt-teal dark:hover:text-white underline hover:underline flex items-center space-x-1'
         href={REWARDS_LEARN_MORE_URL}
         target='_blank'
         rel='noreferrer'
