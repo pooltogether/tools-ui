@@ -71,7 +71,14 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
         <div className='xs:mx-2'>{list}</div>
 
-        <CreatePromotionModal chainId={chainId} currentAccount={currentAccount} />
+        <CreatePromotionModal
+          chainId={chainId}
+          currentAccount={currentAccount}
+          transactionId={transactionId}
+          transactionPending={transactionPending}
+          setSignaturePending={setSignaturePending}
+          setTransactionId={setTransactionId}
+        />
       </div>
     )
   } else {

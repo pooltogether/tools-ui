@@ -15,6 +15,7 @@ import {
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 
+import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { REWARDS_LEARN_MORE_URL } from '@twabRewards/constants'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
@@ -36,16 +37,22 @@ export const CreatePromotionModal: React.FC<{
   setSignaturePending: (pending: boolean) => void
   setTransactionId: (transactionId: string) => void
 }> = (props) => {
-  const { chainId, currentAccount } = props
-
-  const [isOpen, setIsOpen] = useAtom(createPromotionModalOpenAtom)
-  const [params, setParams] = useState(undefined)
-  console.log({ params })
+  const {
+    chainId,
+    currentAccount,
+    transactionId,
+    transactionPending,
+    setSignaturePending,
+    setTransactionId
+  } = props
 
   const { t } = useTranslation()
+  const transaction = useTransaction(transactionId)
+  const [isOpen, setIsOpen] = useAtom(createPromotionModalOpenAtom)
+  const [params, setParams] = useState(undefined)
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
-
   const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
+  console.log({ params })
 
   const setReviewView = () => {
     setModalState(CreatePromotionModalState.REVIEW)
@@ -73,8 +80,9 @@ export const CreatePromotionModal: React.FC<{
         <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <PromotionFundsLockWarning />
         <div>
-          <p className='text-xs font-bold mb-1 capitalize'>{t('reviewChanges')}</p>
+          <p className='text-xs font-bold mb-1 capitalize'>{t('review')}</p>
         </div>
+        put summary here
         <SubmitTransactionButton
           chainId={chainId}
           params={params}
@@ -93,7 +101,7 @@ export const CreatePromotionModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-12'>
         <BottomSheetTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
-        {/* <TransactionReceiptButton chainId={chainId} transaction={transaction} /> */}
+        <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )
   }
@@ -182,6 +190,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setModalState,
     setTransactionId
   } = props
+  return null
   const [delegationCreations] = useAtom(delegationCreationsAtom)
   const [delegationUpdates] = useAtom(delegationUpdatesAtom)
   const [delegationFunds] = useAtom(delegationFundsAtom)
@@ -423,7 +432,12 @@ const PromotionFundsLockWarning: React.FC = () => {
       innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-yellow' />
-      <p className='text-xs'>{t('delegationConfirmationDescription')}</p>
+      <p className='text-xs'>
+        {t(
+          'createPromotionConfirmationDescription',
+          `By delegating you are locking up your funds for the expiry period and relinquishing your chances of winning to gift those chances to other wallet addresses. `
+        )}
+      </p>
       <a
         className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
         href={REWARDS_LEARN_MORE_URL}
