@@ -27,7 +27,6 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
     usersAddress,
     token
   )
-  console.log({ tokensPerEpoch })
 
   return (
     <SummaryWell hidden={hidden || !tokenDataIsFetched || !tokenData?.name} className='w-full'>

@@ -63,7 +63,6 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         <ul>
           <ListHeaders listState={listState} />
           {promotions.map((promotion) => {
-            console.log(promotion)
             return (
               <PromotionRow
                 key={`slot-${promotion.createdAt.toString()}-${listState}`}

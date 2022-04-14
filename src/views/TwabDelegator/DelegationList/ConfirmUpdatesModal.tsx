@@ -218,7 +218,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const ticket = useTicket(chainId)
-  const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,

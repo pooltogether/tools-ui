@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
-import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
-import { msToS } from '@pooltogether/utilities'
+import { BigNumber } from 'ethers'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
-import { Transaction } from '@pooltogether/hooks'
+import { toast } from 'react-toastify'
+import { TransactionResponse } from '@ethersproject/providers'
+import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { format } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
+import { msToS } from '@pooltogether/utilities'
+import { useTokenAllowance } from '@pooltogether/hooks'
+import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import {
   useSendTransaction,
   useTransaction,
@@ -21,6 +25,8 @@ import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
 import { PromotionSummary } from '@twabRewards/PromotionSummary'
 import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
+import { getTwabRewardsContract } from '@twabRewards/utils/getTwabRewardsContract'
+import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 // import { buildApproveTx } from '@twabRewards/transactions/buildApproveTx'
 // import { buildCreateTx } from '@twabRewards/transactions/buildCreateTx'
 
@@ -200,202 +206,75 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setModalState,
     setTransactionId
   } = props
-  return null
-  const [delegationCreations] = useAtom(delegationCreationsAtom)
-  const [delegationUpdates] = useAtom(delegationUpdatesAtom)
-  const [delegationFunds] = useAtom(delegationFundsAtom)
-  const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
-  const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
-  const resetAtoms = useResetDelegationAtoms()
+
+  const { tokensPerEpoch, numberOfEpochs, epochDuration, startTimestamp, token } = params
+
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
-  const ticket = useTicket(chainId)
-  const twabDelegator = getTwabDelegatorContractAddress(chainId)
-  const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
+  const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,
     usersAddress,
-    twabDelegatorAddress,
-    ticket.address
+    twabRewardsAddress,
+    token
   )
-  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
-  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
+  // const { refetch: refetchTicketBalance } = useTokenBalance(chainId, currentAccount, token)
+  // const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
+
+  const totalAmountToFund = tokensPerEpoch.mul(numberOfEpochs)
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
-  const getDelegation = (delegationId: DelegationId) =>
-    delegations.find(
-      (delegation) =>
-        delegation.delegationId.slot.eq(delegationId.slot) &&
-        delegation.delegationId.delegator === delegationId.delegator
-    )
-
   const submitUpdateTransaction = async () => {
-    const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
-    const ticketContract = getTicketContract(chainId)
-    const fnCalls: string[] = []
-    let totalAmountToFund = BigNumber.from(0)
-
-    // Add creations to the list of transactions
-    for (const delegationCreation of delegationCreations) {
-      const { slot, delegatee, lockDuration } = delegationCreation
-      const populatedTx = await twabDelegatorContract.populateTransaction.createDelegation(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add updates to the list of transactions
-    for (const delegationUpdate of delegationUpdates) {
-      const { slot, delegatee, lockDuration } = delegationUpdate
-      const populatedTx = await twabDelegatorContract.populateTransaction.updateDelegatee(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add withdrawals to the list of transactions
-    for (const delegationWithdrawal of delegationWithdrawals) {
-      const { slot, amount } = delegationWithdrawal
-      const delegation = getDelegation(delegationWithdrawal)
-      const amountToWithdraw = delegation.delegation.balance.sub(amount)
-      const populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
-        slot,
-        amountToWithdraw,
-        delegator
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add funds to the list of transactions
-    for (const delegationFund of delegationFunds) {
-      const { slot, amount } = delegationFund
-      const delegation = getDelegation(delegationFund)
-      let amountToFund: BigNumber
-
-      // If there's an existing delegation, amountToFund is the difference
-      if (!!delegation) {
-        amountToFund = amount.sub(delegation.delegation.balance)
-      } else {
-        amountToFund = amount
-      }
-
-      let populatedTx: PopulatedTransaction
-      if (amountToFund.isNegative()) {
-        const amountToWithdraw = amountToFund.mul(-1)
-        populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
-          slot,
-          amountToWithdraw,
-          delegator
-        )
-      } else {
-        totalAmountToFund = totalAmountToFund.add(amountToFund)
-        populatedTx = await twabDelegatorContract.populateTransaction.fundDelegation(
-          delegator,
-          slot,
-          amountToFund
-        )
-      }
-      fnCalls.push(populatedTx.data)
-    }
+    const twabRewardsContract = getTwabRewardsContract(chainId, signer)
+    // const ticketContract = getTicketContract(chainId)
 
     let callTransaction: () => Promise<TransactionResponse>
 
-    // Ensure allowance is high enough. Get signature for permitAndMulticall.
-    if (!totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
-      setSignaturePending(true)
-
-      const amountToIncrease = totalAmountToFund.sub(allowance)
-      const domain = {
-        name: 'PoolTogether ControlledToken',
-        version: '1',
-        chainId,
-        verifyingContract: ticketContract.address
-      }
-
-      // NOTE: Nonce must be passed manually for signERC2612Permit to work with WalletConnect
-      const deadline = (await signer.provider.getBlock('latest')).timestamp + 5 * 60
-      const response = await ticketContract.functions.nonces(usersAddress)
-      const nonce: BigNumber = response[0]
-
-      const signaturePromise = signERC2612Permit(
-        signer,
-        domain,
-        usersAddress,
-        twabDelegatorContract.address,
-        amountToIncrease.toString(),
-        deadline,
-        nonce.toNumber()
-      )
-
-      toast.promise(signaturePromise, {
-        pending: t('signatureIsPending'),
-        error: t('signatureRejected')
-      })
-
-      try {
-        const signature = await signaturePromise
-
-        // Overwrite v for hardware wallet signatures
-        // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover
-        const v = signature.v < 27 ? signature.v + 27 : signature.v
-
-        callTransaction = async () =>
-          twabDelegatorContract.permitAndMulticall(
-            amountToIncrease,
-            {
-              deadline: signature.deadline,
-              v,
-              r: signature.r,
-              s: signature.s
-            },
-            fnCalls
-          )
-      } catch (e) {
-        setSignaturePending(false)
-        console.error(e)
-        return
-      }
-    } else {
-      callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
+    try {
+      callTransaction = async () =>
+        twabRewardsContract.createPromotion(
+          token,
+          BigNumber.from(startTimestamp),
+          tokensPerEpoch,
+          BigNumber.from(epochDuration),
+          BigNumber.from(numberOfEpochs)
+        )
+    } catch (e) {
+      console.error(e)
+      return
     }
 
-    const transactionId = sendTransaction(t('updateDelegations'), callTransaction, {
-      onSent: () => {
-        setSignaturePending(false)
-      },
+    const transactionId = sendTransaction(t('createPromotion'), callTransaction, {
+      onSent: () => {},
       onConfirmed: () => {
         setModalState(CreatePromotionModalState.RECEIPT)
       },
       onSuccess: async () => {
         await refetch()
-        resetAtoms()
         setIsOpen(false)
-        refetchDelegationBalance()
-        refetchTicketBalance()
+        refetchTokenBalance()
         setModalState(CreatePromotionModalState.REVIEW)
       }
     })
     setTransactionId(transactionId)
   }
 
+  const allowanceOk = !totalAmountToFund.isZero() && allowance?.gt(totalAmountToFund)
+
   return (
     <TransactionButton
       className='w-full'
       onClick={submitUpdateTransaction}
-      disabled={!signer || !isAllowanceFetched || transactionPending || !isBalanceSufficient}
+      disabled={
+        !signer || !isAllowanceFetched || allowanceOk || transactionPending || !isBalanceSufficient
+      }
       pending={transactionPending}
       chainId={chainId}
-      toolTipId={'confirm-delegation-updates'}
+      toolTipId={'create-promotion-btn-tooltip'}
     >
-      {t('confirmUpdates')}
+      {t('createPromotion')}
     </TransactionButton>
   )
 }
