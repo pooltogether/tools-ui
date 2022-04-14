@@ -68,6 +68,10 @@ export const CreatePromotionModal: React.FC<{
     setModalState(CreatePromotionModalState.REVIEW)
   }
 
+  const setReceiptView = () => {
+    setModalState(CreatePromotionModalState.RECEIPT)
+  }
+
   const dismissModal = () => {
     setIsOpen(false)
     setFormView()
@@ -105,9 +109,10 @@ export const CreatePromotionModal: React.FC<{
           currentAccount={currentAccount}
           transactionPending={transactionPending}
           isBalanceSufficient={isBalanceSufficient}
+          dismissModal={dismissModal}
+          setReceiptView={setReceiptView}
           setIsOpen={setIsOpen}
           setTransactionId={setTransactionId}
-          setModalState={setModalState}
           // setListState={setListState}
           setSignaturePending={setSignaturePending}
         />
@@ -179,18 +184,15 @@ const CreatePromotionForm: React.FC<{
 interface SubmitTransactionButtonProps {
   chainId: number
   params: Promotion
-  currentAccount: string
   transactionPending: boolean
   isBalanceSufficient: boolean
+  dismissModal: () => void
+  setReceiptView: () => void
   setIsOpen: (isOpen: boolean) => void
-  setSignaturePending: (pending: boolean) => void
   setTransactionId: (id: string) => void
-  setModalState: (modalState: CreatePromotionModalState) => void
-  // setListState: (listState: ListState) => void
 }
 
 /**
- * https://docs.ethers.io/v5/api/contract/contract/#contract-populateTransaction
  * @param props
  * @returns
  */
@@ -198,12 +200,11 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const {
     chainId,
     params,
-    currentAccount,
     transactionPending,
     isBalanceSufficient,
+    setReceiptView,
+    dismissModal,
     setIsOpen,
-    setSignaturePending,
-    setModalState,
     setTransactionId
   } = props
 
@@ -212,6 +213,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
+  console.log({ twabRewardsAddress })
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,
     usersAddress,
@@ -228,10 +230,16 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
   const submitUpdateTransaction = async () => {
     const twabRewardsContract = getTwabRewardsContract(chainId, signer)
-    // const ticketContract = getTicketContract(chainId)
 
     let callTransaction: () => Promise<TransactionResponse>
 
+    console.log(
+      token,
+      BigNumber.from(startTimestamp).toString(),
+      tokensPerEpoch.toString(),
+      BigNumber.from(epochDuration).toString(),
+      BigNumber.from(numberOfEpochs).toString()
+    )
     try {
       callTransaction = async () =>
         twabRewardsContract.createPromotion(
@@ -249,27 +257,28 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     const transactionId = sendTransaction(t('createPromotion'), callTransaction, {
       onSent: () => {},
       onConfirmed: () => {
-        setModalState(CreatePromotionModalState.RECEIPT)
+        setReceiptView()
       },
       onSuccess: async () => {
-        await refetch()
+        // await refetch()
         setIsOpen(false)
-        refetchTokenBalance()
-        setModalState(CreatePromotionModalState.REVIEW)
+        // refetchTokenBalance()
+        // setModalState(CreatePromotionModalState.FORM)
+        dismissModal()
       }
     })
     setTransactionId(transactionId)
   }
 
   const allowanceOk = !totalAmountToFund.isZero() && allowance?.gt(totalAmountToFund)
+  const disabled =
+    !signer || !isAllowanceFetched || allowanceOk || transactionPending || !isBalanceSufficient
 
   return (
     <TransactionButton
       className='w-full'
       onClick={submitUpdateTransaction}
-      disabled={
-        !signer || !isAllowanceFetched || allowanceOk || transactionPending || !isBalanceSufficient
-      }
+      disabled={disabled}
       pending={transactionPending}
       chainId={chainId}
       toolTipId={'create-promotion-btn-tooltip'}
