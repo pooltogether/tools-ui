@@ -11,8 +11,6 @@ import { useUsersAddress } from '@pooltogether/wallet-connection'
 export const useIsBalanceSufficient = (chainId: number, amount: BigNumber, token: string) => {
   const usersAddress = useUsersAddress()
   const { data: tokenBalance, isFetched } = useTokenBalance(chainId, usersAddress, token)
-  console.log(tokenBalance?.amountUnformatted)
-  console.log(amount)
 
   if (!isFetched || !amount || !tokenBalance?.amountUnformatted) return null
 

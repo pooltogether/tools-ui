@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
+import FeatherIcon from 'feather-icons-react'
+import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import { msToS } from '@pooltogether/utilities'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { Transaction } from '@pooltogether/hooks'
@@ -14,6 +15,7 @@ import {
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 
+import { REWARDS_LEARN_MORE_URL } from '@twabRewards/constants'
 import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
 import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
@@ -29,6 +31,10 @@ enum CreatePromotionModalState {
 export const CreatePromotionModal: React.FC<{
   chainId: number
   currentAccount: string
+  transactionId: string
+  transactionPending: boolean
+  setSignaturePending: (pending: boolean) => void
+  setTransactionId: (transactionId: string) => void
 }> = (props) => {
   const { chainId, currentAccount } = props
 
@@ -40,7 +46,6 @@ export const CreatePromotionModal: React.FC<{
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
 
   const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
-  console.log({ isBalanceSufficient })
 
   const setReviewView = () => {
     setModalState(CreatePromotionModalState.REVIEW)
@@ -66,7 +71,7 @@ export const CreatePromotionModal: React.FC<{
           title={t('createPromotionConfirmation', 'Create Promotion confirmation')}
         />
         <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
-        <DelegationLockWarning />
+        <PromotionFundsLockWarning />
         <div>
           <p className='text-xs font-bold mb-1 capitalize'>{t('reviewChanges')}</p>
         </div>
@@ -373,5 +378,61 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     >
       {t('confirmUpdates')}
     </TransactionButton>
+  )
+}
+
+const TokenBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: number }> = (
+  props
+) => {
+  const { isBalanceSufficient, chainId } = props
+  const { t } = useTranslation()
+
+  if (isBalanceSufficient === null || isBalanceSufficient) return null
+
+  return (
+    <Banner
+      theme={BannerTheme.rainbowBorder}
+      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+    >
+      <FeatherIcon icon='alert-triangle' className='text-pt-red-light' />
+      <p className='text-xs'>
+        {t(
+          'tokensPerEpochAmountTooLarge',
+          'The tokens you have requested to send via this promotion is more than your balance'
+        )}
+      </p>
+      {/* <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={getChainSwapUrl(chainId)}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('swap')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a> */}
+    </Banner>
+  )
+}
+
+const PromotionFundsLockWarning: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
+    <Banner
+      theme={BannerTheme.rainbowBorder}
+      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+    >
+      <FeatherIcon icon='alert-triangle' className='text-yellow' />
+      <p className='text-xs'>{t('delegationConfirmationDescription')}</p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={REWARDS_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMoreAboutPromotions', 'Learn more about PoolTogether Promotions')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
+    </Banner>
   )
 }
