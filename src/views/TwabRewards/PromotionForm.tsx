@@ -76,9 +76,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
 
   useEffect(() => {
-    if (tokenData?.decimals) {
-      setValue('tokenDecimals', tokenData.decimals)
-    }
+    const tokenDecimals = tokenData?.decimals ? tokenData?.decimals : null
+    setValue('tokenDecimals', tokenDecimals)
   }, [tokenData])
 
   const clearTokenField = () => {
