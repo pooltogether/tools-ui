@@ -16,12 +16,14 @@ import {
 
 import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
+import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
 // import { buildApproveTx } from '@twabRewards/transactions/buildApproveTx'
 // import { buildCreateTx } from '@twabRewards/transactions/buildCreateTx'
 
 enum CreatePromotionModalState {
   'FORM',
-  'REVIEW'
+  'REVIEW',
+  'RECEIPT'
 }
 
 export const CreatePromotionModal: React.FC<{
@@ -36,6 +38,9 @@ export const CreatePromotionModal: React.FC<{
 
   const { t } = useTranslation()
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
+
+  const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
+  console.log({ isBalanceSufficient })
 
   const setReviewView = () => {
     setModalState(CreatePromotionModalState.REVIEW)
@@ -56,24 +61,27 @@ export const CreatePromotionModal: React.FC<{
   } else if (modalState === CreatePromotionModalState.REVIEW) {
     content = (
       <div className='flex flex-col space-y-4'>
-        <BottomSheetTitle chainId={chainId} title={t('delegationConfirmation')} />
-        {/* <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
+        <BottomSheetTitle
+          chainId={chainId}
+          title={t('createPromotionConfirmation', 'Create Promotion confirmation')}
+        />
+        <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
         <div>
           <p className='text-xs font-bold mb-1 capitalize'>{t('reviewChanges')}</p>
-          <DelegationConfirmationList chainId={chainId} delegator={delegator} />
         </div>
         <SubmitTransactionButton
           chainId={chainId}
-          delegator={delegator}
+          params={params}
+          currentAccount={currentAccount}
           transactionPending={transactionPending}
           isBalanceSufficient={isBalanceSufficient}
           setIsOpen={setIsOpen}
           setTransactionId={setTransactionId}
           setModalState={setModalState}
-          setListState={setListState}
+          // setListState={setListState}
           setSignaturePending={setSignaturePending}
-        /> */}
+        />
       </div>
     )
   } else {
@@ -139,18 +147,45 @@ const CreatePromotionForm: React.FC<{
   )
 }
 
-export interface CreatePromotionReviewViewProps {
+interface SubmitTransactionButtonProps {
   chainId: number
   params: Promotion
-  approveTx: Transaction
-  createTx: Transaction
-  refetch: () => void
-  onDismiss: () => void
+  currentAccount: string
+  transactionPending: boolean
+  isBalanceSufficient: boolean
+  setIsOpen: (isOpen: boolean) => void
+  setSignaturePending: (pending: boolean) => void
+  setTransactionId: (id: string) => void
+  setModalState: (modalState: CreatePromotionModalState) => void
+  // setListState: (listState: ListState) => void
 }
 
-const CreatePromotionReviewView = (props: CreatePromotionReviewViewProps) => {
-  const { chainId, params, approveTx, createTx, refetch, onDismiss } = props
-
+/**
+ * https://docs.ethers.io/v5/api/contract/contract/#contract-populateTransaction
+ * @param props
+ * @returns
+ */
+const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) => {
+  const {
+    chainId,
+    params,
+    currentAccount,
+    transactionPending,
+    isBalanceSufficient,
+    setIsOpen,
+    setSignaturePending,
+    setModalState,
+    setTransactionId
+  } = props
+  const [delegationCreations] = useAtom(delegationCreationsAtom)
+  const [delegationUpdates] = useAtom(delegationUpdatesAtom)
+  const [delegationFunds] = useAtom(delegationFundsAtom)
+  const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
+  const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
+  const resetAtoms = useResetDelegationAtoms()
+  const signer = useWalletSigner()
+  const usersAddress = useUsersAddress()
+  const ticket = useTicket(chainId)
   const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
@@ -159,15 +194,21 @@ const CreatePromotionReviewView = (props: CreatePromotionReviewViewProps) => {
     twabDelegatorAddress,
     ticket.address
   )
-
+  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
+  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
-  const usersAddress = useUsersAddress()
-  const sendTransaction = useSendTransaction(chainId, usersAddress)
-  // const isWalletOnProperNetwork = useIsWalletOnNetwork(prizePool.chainId)
-  const signer = useWalletSigner()
 
-  const submitCreatePromotionTransaction = async () => {
-    const twabRewardsContract = getTwabRewardsContract(chainId, signer)
+  const sendTransaction = useSendTransaction(chainId, usersAddress)
+
+  const getDelegation = (delegationId: DelegationId) =>
+    delegations.find(
+      (delegation) =>
+        delegation.delegationId.slot.eq(delegationId.slot) &&
+        delegation.delegationId.delegator === delegationId.delegator
+    )
+
+  const submitUpdateTransaction = async () => {
+    const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
     const ticketContract = getTicketContract(chainId)
     const fnCalls: string[] = []
     let totalAmountToFund = BigNumber.from(0)
@@ -307,129 +348,30 @@ const CreatePromotionReviewView = (props: CreatePromotionReviewViewProps) => {
         setSignaturePending(false)
       },
       onConfirmed: () => {
-        setModalState(ConfirmModalState.receipt)
+        setModalState(CreatePromotionModalState.RECEIPT)
       },
       onSuccess: async () => {
         await refetch()
         resetAtoms()
-        setListState(ListState.readOnly)
         setIsOpen(false)
         refetchDelegationBalance()
         refetchTicketBalance()
-        setModalState(ConfirmModalState.review)
+        setModalState(CreatePromotionModalState.REVIEW)
       }
     })
     setTransactionId(transactionId)
   }
 
-  // const sendApproveTx = async () => {
-  //   const callTransaction = buildApproveTx(
-  //     provider,
-  //     MaxUint256,
-  //     prizePool.addresses.prizePool,
-  //     token
-  //   )
-
-  //   const name = t(`allowTickerPool`, { ticker: token.symbol })
-  //   const txId = await sendTx({
-  //     name,
-  //     method: 'approve',
-  //     callTransaction,
-  //     callbacks: {
-  //       refetch
-  //     }
-  //   })
-  //   setApproveTxId(txId)
-  // }
-
-  if (!isWalletOnProperNetwork) {
-    return (
-      <>
-        <ModalTitle chainId={prizePool.chainId} title={t('wrongNetwork', 'Wrong network')} />
-        <ModalNetworkGate chainId={prizePool.chainId} className='mt-8' />
-      </>
-    )
-  }
-
-  if (!depositAllowanceUnformatted) {
-    return (
-      <>
-        <ModalTitle chainId={chainId} title={t('loadingYourData', 'Loading your data')} />
-        <ModalLoadingGate className='mt-8' />
-      </>
-    )
-  }
-
-  if (amountToDeposit && depositAllowanceUnformatted?.lt(amountToDeposit.amountUnformatted)) {
-    return (
-      <>
-        <ModalTitle chainId={chainId} title={t('approveDeposits', 'Approve deposits')} />
-        <ModalApproveGate
-          amountToDeposit={amountToDeposit}
-          chainId={chainId}
-          approveTx={approveTx}
-          sendApproveTx={sendApproveTx}
-          className='mt-8'
-        />
-      </>
-    )
-  }
-
-  if (createTx && createTx.sent) {
-    if (createTx.error) {
-      return (
-        <>
-          <ModalTitle chainId={chainId} title={t('errorDepositing', 'Error depositing')} />
-          <p className='my-2 text-accent-1 text-center mx-8'>😔 {t('ohNo', 'Oh no')}!</p>
-          <p className='mb-8 text-accent-1 text-center mx-8'>
-            {t(
-              'somethingWentWrongWhileProcessingYourTransaction',
-              'Something went wrong while processing your transaction.'
-            )}
-          </p>
-          <SquareButton
-            theme={SquareButtonTheme.tealOutline}
-            className='w-full'
-            onClick={onDismiss}
-          >
-            {t('tryAgain', 'Try again')}
-          </SquareButton>
-        </>
-      )
-    }
-
-    return (
-      <>
-        <ModalTitle chainId={chainId} title={t('depositSubmitted', 'Deposit submitted')} />
-        <TransactionReceiptButton className='mt-8 w-full' chainId={chainId} tx={createTx} />
-        <AccountPageButton />
-      </>
-    )
-  }
-
   return (
-    <>
-      <ModalTitle chainId={chainId} title={t('depositConfirmation')} />
-      <div className='w-full mx-auto mt-8 space-y-8'>
-        <AmountBeingSwapped
-          title={t('depositTicker', { ticker: token.symbol })}
-          chainId={chainId}
-          from={token}
-          to={ticket}
-          amountFrom={amountToDeposit}
-          amountTo={amountToDeposit}
-        />
-
-        <TxButtonNetworkGated
-          className='mt-8 w-full'
-          chainId={chainId}
-          toolTipId={`deposit-tx-${chainId}`}
-          onClick={sendcreateTx}
-          disabled={createTx?.inWallet && !createTx.cancelled && !createTx.completed}
-        >
-          {t('confirmDeposit', 'Confirm deposit')}
-        </TxButtonNetworkGated>
-      </div>
-    </>
+    <TransactionButton
+      className='w-full'
+      onClick={submitUpdateTransaction}
+      disabled={!signer || !isAllowanceFetched || transactionPending || !isBalanceSufficient}
+      pending={transactionPending}
+      chainId={chainId}
+      toolTipId={'confirm-delegation-updates'}
+    >
+      {t('confirmUpdates')}
+    </TransactionButton>
   )
 }
