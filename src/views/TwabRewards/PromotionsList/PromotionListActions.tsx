@@ -10,6 +10,7 @@ import { ChangeAccountModal } from '@twabRewards/UsersAppState'
 import { useTranslation } from 'react-i18next'
 
 interface PromotionListActionsProps {
+  noPromotions: boolean
   chainId: number
   currentAccount: string
   transactionPending: boolean
@@ -18,7 +19,7 @@ interface PromotionListActionsProps {
 
 // TODO: Cancel confirmation modal
 export const PromotionListActions: React.FC<PromotionListActionsProps> = (props) => {
-  const { chainId, transactionPending, currentAccount, setCurrentAccount } = props
+  const { noPromotions, chainId, transactionPending, currentAccount, setCurrentAccount } = props
   const usersAddress = useUsersAddress()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -27,7 +28,7 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
   if (currentAccount && usersAddress !== currentAccount) {
     return (
       <FixedFooterNav>
-        <div className='w-full flex justify-end'>
+        <div className='w-full flex justify-center'>
           <SquareButton
             className='px-8'
             size={SquareButtonSize.sm}
@@ -50,6 +51,10 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
     )
   }
 
+  if (noPromotions) {
+    return null
+  }
+
   return (
     <FixedFooterNav>
       <AddPromotionButton
@@ -59,18 +64,7 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
         transactionPending={transactionPending}
       />
 
-      {/* <div className='w-full flex justify-center space-x-2'>
-        <SquareButton
-          className='w-32'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.withdraw)}
-          disabled={transactionPending}
-        >
-          <div className='text-primary w-4 h-4 mr-1'>
-            <WithdrawSvg />
-          </div>
-          {t('withdraw')}
-        </SquareButton>
+      {/* 
         <SquareButton
           className='w-24'
           size={SquareButtonSize.sm}

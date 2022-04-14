@@ -38,11 +38,11 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const [signaturePending, setSignaturePending] = useState(false)
 
   const transactionPending = transaction?.state === TransactionState.pending || signaturePending
-  const { data: promotions, isFetched } = useQueryResult
+  const { data: promotionsData, isFetched } = useQueryResult
 
   if (isFetched) {
     let list
-    if (promotions.length === 0) {
+    if (promotionsData?.promotions?.length === 0) {
       list = <EmptyState {...props} className='mb-10' currentAccount={currentAccount} />
     } else {
       list = (
@@ -63,6 +63,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
           Promotions
         </p>
         <PromotionListActions
+          noPromotions={promotionsData?.promotions?.length === 0}
           chainId={chainId}
           currentAccount={currentAccount}
           setCurrentAccount={setCurrentAccount}

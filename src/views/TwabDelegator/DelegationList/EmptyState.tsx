@@ -34,7 +34,7 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
         'rounded-lg py-8 px-4 xs:px-12 text-center flex-col space-y-4 items-center bg-darkened'
       )}
     >
-      <p className='uppercase text-xxs font-semibold text-pt-purple-dark dark:text-pt-purple-light'>
+      <p className='text-xs font-semibold text-pt-purple-dark dark:text-pt-purple-light opacity-80'>
         {t('noDelegationsFound')}
       </p>
 

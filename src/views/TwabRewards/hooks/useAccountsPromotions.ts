@@ -55,7 +55,7 @@ const promotionFragment = gql`
 const promotionsQuery = () => {
   return gql`
     query promotionsQuery($accountAddress: String!) {
-      promotions(creator: $accountAddress) {
+      promotions(where: { creator: $accountAddress }) {
         ...promotionFragment
       }
     }

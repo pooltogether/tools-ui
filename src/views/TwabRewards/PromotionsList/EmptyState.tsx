@@ -27,10 +27,12 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
         'rounded-lg py-8 px-4 xs:px-12 text-center flex-col space-y-4 items-center bg-darkened'
       )}
     >
-      <p className='uppercase text-xxs font-semibold text-pt-purple-dark dark:text-pt-purple-light'>
-        {t('noDelegationsFound')}
+      <p className='text-xs font-semibold text-pt-purple-dark dark:text-pt-purple-light opacity-80'>
+        {t('noPromotionsFound')}
       </p>
-      <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
+      <p className='font-bold text-xs'>
+        {t('createYourFirstPromotionNow', 'Get started by creating your first promotion now:')}
+      </p>
       <CreatePromotionButton className='mx-auto' currentAccount={currentAccount} />
     </div>
   )
