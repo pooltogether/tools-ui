@@ -2,7 +2,6 @@ import { useState } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import { BigNumber } from 'ethers'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
-import { toast } from 'react-toastify'
 import { TransactionResponse } from '@ethersproject/providers'
 import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { format } from 'date-fns'
@@ -10,8 +9,9 @@ import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { msToS } from '@pooltogether/utilities'
-import { useTokenAllowance } from '@pooltogether/hooks'
+import { useTokenBalance } from '@pooltogether/hooks'
 import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
+import { ModalApproveGate } from '@components/ModalApproveGate'
 import {
   useSendTransaction,
   useTransaction,
@@ -25,10 +25,8 @@ import { PromotionForm } from '@twabRewards/PromotionForm'
 import { Promotion, PromotionFormValues } from '@twabRewards/interfaces'
 import { PromotionSummary } from '@twabRewards/PromotionSummary'
 import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
+import { useTwabRewardsTokenAllowance } from '@twabRewards/hooks/useTwabRewardsTokenAllowance'
 import { getTwabRewardsContract } from '@twabRewards/utils/getTwabRewardsContract'
-import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
-// import { buildApproveTx } from '@twabRewards/transactions/buildApproveTx'
-// import { buildCreateTx } from '@twabRewards/transactions/buildCreateTx'
 
 enum CreatePromotionModalState {
   'FORM',
@@ -44,14 +42,7 @@ export const CreatePromotionModal: React.FC<{
   setSignaturePending: (pending: boolean) => void
   setTransactionId: (transactionId: string) => void
 }> = (props) => {
-  const {
-    chainId,
-    currentAccount,
-    transactionId,
-    transactionPending,
-    setSignaturePending,
-    setTransactionId
-  } = props
+  const { chainId, transactionId, transactionPending, setTransactionId } = props
 
   const { t } = useTranslation()
   const transaction = useTransaction(transactionId)
@@ -59,6 +50,16 @@ export const CreatePromotionModal: React.FC<{
   const [params, setParams] = useState(undefined)
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
   const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
+
+  const { allowanceOk, twabRewardsAllowanceRefetch } = useTwabRewardsTokenAllowance(chainId, params)
+  const usersAddress = useUsersAddress()
+  const amountUnformatted = params?.tokensPerEpoch.mul(params.numberOfEpochs)
+
+  const { data: tokenData, isFetched: tokenDataIsFetched } = useTokenBalance(
+    chainId,
+    usersAddress,
+    params?.token
+  )
 
   const setFormView = () => {
     setModalState(CreatePromotionModalState.FORM)
@@ -90,38 +91,58 @@ export const CreatePromotionModal: React.FC<{
       </>
     )
   } else if (modalState === CreatePromotionModalState.REVIEW) {
-    content = (
-      <div className='flex flex-col space-y-4'>
-        <BottomSheetTitle
-          chainId={chainId}
-          title={t('createPromotionConfirmation', 'Create Promotion confirmation')}
-        />
-        <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
-        <PromotionFundsLockWarning />
-        <div className='text-xs font-bold pt-4'>
-          <div className='capitalize'>{t('review')}:</div>
-          <PromotionSummary {...params} chainId={chainId} />
-        </div>
+    console.log({ allowanceOk })
+    if (!allowanceOk) {
+      content = (
+        <>
+          <BottomSheetTitle
+            chainId={chainId}
+            title={t('allowTicker', { ticker: tokenData?.name })}
+          />
+          <ModalApproveGate
+            className='mt-8'
+            chainId={chainId}
+            amountUnformatted={amountUnformatted}
+            token={params?.token}
+            tokenData={tokenData}
+            twabRewardsAllowanceRefetch={twabRewardsAllowanceRefetch}
+          />
+        </>
+      )
+    } else {
+      content = (
+        <div className='flex flex-col space-y-4'>
+          <BottomSheetTitle
+            chainId={chainId}
+            title={t('createPromotionConfirmation', 'Create Promotion confirmation')}
+          />
+          <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
+          <PromotionFundsLockWarning />
+          <div className='text-xs font-bold pt-4'>
+            <div className='capitalize'>{t('review')}:</div>
+            <PromotionSummary {...params} chainId={chainId} />
+          </div>
 
-        <SubmitTransactionButton
-          chainId={chainId}
-          params={params}
-          currentAccount={currentAccount}
-          transactionPending={transactionPending}
-          isBalanceSufficient={isBalanceSufficient}
-          dismissModal={dismissModal}
-          setReceiptView={setReceiptView}
-          setIsOpen={setIsOpen}
-          setTransactionId={setTransactionId}
-          // setListState={setListState}
-          setSignaturePending={setSignaturePending}
-        />
-      </div>
-    )
+          <SubmitTransactionButton
+            chainId={chainId}
+            params={params}
+            transactionPending={transactionPending}
+            isBalanceSufficient={isBalanceSufficient}
+            dismissModal={dismissModal}
+            setReceiptView={setReceiptView}
+            setIsOpen={setIsOpen}
+            setTransactionId={setTransactionId}
+          />
+        </div>
+      )
+    }
   } else {
     content = (
       <div className='flex flex-col space-y-12'>
-        <BottomSheetTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
+        <BottomSheetTitle
+          chainId={chainId}
+          title={t('createPromotionTransactionSubmitted', 'Create promotion transaction submitted')}
+        />
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )
@@ -212,19 +233,10 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
-  const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
-  console.log({ twabRewardsAddress })
-  const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
-    chainId,
-    usersAddress,
-    twabRewardsAddress,
-    token
-  )
+  const { allowanceOk, isAllowanceFetched } = useTwabRewardsTokenAllowance(chainId, params)
   // const { refetch: refetchTicketBalance } = useTokenBalance(chainId, currentAccount, token)
   // const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
-
-  const totalAmountToFund = tokensPerEpoch.mul(numberOfEpochs)
 
   const sendTransaction = useSendTransaction(chainId, usersAddress)
 
@@ -270,9 +282,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setTransactionId(transactionId)
   }
 
-  const allowanceOk = !totalAmountToFund.isZero() && allowance?.gt(totalAmountToFund)
   const disabled =
-    !signer || !isAllowanceFetched || allowanceOk || transactionPending || !isBalanceSufficient
+    !signer || !isAllowanceFetched || !allowanceOk || transactionPending || !isBalanceSufficient
 
   return (
     <TransactionButton

@@ -315,7 +315,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
     let callTransaction: () => Promise<TransactionResponse>
 
-    // Ensure allowance is high enough. Get signature for permitAndMulticall.
+    // If allowance is not high enough get a Permit signature for permitAndMulticall
     if (!totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
       setSignaturePending(true)
 

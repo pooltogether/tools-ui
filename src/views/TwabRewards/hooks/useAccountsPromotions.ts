@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers'
 import { useQuery } from 'react-query'
 import { NO_REFETCH } from '@pooltogether/hooks/dist/constants'
 
-import { Promotion, PromotionId } from '@twabRewards/interfaces'
 import { useTwabRewardsSubgraphClient } from '@twabRewards/hooks/useTwabRewardsSubgraphClient'
 
 /**
