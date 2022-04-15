@@ -36,13 +36,18 @@ enum CreatePromotionModalState {
 
 export const CreatePromotionModal: React.FC<{
   chainId: number
-  currentAccount: string
   transactionId: string
   transactionPending: boolean
-  setSignaturePending: (pending: boolean) => void
   setTransactionId: (transactionId: string) => void
+  refetchAccountsPromotions: () => void
 }> = (props) => {
-  const { chainId, transactionId, transactionPending, setTransactionId } = props
+  const {
+    chainId,
+    transactionId,
+    transactionPending,
+    setTransactionId,
+    refetchAccountsPromotions
+  } = props
 
   const { t } = useTranslation()
   const transaction = useTransaction(transactionId)
@@ -131,6 +136,7 @@ export const CreatePromotionModal: React.FC<{
             setReceiptView={setReceiptView}
             setIsOpen={setIsOpen}
             setTransactionId={setTransactionId}
+            refetchAccountsPromotions={refetchAccountsPromotions}
           />
         </div>
       )
@@ -210,6 +216,7 @@ interface SubmitTransactionButtonProps {
   setReceiptView: () => void
   setIsOpen: (isOpen: boolean) => void
   setTransactionId: (id: string) => void
+  refetchAccountsPromotions: () => void
 }
 
 /**
@@ -225,7 +232,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setReceiptView,
     dismissModal,
     setIsOpen,
-    setTransactionId
+    setTransactionId,
+    refetchAccountsPromotions
   } = props
 
   const { tokensPerEpoch, numberOfEpochs, epochDuration, startTimestamp, token } = params
@@ -264,11 +272,9 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         setReceiptView()
       },
       onSuccess: async () => {
-        // await refetch()
         setIsOpen(false)
-        // refetchTokenBalance()
-        // setModalState(CreatePromotionModalState.FORM)
         dismissModal()
+        refetchAccountsPromotions()
       }
     })
     setTransactionId(transactionId)

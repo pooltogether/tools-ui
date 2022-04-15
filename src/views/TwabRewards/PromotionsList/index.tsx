@@ -37,7 +37,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const [signaturePending, setSignaturePending] = useState(false)
 
   const transactionPending = transaction?.state === TransactionState.pending || signaturePending
-  const { data: promotionsData, isFetched } = useQueryResult
+  const { data: promotionsData, isFetched, refetch: refetchAccountsPromotions } = useQueryResult
 
   if (isFetched) {
     let list
@@ -76,8 +76,9 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
           currentAccount={currentAccount}
           transactionId={transactionId}
           transactionPending={transactionPending}
-          setSignaturePending={setSignaturePending}
           setTransactionId={setTransactionId}
+          setSignaturePending={setSignaturePending}
+          refetchAccountsPromotions={refetchAccountsPromotions}
         />
       </div>
     )
