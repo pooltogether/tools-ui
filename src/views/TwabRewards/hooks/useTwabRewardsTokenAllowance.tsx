@@ -18,15 +18,8 @@ export const useTwabRewardsTokenAllowance = (chainId: number, params: Promotion)
     isFetched: isAllowanceFetched,
     refetch: twabRewardsAllowanceRefetch
   } = useTokenAllowance(chainId, usersAddress, twabRewardsAddress, params?.token)
-  // console.log(usersAddress)
-  // console.log(twabRewardsAddress)
-  // console.log(params?.token)
   const totalAmountToFund = params?.tokensPerEpoch.mul(params.numberOfEpochs)
   const allowanceOk = !totalAmountToFund?.isZero() && allowance?.gte(totalAmountToFund)
-  // console.log(!totalAmountToFund?.isZero())
-  // console.log(allowance.toString())
-  // console.log(totalAmountToFund.toString())
-  // console.log(allowance?.gte(totalAmountToFund))
 
   return { allowance, isAllowanceFetched, allowanceOk, twabRewardsAllowanceRefetch }
 }

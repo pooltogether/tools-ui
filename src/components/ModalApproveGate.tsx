@@ -37,10 +37,8 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
 
   const [transactionId, setTransactionId] = useState<string>()
   const { t } = useTranslation()
-  console.log({ transactionId })
 
   const transaction = useTransaction(transactionId)
-  console.log(transaction)
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const sendTransaction = useSendTransaction(chainId, usersAddress)
@@ -69,12 +67,8 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
       callTransaction,
       {
         onSent: () => {},
-        onConfirmed: () => {
-          console.log('confirmed!')
-        },
+        onConfirmed: () => {},
         onSuccess: async () => {
-          console.log('success!')
-          console.log('calling refetch!')
           twabRewardsAllowanceRefetch()
         }
       }

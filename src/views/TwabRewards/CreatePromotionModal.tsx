@@ -91,7 +91,6 @@ export const CreatePromotionModal: React.FC<{
       </>
     )
   } else if (modalState === CreatePromotionModalState.REVIEW) {
-    console.log({ allowanceOk })
     if (!allowanceOk) {
       content = (
         <>
@@ -245,13 +244,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
     let callTransaction: () => Promise<TransactionResponse>
 
-    console.log(
-      token,
-      BigNumber.from(startTimestamp).toString(),
-      tokensPerEpoch.toString(),
-      BigNumber.from(epochDuration).toString(),
-      BigNumber.from(numberOfEpochs).toString()
-    )
     try {
       callTransaction = async () =>
         twabRewardsContract.createPromotion(
