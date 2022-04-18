@@ -12,9 +12,9 @@ const Custom404 = () => {
       }}
     >
       <div className='content mx-auto max-w-sm' style={{ maxWidth: 700 }}>
-        <div className='my-0 text-inverse pt-32 px-2 xs:pt-32 space-y-4'>
+        <div className='my-0 pt-32 px-2 xs:pt-32 space-y-4'>
           <h1 className=''>🤔</h1>
-          <h2 className=''>404 - {t('pageNotFound', 'Page not found')}</h2>
+          <h2 className='dark:text-white'>404 - {t('pageNotFound', 'Page not found')}</h2>
           <h6 className='text-accent-1'>
             {t('lookingForSomethingElse', 'Looking for something else?')}
           </h6>
