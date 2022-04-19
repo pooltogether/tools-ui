@@ -63,17 +63,6 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
         currentAccount={currentAccount}
         transactionPending={transactionPending}
       />
-
-      {/* 
-        <SquareButton
-          className='w-24'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.edit)}
-          disabled={transactionPending}
-        >
-          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
-        </SquareButton> 
-      </div>*/}
     </FixedFooterNav>
   )
 }

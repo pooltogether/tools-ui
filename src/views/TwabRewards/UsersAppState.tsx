@@ -8,22 +8,17 @@ import { isAddress } from 'ethers/lib/utils'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
 import { useTicket } from '@hooks/v4/useTicket'
 import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
-import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BlockExplorerLink,
   BottomSheet,
   NetworkIcon,
   SquareButton,
-  SquareButtonTheme,
-  ThemedClipSpinner,
-  TokenIcon
+  SquareButtonTheme
 } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 
 import { StyledInput } from '@components/Input'
-import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { useRewardsSupportedChainIds } from './hooks/useRewardsSupportedChainIds'
-// import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 import { getTwabRewardsContractAddress } from './utils/getTwabRewardsContractAddress'
 
 interface UsersAppStateProps {
@@ -36,17 +31,6 @@ interface UsersAppStateProps {
 
 export const UsersAppState: React.FC<UsersAppStateProps> = (props) => {
   const { className, chainId, setChainId, setCurrentAccount, currentAccount } = props
-  const ticket = useTicket(chainId)
-  const twabRewards = getTwabRewardsContractAddress(chainId)
-  // const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
-  //   chainId,
-  //   currentAccount,
-  //   ticket.currentAccount
-  // )
-  // const { data: delegationBalance, isFetched: isRewardsBalanceFetched } = useTotalAmountDelegated(
-  //   chainId,
-  //   currentAccount
-  // )
 
   return (
     <>
@@ -73,49 +57,6 @@ export const UsersAppState: React.FC<UsersAppStateProps> = (props) => {
             />
           </div>
           <RewardsNetworkSelection chainId={chainId} setChainId={setChainId} />
-        </div>
-      </div>
-
-      <div className={classNames(className, 'flex justify-between')}>
-        <div className='flex flex-col space-y-1 mt-4 ml-4'>
-          {/* <div className='flex space-x-2 items-center'>
-            <TokenIcon chainId={chainId} currentAccount={ticket.currentAccount} sizeClassName='w-4 h-4' />
-            <span className='font-semibold opacity-60 text-xxs'>{ticket.symbol}</span>
-            <a
-              className='text-pt-teal hover:opacity-70 transition underline text-xxxs flex space-x-1 items-center'
-              href={getPoolTogetherDepositUrl(chainId)}
-              target='_blank'
-              rel='noreferrer'
-            >
-              <span>{`Get ${ticket.symbol}`}</span>
-              <FeatherIcon icon='external-link' className='w-3 h-3' />
-            </a>
-          </div> */}
-          {currentAccount && (
-            <div className='flex flex-col space-y-1'>
-              {/* {(!isRewardsBalanceFetched || !isRewardsBalanceFetched) && (
-                <ThemedClipSpinner sizeClassName='w-3 h-3' />
-              )} */}
-              {/* {isTicketBalanceFetched && (
-                <div className='flex space-x-2 items-center'>
-                  <FeatherIcon icon='credit-card' className='w-4 h-4 text-pt-teal' />
-                  <div className='flex space-x-1 items-center text-xxs'>
-                    <span className='opacity-80 font-semibold'>{`${ticketBalance.amountPretty}`}</span>
-                    <span className='opacity-50'>balance</span>
-                  </div>
-                </div>
-              )} */}
-              {/* {isRewardsBalanceFetched && (
-                <div className='flex space-x-2 items-center'>
-                  <FeatherIcon icon='gift' className='w-4 h-4 text-pt-teal' />
-                  <div className='flex space-x-1 items-center text-xxs'>
-                    <span className='opacity-80 font-semibold'>{`${delegationBalance.amountPretty}`}</span>
-                    <span className='opacity-50'>delegated</span>
-                  </div>
-                </div>
-              )} */}
-            </div>
-          )}
         </div>
       </div>
     </>
@@ -252,17 +193,6 @@ export const ChangeAccountModal: React.FC<{
         autoComplete='off'
         className='flex flex-col'
       >
-        {/* TODO: Is this clearer than the clear button? Showing a shortcut to fill input with the users currentAccount. */}
-        {/* {usersAddress && (
-          <button
-            type='button'
-            className='transition ml-auto font-bold text-pt-teal hover:opacity-70'
-            disabled={!isValid}
-            onClick={() => setValue('delegator', usersAddress, { shouldValidate: true })}
-          >
-            {shorten({ hash: usersAddress })}
-          </button>
-        )} */}
         <StyledInput
           id='delegator'
           invalid={!!errors.currentAccount}

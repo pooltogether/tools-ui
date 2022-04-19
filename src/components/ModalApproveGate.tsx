@@ -45,15 +45,9 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
 
   const submitApproveTransaction = async () => {
-    // const allowanceContract = getAllowanceContract(chainId, token)
     const allowanceContract = new ethers.Contract(token, ERC20Abi, signer)
 
     let callTransaction: () => Promise<TransactionResponse>
-
-    //   const signer = provider.getSigner()
-    // const params =
-    // const contractCall: () => Promise<TransactionResponse> = contract['approve'].bind(null, ...params)
-    // return contractCall
 
     try {
       callTransaction = async () => allowanceContract.approve(twabRewardsAddress, amountUnformatted)
