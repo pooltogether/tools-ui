@@ -25,7 +25,7 @@ const APPS_TO_LIST: AppInfo[] = [
   {
     titleKey: 'promotionalRewards',
     descriptionKey: 'promotionalRewardsDescription',
-    href: 'rewards',
+    href: 'promotional-rewards',
     icon: GiftSvg
   },
   {
