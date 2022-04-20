@@ -1,20 +1,19 @@
 import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
 import { format } from 'date-fns'
-import { shorten, sToMs, prettyNumber, numberWithCommas } from '@pooltogether/utilities'
+import { sToD, shorten, sToMs, prettyNumber, numberWithCommas } from '@pooltogether/utilities'
 import { BigNumber } from 'ethers'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useTranslation } from 'react-i18next'
-import { BlockExplorerLink, TokenIcon } from '@pooltogether/react-components'
+import { Tooltip, BlockExplorerLink, TokenIcon } from '@pooltogether/react-components'
 
-import { PromotionsListProps, ListState } from '.'
+import { PromotionsListProps } from '.'
 import { Promotion } from '@twabRewards/interfaces'
+import { PromotionSummary } from '@twabRewards/PromotionSummary'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
 
 export interface ActiveStateProps extends PromotionsListProps {
   currentAccount: string
-  listState: ListState
-  transactionPending: boolean
-  setListState: (listState: ListState) => void
 }
 
 /**
@@ -22,25 +21,22 @@ export interface ActiveStateProps extends PromotionsListProps {
  * @returns
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
-  const { chainId, className, listState, setListState, currentAccount, transactionPending } = props
+  const { chainId, className, currentAccount } = props
   const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
 
-  const { promotions } = promotionsData
+  const { promotions } = promotionsData || {}
 
   return (
     <>
-      <div className={classNames(className, 'flex flex-col')}>
+      <div className={classNames(className, 'flex flex-col pb-32')}>
         <ul>
-          <ListHeaders listState={listState} />
-          {promotions.map((promotion) => {
+          <ListHeaders />
+          {promotions?.map((promotion) => {
             return (
               <PromotionRow
-                key={`slot-${promotion.createdAt.toString()}-${listState}`}
-                currentAccount={currentAccount}
+                key={`slot-${promotion.createdAt.toString()}`}
                 promotion={promotion}
                 chainId={chainId}
-                listState={listState}
-                transactionPending={transactionPending}
               />
             )
           })}
@@ -56,19 +52,12 @@ const ListHeaders: React.FC<{}> = () => {
   return (
     <li
       className={classNames(
-        'grid items-center',
-        'px-2 py-1 border-b border-pt-purple border-opacity-50 grid-cols-8'
+        'flex items-center',
+        'px-2 py-1 border-b border-pt-purple border-opacity-50'
       )}
     >
-      <Header className='col-span-2'>
-        <span>{t('starts', 'Starts')}</span>
-      </Header>
-      <Header>{t('token')}</Header>
-      <Header className='col-span-2 text-center'>{t('tokensPerEpoch', 'Tokens per epoch')}</Header>
-      <Header className='col-span-2 text-center'>
-        {t('epochDuration', 'Epoch duration')} ({t('days')})
-      </Header>
-      <Header className='text-center'>{t('epochs', 'Epochs')}</Header>
+      <Header className='hidden xs:block xs:w-1/2'>{t('duration', 'Duration')}</Header>
+      <Header className='xs:w-1/2'>{t('summary', 'Summary')}</Header>
     </li>
   )
 }
@@ -79,7 +68,6 @@ const Header = (props) => (
 
 interface PromotionRowProps {
   chainId: number
-  currentAccount: string
   promotion?: Promotion
 }
 
@@ -88,27 +76,55 @@ interface PromotionRowProps {
  * @returns
  */
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
-  const { chainId, currentAccount, promotion } = props
+  const { chainId, promotion } = props
 
   const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
+
+  const { t } = useTranslation()
 
   return (
     <li
       className={classNames(
-        'grid items-center',
-        'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 grid-cols-8 text-xxs'
+        'flex items-center',
+        'px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 text-xxs'
       )}
     >
-      <StartTimestampDisplay startTimestamp={startTimestamp} />
-      <TokenDisplay chainId={chainId} token={token} />
-      <TokensPerEpochDisplay
-        chainId={chainId}
-        account={currentAccount}
-        token={token}
-        tokensPerEpoch={tokensPerEpoch}
-      />
-      <EpochDurationDisplay epochDuration={epochDuration} />
-      <NumberOfEpochsDisplay numberOfEpochs={numberOfEpochs} />
+      <div className='flex items-center w-full'>
+        <div className='xs:flex items-center w-full'>
+          <span className='xs:w-1/2'>
+            <StartTimestampDisplay startTimestamp={startTimestamp} />
+            <EndTimestampDisplay
+              startTimestamp={startTimestamp}
+              numberOfEpochs={numberOfEpochs}
+              epochDuration={epochDuration}
+            />
+          </span>
+          <span className='xs:w-1/2'>
+            <PromotionSummary
+              className='mt-2 xs:mt-0'
+              hideBackground
+              chainId={chainId}
+              numberOfEpochs={numberOfEpochs}
+              tokensPerEpoch={BigNumber.from(tokensPerEpoch)}
+              epochDuration={sToD(epochDuration)}
+              token={token}
+            />
+          </span>
+        </div>
+        <div className='col-span-1 flex justify-end w-4 xs:w-auto'>
+          <Tooltip
+            id={`tooltip-edit-promo-${startTimestamp}`}
+            tip={t(
+              'extendingEndingPromotionsComingSoon',
+              'Extending, ending and destroying promotions coming soon'
+            )}
+          >
+            <div className='col-span-2 flex space-x-1 items-center'>
+              <FeatherIcon icon={'edit-2'} className='w-4 h-4 opacity-50 text-pt-teal' />
+            </div>
+          </Tooltip>
+        </div>
+      </div>
     </li>
   )
 }
@@ -167,13 +183,40 @@ const TokensPerEpochDisplay: React.FC<{
  */
 const StartTimestampDisplay: React.FC<{
   startTimestamp: number
-}> = ({ startTimestamp }) => (
-  <span className='col-span-2'>
-    {format(new Date(sToMs(startTimestamp)), 'MMM do yyyy')},
-    <br />
-    {format(new Date(sToMs(startTimestamp)), 'p')}
-  </span>
-)
+}> = ({ startTimestamp }) => {
+  const { t } = useTranslation()
+  return (
+    <span>
+      <span className='uppercase font-semibold'>{t('starts')}</span>:{' '}
+      {format(new Date(sToMs(startTimestamp)), 'MMM do yyyy')},{' '}
+      {format(new Date(sToMs(startTimestamp)), 'p')}
+    </span>
+  )
+}
+
+/**
+ *
+ * @param props
+ * @returns
+ */
+const EndTimestampDisplay: React.FC<{
+  startTimestamp: number
+  numberOfEpochs: number
+  epochDuration: number
+}> = ({ startTimestamp, numberOfEpochs, epochDuration }) => {
+  const { t } = useTranslation()
+
+  const duration = numberOfEpochs * epochDuration
+  const endTimestamp = Number(startTimestamp) + duration
+
+  return (
+    <div>
+      <span className='uppercase font-semibold'>{t('ends')}</span>:{' '}
+      {format(new Date(sToMs(endTimestamp)), 'MMM do yyyy')},{' '}
+      {format(new Date(sToMs(endTimestamp)), 'p')}
+    </div>
+  )
+}
 
 /**
  *

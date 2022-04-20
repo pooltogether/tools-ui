@@ -7,8 +7,8 @@ const POOLTOGETHER_GOVERNANCE_GRAPH_URIS = {
   [CHAIN_ID.rinkeby]: '',
   [CHAIN_ID.mumbai]: '',
   [CHAIN_ID.fuji]: '',
-  [CHAIN_ID.avalanche]: '',
-  [CHAIN_ID.mainnet]: '',
+  [CHAIN_ID.avalanche]: `https://api.thegraph.com/subgraphs/name/pooltogether/avalanche-twab-rewards`,
+  [CHAIN_ID.mainnet]: `https://api.thegraph.com/subgraphs/name/pooltogether/mainnet-twab-rewards`,
   [CHAIN_ID.polygon]: `https://api.thegraph.com/subgraphs/name/pooltogether/polygon-twab-rewards`
 }
 

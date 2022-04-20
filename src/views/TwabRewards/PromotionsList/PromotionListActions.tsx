@@ -73,7 +73,7 @@ const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }
       <div className='hidden xs:flex items-center justify-between w-full flex items-center justify-end mb-8'>
         {children}
       </div>
-      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
+      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2 z-30'>
         {children}
       </div>
     </>

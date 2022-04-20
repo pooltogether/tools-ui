@@ -309,6 +309,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       </fieldset>
 
       <PromotionSummary
+        className='w-full px-3 py-1'
         chainId={chainId}
         hidden={!tokenAddressIsValid && !tokenData?.name}
         numberOfEpochs={numberOfEpochs}

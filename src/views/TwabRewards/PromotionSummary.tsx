@@ -1,8 +1,11 @@
+import classNames from 'classnames'
+import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { numberWithCommas } from '@pooltogether/utilities'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { BlockExplorerLink } from '@pooltogether/react-components'
 
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
@@ -13,6 +16,8 @@ interface PromotionSummaryProps {
   tokensPerEpoch: BigNumber
   epochDuration: number
   numberOfEpochs: number
+  className?: string
+  hideBackground?: boolean
   hidden?: boolean
 }
 
@@ -29,11 +34,13 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
   )
 
   return (
-    <SummaryWell hidden={hidden || !tokenDataIsFetched || !tokenData?.name} className='w-full'>
-      <div className='flex items-center flex-wrap'>
-        <strong className='mr-1'>
-          {numberOfEpochs ? numberOfEpochs : 'y'} {epochDuration ? epochDuration : 'x'}-{t('day')}
-        </strong>{' '}
+    <SummaryWell {...props} hidden={hidden || !tokenDataIsFetched || !tokenData?.name}>
+      <div className='flex items-center flex-wrap opacity-60'>
+        <span className='mr-1'>
+          {numberOfEpochs ? numberOfEpochs : 'y'}{' '}
+          {epochDuration ? numberWithCommas(epochDuration) : 'x'}
+          <span className='lowercase'> {t('day')}</span>
+        </span>{' '}
         {t('epochsWillDistribute', 'epochs will distribute')}:
       </div>
       {Boolean(numberOfEpochs) && Boolean(epochDuration) && Boolean(tokensPerEpoch) && (
@@ -43,7 +50,9 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
               formatUnits(tokensPerEpoch.mul(numberOfEpochs), tokenData?.decimals).toString()
             )}
           </span>
-          <TokenDisplay chainId={chainId} tokenData={tokenData} />
+          <BlockExplorerLink className='flex items-center' chainId={chainId} address={token} noIcon>
+            <TokenDisplay chainId={chainId} tokenData={tokenData} />
+          </BlockExplorerLink>
         </div>
       )}
     </SummaryWell>

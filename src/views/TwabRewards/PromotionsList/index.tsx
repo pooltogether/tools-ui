@@ -31,7 +31,6 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const { chainId, currentAccount, className, setCurrentAccount } = props
 
   const useQueryResult = useAccountsPromotions(chainId, currentAccount)
-  const [listState, setListState] = useState<ListState>(ListState.readOnly)
   const [transactionId, setTransactionId] = useState<string>()
   const transaction = useTransaction(transactionId)
   const [signaturePending, setSignaturePending] = useState(false)
@@ -41,19 +40,16 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
   if (isFetched) {
     let list
-    if (promotionsData?.promotions?.length === 0) {
+    if (!promotionsData?.promotions) {
+      list = (
+        <div className='text-center'>
+          An error was encountered while fetching promotions from the subgraph.
+        </div>
+      )
+    } else if (promotionsData?.promotions?.length === 0) {
       list = <EmptyState {...props} className='mb-10' currentAccount={currentAccount} />
     } else {
-      list = (
-        <ActiveState
-          {...props}
-          className='mb-10'
-          currentAccount={currentAccount}
-          listState={listState}
-          setListState={setListState}
-          transactionPending={transactionPending}
-        />
-      )
+      list = <ActiveState {...props} className='mb-10' currentAccount={currentAccount} />
     }
 
     return (
@@ -73,7 +69,6 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
         <CreatePromotionModal
           chainId={chainId}
-          currentAccount={currentAccount}
           transactionId={transactionId}
           transactionPending={transactionPending}
           setTransactionId={setTransactionId}
