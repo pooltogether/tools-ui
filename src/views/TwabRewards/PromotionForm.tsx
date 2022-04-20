@@ -19,6 +19,8 @@ import { PromotionSummary } from './PromotionSummary'
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
 
+import 'antd/dist/antd.css' // or 'antd/dist/antd.less'
+
 interface PromotionFormProps {
   onSubmit: (data: PromotionFormValues, resetForm: () => void) => void
   defaultValues: PromotionFormValues
@@ -177,9 +179,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             className='w-40 xs:w-1/2'
           />
         </div>
-        <SummaryWell className='w-fit-content'>
-          {format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}
-        </SummaryWell>
+        <SummaryWell>{format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}</SummaryWell>
 
         <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
       </fieldset>

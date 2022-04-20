@@ -265,7 +265,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     }
 
     const transactionId = sendTransaction(t('createPromotion'), callTransaction, {
-      onSent: () => {},
       onConfirmed: () => {
         setReceiptView()
       },

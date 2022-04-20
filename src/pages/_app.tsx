@@ -8,7 +8,6 @@ import '@styles/tools.css'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-spring-bottom-sheet/dist/style.css'
 import '@styles/bottomSheet.css'
-import 'antd/dist/antd.css' // or 'antd/dist/antd.less'
 
 const AppContainer = dynamic(
   () => import('../components/AppContainer').then((mod) => mod.AppContainer),

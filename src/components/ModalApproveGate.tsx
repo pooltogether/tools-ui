@@ -3,12 +3,12 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { ethers, BigNumber } from 'ethers'
 import { TokenWithAllBalances } from '@pooltogether/hooks'
-import { TransactionResponse } from '@ethersproject/providers'
 import {
   useUsersAddress,
   useSendTransaction,
   useTransaction,
-  useWalletSigner
+  useWalletSigner,
+  TransactionStatus
 } from '@pooltogether/wallet-connection'
 import {
   formatBlockExplorerTxUrl,
@@ -47,21 +47,19 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   const submitApproveTransaction = async () => {
     const allowanceContract = new ethers.Contract(token, ERC20Abi, signer)
 
-    let callTransaction: () => Promise<TransactionResponse>
-
-    try {
-      callTransaction = async () => allowanceContract.approve(twabRewardsAddress, amountUnformatted)
-    } catch (e) {
-      console.error(e)
-      return
+    const callTransaction: () => any = async () => {
+      try {
+        allowanceContract.approve(twabRewardsAddress, amountUnformatted)
+      } catch (e) {
+        console.error(e)
+        return
+      }
     }
 
     const transactionId = sendTransaction(
       t('allowTicker', { ticker: tokenData?.name }),
       callTransaction,
       {
-        onSent: () => {},
-        onConfirmed: () => {},
         onSuccess: async () => {
           twabRewardsAllowanceRefetch()
         }
@@ -70,7 +68,7 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
     setTransactionId(transactionId)
   }
 
-  if (transaction?.status === 'chainConfirming') {
+  if (transaction?.status === TransactionStatus.pendingBlockchainConfirmation) {
     const blockExplorerUrl = formatBlockExplorerTxUrl(transaction.response.hash, chainId)
     return (
       <div className={classNames(className, 'flex flex-col')}>
