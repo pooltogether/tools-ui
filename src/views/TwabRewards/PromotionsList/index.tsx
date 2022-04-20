@@ -72,7 +72,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
           transactionId={transactionId}
           transactionPending={transactionPending}
           setTransactionId={setTransactionId}
-          setSignaturePending={setSignaturePending}
+          // setSignaturePending={setSignaturePending}
           refetchAccountsPromotions={refetchAccountsPromotions}
         />
       </div>

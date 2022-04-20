@@ -35,28 +35,21 @@ export const getAccountsPromotions = async (chainId, account) => {
   })
 }
 
-const promotionFragment = gql`
-  fragment promotionFragment on Promotion {
-    id
-    creator
-    createdAt
-    startTimestamp
-    numberOfEpochs
-    epochDuration
-    tokensPerEpoch
-    rewardsUnclaimed
-    token
-    ticket
-  }
-`
-
 const promotionsQuery = () => {
   return gql`
     query promotionsQuery($accountAddress: String!) {
       promotions(where: { creator: $accountAddress }) {
-        ...promotionFragment
+        id
+        creator
+        createdAt
+        startTimestamp
+        numberOfEpochs
+        epochDuration
+        tokensPerEpoch
+        rewardsUnclaimed
+        token
+        ticket
       }
     }
-    ${promotionFragment}
   `
 }

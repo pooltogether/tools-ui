@@ -46,7 +46,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   )
 }
 
-const ListHeaders: React.FC<{}> = () => {
+const ListHeaders: React.FC = () => {
   const { t } = useTranslation()
 
   return (

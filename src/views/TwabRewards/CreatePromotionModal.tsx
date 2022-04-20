@@ -52,7 +52,7 @@ export const CreatePromotionModal: React.FC<{
   const { t } = useTranslation()
   const transaction = useTransaction(transactionId)
   const [isOpen, setIsOpen] = useAtom(createPromotionModalOpenAtom)
-  const [params, setParams] = useState(undefined)
+  const [params, setParams] = useState<Promotion>(undefined)
   const [modalState, setModalState] = useState(CreatePromotionModalState.FORM)
   const isBalanceSufficient = useIsBalanceSufficient(chainId, params?.tokensPerEpoch, params?.token)
 
@@ -314,15 +314,6 @@ const TokenBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: num
           'The tokens you have requested to send via this promotion is more than your balance'
         )}
       </p>
-      {/* <a
-        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
-        href={getChainSwapUrl(chainId)}
-        target='_blank'
-        rel='noreferrer'
-      >
-        <span>{t('swap')}</span>
-        <FeatherIcon icon='external-link' className='w-3 h-3' />
-      </a> */}
     </Banner>
   )
 }
@@ -336,12 +327,7 @@ const PromotionFundsLockWarning: React.FC = () => {
       innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-yellow' />
-      <p className='text-xs'>
-        {t(
-          'createPromotionConfirmationDescription',
-          `By delegating you are locking up your funds for the expiry period and relinquishing your chances of winning to gift those chances to other wallet addresses. `
-        )}
-      </p>
+      <p className='text-xs'>{t('createPromotionConfirmationDescription')}</p>
       <a
         className='transition text-pt-teal dark:hover:text-white underline hover:underline flex items-center space-x-1'
         href={REWARDS_LEARN_MORE_URL}

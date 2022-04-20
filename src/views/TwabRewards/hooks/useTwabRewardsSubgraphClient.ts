@@ -3,7 +3,7 @@ import { GraphQLClient } from 'graphql-request'
 import { CHAIN_ID } from '@constants/misc'
 import { theGraphCustomFetch } from '@utils/theGraphCustomFetch'
 
-const POOLTOGETHER_GOVERNANCE_GRAPH_URIS = {
+const TWAB_REWARDS_SUBGRAPH_URIS = {
   [CHAIN_ID.rinkeby]: 'https://api.thegraph.com/subgraphs/name/pooltogether/rinkeby-twab-rewards',
   [CHAIN_ID.mumbai]: 'https://api.thegraph.com/subgraphs/name/pooltogether/mumbai-twab-rewards',
   [CHAIN_ID.fuji]: 'https://api.thegraph.com/subgraphs/name/pooltogether/fuji-twab-rewards',
@@ -13,7 +13,7 @@ const POOLTOGETHER_GOVERNANCE_GRAPH_URIS = {
 }
 
 export const useTwabRewardsSubgraphUri = (chainId) => {
-  return POOLTOGETHER_GOVERNANCE_GRAPH_URIS[chainId]
+  return TWAB_REWARDS_SUBGRAPH_URIS[chainId]
 }
 
 export const useTwabRewardsSubgraphClient = (chainId) => {
