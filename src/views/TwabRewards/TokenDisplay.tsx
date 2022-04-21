@@ -1,12 +1,15 @@
 import { TokenIcon } from '@pooltogether/react-components'
+import classNames from 'classNames'
 
 export const TokenDisplay = (props) => {
-  const { chainId, tokenData } = props
+  const { chainId, tokenData, className } = props
+
   if (!tokenData) {
     return null
   }
+
   return (
-    <div className='inline-flex items-center dark:text-white text-xxs xs:text-lg'>
+    <div className={classNames(className, 'inline-flex items-center dark:text-white text-xxs')}>
       {tokenData?.address && (
         <TokenIcon
           sizeClassName='w-4 h-4'

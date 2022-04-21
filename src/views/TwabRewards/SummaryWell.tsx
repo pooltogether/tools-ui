@@ -6,7 +6,7 @@ export const SummaryWell = (props) => {
     <div
       className={classNames(
         className,
-        'mt-1 rounded-lg dark:text-white text-xxxs xs:text-lg text-opacity-70',
+        'mt-1 rounded-lg dark:text-white text-xxs  text-opacity-70',
         {
           hidden,
           'bg-opacity-40 bg-pt-purple-dark': !hideBackground,

@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import classNames from 'classnames'
+import { useAtom } from 'jotai'
 import { TransactionState, useTransaction } from '@pooltogether/wallet-connection'
 
 import { ActiveState } from './ActiveState'
 import { EmptyState } from './EmptyState'
 import { PromotionListActions } from './PromotionListActions'
 import { LoadingState } from './LoadingState'
+import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { CreatePromotionModal } from '@twabRewards/CreatePromotionModal'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
 import { NoAccountState } from './NoAccountState'
@@ -29,6 +31,8 @@ export enum ListState {
  */
 export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
   const { chainId, currentAccount, className, setCurrentAccount } = props
+
+  const [isOpen] = useAtom(createPromotionModalOpenAtom)
 
   const useQueryResult = useAccountsPromotions(chainId, currentAccount)
   const [transactionId, setTransactionId] = useState<string>()
@@ -57,13 +61,15 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
         <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
           Promotions
         </p>
-        <PromotionListActions
-          noPromotions={promotionsData?.promotions?.length === 0}
-          chainId={chainId}
-          currentAccount={currentAccount}
-          setCurrentAccount={setCurrentAccount}
-          transactionPending={transactionPending}
-        />
+        {!isOpen && (
+          <PromotionListActions
+            noPromotions={promotionsData?.promotions?.length === 0}
+            chainId={chainId}
+            currentAccount={currentAccount}
+            setCurrentAccount={setCurrentAccount}
+            transactionPending={transactionPending}
+          />
+        )}
 
         <div className='xs:mx-2'>{list}</div>
 

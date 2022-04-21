@@ -264,14 +264,18 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       return
     }
 
-    const transactionId = sendTransaction(t('createPromotion'), callTransaction, {
-      onConfirmed: () => {
-        setReceiptView()
-      },
-      onSuccess: async () => {
-        setIsOpen(false)
-        dismissModal()
-        refetchAccountsPromotions()
+    const transactionId = sendTransaction({
+      name: t('createPromotion'),
+      callTransaction,
+      callbacks: {
+        onConfirmedByUser: () => {
+          setReceiptView()
+        },
+        onSuccess: async () => {
+          setIsOpen(false)
+          dismissModal()
+          refetchAccountsPromotions()
+        }
       }
     })
     setTransactionId(transactionId)
@@ -305,10 +309,10 @@ const TokenBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: num
   return (
     <Banner
       theme={BannerTheme.rainbowBorder}
-      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+      innerClassName='px-2 flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-pt-red-light' />
-      <p className='text-xs'>
+      <p className='text-xxs'>
         {t(
           'tokensPerEpochAmountTooLarge',
           'The tokens you have requested to send via this promotion is more than your balance'
@@ -324,18 +328,18 @@ const PromotionFundsLockWarning: React.FC = () => {
   return (
     <Banner
       theme={BannerTheme.rainbowBorder}
-      innerClassName='flex flex-col items-center text-center space-y-2 text-xs'
+      innerClassName='px-2 flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-yellow' />
-      <p className='text-xs'>{t('createPromotionConfirmationDescription')}</p>
+      <p className='text-xxs'>{t('createPromotionConfirmationDescription')}</p>
       <a
-        className='transition text-pt-teal dark:hover:text-white underline hover:underline flex items-center space-x-1'
+        className='transition text-pt-teal dark:hover:text-white underline hover:underline xs:flex items-center space-x-1 text-xxs'
         href={REWARDS_LEARN_MORE_URL}
         target='_blank'
         rel='noreferrer'
       >
         <span>{t('learnMoreAboutPromotions', 'Learn more about PoolTogether Promotions')}</span>
-        <FeatherIcon icon='external-link' className='w-3 h-3' />
+        <FeatherIcon icon='external-link' className='w-3 h-3 hidden xs:block' />
       </a>
     </Banner>
   )

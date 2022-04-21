@@ -119,7 +119,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         {!tokenDataIsFetched && tokenAddressIsValid && <ThemedClipSpinner />}
       </Label>
       <ValidFieldDisplay hidden={!tokenAddressIsValid && !tokenData?.name}>
-        <TokenDisplay chainId={chainId} tokenData={tokenData} />
+        <TokenDisplay chainId={chainId} tokenData={tokenData} className='xs:text-lg' />
 
         <button
           onClick={clearTokenField}
