@@ -6,12 +6,11 @@ import { useIsWalletOnChainId } from '@pooltogether/wallet-connection'
 
 export interface TransactionButtonProps extends SquareButtonProps {
   chainId: number
-  toolTipId: string
   pending?: boolean
 }
 
 export const TransactionButton = (props: TransactionButtonProps) => {
-  const { chainId, disabled, pending, toolTipId, children, ...squareButtonProps } = props
+  const { chainId, disabled, pending, children, ...squareButtonProps } = props
 
   const { t } = useTranslation()
 
