@@ -239,11 +239,10 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const { tokensPerEpoch, numberOfEpochs, epochDuration, startTimestamp, token } = params
 
   const signer = useWalletSigner()
-  const usersAddress = useUsersAddress()
   const { allowanceOk, isAllowanceFetched } = useTwabRewardsTokenAllowance(chainId, params)
   const { t } = useTranslation()
 
-  const sendTransaction = useSendTransaction(chainId, usersAddress)
+  const sendTransaction = useSendTransaction()
 
   const submitUpdateTransaction = async () => {
     const twabRewardsContract = getTwabRewardsContract(chainId, signer)
@@ -291,7 +290,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       disabled={disabled}
       pending={transactionPending}
       chainId={chainId}
-      toolTipId={'create-promotion-btn-tooltip'}
     >
       {t('createPromotion')}
     </TransactionButton>

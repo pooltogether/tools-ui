@@ -6,10 +6,10 @@ import { TokenWithAllBalances } from '@pooltogether/hooks'
 import { TransactionResponse } from '@ethersproject/providers'
 import {
   useUsersAddress,
-  useSendTransaction,
   useTransaction,
   useWalletSigner,
-  TransactionStatus
+  TransactionStatus,
+  useSendTransaction
 } from '@pooltogether/wallet-connection'
 import {
   formatBlockExplorerTxUrl,
@@ -41,8 +41,7 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
 
   const transaction = useTransaction(transactionId)
   const signer = useWalletSigner()
-  const usersAddress = useUsersAddress()
-  const sendTransaction = useSendTransaction(chainId, usersAddress)
+  const sendTransaction = useSendTransaction()
   const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
 
   const submitApproveTransaction = async () => {
