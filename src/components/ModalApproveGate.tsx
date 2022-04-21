@@ -3,6 +3,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { ethers, BigNumber } from 'ethers'
 import { TokenWithAllBalances } from '@pooltogether/hooks'
+import { TransactionResponse } from '@ethersproject/providers'
 import {
   useUsersAddress,
   useSendTransaction,
@@ -47,24 +48,23 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   const submitApproveTransaction = async () => {
     const allowanceContract = new ethers.Contract(token, ERC20Abi, signer)
 
-    const callTransaction: () => any = async () => {
-      try {
-        allowanceContract.approve(twabRewardsAddress, amountUnformatted)
-      } catch (e) {
-        console.error(e)
-        return
-      }
+    let callTransaction: () => Promise<TransactionResponse>
+    try {
+      callTransaction = async () => allowanceContract.approve(twabRewardsAddress, amountUnformatted)
+    } catch (e) {
+      console.error(e)
+      return
     }
 
-    const transactionId = sendTransaction(
-      t('allowTicker', { ticker: tokenData?.name }),
+    const transactionId = sendTransaction({
+      name: t('allowTicker', { ticker: tokenData?.name }),
       callTransaction,
-      {
+      callbacks: {
         onSuccess: async () => {
           twabRewardsAllowanceRefetch()
         }
       }
-    )
+    })
     setTransactionId(transactionId)
   }
 

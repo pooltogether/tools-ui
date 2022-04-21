@@ -6,7 +6,7 @@ export const TokenDisplay = (props) => {
     return null
   }
   return (
-    <div className='inline-flex items-center dark:text-white'>
+    <div className='inline-flex items-center dark:text-white text-xxs xs:text-lg'>
       {tokenData?.address && (
         <TokenIcon
           sizeClassName='w-4 h-4'

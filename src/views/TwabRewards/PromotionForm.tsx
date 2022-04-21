@@ -19,8 +19,6 @@ import { PromotionSummary } from './PromotionSummary'
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
 
-import 'antd/dist/antd.css' // or 'antd/dist/antd.less'
-
 interface PromotionFormProps {
   onSubmit: (data: PromotionFormValues, resetForm: () => void) => void
   defaultValues: PromotionFormValues
@@ -125,7 +123,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
         <button
           onClick={clearTokenField}
-          className='inline-flex items-center font-semibold underline text-pt-teal ml-3'
+          className='inline-flex items-center font-semibold underline text-pt-teal ml-3 text-xxs xs:text-lg'
         >
           <FeatherIcon icon='x' className='w-3 h-3 xs:w-5 xs:h-5 mr-1' />{' '}
           {t('changeToken', 'Change token')}
@@ -167,7 +165,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             getPopupContainer={(triggerNode): HTMLElement => {
               return triggerNode.parentNode as HTMLElement
             }}
-            className='w-40 xs:w-1/2'
+            className='w-1/2'
           />
           <TimePicker
             format={timeFormat}
@@ -176,7 +174,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             getPopupContainer={(triggerNode): HTMLElement => {
               return triggerNode.parentNode as HTMLElement
             }}
-            className='w-40 xs:w-1/2'
+            className='w-1/2'
           />
         </div>
         <SummaryWell>{format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}</SummaryWell>
