@@ -1,5 +1,5 @@
 import { TokenIcon } from '@pooltogether/react-components'
-import classNames from 'classNames'
+import classNames from 'classnames'
 
 export const TokenDisplay = (props) => {
   const { chainId, tokenData, className } = props
