@@ -10,32 +10,35 @@ import { BaseProvider } from '@ethersproject/providers'
 import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
-  initProviderApiKeys,
   ScreenSize,
   useInitCookieOptions,
   useInitReducedMotion,
-  useScreenSize
+  useScreenSize,
+  initProviderApiKeys as initProviderApiKeysForHooks
 } from '@pooltogether/hooks'
 import { initSentry } from '../services/sentry'
 import '../services/i18n'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
 import { useContext } from 'react'
-import { getReadProvider, getRpcUrl, getRpcUrls } from '@pooltogether/utilities'
 import { CHAIN_ID } from '@constants/misc'
 import { getSupportedChains } from '@utils/getSupportedChains'
-import { useUpdateStoredPendingTransactions } from '@pooltogether/wallet-connection'
+import {
+  getReadProvider,
+  getRpcUrl,
+  getRpcUrls,
+  useUpdateStoredPendingTransactions,
+  initProviderApiKeys as initProviderApiKeysForWalletConnection
+} from '@pooltogether/wallet-connection'
+import { RPC_API_KEYS } from '@constants/config'
 
+// Initialize react-query Query Client
+const queryClient = new QueryClient()
+// Initialize read provider API keys to @pooltogether/hooks
+initProviderApiKeysForHooks(RPC_API_KEYS)
+// Initialize read provider API keys to @pooltogether/wallet-connection
+initProviderApiKeysForWalletConnection(RPC_API_KEYS)
 // Initialize Sentry error logging
 initSentry()
-
-const RPC_API_KEYS = {
-  alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-  etherscan: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY,
-  infura: process.env.NEXT_PUBLIC_INFURA_ID
-}
-
-// Initialize read provider API keys
-initProviderApiKeys(RPC_API_KEYS)
 
 // Initialize WAGMI wallet connectors
 const chains = getSupportedChains()
@@ -50,8 +53,7 @@ const connectors = ({ chainId }) => {
           chains.map((chain) => chain.id),
           RPC_API_KEYS
         ),
-        // NOTE: I think this bridge URL is for app.pooltogether.com only
-        // bridge: 'https://pooltogether.bridge.walletconnect.org/',
+        bridge: 'https://pooltogether.bridge.walletconnect.org/',
         qrcode: true
       }
     }),
@@ -64,9 +66,6 @@ const connectors = ({ chainId }) => {
     })
   ]
 }
-
-// Initialize react-query Query Client
-const queryClient = new QueryClient()
 
 /**
  * AppContainer wraps all pages in the app. Used to set up globals.
@@ -86,7 +85,9 @@ export const AppContainer: React.FC = (props) => {
       connectorStorageKey='pooltogether-wallet'
       connectors={connectors}
       provider={({ chainId }) =>
-        (chainId ? getReadProvider(chainId) : getReadProvider(CHAIN_ID.mainnet)) as BaseProvider
+        (chainId
+          ? getReadProvider(chainId, RPC_API_KEYS)
+          : getReadProvider(CHAIN_ID.mainnet, RPC_API_KEYS)) as BaseProvider
       }
     >
       <JotaiProvider>

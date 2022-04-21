@@ -2,12 +2,12 @@ import React from 'react'
 import classNames from 'classnames'
 import { useForm } from 'react-hook-form'
 import { isAddress } from 'ethers/lib/utils'
-import { SquareButton } from '@pooltogether/react-components'
+import { SquareButton, SquareButtonSize } from '@pooltogether/react-components'
 
 import { StyledInput } from '@components/Input'
-import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { DelegationListProps } from '.'
 import { useTranslation } from 'react-i18next'
+import { useConnectWallet } from '@pooltogether/wallet-connection'
 
 /**
  *
@@ -44,8 +44,7 @@ export const NoDelegatorState: React.FC<DelegationListProps> = (props) => {
           {t('noWalletConnectedText')}
         </p>
         <p className='font-bold mb-1'>{t('connectToViewDelegations')}:</p>
-
-        <FullWalletConnectionButtonWrapper className='flex flex-col items-center mt-3' />
+        <ConnectWalletButton />
       </div>
       <div
         className={classNames(
@@ -75,5 +74,20 @@ export const NoDelegatorState: React.FC<DelegationListProps> = (props) => {
         </form>
       </div>
     </>
+  )
+}
+
+const ConnectWalletButton = () => {
+  const { t } = useTranslation()
+  const connectWallet = useConnectWallet()
+
+  return (
+    <SquareButton
+      size={SquareButtonSize.sm}
+      className='flex flex-col mx-auto mt-3'
+      onClick={() => connectWallet()}
+    >
+      {t('connectWallet')}
+    </SquareButton>
   )
 }

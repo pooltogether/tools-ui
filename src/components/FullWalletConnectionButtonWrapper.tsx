@@ -3,6 +3,11 @@ import { Trans } from 'react-i18next'
 
 import { useSupportedChains } from '@hooks/app/useSupportedChains'
 
+/**
+ * NOTE: Only render one per app
+ * @param props
+ * @returns
+ */
 export const FullWalletConnectionButtonWrapper = (props) => {
   const chains = useSupportedChains()
 
