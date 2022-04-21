@@ -4,6 +4,7 @@ import { LoadingScreen } from '@components/LoadingScreen'
 
 // Styles must be imported in _app
 import '@styles/index.css'
+import '@pooltogether/react-components/dist/globals.css'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-spring-bottom-sheet/dist/style.css'
 import '@styles/bottomSheet.css'

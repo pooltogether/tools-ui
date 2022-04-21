@@ -36,7 +36,6 @@ interface UsersDelegationStateProps {
 export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props) => {
   const { className, chainId, setChainId, setDelegator, delegator } = props
   const ticket = useTicket(chainId)
-  const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
     chainId,
     delegator,

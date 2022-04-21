@@ -1,4 +1,4 @@
-import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
+import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/react-components'
 import { signERC2612Permit } from 'eth-permit'
 import FeatherIcon from 'feather-icons-react'
 import {
@@ -27,7 +27,6 @@ import { toast } from 'react-toastify'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
-import { useSignTypedData } from 'wagmi'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import {
@@ -77,7 +76,7 @@ export const ConfirmUpdatesModal: React.FC<{
   if (modalState === ConfirmModalState.review) {
     content = (
       <div className='flex flex-col space-y-4'>
-        <BottomSheetTitle chainId={chainId} title={t('delegationConfirmation')} />
+        <ModalTitle chainId={chainId} title={t('delegationConfirmation')} />
         <TicketBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
         <DelegationLockWarning />
         <div>
@@ -100,7 +99,7 @@ export const ConfirmUpdatesModal: React.FC<{
   } else {
     content = (
       <div className='flex flex-col space-y-12'>
-        <BottomSheetTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
+        <ModalTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )
@@ -218,7 +217,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
   const ticket = useTicket(chainId)
-  const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,
@@ -230,7 +228,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
 
-  const sendTransaction = useSendTransaction(chainId, usersAddress)
+  const sendTransaction = useSendTransaction()
 
   const getDelegation = (delegationId: DelegationId) =>
     delegations.find(
@@ -375,21 +373,25 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
     }
 
-    const transactionId = sendTransaction(t('updateDelegations'), callTransaction, {
-      onSent: () => {
-        setSignaturePending(false)
-      },
-      onConfirmed: () => {
-        setModalState(ConfirmModalState.receipt)
-      },
-      onSuccess: async () => {
-        await refetch()
-        resetAtoms()
-        setListState(ListState.readOnly)
-        setIsOpen(false)
-        refetchDelegationBalance()
-        refetchTicketBalance()
-        setModalState(ConfirmModalState.review)
+    const transactionId = sendTransaction({
+      name: t('updateDelegations'),
+      callTransaction,
+      callbacks: {
+        onSentToWallet: () => {
+          setSignaturePending(false)
+        },
+        onConfirmedByUser: () => {
+          setModalState(ConfirmModalState.receipt)
+        },
+        onSuccess: async () => {
+          await refetch()
+          resetAtoms()
+          setListState(ListState.readOnly)
+          setIsOpen(false)
+          refetchDelegationBalance()
+          refetchTicketBalance()
+          setModalState(ConfirmModalState.review)
+        }
       }
     })
     setTransactionId(transactionId)
@@ -402,7 +404,6 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       disabled={!signer || !isAllowanceFetched || transactionPending || !isBalanceSufficient}
       pending={transactionPending}
       chainId={chainId}
-      toolTipId={'confirm-delegation-updates'}
     >
       {t('confirmUpdates')}
     </TransactionButton>

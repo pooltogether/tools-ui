@@ -5,7 +5,7 @@ import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
-  BottomSheetTitle,
+  ModalTitle,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
@@ -203,10 +203,10 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
 const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   return (
     <>
-      <div className='hidden xs:flex items-center justify-between w-full flex items-center justify-end mb-8'>
-        {children}
-      </div>
-      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
+      {/* Desktop */}
+      <div className='hidden xs:flex w-full items-center justify-end mb-20'>{children}</div>
+      {/* Mobile */}
+      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2 z-10'>
         {children}
       </div>
     </>
@@ -289,7 +289,7 @@ const ConfirmCancellationModal: React.FC<{
       }}
       className='flex flex-col space-y-4'
     >
-      <BottomSheetTitle chainId={chainId} title={t('confirmCancellation')} />
+      <ModalTitle chainId={chainId} title={t('confirmCancellation')} />
       <div>
         <p className='text-xs font-bold mb-1'>{t('Lost changes')}</p>
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />

@@ -1,11 +1,11 @@
 import { batch, contract } from '@pooltogether/etherplex'
-import { getReadProvider } from '@pooltogether/utilities'
+import { getReadProvider } from '@pooltogether/wallet-connection'
 import TwabDelegatorAbi from '@twabDelegator/abis/TwabDelegator'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
 import { useQuery } from 'react-query'
-import { NO_REFETCH } from '@pooltogether/hooks/dist/constants'
 import { Delegation, DelegationId } from '@twabDelegator/interfaces'
 import { BigNumber } from 'ethers'
+import { RPC_API_KEYS } from '@constants/config'
 
 /**
  *
@@ -18,7 +18,11 @@ export const useDelegatorsTwabDelegations = (chainId: number, delegator: string)
     ['useDelegatorsTwabDelegations', delegator, chainId],
     async () => getUsersTwabDelegationsWithIds(chainId, delegator),
     {
-      ...NO_REFETCH,
+      refetchInterval: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
       enabled: !!delegator
     }
   )
@@ -31,7 +35,7 @@ export const useDelegatorsTwabDelegations = (chainId: number, delegator: string)
  * @returns
  */
 const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string) => {
-  const provider = getReadProvider(chainId)
+  const provider = getReadProvider(chainId, RPC_API_KEYS)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
 
   const pageSize = 10

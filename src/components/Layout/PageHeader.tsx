@@ -26,13 +26,7 @@ export const PageHeader = (props) => {
   const chains = useSupportedChains()
 
   return (
-    <PageHeaderContainer
-      Link={Link}
-      as='https://pooltogether.com'
-      href='https://pooltogether.com'
-      className='sticky top-0 bg-body'
-      style={{ zIndex: 3 }}
-    >
+    <PageHeaderContainer Link={Link}>
       <div className='flex flex-row justify-end items-center space-x-4'>
         <FullWalletConnectionButtonWrapper />
         <Settings />

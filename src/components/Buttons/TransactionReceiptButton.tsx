@@ -18,7 +18,7 @@ export const TransactionReceiptButton = (props: TransactionReceiptButtonProps) =
   const { chainId, transaction, className } = props
   const { t } = useTranslation()
 
-  const url = formatBlockExplorerTxUrl(transaction.response.hash, chainId)
+  const url = formatBlockExplorerTxUrl(transaction.response?.hash, chainId)
 
   return (
     <SquareLink

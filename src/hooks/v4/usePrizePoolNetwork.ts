@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import { useReadProviders } from '@pooltogether/hooks'
 import { getContractListChainIds, PrizePoolNetwork } from '@pooltogether/v4-client-js'
 
 import { useContractList } from './useContractList'
+import { useReadProviders } from '@hooks/app/useReadProviders'
 
 export const usePrizePoolNetwork = (): PrizePoolNetwork => {
   const prizePoolNetworkContractList = useContractList()
