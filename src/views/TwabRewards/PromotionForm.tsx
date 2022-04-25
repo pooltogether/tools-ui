@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import moment from 'moment'
-import { msToS } from '@pooltogether/utilities'
+import { dToS, msToS } from '@pooltogether/utilities'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
@@ -16,7 +16,6 @@ import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { PromotionSummary } from './PromotionSummary'
-import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
 
 interface PromotionFormProps {
@@ -107,6 +106,10 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
   const dateFormat = 'YYYY-MM-DD'
   const timeFormat = 'HH:mm'
+  const tokensPerEpochFormatted =
+    Boolean(tokensPerEpoch) &&
+    tokensPerEpoch !== '.' &&
+    parseUnits(tokensPerEpoch, tokenData?.decimals)
 
   return (
     <form
@@ -177,7 +180,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
             className='w-1/2'
           />
         </div>
-        <SummaryWell>{format(new Date(startTimestamp * 1000), 'MMM do yyyy @ p')}</SummaryWell>
 
         <ErrorMessage>{errors.startTimestamp?.message}</ErrorMessage>
       </fieldset>
@@ -187,45 +189,34 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           hidden: !tokenAddressIsValid && !tokenData?.name
         })}
       >
-        <div className='col-span-2 flex space-x-2 items-center'>
-          <Label className='uppercase' htmlFor='duration'>
-            {t('tokensPerEpoch', 'Tokens per epoch')}
-          </Label>
-        </div>
-        <div className='flex space-x-2 items-center'>
-          <StyledInput
-            id='tokensPerEpoch'
-            invalid={!!errors.tokensPerEpoch}
-            className='w-1/3'
-            placeholder='eg. 1000'
-            {...register('tokensPerEpoch', {
-              required: {
-                value: true,
-                message: t('tokensPerEpochIsRequired', 'Tokens per epoch is required')
-              },
-              min: {
-                value: 0.01,
-                message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 0.01')
-              },
-              validate: {
-                isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
-                isValidBigNumber: (v) => {
-                  try {
-                    parseUnits(v, tokenData.decimals)
-                    return true
-                  } catch (e) {
-                    return 'Invalid startTime'
-                  }
-                },
-                isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
-              }
-            })}
-          />{' '}
-          <div className='ml-4 font-semibold text-pt-purple-light flex items-center space-x-1'>
-            <TokenDisplay chainId={chainId} tokenData={tokenData} />
-          </div>
-        </div>
-        <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
+        <Label className='uppercase' htmlFor='balance'>
+          {t('numberOfEpochs', 'Number of epochs')}:
+        </Label>
+        <StyledInput
+          id='numberOfEpochs'
+          invalid={!!errors.numberOfEpochs}
+          className='w-1/3'
+          placeholder='eg. 12'
+          {...register('numberOfEpochs', {
+            required: {
+              value: true,
+              message: 'Number of epochs is required'
+            },
+            valueAsNumber: true,
+            pattern: /^[0-9]+$/,
+            max: {
+              value: 255,
+              message: `Maximum number of epochs is 255`
+            },
+            validate: {
+              isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
+              isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number',
+              wholeNumber: (v) =>
+                /^[0-9]+$/.test(v.toString()) || 'Number of epochs must be a whole number'
+            }
+          })}
+        />
+        <ErrorMessage>{errors.numberOfEpochs?.message}</ErrorMessage>
       </fieldset>
 
       <fieldset
@@ -276,43 +267,59 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           hidden: !tokenAddressIsValid && !tokenData?.name
         })}
       >
-        <Label className='uppercase' htmlFor='balance'>
-          {t('numberOfEpochs', 'Number of epochs')}:
-        </Label>
-        <StyledInput
-          id='numberOfEpochs'
-          invalid={!!errors.numberOfEpochs}
-          className='w-1/3'
-          placeholder='eg. 12'
-          {...register('numberOfEpochs', {
-            required: {
-              value: true,
-              message: 'Number of epochs is required'
-            },
-            valueAsNumber: true,
-            pattern: /^[0-9]+$/,
-            max: {
-              value: 255,
-              message: `Maximum number of epochs is 255`
-            },
-            validate: {
-              isNumber: (v) => !isNaN(Number(v)) || 'Number of epochs must be a number',
-              isPositive: (v) => Number(v) >= 0 || 'Number of epochs must be a positive number',
-              wholeNumber: (v) =>
-                /^[0-9]+$/.test(v.toString()) || 'Number of epochs must be a whole number'
-            }
-          })}
-        />
-        <ErrorMessage>{errors.numberOfEpochs?.message}</ErrorMessage>
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='duration'>
+            {t('tokensPerEpoch', 'Tokens per epoch')}
+          </Label>
+        </div>
+        <div className='flex space-x-2 items-center'>
+          <StyledInput
+            id='tokensPerEpoch'
+            invalid={!!errors.tokensPerEpoch}
+            className='w-1/3'
+            placeholder='eg. 1000'
+            {...register('tokensPerEpoch', {
+              pattern: {
+                value: /^\d*\.?\d*$/,
+                message: t('pleaseEnterAPositiveNumber') || 'Please enter a positive number'
+              },
+              required: {
+                value: true,
+                message: t('tokensPerEpochIsRequired', 'Tokens per epoch is required')
+              },
+              min: {
+                value: 0.01,
+                message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 0.01')
+              },
+              validate: {
+                isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+                isValidBigNumber: (v) => {
+                  try {
+                    parseUnits(v, tokenData.decimals)
+                    return true
+                  } catch (e) {
+                    return 'Invalid startTime'
+                  }
+                },
+                isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+              }
+            })}
+          />{' '}
+          <div className='ml-4 font-semibold text-pt-purple-light flex items-center space-x-1'>
+            <TokenDisplay chainId={chainId} tokenData={tokenData} />
+          </div>
+        </div>
+        <ErrorMessage>{errors.tokensPerEpoch?.message}</ErrorMessage>
       </fieldset>
 
       <PromotionSummary
         className='w-full px-3 py-1'
         chainId={chainId}
         hidden={!tokenAddressIsValid && !tokenData?.name}
+        startTimestamp={startTimestamp}
         numberOfEpochs={numberOfEpochs}
-        tokensPerEpoch={parseUnits(tokensPerEpoch, tokenData?.decimals)}
-        epochDuration={epochDuration}
+        tokensPerEpoch={tokensPerEpochFormatted}
+        epochDuration={dToS(epochDuration)}
         token={tokenAddress}
       />
 

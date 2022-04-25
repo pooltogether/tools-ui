@@ -58,7 +58,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
 
     return (
       <div className={classNames(className, 'text-xxxs xs:text-xs')}>
-        <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
+        <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-8'>
           Promotions
         </p>
         {!isOpen && (

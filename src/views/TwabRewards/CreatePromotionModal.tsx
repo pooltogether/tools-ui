@@ -8,7 +8,7 @@ import { format } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { msToS } from '@pooltogether/utilities'
+import { dToS, msToS } from '@pooltogether/utilities'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
 import { ModalApproveGate } from '@components/ModalApproveGate'
@@ -177,7 +177,7 @@ const CreatePromotionForm: React.FC<{
       data
 
     const params: Promotion = {
-      epochDuration,
+      epochDuration: dToS(epochDuration),
       numberOfEpochs,
       startTimestamp: Math.round(startTimestamp),
       token,
@@ -195,8 +195,8 @@ const CreatePromotionForm: React.FC<{
       defaultValues={{
         token: '',
         startTimestamp: msToS(Date.now()),
-        epochDuration: 7,
-        numberOfEpochs: 12,
+        epochDuration: 3,
+        numberOfEpochs: 4,
         tokensPerEpoch: '1000',
         dateString: format(new Date(), 'yyyy/MM/dd'),
         timeString: format(new Date(), 'HH:mm'),

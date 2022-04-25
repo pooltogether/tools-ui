@@ -1,6 +1,5 @@
 import gql from 'graphql-tag'
 import { useQuery } from 'react-query'
-import { PT_HOOKS_CONSTANTS } from '@pooltogether/hooks'
 
 import { useTwabRewardsSubgraphClient } from '@twabRewards/hooks/useTwabRewardsSubgraphClient'
 
@@ -15,7 +14,6 @@ export const useAccountsPromotions = (chainId: number, account: string) => {
     ['useAccountPromotions', account, chainId],
     async () => getAccountsPromotions(chainId, account),
     {
-      ...PT_HOOKS_CONSTANTS.NO_REFETCH,
       enabled: !!account
     }
   )
