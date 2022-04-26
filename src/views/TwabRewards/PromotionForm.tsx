@@ -189,9 +189,17 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
           hidden: !tokenAddressIsValid && !tokenData?.name
         })}
       >
-        <Label className='uppercase' htmlFor='balance'>
-          {t('numberOfEpochs', 'Number of epochs')}:
-        </Label>
+        <div className='col-span-2 flex space-x-2 items-center'>
+          <Label className='uppercase' htmlFor='balance'>
+            {t('numberOfEpochs', 'Number of epochs')}:
+          </Label>
+          <Tooltip
+            id={`promo-form-number-of-epochs-tooltip`}
+            tip={'Epochs are distribution periods'}
+          >
+            <FeatherIcon icon={'help-circle'} className='w-4 h-4 opacity-50' />
+          </Tooltip>
+        </div>
         <StyledInput
           id='numberOfEpochs'
           invalid={!!errors.numberOfEpochs}
