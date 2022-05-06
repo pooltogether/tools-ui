@@ -133,6 +133,6 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
   )
 }
 
-const ErrorMessage: React.FC<{ className?: string }> = (props) => (
+export const ErrorMessage: React.FC<{ className?: string }> = (props) => (
   <p {...props} className={classNames(props.className, 'h-5 mt-1 text-xxs text-pt-red-light')} />
 )
