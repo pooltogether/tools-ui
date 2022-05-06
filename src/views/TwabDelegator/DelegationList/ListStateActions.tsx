@@ -136,7 +136,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             {isUserARepresentative && isStakeSufficient !== null && !isStakeSufficient && (
               <Tooltip
                 id={`tooltip-edited-icon-${Math.random()}`}
-                tip={t('insufficientStakeForDelegations', 'Insufficient stake for delegations')}
+                tip={t('insufficientStakeForDelegations')}
               >
                 <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
               </Tooltip>

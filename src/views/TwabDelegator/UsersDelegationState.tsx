@@ -293,6 +293,7 @@ const ManageRepresentativeButton: React.FC<{
   const { chainId, delegator } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const usersAddress = useUsersAddress()
+  const { t } = useTranslation()
 
   if (!usersAddress || usersAddress !== delegator) return null
 
@@ -300,9 +301,9 @@ const ManageRepresentativeButton: React.FC<{
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className='flex space-x-2 transition  hover:opacity-70 items-center'
+        className='flex space-x-2 transition  hover:opacity-70 items-center text-right'
       >
-        <span>Representatives</span>
+        <span>{t('representatives')}</span>
         <FeatherIcon icon='user' className='w-4 h-4 text-highlight-3' />
       </button>
       <ManageRepresentativeModal
@@ -323,12 +324,13 @@ const RepresentativeIcon: React.FC<{
   const usersAddress = useUsersAddress()
   const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
     useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const { t } = useTranslation()
 
   if (!usersAddress || !delegator || !isRepresentativeFetched || !isUserARepresentative) return null
 
   return (
     <div className='flex items-center space-x-1 ml-auto'>
-      <span className='text-xxs'>Approved Rep</span>
+      <span className='text-xxs'>{t('approvedRep', 'Approved rep')}</span>
       <FeatherIcon icon='check' className='w-4 h-4 text-pt-teal' />
     </div>
   )

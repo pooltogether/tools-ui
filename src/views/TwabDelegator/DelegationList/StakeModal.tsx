@@ -83,20 +83,19 @@ const ManageStakeHomeView: React.FC<{
   ticket: Token
 }> = (props) => {
   const { chainId, setModalState, ticket } = props
+  const { t } = useTranslation()
   return (
     <>
-      <ModalTitle chainId={chainId} title={`Stake ${ticket.symbol}`} />
-      <p className='mb-8'>
-        Deposit {ticket.symbol} into the Deposit Delegator for future delegations or for a
-        representative to use to manage delegations. <a className='text-pt-teal'>Learn more.</a>
-      </p>
+      <ModalTitle chainId={chainId} title={t('stakeToken', { token: ticket.symbol })} />
+      <p className='mb-8'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
+      <a className='text-pt-teal'>{t('learnMore')}</a>
       <div className='mx-auto space-y-2'>
         <div className='text-xs opacity-70'>Manage Stake</div>
         <SquareButton onClick={() => setModalState(ModalState.add)} className='w-full'>
-          Stake {ticket.symbol}
+          {t('stakeToken', { token: ticket.symbol })}
         </SquareButton>
         <SquareButton onClick={() => setModalState(ModalState.remove)} className='w-full'>
-          Unstake {ticket.symbol}
+          {t('unstakeToken', { token: ticket.symbol })}
         </SquareButton>
       </div>
     </>
@@ -110,20 +109,19 @@ const AddStakeView: React.FC<{
   setModalState: (modalState: ModalState) => void
 }> = (props) => {
   const { chainId, delegator, ticket, setModalState } = props
+  const { t } = useTranslation()
   return (
     <>
-      <ModalTitle chainId={chainId} title={`Stake ${ticket.symbol}`} />
-      <p className='mb-8'>
-        Deposit {ticket.symbol} into the Deposit Delegator for future delegations or for a
-        representative to use to manage delegations. <a className='text-pt-teal'>Learn more.</a>
-      </p>
+      <ModalTitle chainId={chainId} title={t('stakeToken', { token: ticket.symbol })} />
+      <p className='mb-8'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
+      <a className='text-pt-teal'>{t('learnMore')}</a>
       <AddStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
       <SquareButton
         className='w-full'
         theme={SquareButtonTheme.tealOutline}
         onClick={() => setModalState(ModalState.main)}
       >
-        Back
+        {t('back')}
       </SquareButton>
     </>
   )
@@ -136,17 +134,18 @@ const RemoveStakeView: React.FC<{
   setModalState: (modalState: ModalState) => void
 }> = (props) => {
   const { chainId, delegator, ticket, setModalState } = props
+  const { t } = useTranslation()
   return (
     <>
-      <ModalTitle chainId={chainId} title={`Untake ${ticket.symbol}`} />
-      <p className='mb-8'>Remove staked {ticket.symbol} from the Deposit Delegator.</p>
+      <ModalTitle chainId={chainId} title={t('unstakeToken', { token: ticket.symbol })} />
+      <p className='mb-8'>{t('removeTokenFromDepositDelegator', { token: ticket.symbol })}</p>
       <RemoveStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
       <SquareButton
         className='w-full'
         theme={SquareButtonTheme.tealOutline}
         onClick={() => setModalState(ModalState.main)}
       >
-        Back
+        {t('back')}
       </SquareButton>
     </>
   )
@@ -259,7 +258,7 @@ const AddStakeForm: React.FC<{
 
     setTransactionId(
       sendTransaction({
-        name: 'Stake',
+        name: t('stake'),
         callTransaction,
         callbacks: {
           onSentToWallet: () => setSignaturePending(false),
@@ -273,7 +272,7 @@ const AddStakeForm: React.FC<{
   return (
     <>
       <form autoComplete='off' className='flex flex-col'>
-        <span className='ml-1 opacity-70'>Stake Amount</span>
+        <span className='ml-1 opacity-70'>{t('stakeAmount', 'Stake amount')}</span>
         <StyledInput
           id={FORM_KEY}
           invalid={!!errors?.[FORM_KEY]}
@@ -309,7 +308,7 @@ const AddStakeForm: React.FC<{
           disabled={!isValid || !isAllowanceFetched || isSignaturePending}
           onClick={() => onSubmit(amount)}
         >
-          {isSignaturePending ? 'Signature pending' : `Stake ${ticket.symbol}`}
+          {isSignaturePending ? t('signatureIsPending') : t('stakeToken', { token: ticket.symbol })}
         </TxButton>
       </form>
     </>
@@ -357,7 +356,7 @@ const RemoveStakeForm: React.FC<{
 
     setTransactionId(
       sendTransaction({
-        name: 'Stake',
+        name: t('unstake'),
         callTransaction,
         callbacks: {
           onConfirmedByUser: () => reset(),
@@ -370,7 +369,7 @@ const RemoveStakeForm: React.FC<{
   return (
     <>
       <form autoComplete='off' className='flex flex-col'>
-        <span className='ml-1 opacity-70'>Unstake Amount</span>
+        <span className='ml-1 opacity-70'>{t('unstakeAmount', 'Unstake Amount')}</span>
         <StyledInput
           id={FORM_KEY}
           invalid={!!errors?.[FORM_KEY]}
@@ -409,7 +408,7 @@ const RemoveStakeForm: React.FC<{
           disabled={!isValid || !isStakeFetched}
           onClick={() => onSubmit(amount)}
         >
-          Unstake {ticket.symbol}
+          {t('unstakeToken', { token: ticket.symbol })}
         </TxButton>
       </form>
     </>

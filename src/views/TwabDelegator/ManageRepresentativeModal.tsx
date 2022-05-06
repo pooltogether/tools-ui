@@ -1,3 +1,4 @@
+import FeatherIcon from 'feather-icons-react'
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
 import {
@@ -16,6 +17,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { DELEGATION_LEARN_MORE_URL } from './constants'
 import { ErrorMessage } from './DelegationForm'
 import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
 import { getTwabDelegatorContract } from './utils/getTwabDelegatorContract'
@@ -99,26 +101,29 @@ const ManageRepresentativeHomeView: React.FC<{
   setModalState: (modalState: ModalState) => void
 }> = (props) => {
   const { delegator, setModalState, chainId } = props
+  const { t } = useTranslation()
   const usersAddress = useUsersAddress()
   return (
     <>
-      <ModalTitle chainId={chainId} title='Manage Representatives' />
-      <p className='mx-auto text-xs'>
-        Representatives can manage your delegation positions while you maintain full custody of your
-        funds. <a className='text-pt-teal'>Learn more.</a>
-      </p>
-      <p className='mx-auto text-xs'>
-        Check out our user guide or a fun article on how Ledger is using delegations for their
-        users.
-      </p>
+      <ModalTitle chainId={chainId} title={t('manageRepresentatives', 'Manage representatives')} />
+      <p className='mx-auto text-xs'>{t('representativeExplainer')}</p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
       {usersAddress === delegator && (
         <div className='mx-auto space-y-2'>
-          <div className='text-xs opacity-70'>Manage Representatives</div>
+          <div className='text-xs opacity-70'>{t('manageRepresentatives')}</div>
           <SquareButton onClick={() => setModalState(ModalState.add)} className='w-full'>
-            Add Representative
+            {t('addARep')}
           </SquareButton>
           <SquareButton onClick={() => setModalState(ModalState.remove)} className='w-full'>
-            Remove Representative
+            {t('removeARep')}
           </SquareButton>
         </div>
       )}
@@ -173,7 +178,7 @@ const SetRepresentativeView: React.FC<{
   return (
     <>
       <form autoComplete='off' className='flex flex-col'>
-        <span className='ml-1 opacity-70'>Representative Address</span>
+        <span className='ml-1 opacity-70'>{t('repAddress', 'Representative Address')}</span>
         <StyledInput
           id='representative'
           invalid={!!errors.representative}
@@ -236,33 +241,58 @@ const AddRepresentativeView: React.FC<{
   delegator: string
   setIsOpen: (isOpen: boolean) => void
   setModalState: (modalState: ModalState) => void
-}> = (props) => (
-  <>
-    <ModalTitle chainId={props.chainId} title='Add a representative' />
-    <p className='mx-auto text-xs'>
-      Enter an address to set it as a representative for your delegations.
-    </p>
-    <p className='mx-auto text-xs mb-12'>
-      Representatives can manage your delegation positions while you maintain full custody of your
-      funds. <a className='text-pt-teal'>Learn more.</a>
-    </p>
-    <SetRepresentativeView {...props} set={true} />
-  </>
-)
+}> = (props) => {
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <ModalTitle chainId={props.chainId} title={t('addARep', 'Add a representative')} />
+      <p className='mx-auto text-xs mb-12'>
+        {t(
+          'addRepExplainer',
+          'Enter an address to add it as a representative. Representatives have access to edit your delegations while you maintain full custody of your staked funds.'
+        )}
+      </p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
+      <SetRepresentativeView {...props} set={true} />
+    </>
+  )
+}
 
 const RemoveRepresentativeView: React.FC<{
   chainId: number
   delegator: string
   setIsOpen: (isOpen: boolean) => void
   setModalState: (modalState: ModalState) => void
-}> = (props) => (
-  <>
-    <ModalTitle chainId={props.chainId} title='Remove a representative' />
-    <p className='mx-auto text-xs'>Enter an address to remove it from your representatives.</p>
-    <p className='mx-auto text-xs mb-12'>
-      Representatives can manage your delegation positions while you maintain full custody of your
-      funds. <a className='text-pt-teal'>Learn more.</a>
-    </p>
-    <SetRepresentativeView {...props} set={false} />
-  </>
-)
+}> = (props) => {
+  const { t } = useTranslation()
+  return (
+    <>
+      <ModalTitle chainId={props.chainId} title={t('removeARep', 'Remove a representative')} />
+      <p className='mx-auto text-xs'>
+        {t(
+          'removeRepExplainer',
+          'Enter an address to remove it from your representatives. They will no longer have access to edit your delegations once the transaction has confirmed.'
+        )}
+      </p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
+      <SetRepresentativeView {...props} set={false} />
+    </>
+  )
+}
