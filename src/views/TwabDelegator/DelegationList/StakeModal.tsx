@@ -1,3 +1,4 @@
+import FeatherIcon from 'feather-icons-react'
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
 import { useTicket } from '@hooks/v4/useTicket'
@@ -14,6 +15,7 @@ import {
   useTransaction,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
+import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import { ErrorMessage } from '@twabDelegator/DelegationForm'
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
@@ -87,8 +89,16 @@ const ManageStakeHomeView: React.FC<{
   return (
     <>
       <ModalTitle chainId={chainId} title={t('stakeToken', { token: ticket.symbol })} />
-      <p className='mb-8'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
-      <a className='text-pt-teal'>{t('learnMore')}</a>
+      <p className='mb-2'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1 mb-6'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
       <div className='mx-auto space-y-2'>
         <div className='text-xs opacity-70'>Manage Stake</div>
         <SquareButton onClick={() => setModalState(ModalState.add)} className='w-full'>
@@ -113,8 +123,16 @@ const AddStakeView: React.FC<{
   return (
     <>
       <ModalTitle chainId={chainId} title={t('stakeToken', { token: ticket.symbol })} />
-      <p className='mb-8'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
-      <a className='text-pt-teal'>{t('learnMore')}</a>
+      <p className='mb-2'>{t('depositTokenForFutureDelegations', { token: ticket.symbol })}</p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1 mb-6'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
       <AddStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
       <SquareButton
         className='w-full'
@@ -138,7 +156,16 @@ const RemoveStakeView: React.FC<{
   return (
     <>
       <ModalTitle chainId={chainId} title={t('unstakeToken', { token: ticket.symbol })} />
-      <p className='mb-8'>{t('removeTokenFromDepositDelegator', { token: ticket.symbol })}</p>
+      <p className='mb-2'>{t('removeTokenFromDepositDelegator', { token: ticket.symbol })}</p>
+      <a
+        className='transition text-pt-teal hover:opacity-70 underline flex items-center space-x-1 mb-6'
+        href={DELEGATION_LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{t('learnMore')}</span>
+        <FeatherIcon icon='external-link' className='w-3 h-3' />
+      </a>
       <RemoveStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
       <SquareButton
         className='w-full'
