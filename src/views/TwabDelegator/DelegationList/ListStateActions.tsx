@@ -28,8 +28,10 @@ import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDele
 import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
 import { ListState } from '.'
-import { WithdrawSvg } from '@components/SvgComponents'
+import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
+import { StakeModal } from './StakeModal'
 
 interface ListStateActionsProps {
   chainId: number
@@ -55,10 +57,15 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const usersAddress = useUsersAddress()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const { t } = useTranslation()
+  const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
+    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+
+  if (!isRepresentativeFetched) return null
 
   // TODO: Return a wrapper with content so we can pass classNames and style the container easier
-  if (delegator && usersAddress !== delegator) {
+  if (delegator && usersAddress !== delegator && !isUserARepresentative) {
     return (
       <FixedFooterNav>
         <div className='w-full flex justify-end'>
@@ -174,29 +181,50 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   }
 
   return (
-    <FixedFooterNav>
-      <div className='w-full flex justify-center space-x-2'>
-        <SquareButton
-          className='w-32'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.withdraw)}
-          disabled={transactionPending}
-        >
-          <div className='text-primary w-4 h-4 mr-1'>
-            <WithdrawSvg />
-          </div>
-          {t('withdraw')}
-        </SquareButton>
-        <SquareButton
-          className='w-24'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.edit)}
-          disabled={transactionPending}
-        >
-          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
-        </SquareButton>
-      </div>
-    </FixedFooterNav>
+    <>
+      <FixedFooterNav>
+        <div className='w-full flex justify-center space-x-2'>
+          {delegator === usersAddress && (
+            <SquareButton
+              className='w-32'
+              size={SquareButtonSize.sm}
+              onClick={() => setIsStakeModalOpen(true)}
+              disabled={transactionPending}
+            >
+              <div className='text-primary w-4 h-4 mr-1'>
+                <StakeSvg />
+              </div>
+              {t('stake')}
+            </SquareButton>
+          )}
+          <SquareButton
+            className='w-32'
+            size={SquareButtonSize.sm}
+            onClick={() => setListState(ListState.withdraw)}
+            disabled={transactionPending}
+          >
+            <div className='text-primary w-4 h-4 mr-1'>
+              <WithdrawSvg />
+            </div>
+            {t('withdraw')}
+          </SquareButton>
+          <SquareButton
+            className='w-24'
+            size={SquareButtonSize.sm}
+            onClick={() => setListState(ListState.edit)}
+            disabled={transactionPending}
+          >
+            <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
+          </SquareButton>
+        </div>
+      </FixedFooterNav>
+      <StakeModal
+        chainId={chainId}
+        delegator={delegator}
+        isOpen={isStakeModalOpen}
+        closeModal={() => setIsStakeModalOpen(false)}
+      />
+    </>
   )
 }
 

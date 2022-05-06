@@ -37,6 +37,7 @@ import {
 } from '@pooltogether/wallet-connection'
 import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
 import { useTranslation } from 'react-i18next'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -216,6 +217,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const resetAtoms = useResetDelegationAtoms()
   const signer = useWalletSigner()
   const usersAddress = useUsersAddress()
+  const { data: isUserARepresentative, isFetched: isRepresentativeStatusFetched } =
+    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
   const ticket = useTicket(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
@@ -401,7 +404,13 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     <TransactionButton
       className='w-full'
       onClick={submitUpdateTransaction}
-      disabled={!signer || !isAllowanceFetched || transactionPending || !isBalanceSufficient}
+      disabled={
+        !signer ||
+        !isAllowanceFetched ||
+        transactionPending ||
+        !isBalanceSufficient ||
+        !isRepresentativeStatusFetched
+      }
       pending={transactionPending}
       chainId={chainId}
     >
