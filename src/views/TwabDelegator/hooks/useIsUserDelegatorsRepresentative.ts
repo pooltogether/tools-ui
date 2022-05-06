@@ -22,8 +22,6 @@ export const useIsUserDelegatorsRepresentative = (
 
 const getUsersRepresentative = async (chainId: number, usersAddress: string, delegator: string) => {
   const twabDelegatorContract = getTwabDelegatorContract(chainId)
-  console.log({ twabDelegatorContract, chainId, usersAddress, delegator })
   const response = await twabDelegatorContract.functions.isRepresentativeOf(delegator, usersAddress)
-  console.log({ response })
   return response[0]
 }

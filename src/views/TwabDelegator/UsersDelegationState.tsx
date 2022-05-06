@@ -294,7 +294,7 @@ const ManageRepresentativeButton: React.FC<{
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const usersAddress = useUsersAddress()
 
-  if (!usersAddress) return null
+  if (!usersAddress || usersAddress !== delegator) return null
 
   return (
     <>
@@ -329,7 +329,7 @@ const RepresentativeIcon: React.FC<{
   return (
     <div className='flex items-center space-x-1 ml-auto'>
       <span className='text-xxs'>Approved Rep</span>
-      <FeatherIcon icon='check' className='w-3 h-3 text-pt-teal' />
+      <FeatherIcon icon='check' className='w-4 h-4 text-pt-teal' />
     </div>
   )
 }
@@ -338,8 +338,6 @@ const DelegatorsStake: React.FC<{ chainId: number; delegator: string }> = (props
   const { chainId, delegator } = props
   const { data: stake, isFetched } = useDelegatorsStake(chainId, delegator)
   const { t } = useTranslation()
-
-  console.log({ chainId, delegator, stake, isFetched })
 
   if (!isFetched || !stake.hasBalance) return null
 

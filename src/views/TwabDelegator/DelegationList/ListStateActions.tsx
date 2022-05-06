@@ -32,6 +32,7 @@ import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
 import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import { StakeModal } from './StakeModal'
+import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 
 interface ListStateActionsProps {
   chainId: number
@@ -56,6 +57,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const resetDelegationWithdrawals = useResetAtom(delegationWithdrawalsAtom)
   const usersAddress = useUsersAddress()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
+  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -123,10 +125,18 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 tooltipText={t('editDelegatee')}
               />
             </div>
-            {isBalanceSufficient !== null && !isBalanceSufficient && (
+            {!isUserARepresentative && isBalanceSufficient !== null && !isBalanceSufficient && (
               <Tooltip
                 id={`tooltip-edited-icon-${Math.random()}`}
                 tip={t('insufficientBalanceForDelegations')}
+              >
+                <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
+              </Tooltip>
+            )}
+            {isUserARepresentative && isStakeSufficient !== null && !isStakeSufficient && (
+              <Tooltip
+                id={`tooltip-edited-icon-${Math.random()}`}
+                tip={t('insufficientStakeForDelegations', 'Insufficient stake for delegations')}
               >
                 <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
               </Tooltip>
