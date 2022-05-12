@@ -1,7 +1,7 @@
 import React from 'react'
 import * as Sentry from '@sentry/react'
 import { ErrorPage } from '../views/ErrorPage'
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount } from 'wagmi'
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props) {
@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 export function CustomErrorBoundary(props) {
   const { children } = props
-  const [{ data }] = useAccount()
+  const { data } = useAccount()
 
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return <ErrorBoundary>{children}</ErrorBoundary>

@@ -10,7 +10,6 @@ import {
   SquareButtonTheme
 } from '@pooltogether/react-components'
 import {
-  useWalletSigner,
   useSendTransaction,
   useTransaction,
   useUsersAddress
@@ -29,6 +28,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
+import { useSigner } from 'wagmi'
 
 enum ModalState {
   main = 'MAIN',
@@ -208,7 +208,7 @@ const AddStakeForm: React.FC<{
     mode: 'onTouched',
     shouldUnregister: true
   })
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const sendTransaction = useSendTransaction()
   const amount = watch(FORM_KEY)
   const { refetch: refetchStake } = useDelegatorsStake(chainId, delegator)
@@ -365,7 +365,7 @@ const RemoveStakeForm: React.FC<{
     mode: 'onTouched',
     shouldUnregister: true
   })
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const sendTransaction = useSendTransaction()
   const amount = watch(FORM_KEY)
   const {

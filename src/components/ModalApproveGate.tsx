@@ -7,7 +7,6 @@ import { TransactionResponse } from '@ethersproject/providers'
 import {
   useUsersAddress,
   useTransaction,
-  useWalletSigner,
   TransactionStatus,
   useSendTransaction
 } from '@pooltogether/wallet-connection'
@@ -22,6 +21,7 @@ import {
 import ERC20Abi from '@abis/ERC20'
 
 import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
+import { useSigner } from 'wagmi'
 
 interface ModalApproveGateProps {
   chainId: number
@@ -40,7 +40,7 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   const { t } = useTranslation()
 
   const transaction = useTransaction(transactionId)
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const sendTransaction = useSendTransaction()
   const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
 

@@ -1,8 +1,8 @@
 import { Provider as JotaiProvider } from 'jotai'
-import { Provider as WagmiProvider } from 'wagmi'
+import { createClient, createStorage, Provider as WagmiProvider } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { WalletLinkConnector } from 'wagmi/connectors/walletLink'
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
@@ -57,7 +57,7 @@ const connectors = ({ chainId }) => {
         qrcode: true
       }
     }),
-    new WalletLinkConnector({
+    new CoinbaseWalletConnector({
       chains,
       options: {
         appName: 'PoolTogether',
@@ -66,6 +66,15 @@ const connectors = ({ chainId }) => {
     })
   ]
 }
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider: ({ chainId }) =>
+    (chainId
+      ? getReadProvider(chainId, RPC_API_KEYS)
+      : getReadProvider(CHAIN_ID.mainnet, RPC_API_KEYS)) as BaseProvider
+})
 
 /**
  * AppContainer wraps all pages in the app. Used to set up globals.
@@ -80,16 +89,7 @@ export const AppContainer: React.FC = (props) => {
   const { i18n } = useTranslation()
 
   return (
-    <WagmiProvider
-      autoConnect
-      connectorStorageKey='pooltogether-wallet'
-      connectors={connectors}
-      provider={({ chainId }) =>
-        (chainId
-          ? getReadProvider(chainId, RPC_API_KEYS)
-          : getReadProvider(CHAIN_ID.mainnet, RPC_API_KEYS)) as BaseProvider
-      }
-    >
+    <WagmiProvider client={wagmiClient}>
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />

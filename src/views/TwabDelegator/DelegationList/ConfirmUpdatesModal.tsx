@@ -32,14 +32,14 @@ import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import {
   useSendTransaction,
   useTransaction,
-  useUsersAddress,
-  useWalletSigner
+  useUsersAddress
 } from '@pooltogether/wallet-connection'
 import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
 import { useTranslation } from 'react-i18next'
 import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
+import { useSigner } from 'wagmi'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -261,7 +261,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
   const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
   const resetAtoms = useResetDelegationAtoms()
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const usersAddress = useUsersAddress()
   const ticket = useTicket(chainId)
 

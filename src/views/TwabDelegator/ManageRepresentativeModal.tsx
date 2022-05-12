@@ -10,8 +10,7 @@ import {
 import {
   useSendTransaction,
   useTransaction,
-  useUsersAddress,
-  useWalletSigner
+  useUsersAddress
 } from '@pooltogether/wallet-connection'
 import { isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
@@ -21,6 +20,7 @@ import { DELEGATION_LEARN_MORE_URL } from './constants'
 import { ErrorMessage } from './DelegationForm'
 import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
 import { getTwabDelegatorContract } from './utils/getTwabDelegatorContract'
+import { useSigner } from 'wagmi'
 
 enum ModalState {
   main = 'MAIN',
@@ -152,7 +152,7 @@ const SetRepresentativeView: React.FC<{
     mode: 'onTouched',
     shouldUnregister: true
   })
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const sendTransaction = useSendTransaction()
   const representative = watch('representative')
 

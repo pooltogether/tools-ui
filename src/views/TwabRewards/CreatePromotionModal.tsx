@@ -15,7 +15,6 @@ import { ModalApproveGate } from '@components/ModalApproveGate'
 import {
   useSendTransaction,
   useTransaction,
-  useWalletSigner,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 
@@ -27,6 +26,7 @@ import { PromotionSummary } from '@twabRewards/PromotionSummary'
 import { useIsBalanceSufficient } from '@twabRewards/hooks/useIsBalanceSufficient'
 import { useTwabRewardsTokenAllowance } from '@twabRewards/hooks/useTwabRewardsTokenAllowance'
 import { getTwabRewardsContract } from '@twabRewards/utils/getTwabRewardsContract'
+import { useSigner } from 'wagmi'
 
 enum CreatePromotionModalState {
   'FORM',
@@ -238,7 +238,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
   const { tokensPerEpoch, numberOfEpochs, epochDuration, startTimestamp, token } = params
 
-  const signer = useWalletSigner()
+  const { data: signer } = useSigner()
   const { allowanceOk, isAllowanceFetched } = useTwabRewardsTokenAllowance(chainId, params)
   const { t } = useTranslation()
 
