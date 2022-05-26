@@ -151,3 +151,19 @@ export const UnlockedSvg = (props) => {
     </svg>
   )
 }
+
+export const CalculatorSvg = (props) => {
+  return (
+    <svg
+    width='100%'
+    height='100%'
+    viewBox='0 0 330 330'
+    style={{ enableBackground: "new 0 0 330 330", }}
+    xmlSpace="preserve"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path d="M270.102 0H59.898c-8.284 0-15 6.716-15 15v300c0 8.284 6.716 15 15 15h210.204c8.284 0 15-6.716 15-15V15c0-8.284-6.716-15-15-15zM144.898 230v-40.001h40.001V230h-40.001zm40.001 30v40h-40.001v-40h40.001zm0-140v39.999h-40.001V120h40.001zm70.203 0v39.999h-40.203V120h40.203zm-140.204 39.999h-40V120h39.999v39.999zm-40 30h39.999V230H74.898v-40.001zm140.001 0h40.203V230h-40.203v-40.001zM255.102 30v60H74.898V30h180.204zM74.898 260h39.999v40H74.898v-40zm140.001 40v-40h40.203v40h-40.203z" />
+  </svg>
+  )
+}

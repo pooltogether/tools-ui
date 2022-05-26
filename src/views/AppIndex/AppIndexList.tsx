@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import classNames from 'classnames'
 
-import { DiceSvg, GiftSvg, VoteSvg, GraphSvg } from '@components/SvgComponents'
+import { DiceSvg, GiftSvg, VoteSvg, GraphSvg, CalculatorSvg } from '@components/SvgComponents'
 
 interface AppInfo {
   titleKey: string
@@ -41,6 +41,12 @@ const APPS_TO_LIST: AppInfo[] = [
     href: 'https://info.pooltogether.com',
     icon: GraphSvg,
     iconClasses: 'mt-1 w-5'
+  },
+  {
+    titleKey: 'multidelegatorCalculator',
+    descriptionKey: 'multidelegatorCalculatorDescription',
+    href: 'https://pooltogether-multidelegator.netlify.app/',
+    icon: CalculatorSvg,
   }
 ]
 
