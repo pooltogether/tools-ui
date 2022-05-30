@@ -5,7 +5,7 @@ import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
-  BottomSheetTitle,
+  ModalTitle,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
@@ -28,8 +28,11 @@ import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDele
 import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
 import { ListState } from '.'
-import { WithdrawSvg } from '@components/SvgComponents'
+import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
+import { StakeModal } from './StakeModal'
+import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 
 interface ListStateActionsProps {
   chainId: number
@@ -54,11 +57,17 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const resetDelegationWithdrawals = useResetAtom(delegationWithdrawalsAtom)
   const usersAddress = useUsersAddress()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
+  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const { t } = useTranslation()
+  const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
+    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+
+  if (!isRepresentativeFetched) return null
 
   // TODO: Return a wrapper with content so we can pass classNames and style the container easier
-  if (delegator && usersAddress !== delegator) {
+  if (delegator && usersAddress !== delegator && !isUserARepresentative) {
     return (
       <FixedFooterNav>
         <div className='w-full flex justify-end'>
@@ -116,10 +125,18 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 tooltipText={t('editDelegatee')}
               />
             </div>
-            {isBalanceSufficient !== null && !isBalanceSufficient && (
+            {!isUserARepresentative && isBalanceSufficient !== null && !isBalanceSufficient && (
               <Tooltip
                 id={`tooltip-edited-icon-${Math.random()}`}
                 tip={t('insufficientBalanceForDelegations')}
+              >
+                <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
+              </Tooltip>
+            )}
+            {isUserARepresentative && isStakeSufficient !== null && !isStakeSufficient && (
+              <Tooltip
+                id={`tooltip-edited-icon-${Math.random()}`}
+                tip={t('insufficientStakeForDelegations')}
               >
                 <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
               </Tooltip>
@@ -174,39 +191,63 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   }
 
   return (
-    <FixedFooterNav>
-      <div className='w-full flex justify-center space-x-2'>
-        <SquareButton
-          className='w-32'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.withdraw)}
-          disabled={transactionPending}
-        >
-          <div className='text-primary w-4 h-4 mr-1'>
-            <WithdrawSvg />
-          </div>
-          {t('withdraw')}
-        </SquareButton>
-        <SquareButton
-          className='w-24'
-          size={SquareButtonSize.sm}
-          onClick={() => setListState(ListState.edit)}
-          disabled={transactionPending}
-        >
-          <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
-        </SquareButton>
-      </div>
-    </FixedFooterNav>
+    <>
+      <FixedFooterNav>
+        <div className='w-full flex justify-center space-x-2'>
+          {delegator === usersAddress && (
+            <SquareButton
+              className='w-32'
+              size={SquareButtonSize.sm}
+              onClick={() => setIsStakeModalOpen(true)}
+              disabled={transactionPending}
+            >
+              <div className='text-primary w-4 h-4 mr-1'>
+                <StakeSvg />
+              </div>
+              {t('stake')}
+            </SquareButton>
+          )}
+          <SquareButton
+            className='w-32'
+            size={SquareButtonSize.sm}
+            onClick={() => setListState(ListState.withdraw)}
+            disabled={transactionPending}
+          >
+            <div className='text-primary w-4 h-4 mr-1'>
+              <WithdrawSvg />
+            </div>
+            {t('withdraw')}
+          </SquareButton>
+          <SquareButton
+            className='w-24'
+            size={SquareButtonSize.sm}
+            onClick={() => setListState(ListState.edit)}
+            disabled={transactionPending}
+          >
+            <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
+          </SquareButton>
+        </div>
+      </FixedFooterNav>
+      <StakeModal
+        chainId={chainId}
+        delegator={delegator}
+        isOpen={isStakeModalOpen}
+        closeModal={() => setIsStakeModalOpen(false)}
+      />
+    </>
   )
 }
 
 const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   return (
     <>
-      <div className='hidden xs:flex items-center justify-between w-full flex items-center justify-end mb-8'>
-        {children}
-      </div>
-      <div className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'>
+      {/* Desktop */}
+      <div className='hidden xs:flex w-full items-center justify-between mb-20'>{children}</div>
+      {/* Mobile */}
+      <div
+        className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'
+        style={{ zIndex: 3 }}
+      >
         {children}
       </div>
     </>
@@ -289,7 +330,7 @@ const ConfirmCancellationModal: React.FC<{
       }}
       className='flex flex-col space-y-4'
     >
-      <BottomSheetTitle chainId={chainId} title={t('confirmCancellation')} />
+      <ModalTitle chainId={chainId} title={t('confirmCancellation')} />
       <div>
         <p className='text-xs font-bold mb-1'>{t('Lost changes')}</p>
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />

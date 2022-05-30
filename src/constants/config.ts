@@ -1,13 +1,19 @@
 import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
 import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
-import { getChain } from '@utils/getChain'
-import { allChains, Chain } from 'wagmi'
+import { getChain } from '@pooltogether/wallet-connection'
+import { Chain } from 'wagmi'
 
 /////////////////////////////////////////////////////////////////////
 // Required constant aggregates from the various tools in the app.
 // When adding a new tool (or network) to the app, ensure these constants are updated.
 // Ideally from a config.ts inside the respective tool.
 /////////////////////////////////////////////////////////////////////
+
+export const RPC_API_KEYS = {
+  alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+  etherscan: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY,
+  infura: process.env.NEXT_PUBLIC_INFURA_ID
+}
 
 export const SUPPORTED_CHAIN_IDS: {
   [key: string]: number[]

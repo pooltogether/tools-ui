@@ -1,7 +1,8 @@
-import { LoadingScreen } from '@components/LoadingScreen'
-import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 import { NextPage } from 'next/types'
+
+import { LoadingScreen } from '@components/LoadingScreen'
 
 const TwabDelegator = dynamic(
   () => import('../views/TwabDelegator').then((mod) => mod.TwabDelegator),

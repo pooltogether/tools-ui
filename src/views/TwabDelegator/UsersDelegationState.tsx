@@ -18,12 +18,15 @@ import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import classNames from 'classnames'
 import { useState } from 'react'
 import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedChainIds'
-import { getTwabDelegatorContractAddress } from './utils/getTwabDelegatorContractAddress'
 import { useForm } from 'react-hook-form'
 import { StyledInput } from '@components/Input'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
 import { useTranslation } from 'react-i18next'
+import { ManageRepresentativeModal } from './ManageRepresentativeModal'
+import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
+import { useDelegatorsStake } from './hooks/useDelegatorsStake'
+import { StakeSvg } from '@components/SvgComponents'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -36,7 +39,6 @@ interface UsersDelegationStateProps {
 export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props) => {
   const { className, chainId, setChainId, setDelegator, delegator } = props
   const ticket = useTicket(chainId)
-  const twabDelegator = getTwabDelegatorContractAddress(chainId)
   const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
     chainId,
     delegator,
@@ -103,8 +105,13 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
                   </div>
                 </div>
               )}
+              <DelegatorsStake chainId={chainId} delegator={delegator} />
             </div>
           )}
+        </div>
+        <div className='flex flex-col space-y-1 mt-4 ml-4'>
+          <ManageRepresentativeButton delegator={delegator} chainId={chainId} />
+          <RepresentativeIcon chainId={chainId} delegator={delegator} />
         </div>
       </div>
     </>
@@ -223,7 +230,7 @@ export const ChangeDelegatorModal: React.FC<{
 
   return (
     <BottomSheet label='delegator-change-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('setADelegator')}</h6>
+      <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('viewADelegator')}</h6>
       <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
         {t('enterAddressToViewDelegations')}
       </p>
@@ -276,5 +283,75 @@ export const ChangeDelegatorModal: React.FC<{
         )}
       </form>
     </BottomSheet>
+  )
+}
+
+const ManageRepresentativeButton: React.FC<{
+  delegator: string
+  chainId: number
+}> = (props) => {
+  const { chainId, delegator } = props
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const usersAddress = useUsersAddress()
+  const { t } = useTranslation()
+
+  if (!usersAddress || usersAddress !== delegator) return null
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className='flex space-x-2 transition  hover:opacity-70 items-center text-right'
+      >
+        <span>{t('representatives')}</span>
+        <FeatherIcon icon='user' className='w-4 h-4 text-highlight-3' />
+      </button>
+      <ManageRepresentativeModal
+        delegator={delegator}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        chainId={chainId}
+      />
+    </>
+  )
+}
+
+const RepresentativeIcon: React.FC<{
+  delegator: string
+  chainId: number
+}> = (props) => {
+  const { chainId, delegator } = props
+  const usersAddress = useUsersAddress()
+  const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
+    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const { t } = useTranslation()
+
+  if (!usersAddress || !delegator || !isRepresentativeFetched || !isUserARepresentative) return null
+
+  return (
+    <div className='flex items-center space-x-1 ml-auto'>
+      <span className='text-xxs'>{t('approvedRep', 'Approved rep')}</span>
+      <FeatherIcon icon='check' className='w-4 h-4 text-pt-teal' />
+    </div>
+  )
+}
+
+const DelegatorsStake: React.FC<{ chainId: number; delegator: string }> = (props) => {
+  const { chainId, delegator } = props
+  const { data: stake, isFetched } = useDelegatorsStake(chainId, delegator)
+  const { t } = useTranslation()
+
+  if (!isFetched || !stake.hasBalance) return null
+
+  return (
+    <div className='flex space-x-2 items-center'>
+      <div className='text-pt-teal w-4 h-4'>
+        <StakeSvg />
+      </div>
+      <div className='flex space-x-1 items-center text-xxs'>
+        <span className='opacity-80 font-semibold'>{`${stake.amountPretty}`}</span>
+        <span className='opacity-50 lowercase'>{t('staked', 'Staked')}</span>
+      </div>
+    </div>
   )
 }

@@ -25,8 +25,7 @@ const APPS_TO_LIST: AppInfo[] = [
   {
     titleKey: 'promotionalRewards',
     descriptionKey: 'promotionalRewardsDescription',
-    href: 'promo',
-    disabled: true,
+    href: 'promotional-rewards',
     icon: GiftSvg
   },
   {
@@ -46,7 +45,7 @@ const APPS_TO_LIST: AppInfo[] = [
 ]
 
 /**
- * App list is the list of apps to display in the App Index
+ * App list is the list of apps to display in the Tools Index
  * @returns
  */
 export const AppIndexList: React.FC = () => {
@@ -75,11 +74,6 @@ const AppLink: React.FC<AppInfo> = (props) => {
             }
           )}
         >
-          {disabled && (
-            <div className='shadow-md absolute top-14 -right-12 transform rotate-45 px-12 bg-pt-teal text-pt-purple font-bold'>
-              COMING SOON
-            </div>
-          )}
           <div className='w-12 h-12 mx-6 p-2 mb-2 bg-green rounded-full text-black'>
             <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>
           </div>
