@@ -42,6 +42,13 @@ const APPS_TO_LIST: AppInfo[] = [
     href: 'https://info.pooltogether.com',
     icon: GraphSvg,
     iconClasses: 'mt-1 w-5'
+  },
+  {
+    titleKey: 'pooltogetherLiquidator',
+    descriptionKey: 'pooltogetherLiquidatorDescription',
+    href: 'liquidator',
+    icon: GraphSvg,
+    iconClasses: 'mt-1 w-5'
   }
 ]
 

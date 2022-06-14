@@ -1,11 +1,11 @@
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { numberWithCommas } from '@pooltogether/utilities'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
 
 export const useTotalAmountDelegated = (chainId: number, delegator: string) => {
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const {
     data: delegations,
     isFetched: isDelegationsFetched,

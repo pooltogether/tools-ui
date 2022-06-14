@@ -1,4 +1,4 @@
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { useDelegationUpdatesNetDifference } from './useDelegationUpdatesNetDifference'
 
@@ -9,7 +9,7 @@ import { useDelegationUpdatesNetDifference } from './useDelegationUpdatesNetDiff
  * @returns
  */
 export const useIsDelegatorsBalanceSufficient = (chainId: number, delegator: string) => {
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const { data: tokenBalance, isFetched } = useTokenBalance(chainId, delegator, ticket.address)
   const totalDelegationAmount = useDelegationUpdatesNetDifference(chainId, delegator)
 

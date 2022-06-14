@@ -31,7 +31,7 @@ import {
   Tooltip
 } from '@pooltogether/react-components'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
 import { getBalance } from '@twabDelegator/utils/getBalance'
 import { getDuration } from '@twabDelegator/utils/getDuration'
@@ -245,7 +245,7 @@ const BalanceDisplay: React.FC<{
   listState: ListState
 }> = (props) => {
   const { className, chainId, balance, listState } = props
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const balanceDisplay = numberWithCommas(balance, { decimals: ticket.decimals })
   return (
     <div

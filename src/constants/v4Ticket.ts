@@ -1,7 +1,7 @@
 import { Token } from '@pooltogether/hooks'
 import { CHAIN_ID } from '@constants/misc'
 
-export const TICKET: { [chainId: number]: Token } = Object.freeze({
+export const V4_TICKET: { [chainId: number]: Token } = Object.freeze({
   [CHAIN_ID.rinkeby]: {
     address: '0x325E456e8Ac0bCB65a5515FA70B6b9D581809c36',
     symbol: 'TICK',

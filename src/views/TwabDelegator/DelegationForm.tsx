@@ -1,14 +1,14 @@
 import FeatherIcon from 'feather-icons-react'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { SquareButton, Tooltip } from '@pooltogether/react-components'
 import { sToD } from '@pooltogether/utilities'
 import { DelegationFormValues } from '@twabDelegator/interfaces'
 import classNames from 'classnames'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useForm } from 'react-hook-form'
-import { useMaxLockDuration } from './hooks/useMaxLockDuration'
+import { useMaxLockDuration } from '@twabDelegator/hooks/useMaxLockDuration'
 
 interface DelegationFormProps {
   onSubmit: (data: DelegationFormValues, resetForm: () => void) => void
@@ -25,7 +25,7 @@ interface DelegationFormProps {
 export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
   const { onSubmit, defaultValues, submitString, chainId } = props
 
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const { data: maxLockDuration, isFetched: isMaxLockFetched } = useMaxLockDuration(chainId)
 
   const {

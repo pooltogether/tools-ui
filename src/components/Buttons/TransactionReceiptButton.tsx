@@ -8,17 +8,16 @@ import { useTranslation } from 'react-i18next'
 import React from 'react'
 import { Transaction } from '@pooltogether/wallet-connection'
 
-interface TransactionReceiptButtonProps {
-  className?: string
+export const TransactionReceiptButton: React.FC<{
   chainId: number
   transaction: Transaction
-}
-
-export const TransactionReceiptButton = (props: TransactionReceiptButtonProps) => {
-  const { chainId, transaction, className } = props
+  className?: string
+  children?: React.ReactNode
+}> = (props) => {
+  const { chainId, transaction, className, children } = props
   const { t } = useTranslation()
 
-  const url = formatBlockExplorerTxUrl(transaction.response?.hash, chainId)
+  const url = formatBlockExplorerTxUrl(transaction?.response?.hash, chainId)
 
   return (
     <SquareLink
@@ -29,7 +28,7 @@ export const TransactionReceiptButton = (props: TransactionReceiptButtonProps) =
       size={SquareButtonSize.md}
       className={className}
     >
-      {t('viewReceipt', 'View receipt')}
+      {children ? children : t('viewReceipt', 'View receipt')}
     </SquareLink>
   )
 }

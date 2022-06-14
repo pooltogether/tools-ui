@@ -2,6 +2,7 @@ import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
 import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
 import { getChain } from '@pooltogether/wallet-connection'
 import { Chain } from 'wagmi'
+import { LIQUIDATOR_SUPPORTED_CHAIN_IDS } from '@liquidator/config'
 
 /////////////////////////////////////////////////////////////////////
 // Required constant aggregates from the various tools in the app.
@@ -19,10 +20,16 @@ export const SUPPORTED_CHAIN_IDS: {
   [key: string]: number[]
 } = Object.freeze({
   [APP_ENVIRONMENTS.mainnets]: Array.from(
-    new Set([...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets]])
+    new Set([
+      ...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets],
+      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets]
+    ])
   ),
   [APP_ENVIRONMENTS.testnets]: Array.from(
-    new Set([...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets]])
+    new Set([
+      ...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets],
+      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets]
+    ])
   )
 })
 

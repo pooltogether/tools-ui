@@ -1,5 +1,6 @@
 import { Provider as JotaiProvider } from 'jotai'
 import { createClient, createStorage, Provider as WagmiProvider } from 'wagmi'
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
@@ -44,7 +45,7 @@ initSentry()
 const chains = getSupportedChains()
 const connectors = ({ chainId }) => {
   return [
-    new InjectedConnector({ chains, options: {} }),
+    new MetaMaskConnector({ chains, options: {} }),
     new WalletConnectConnector({
       chains,
       options: {
@@ -63,7 +64,8 @@ const connectors = ({ chainId }) => {
         appName: 'PoolTogether',
         jsonRpcUrl: getRpcUrl(chainId || CHAIN_ID.mainnet, RPC_API_KEYS)
       }
-    })
+    }),
+    new InjectedConnector({ chains, options: {} })
   ]
 }
 
