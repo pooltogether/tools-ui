@@ -95,7 +95,7 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className='mx-4 text-inverse opacity-60'>
-        <p className='pb-8'>
+        <p className='pb-8 text-center'>
           {t(
             'promoRewardsNeedsApprovalDescription',
             `PoolTogether's Promotional Rewards contracts require you to send an approval transaction before depositing.`
