@@ -10,24 +10,28 @@ import { POOL } from '@constants/pool'
 import { parseUnits } from 'ethers/lib/utils'
 import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
 
-export const useSwapPrice = (chainId: number, ticket: Token) => {
+export const useExactAmountIn = (chainId: number, ticket: Token, amountOut: string) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
   return useQuery(
-    ['useSwapPrice', chainId, ticket?.address, prizePoolAddress],
-    async (): Promise<Amount> => await getSwapPrice(chainId, ticket, prizePoolAddress),
-    { enabled: !!prizePoolAddress && !!ticket }
+    ['useExactAmountIn', chainId, ticket?.address, prizePoolAddress, amountOut],
+    (): Promise<Amount> => getExactAmountIn(chainId, ticket, prizePoolAddress, amountOut),
+    { enabled: !!prizePoolAddress && !!ticket && !!amountOut }
   )
 }
 
-const getSwapPrice = async (chainId: number, ticket: Token, prizePoolAddress: string) => {
+const getExactAmountIn = async (
+  chainId: number,
+  ticket: Token,
+  prizePoolAddress: string,
+  amountOut: string
+) => {
   const provider = getReadProvider(chainId, RPC_API_KEYS)
   const liquidatorAddress = LIQUIDATOR_ADDRESS[chainId]
   const liquidatorContract = new ethers.Contract(liquidatorAddress, liquidatorAbi, provider)
   const prizeToken = POOL[chainId]
-
-  const response: BigNumber = await liquidatorContract.callStatic.computeExactAmountOut(
+  const response: BigNumber = await liquidatorContract.callStatic.computeExactAmountIn(
     prizePoolAddress,
-    parseUnits('1', prizeToken.decimals)
+    parseUnits(amountOut, ticket.decimals)
   )
-  return getAmountFromBigNumber(response, ticket.decimals)
+  return getAmountFromBigNumber(response, prizeToken.decimals)
 }

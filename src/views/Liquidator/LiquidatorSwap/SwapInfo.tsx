@@ -1,19 +1,18 @@
 import { liquidatorChainIdAtom, slippagePercentAtom, ticketTokenAtom } from '@liquidator/atoms'
-import { useSwapPrice } from '@liquidator/hooks/useSwapPrice'
+import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
 import { Collapse, ThemedClipSpinner } from '@pooltogether/react-components'
 import { useAtom } from 'jotai'
 import classNames from 'classnames'
 import { usePrizeToken } from '@liquidator/hooks/usePrizeToken'
 import React from 'react'
 import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
-import { useExpectedSwapAmountOut } from '@liquidator/hooks/useExpectedSwapAmountOut'
-import { useFormState, UseFormWatch, useWatch } from 'react-hook-form'
+import { useFormState, useWatch } from 'react-hook-form'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
-import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
 import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
 
+// TODO: Show discounts
 export const SwapInfo: React.FC<{
   className?: string
 }> = (props) => {
@@ -41,25 +40,25 @@ const SwapInfoTitle = () => {
   const [ticket] = useAtom(ticketTokenAtom)
   const prizeToken = usePrizeToken(chainId)
   const {
-    data: swapPrice,
-    isFetching: isSwapPriceFetching,
-    isFetched: isSwapPriceFetched,
+    data: amountOut,
+    isFetching: isExactAmountOutFetching,
+    isFetched: isExactAmountOutFetched,
     error
-  } = useSwapPrice(chainId, ticket)
+  } = useExactAmountOut(chainId, ticket, '1')
 
   return (
     <div className='flex flex-col text-xxs font-normal py-1'>
-      {isSwapPriceFetching && (
+      {isExactAmountOutFetching && (
         <div className='h-5 flex items-center'>
           <ThemedClipSpinner sizeClassName='w-4 h-4' />
         </div>
       )}
-      {!isSwapPriceFetching && isSwapPriceFetched && !error && (
+      {!isExactAmountOutFetching && isExactAmountOutFetched && !error && (
         <div className='h-5'>
-          1 {prizeToken.symbol} = {swapPrice.amount} {ticket.symbol}
+          1 {prizeToken.symbol} = {amountOut.amount} {ticket.symbol}
         </div>
       )}
-      {!isSwapPriceFetching && !!error && (
+      {!isExactAmountOutFetching && !!error && (
         <div className='h-5 text-pt-red-light'>Insufficient liquidity</div>
       )}
     </div>
@@ -70,21 +69,15 @@ const SwapInfoFullList: React.FC<{
   className?: string
 }> = (props) => {
   const { className } = props
-  const [chainId] = useAtom(liquidatorChainIdAtom)
-  const prizeToken = usePrizeToken(chainId)
-
-  const { isValid, isValidating } = useFormState()
   const amountIn = useWatch<LiquidatorFormValues>({ name: 'amountIn' })
-  const amountUnformatted =
-    isValid && !isValidating && !!amountIn ? parseUnits(amountIn, prizeToken.decimals) : null
 
   return (
-    <ul className={classNames(className, 'px-2')}>
+    <ul className={classNames(className, 'px-2 text-xxs')}>
       {/* <li>The current Uniswap price</li> */}
       <AvailableLiquidity />
-      <ExpectedOutput amountUnformatted={amountUnformatted} />
-      <hr className='my-2 mx-auto border-t' />
-      <MinimumOutput amountUnformatted={amountUnformatted} />
+      <ExpectedOutput amountIn={amountIn} />
+      <hr className='my-2 mx-auto border-t border-pt-purple-darker' />
+      <MinimumOutput amountIn={amountIn} />
     </ul>
   )
 }
@@ -111,16 +104,12 @@ const AvailableLiquidity = () => {
   )
 }
 
-const ExpectedOutput: React.FC<{ amountUnformatted: BigNumber }> = (props) => {
-  const { amountUnformatted } = props
+const ExpectedOutput: React.FC<{ amountIn: string }> = (props) => {
+  const { amountIn } = props
   const [chainId] = useAtom(liquidatorChainIdAtom)
   const [ticket] = useAtom(ticketTokenAtom)
 
-  const { data, isFetched, error, isError, isFetching } = useExpectedSwapAmountOut(
-    chainId,
-    ticket,
-    amountUnformatted
-  )
+  const { data, isFetched, isError, isFetching } = useExactAmountOut(chainId, ticket, amountIn)
   return (
     <ListItem
       left={'Expected output'}
@@ -136,34 +125,47 @@ const ExpectedOutput: React.FC<{ amountUnformatted: BigNumber }> = (props) => {
   )
 }
 
-const MinimumOutput: React.FC<{ amountUnformatted: BigNumber }> = (props) => {
-  const { amountUnformatted } = props
+const MinimumOutput: React.FC<{ amountIn: string }> = (props) => {
+  const { amountIn } = props
   const [chainId] = useAtom(liquidatorChainIdAtom)
   const [ticket] = useAtom(ticketTokenAtom)
+  const {
+    data: amountOut,
+    isFetched,
+    isFetching,
+    isError
+  } = useExactAmountOut(chainId, ticket, amountIn)
   const [slippagePercent] = useAtom(slippagePercentAtom)
 
-  const amount = amountUnformatted
-    ? getAmountFromBigNumber(
-        amountUnformatted.sub(percentageOfBigNumber(amountUnformatted, slippagePercent)),
-        ticket?.decimals
-      )
-    : null
+  const amount =
+    isFetched && !isFetching && !isError
+      ? getAmountFromBigNumber(
+          amountOut.amountUnformatted.sub(
+            percentageOfBigNumber(amountOut.amountUnformatted, slippagePercent)
+          ),
+          ticket?.decimals
+        )
+      : null
 
   return (
     <ListItem
+      className='opacity-70'
       left={`Minimum received after slippage (${slippagePercent * 100}%)`}
       right={!!amount ? amount.amount : null}
     />
   )
 }
 
-const ListItem: React.FC<{ left: React.ReactNode; right: React.ReactNode; isError?: boolean }> = (
-  props
-) => (
-  <li className='flex justify-between'>
+const ListItem: React.FC<{
+  className?: string
+  left: React.ReactNode
+  right: React.ReactNode
+  isError?: boolean
+}> = (props) => (
+  <li className={classNames(props.className, 'flex justify-between')}>
     <div>{props.left}</div>
     <div className={classNames({ 'text-pt-red-light': props.isError })}>
-      {props.isError ? 'Error' : props.right}
+      {props.isError ? '' : props.right}
     </div>
   </li>
 )

@@ -79,7 +79,7 @@ const SlippageButton: React.FC<{ slippageSetting: SlippageSetting }> = (props) =
     >
       {slippageSetting === SlippageSetting.custom
         ? t('custom', 'Custom')
-        : SlippageAmounts[slippageSetting]}
+        : `${SlippageAmounts[slippageSetting] * 100}%`}
     </button>
   )
 }

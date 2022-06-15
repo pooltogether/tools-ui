@@ -5,13 +5,16 @@ import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 
 import { DiceSvg, GiftSvg, VoteSvg, GraphSvg } from '@components/SvgComponents'
+import { useIsTestnets } from '@pooltogether/hooks'
 
 interface AppInfo {
   titleKey: string
   descriptionKey: string
   href: string
-  icon: any
+  icon?: any
+  emoji?: any
   iconClasses?: string
+  testnet?: boolean
   disabled?: boolean
 }
 
@@ -47,8 +50,16 @@ const APPS_TO_LIST: AppInfo[] = [
     titleKey: 'pooltogetherLiquidator',
     descriptionKey: 'pooltogetherLiquidatorDescription',
     href: 'liquidator',
-    icon: GraphSvg,
-    iconClasses: 'mt-1 w-5'
+    testnet: true,
+    emoji: '🐊',
+    iconClasses: 'ml-1'
+  },
+  {
+    titleKey: 'pooltogetherTestnetFaucet',
+    descriptionKey: 'pooltogetherTestnetFaucetDescription',
+    href: 'testnet-faucet',
+    testnet: true,
+    emoji: '🚰'
   }
 ]
 
@@ -67,8 +78,11 @@ export const AppIndexList: React.FC = () => {
 }
 
 const AppLink: React.FC<AppInfo> = (props) => {
-  const { titleKey, descriptionKey, disabled, href, icon, iconClasses } = props
+  const { titleKey, descriptionKey, disabled, href, icon, emoji, iconClasses, testnet } = props
   const { t } = useTranslation()
+  const { isTestnets } = useIsTestnets()
+
+  if (!isTestnets && testnet) return null
 
   return (
     <ListItemContainer disabled={disabled}>
@@ -83,7 +97,8 @@ const AppLink: React.FC<AppInfo> = (props) => {
           )}
         >
           <div className='w-12 h-12 mx-6 p-2 mb-2 bg-green rounded-full text-black'>
-            <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>
+            {icon && <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>}
+            {emoji && <div className={classNames('mx-auto text-xl', iconClasses)}>{emoji}</div>}
           </div>
           <h6 className='text-white font-normal mb-2'>{t(titleKey)}</h6>
           <p className='text-white text-opacity-70 text-center text-xxs'>{t(descriptionKey)}</p>

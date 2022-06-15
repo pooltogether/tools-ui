@@ -9,7 +9,7 @@ export const Liquidator: React.FC = () => {
   return (
     <Layout>
       <PagePadding>
-        <PageTitle title='Liquidator' />
+        <PageTitle title='Prize Token Liquidator' />
         <LiquidatorDescription className='mb-8' />
         <LiquidatorSettings className='mb-4' />
         <LiquidatorSwap />

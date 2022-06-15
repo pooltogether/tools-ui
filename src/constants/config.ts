@@ -3,6 +3,7 @@ import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
 import { getChain } from '@pooltogether/wallet-connection'
 import { Chain } from 'wagmi'
 import { LIQUIDATOR_SUPPORTED_CHAIN_IDS } from '@liquidator/config'
+import { FAUCET_SUPPORTED_CHAIN_IDS } from '../views/TestnetFaucet/config'
 
 /////////////////////////////////////////////////////////////////////
 // Required constant aggregates from the various tools in the app.

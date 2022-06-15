@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai'
-import { liquidatorChainIdAtom, swapInStateAtom } from '@liquidator/atoms'
+import { liquidatorChainIdAtom, swapInStateAtom, ticketTokenAtom } from '@liquidator/atoms'
 import { SwapInput } from '@liquidator/LiquidatorSwap/SwapAmounts/SwapInput'
 import { TokenToSwap } from '@liquidator/LiquidatorSwap/SwapAmounts/TokenToSwap'
-import { useFormContext, UseFormSetValue } from 'react-hook-form'
+import { useFormContext, UseFormSetValue, useWatch } from 'react-hook-form'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
 import classNames from 'classnames'
 import { SwapAmountContainer } from './SwapAmountContainer'
@@ -12,33 +12,51 @@ import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { useLiquidatorAddress } from '@liquidator/hooks/useLiquidatorAddress'
 import { parseUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
+import { useEffect } from 'react'
 
 export const SwapIn: React.FC<{
   className?: string
 }> = (props) => {
   const { className } = props
+  const amountIn = useWatch<LiquidatorFormValues>({ name: 'amountIn' })
+
   const {
     register,
     reset: resetForm,
     setValue,
-    formState: { errors }
+    formState: { errors, isDirty },
+    trigger
   } = useFormContext<LiquidatorFormValues>()
   const [swapInState] = useAtom(swapInStateAtom)
   const usersAddress = useUsersAddress()
   const [chainId] = useAtom(liquidatorChainIdAtom)
   const liquidatorAddress = useLiquidatorAddress(chainId)
   const prizeToken = usePrizeToken(chainId)
-  const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
-    chainId,
-    usersAddress,
-    liquidatorAddress,
-    prizeToken.address
-  )
-  const { data: balance, isFetched: isUsersBalanceFetched } = useTokenBalance(
-    chainId,
-    usersAddress,
-    prizeToken.address
-  )
+  const {
+    data: allowance,
+    isFetched: isAllowanceFetched,
+    isFetching: isAllowanceFetching
+  } = useTokenAllowance(chainId, usersAddress, liquidatorAddress, prizeToken.address)
+  const {
+    data: balance,
+    isFetched: isUsersBalanceFetched,
+    isFetching: isUsersBalanceFetching
+  } = useTokenBalance(chainId, usersAddress, prizeToken.address)
+  const [ticket] = useAtom(ticketTokenAtom)
+  const {
+    data: amountOut,
+    isFetched: isExactAmountOutFetched,
+    isError: isExactAmountError,
+    isFetching: isExactAmountFetching
+  } = useExactAmountOut(chainId, ticket, amountIn)
+
+  // trigger validation when data is fetched
+  useEffect(() => {
+    if (isDirty) {
+      trigger('amountIn')
+    }
+  }, [isExactAmountFetching, isUsersBalanceFetching, isAllowanceFetching])
 
   return (
     <SwapAmountContainer
@@ -57,11 +75,12 @@ export const SwapIn: React.FC<{
           {...register('amountIn', {
             required: {
               value: true,
-              message: 'Amount is required'
+              message: 'Amount required'
             },
             validate: {
-              isAllowanceFetched: () => !!isAllowanceFetched,
-              isBalanceFetched: () => !!isUsersBalanceFetched,
+              isAllowanceFetched: () => !!isAllowanceFetched || 'Fetching allowance',
+              isBalanceFetched: () => !!isUsersBalanceFetched || 'Fetching balance',
+              isAmountOutFetched: () => !!isExactAmountOutFetched || 'Fetching amount to receive',
               isAmountBigNumberish: (v) => {
                 try {
                   if (v === '.') throw new Error()
@@ -75,6 +94,10 @@ export const SwapIn: React.FC<{
                 const amountUnformatted = parseUnits(v, prizeToken.decimals)
                 return !amountUnformatted.isZero() || 'Invalid amount'
               },
+              isAmountPositive: (v) => {
+                const amountUnformatted = parseUnits(v, prizeToken.decimals)
+                return !amountUnformatted.isNegative() || 'Invalid amount'
+              },
               isAllowanceSufficient: (v) => {
                 const amountUnformatted = parseUnits(v, prizeToken.decimals)
                 return amountUnformatted.lte(allowance) || 'Insufficient allowance'
@@ -82,9 +105,16 @@ export const SwapIn: React.FC<{
               isBalanceSufficient: (v) => {
                 const amountUnformatted = parseUnits(v, prizeToken.decimals)
                 return amountUnformatted.lte(balance.amountUnformatted) || 'Insufficient balance'
+              },
+              isLiquiditySufficient: (v) => {
+                return !isExactAmountError || 'Insufficient liquidity'
+                // TODO: Validate
+                // - Liquidator has enough tokens to send out
+              },
+              isAmountOutNonZero: (v) => {
+                if (!amountOut) return 'Fetching amount to receive'
+                return !amountOut.amountUnformatted.isZero() || 'Invalid amount'
               }
-              // TODO: Validate
-              // - Liquidator has enough tokens to send out
             }
           })}
         />

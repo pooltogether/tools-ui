@@ -3,7 +3,7 @@ import { liquidatorChainIdAtom, swapOutStateAtom, ticketTokenAtom } from '../../
 import { TokenToSwap } from './TokenToSwap'
 import { SwapAmountContainer } from './SwapAmountContainer'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useExpectedSwapAmountOut } from '@liquidator/hooks/useExpectedSwapAmountOut'
 import { Token } from '@pooltogether/hooks'
 import { BigNumber } from 'ethers'
@@ -13,6 +13,8 @@ import classNames from 'classnames'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTranslation } from 'react-i18next'
 import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
+import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
+import { useExactAmountIn } from '@liquidator/hooks/useExactAmountIn'
 
 export const SwapOut: React.FC<{}> = (props) => {
   const {
@@ -24,21 +26,16 @@ export const SwapOut: React.FC<{}> = (props) => {
   const prizeToken = usePrizeToken(chainId)
   const [ticket] = useAtom(ticketTokenAtom)
   const [swapOutState] = useAtom(swapOutStateAtom)
-
-  // TODO: Crashes when deleting and you only have '.'
   const amountIn = watch('amountIn')
-  const amountUnformatted =
-    isValid && !isValidating && !!amountIn ? parseUnits(amountIn, prizeToken.decimals) : null
 
   return (
     <div>
       <SwapAmountContainer>
         <div className='flex mb-1 space-x-2'>
-          <SwapOutAmount chainId={chainId} ticket={ticket} amountUnformatted={amountUnformatted} />
+          <SwapOutAmount chainId={chainId} ticket={ticket} amountIn={amountIn} />
           <TokenToSwap swapState={swapOutState} resetForm={resetForm} />
         </div>
         <div className='flex justify-end'>
-          {/* TODO: This should be max amount not balance */}
           <MaxLiquidity ticket={ticket} />
         </div>
       </SwapAmountContainer>
@@ -46,22 +43,11 @@ export const SwapOut: React.FC<{}> = (props) => {
   )
 }
 
-const SwapOutAmount: React.FC<{ chainId: number; ticket: Token; amountUnformatted: BigNumber }> = (
-  props
-) => {
-  const { chainId, ticket, amountUnformatted } = props
-  const { data, isFetched, error, isError, isFetching } = useExpectedSwapAmountOut(
-    chainId,
-    ticket,
-    amountUnformatted
-  )
+const SwapOutAmount: React.FC<{ chainId: number; ticket: Token; amountIn: string }> = (props) => {
+  const { chainId, ticket, amountIn } = props
+  const { data, isFetching } = useExactAmountOut(chainId, ticket, amountIn)
   return (
-    <span
-      className={classNames('w-full font-semibold xs:text-lg cursor-not-allowed', {
-        'opacity-80': !isFetching,
-        'opacity-50': isFetching
-      })}
-    >
+    <span className={classNames('w-full font-semibold xs:text-lg cursor-not-allowed opacity-60')}>
       {data?.amount || '0'}
     </span>
   )
@@ -69,20 +55,29 @@ const SwapOutAmount: React.FC<{ chainId: number; ticket: Token; amountUnformatte
 
 const MaxLiquidity: React.FC<{ ticket: Token }> = (props) => {
   const [chainId] = useAtom(liquidatorChainIdAtom)
-  const usersAddress = useUsersAddress()
   const { ticket } = props
-  const { data, isFetched } = useTicketAvailableLiquidity(chainId, ticket)
+  const { setValue } = useFormContext()
+  const { data: ticketLiquidity, isFetched: isTicketLiquidityFetched } =
+    useTicketAvailableLiquidity(chainId, ticket)
   const { t } = useTranslation()
+  const { data: exactAmountIn, isFetched: isExactAmountInFetched } = useExactAmountIn(
+    chainId,
+    ticket,
+    ticketLiquidity?.amount
+  )
 
-  if (!usersAddress || !ticket || !isFetched) return null
+  if (!ticket || !isTicketLiquidityFetched) return null
 
   return (
-    // TODO: Need to fetch the inverse amount and set it
-    // <button onClick={() => setValue('amountIn', tokenWithBalance.amount)}>
-    <div className='text-xxs transition opacity-70 hover:opacity-100 space-x-1'>
-      <span>{t('max', 'Max')}:</span>
-      <span>{data?.amountPretty}</span>
-    </div>
-    // </button>
+    <button
+      onClick={() => {
+        if (isExactAmountInFetched) setValue('amountIn', exactAmountIn.amount)
+      }}
+    >
+      <div className='text-xxs transition opacity-70 hover:opacity-100 space-x-1'>
+        <span>{t('max', 'Max')}:</span>
+        <span>{ticketLiquidity?.amountPretty}</span>
+      </div>
+    </button>
   )
 }
