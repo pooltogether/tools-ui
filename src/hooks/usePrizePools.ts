@@ -1,4 +1,4 @@
-import { usePrizePoolNetwork } from '@hooks/v4/usePrizePoolNetwork'
+import { usePrizePoolNetwork } from '@hooks/usePrizePoolNetwork'
 
 export const usePrizePools = () => {
   const prizePoolNetwork = usePrizePoolNetwork()

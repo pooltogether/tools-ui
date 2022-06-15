@@ -1,4 +1,3 @@
-import { useQuery } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { Amount, Token } from '@pooltogether/hooks'
 import { getReadProvider } from '@pooltogether/wallet-connection'
@@ -9,12 +8,13 @@ import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
 import { POOL } from '@constants/pool'
 import { parseUnits } from 'ethers/lib/utils'
 import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
+import { useQuery } from 'react-query'
 
 export const useExactAmountIn = (chainId: number, ticket: Token, amountOut: string) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
   return useQuery(
     ['useExactAmountIn', chainId, ticket?.address, prizePoolAddress, amountOut],
-    (): Promise<Amount> => getExactAmountIn(chainId, ticket, prizePoolAddress, amountOut),
+    async () => getExactAmountIn(chainId, ticket, prizePoolAddress, amountOut),
     { enabled: !!prizePoolAddress && !!ticket && !!amountOut }
   )
 }
@@ -33,5 +33,6 @@ const getExactAmountIn = async (
     prizePoolAddress,
     parseUnits(amountOut, ticket.decimals)
   )
-  return getAmountFromBigNumber(response, prizeToken.decimals)
+  const exactAmountIn = getAmountFromBigNumber(response, prizeToken.decimals)
+  return exactAmountIn
 }

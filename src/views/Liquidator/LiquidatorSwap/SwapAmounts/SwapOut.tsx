@@ -4,24 +4,16 @@ import { TokenToSwap } from './TokenToSwap'
 import { SwapAmountContainer } from './SwapAmountContainer'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useExpectedSwapAmountOut } from '@liquidator/hooks/useExpectedSwapAmountOut'
 import { Token } from '@pooltogether/hooks'
-import { BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
 import { usePrizeToken } from '@liquidator/hooks/usePrizeToken'
 import classNames from 'classnames'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTranslation } from 'react-i18next'
 import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
 import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
 import { useExactAmountIn } from '@liquidator/hooks/useExactAmountIn'
 
 export const SwapOut: React.FC<{}> = (props) => {
-  const {
-    reset: resetForm,
-    watch,
-    formState: { errors, isValid, isValidating }
-  } = useFormContext<LiquidatorFormValues>()
+  const { reset: resetForm, watch } = useFormContext<LiquidatorFormValues>()
   const [chainId] = useAtom(liquidatorChainIdAtom)
   const prizeToken = usePrizeToken(chainId)
   const [ticket] = useAtom(ticketTokenAtom)
@@ -45,7 +37,7 @@ export const SwapOut: React.FC<{}> = (props) => {
 
 const SwapOutAmount: React.FC<{ chainId: number; ticket: Token; amountIn: string }> = (props) => {
   const { chainId, ticket, amountIn } = props
-  const { data, isFetching } = useExactAmountOut(chainId, ticket, amountIn)
+  const { data } = useExactAmountOut(chainId, ticket, amountIn)
   return (
     <span className={classNames('w-full font-semibold xs:text-lg cursor-not-allowed opacity-60')}>
       {data?.amount || '0'}
