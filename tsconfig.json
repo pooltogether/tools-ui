@@ -26,7 +26,8 @@
       "@utils/*": ["./src/utils/*"],
       "@styles/*": ["./src/styles/*"],
       "@twabDelegator/*": ["./src/views/TwabDelegator/*"],
-      "@twabRewards/*": ["./src/views/TwabRewards/*"]
+      "@twabRewards/*": ["./src/views/TwabRewards/*"],
+      "@liquidator/*": ["./src/views/Liquidator/*"]
     }
   },
   "include": ["src", "next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],

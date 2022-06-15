@@ -19,8 +19,8 @@ import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegation
 import { ListState } from '@twabDelegator/DelegationList'
 import { DelegationId } from '@twabDelegator/interfaces'
 import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
-import { useTicket } from '@hooks/v4/useTicket'
-import { getTicketContract } from '@utils/getTicketContract'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
+import { getV4TicketContract } from '@utils/getV4TicketContract'
 import { BigNumber, PopulatedTransaction } from 'ethers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { toast } from 'react-toastify'
@@ -263,7 +263,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const resetAtoms = useResetDelegationAtoms()
   const { data: signer } = useSigner()
   const usersAddress = useUsersAddress()
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
 
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
   const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
@@ -298,7 +298,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
 
   const submitUpdateTransactionForDelegator = async () => {
     const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
-    const ticketContract = getTicketContract(chainId)
+    const ticketContract = getV4TicketContract(chainId)
     const fnCalls: string[] = []
     let totalAmountToFund = BigNumber.from(0)
 

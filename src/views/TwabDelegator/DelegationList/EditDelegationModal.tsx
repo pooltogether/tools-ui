@@ -1,4 +1,4 @@
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import {
   BottomSheet,
   ModalTitle,
@@ -65,7 +65,7 @@ const EditDelegationForm: React.FC<{
     delegationId
   )
   const { t } = useTranslation()
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const addDelegationUpdate = useUpdateAtom(addDelegationUpdateAtom)
   const addDelegationCreation = useUpdateAtom(addDelegationCreationAtom)
   const addDelegationFund = useUpdateAtom(addDelegationFundAtom)

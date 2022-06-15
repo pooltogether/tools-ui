@@ -1,7 +1,7 @@
 import FeatherIcon from 'feather-icons-react'
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { Token, useTokenAllowance } from '@pooltogether/hooks'
 import {
   BottomSheet,
@@ -20,7 +20,7 @@ import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
 import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
-import { getTicketContract } from '@utils/getTicketContract'
+import { getV4TicketContract } from '@utils/getV4TicketContract'
 import { signERC2612Permit } from 'eth-permit'
 import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
@@ -43,7 +43,7 @@ export const StakeModal: React.FC<{
   closeModal: () => void
 }> = (props) => {
   const { isOpen, chainId, delegator, closeModal } = props
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const { t } = useTranslation()
   const [modalState, setModalState] = useState<ModalState>(ModalState.main)
 
@@ -216,7 +216,7 @@ const AddStakeForm: React.FC<{
   const onSubmit = async (amount: string) => {
     const amountUnformatted = parseUnits(amount, ticket.decimals)
     const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
-    const ticketContract = getTicketContract(chainId)
+    const ticketContract = getV4TicketContract(chainId)
 
     // Default case if user has enough allowance
     let callTransaction = () => twabDelegatorContract.stake(delegator, amountUnformatted)

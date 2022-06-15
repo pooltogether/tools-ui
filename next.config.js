@@ -37,6 +37,7 @@ const nextConfig = {
       '@styles': path.resolve(__dirname, './src/styles'),
       '@twabDelegator': path.resolve(__dirname, './src/views/TwabDelegator'),
       '@twabRewards': path.resolve(__dirname, './src/views/TwabRewards'),
+      '@liquidator': path.resolve(__dirname, './src/views/Liquidator'),
     };
     return config
   }

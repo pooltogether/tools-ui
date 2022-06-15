@@ -2,7 +2,7 @@ import React from 'react'
 import classNames from 'classnames'
 import { DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
-interface InputProps
+export interface InputProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {}
 
 /**

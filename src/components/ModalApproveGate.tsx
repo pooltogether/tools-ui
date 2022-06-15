@@ -18,10 +18,9 @@ import {
   ThemedClipSpinner
 } from '@pooltogether/react-components'
 
-import ERC20Abi from '@abis/ERC20'
-
 import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 import { useSigner } from 'wagmi'
+import { approveErc20Spender } from '@utils/transactions/approveErc20Spender'
 
 interface ModalApproveGateProps {
   chainId: number
@@ -45,15 +44,8 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
   const twabRewardsAddress = getTwabRewardsContractAddress(chainId)
 
   const submitApproveTransaction = async () => {
-    const allowanceContract = new ethers.Contract(token, ERC20Abi, signer)
-
-    let callTransaction: () => Promise<TransactionResponse>
-    try {
-      callTransaction = async () => allowanceContract.approve(twabRewardsAddress, amountUnformatted)
-    } catch (e) {
-      console.error(e)
-      return
-    }
+    const callTransaction = () =>
+      approveErc20Spender(signer, token, twabRewardsAddress, amountUnformatted)
 
     const transactionId = sendTransaction({
       name: t('allowTicker', { ticker: tokenData?.name }),
