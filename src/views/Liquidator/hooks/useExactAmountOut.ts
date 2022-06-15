@@ -14,7 +14,7 @@ export const useExactAmountOut = (chainId: number, ticket: Token, amountIn: stri
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
   return useQuery(
     ['useExactAmountOut', chainId, ticket?.address, prizePoolAddress, amountIn],
-    (): Promise<Amount> => getExactAmountOut(chainId, ticket, prizePoolAddress, amountIn),
+    async () => getExactAmountOut(chainId, ticket, prizePoolAddress, amountIn),
     { enabled: !!prizePoolAddress && !!ticket && !!amountIn }
   )
 }

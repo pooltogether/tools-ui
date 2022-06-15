@@ -24,7 +24,6 @@ const getTicketAvailableLiquidity = async (
   ticket: Token,
   prizePoolAddress: string
 ) => {
-  console.log('getTicketAvailableLiquidity')
   const provider = getReadProvider(chainId, RPC_API_KEYS)
   const liquidatorAddress = LIQUIDATOR_ADDRESS[chainId]
   const liquidatorContract = new ethers.Contract(liquidatorAddress, liquidatorAbi, provider)

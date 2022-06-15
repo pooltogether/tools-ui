@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { Amount, Token } from '@pooltogether/hooks'
+import { Token } from '@pooltogether/hooks'
 import { getReadProvider } from '@pooltogether/wallet-connection'
 import { RPC_API_KEYS } from '@constants/config'
 import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
@@ -33,6 +33,5 @@ const getExactAmountIn = async (
     prizePoolAddress,
     parseUnits(amountOut, ticket.decimals)
   )
-  const exactAmountIn = getAmountFromBigNumber(response, prizeToken.decimals)
-  return exactAmountIn
+  return getAmountFromBigNumber(response, prizeToken.decimals)
 }

@@ -71,14 +71,6 @@ export const SendSwapButton: React.FC<{
 
   const disabled =
     !isValid || isValidating || !isExactAmountFetched || isExactAmountError || isExactAmountFetching
-  console.log({
-    disabled,
-    isValid,
-    isValidating,
-    isExactAmountFetched,
-    isExactAmountError,
-    isExactAmountFetching
-  })
 
   if (!usersAddress || !ticket || !isAllowanceFetched) {
     return null
