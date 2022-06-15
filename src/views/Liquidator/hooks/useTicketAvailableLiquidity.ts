@@ -1,4 +1,3 @@
-import { useQuery } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { Amount, Token, useRefetchInterval } from '@pooltogether/hooks'
 import { getReadProvider } from '@pooltogether/wallet-connection'
@@ -7,6 +6,7 @@ import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
 import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
 import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
+import { useQuery } from 'react-query'
 
 export const useTicketAvailableLiquidity = (chainId: number, ticket: Token) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
