@@ -53,10 +53,19 @@ export const SwapIn: React.FC<{
 
   // trigger validation when data is fetched
   useEffect(() => {
-    if (isDirty) {
+    if (isExactAmountOutFetched && isUsersBalanceFetched && isAllowanceFetched) {
       trigger('amountIn')
     }
-  }, [isExactAmountFetching, isUsersBalanceFetching, isAllowanceFetching])
+  }, [
+    isExactAmountFetching,
+    isUsersBalanceFetching,
+    isAllowanceFetching,
+    isExactAmountOutFetched,
+    isUsersBalanceFetched,
+    isAllowanceFetched
+  ])
+
+  console.log({ isExactAmountOutFetched, isExactAmountFetching })
 
   return (
     <SwapAmountContainer
@@ -80,7 +89,10 @@ export const SwapIn: React.FC<{
             validate: {
               isAllowanceFetched: () => !!isAllowanceFetched || 'Fetching allowance',
               isBalanceFetched: () => !!isUsersBalanceFetched || 'Fetching balance',
-              isAmountOutFetched: () => !!isExactAmountOutFetched || 'Fetching amount to receive',
+              isAmountOutFetched: () => {
+                console.log('isAmountOutFetched', { isExactAmountOutFetched })
+                return !!isExactAmountOutFetched || 'Fetching amount to receive'
+              },
               isAmountBigNumberish: (v) => {
                 try {
                   if (v === '.') throw new Error()
@@ -112,7 +124,7 @@ export const SwapIn: React.FC<{
                 // - Liquidator has enough tokens to send out
               },
               isAmountOutNonZero: (v) => {
-                if (!amountOut) return 'Fetching amount to receive'
+                if (!amountOut) return 'No tokens will be received'
                 return !amountOut.amountUnformatted.isZero() || 'Invalid amount'
               }
             }

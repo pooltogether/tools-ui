@@ -63,7 +63,9 @@ const MaxLiquidity: React.FC<{ ticket: Token }> = (props) => {
   return (
     <button
       onClick={() => {
-        if (isExactAmountInFetched) setValue('amountIn', exactAmountIn.amount)
+        if (isExactAmountInFetched) {
+          setValue('amountIn', exactAmountIn.amount, { shouldValidate: true })
+        }
       }}
     >
       <div className='text-xxs transition opacity-70 hover:opacity-100 space-x-1'>
