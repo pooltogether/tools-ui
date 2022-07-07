@@ -35,7 +35,7 @@ const APPS_TO_LIST: AppInfo[] = [
   {
     titleKey: 'multidelegatorCalculatorTitle',
     descriptionKey: 'multidelegatorCalculatorDescription',
-    href: 'https://pooltogether-multidelegator.netlify.app/',
+    href: 'https://prizecalc.com/',
     twitter: 'ncookie_eth',
     github: 'Ncookiez',
     repo: 'https://github.com/Ncookiez/pooltogether-multidelegator-preview'
