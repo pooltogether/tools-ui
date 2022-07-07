@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { constants } from 'ethers/lib'
 import { isAddress } from 'ethers/lib/utils'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BlockExplorerLink,

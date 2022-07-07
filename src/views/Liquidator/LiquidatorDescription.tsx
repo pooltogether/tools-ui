@@ -1,16 +1,16 @@
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
-import { DELEGATION_LEARN_MORE_URL } from './constants'
+import { LIQUIDATOR_LEARN_MORE_URL } from './constants'
 import { useTranslation } from 'react-i18next'
 
-export const DelegationTitle: React.FC<{ className?: string }> = (props) => {
+export const LiquidatorDescription: React.FC<{ className?: string }> = (props) => {
   const { t } = useTranslation()
   return (
     <div className={classNames(props.className, 'flex flex-col')}>
-      <p className='text-accent-1 text-xxs'>{t('delegationTitleDescription')}</p>
+      <p className='text-accent-1 text-xxs'>{t('pooltogetherLiquidatorDescription')}</p>
       <a
         className='transition underline text-pt-teal hover:opacity-70 inline-flex items-center space-x-1 text-xxs'
-        href={DELEGATION_LEARN_MORE_URL}
+        href={LIQUIDATOR_LEARN_MORE_URL}
         target='_blank'
         rel='noreferrer'
       >

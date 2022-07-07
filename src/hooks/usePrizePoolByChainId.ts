@@ -1,4 +1,4 @@
-import { usePrizePools } from '@hooks/v4/usePrizePools'
+import { usePrizePools } from '@hooks/usePrizePools'
 
 // NOTE: Assumes there is only one Prize Pool per network. This will need to be reworked eventually.
 export const usePrizePoolByChainId = (chainId: number) => {

@@ -1,20 +1,17 @@
 import FeatherIcon from 'feather-icons-react'
 import { constants } from 'ethers/lib'
 import { isAddress } from 'ethers/lib/utils'
-import { SelectNetworkModal } from '@components/SelectNetworkModal'
-import { useTicket } from '@hooks/v4/useTicket'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BlockExplorerLink,
   BottomSheet,
-  NetworkIcon,
   SquareButton,
   SquareButtonTheme,
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
-import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import classNames from 'classnames'
 import { useState } from 'react'
 import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedChainIds'
@@ -27,6 +24,7 @@ import { ManageRepresentativeModal } from './ManageRepresentativeModal'
 import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
 import { useDelegatorsStake } from './hooks/useDelegatorsStake'
 import { StakeSvg } from '@components/SvgComponents'
+import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -38,7 +36,7 @@ interface UsersDelegationStateProps {
 
 export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props) => {
   const { className, chainId, setChainId, setDelegator, delegator } = props
-  const ticket = useTicket(chainId)
+  const ticket = useV4Ticket(chainId)
   const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
     chainId,
     delegator,
@@ -47,6 +45,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
   const { data: delegationBalance, isFetched: isDelegationBalanceFetched } =
     useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
+  const chainIds = useDelegationSupportedChainIds()
 
   return (
     <>
@@ -63,7 +62,13 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
             <ChangeDelegatorButton delegator={delegator} setDelegator={setDelegator} />
             <ClearDelegatorButton delegator={delegator} setDelegator={setDelegator} />
           </div>
-          <DelegationNetworkSelection chainId={chainId} setChainId={setChainId} />
+          <ToolNetworkSelectionTrigger
+            currentChainId={chainId}
+            supportedChainIds={chainIds}
+            setChainId={setChainId}
+            description={t('delegetionNetworkSelectDescription')}
+            label='select-delegation-network-modal'
+          />
         </div>
       </div>
 
@@ -114,44 +119,6 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
           <RepresentativeIcon chainId={chainId} delegator={delegator} />
         </div>
       </div>
-    </>
-  )
-}
-
-const DelegationNetworkSelection: React.FC<{
-  chainId: number
-  setChainId: (chainId: number) => void
-}> = (props) => {
-  const { chainId, setChainId } = props
-  const [isOpen, setIsOpen] = useState(false)
-  const chainIds = useDelegationSupportedChainIds()
-  const { t } = useTranslation()
-
-  return (
-    <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className='flex items-center transition hover:opacity-80'
-      >
-        <NetworkIcon chainId={chainId} className='mr-2' sizeClassName='w-4 h-4' />
-        <div className='flex items-center space-x-2'>
-          <span className='capitalize leading-none tracking-wider text-xs'>
-            {getNetworkNiceNameByChainId(chainId)}
-          </span>
-          <span className='text-pt-teal text-xxxs'>
-            <FeatherIcon icon='settings' className='w-3 h-3' />
-          </span>
-        </div>
-      </button>
-      <SelectNetworkModal
-        label='select-delegation-modal'
-        isOpen={isOpen}
-        description={t('delegetionNetworkSelectDescription')}
-        selectedChainId={chainId}
-        chainIds={chainIds}
-        setSelectedChainId={setChainId}
-        setIsOpen={setIsOpen}
-      />
     </>
   )
 }

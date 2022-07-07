@@ -4,7 +4,6 @@ import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { Label } from './Label'
 
 interface SelectNetworkModalProps {
   isOpen: boolean
