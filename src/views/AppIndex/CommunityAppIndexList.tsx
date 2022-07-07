@@ -54,6 +54,14 @@ const APPS_TO_LIST: AppInfo[] = [
     twitter: 'underethsea',
     github: 'underethsea',
     repo: 'https://github.com/underethsea/explorer-api'
+  },
+  {
+    titleKey: 'poolStatsTitle',
+    descriptionKey: 'poolStatsDescription',
+    href: 'https://pool-stats.netlify.app/',
+    twitter: 'ncookie_eth',
+    github: 'Ncookiez',
+    repo: 'https://github.com/Ncookiez/pooltogether-stats'
   }
 ]
 
