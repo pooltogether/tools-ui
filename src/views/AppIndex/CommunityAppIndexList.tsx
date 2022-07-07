@@ -14,6 +14,7 @@ interface AppInfo {
   discordId?: string
   github?: string
   repo?: string
+  ignoreNoRepo?: boolean
 }
 
 const APPS_TO_LIST: AppInfo[] = [
@@ -24,6 +25,13 @@ const APPS_TO_LIST: AppInfo[] = [
     twitter: 'underethsea',
     github: 'underethsea',
     repo: 'https://github.com/underethsea/pooly'
+  },
+  {
+    titleKey: 'sarfangDuneTitle',
+    descriptionKey: 'sarfangDuneDescription',
+    href: 'https://dune.xyz/sarfang/PoolTogetherV4',
+    twitter: 'sarfang_',
+    ignoreNoRepo: true
   },
   {
     titleKey: 'poolExplorerTitle',
@@ -80,7 +88,7 @@ export const CommunityAppIndexList: React.FC = () => {
 }
 
 const AppLink: React.FC<AppInfo> = (props) => {
-  const { titleKey, descriptionKey, href, twitter, github, repo, discordId, discordName } = props
+  const { titleKey, descriptionKey, href, twitter, github, repo, ignoreNoRepo, discordId, discordName } = props
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -110,7 +118,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
             discordId={discordId}
             discordName={discordName}
           />
-          <RepoLink repo={repo} />
+          <RepoLink repo={repo} ignoreNoRepo={ignoreNoRepo} />
         </div>
         <SquareLink href={href} className='w-full space-x-2 items-center'>
           <span>{t('iUnderstand')}</span>
@@ -162,9 +170,11 @@ const UserLink: React.FC<{
   return null
 }
 
-const RepoLink: React.FC<{ repo?: string }> = (props) => {
-  const { repo } = props
+const RepoLink: React.FC<{ repo?: string, ignoreNoRepo?: boolean }> = (props) => {
+  const { repo, ignoreNoRepo } = props
   const { t } = useTranslation()
+
+  if (ignoreNoRepo) return null
 
   if (!repo) {
     return (
