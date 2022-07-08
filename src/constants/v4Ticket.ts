@@ -37,5 +37,11 @@ export const V4_TICKET: { [chainId: number]: Token } = Object.freeze({
     symbol: 'PTavUSDCe',
     name: 'PoolTogether avUSDCe Ticket',
     decimals: '6'
+  },
+  [CHAIN_ID.optimism]: {
+    address: '0x62BB4fc73094c83B5e952C2180B23fA7054954c4',
+    symbol: 'PTaOptUSDC',
+    name: 'PoolTogether aOptUSDC Ticket',
+    decimals: '6'
   }
 })
