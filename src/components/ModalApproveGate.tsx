@@ -17,9 +17,10 @@ import {
   SquareButtonTheme,
   ThemedClipSpinner
 } from '@pooltogether/react-components'
-
-import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 import { useSigner } from 'wagmi'
+
+import { TxButton } from '@components/Buttons/TxButton'
+import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 import { approveErc20Spender } from '@utils/transactions/approveErc20Spender'
 
 interface ModalApproveGateProps {
@@ -94,9 +95,15 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
           )}
         </p>
       </div>
-      <SquareButton className='w-full' onClick={submitApproveTransaction}>
+      <TxButton
+        className='w-full'
+        onClick={submitApproveTransaction}
+        chainId={chainId}
+        state={transaction?.state}
+        status={transaction?.status}
+      >
         {t('confirmApproval', 'Confirm approval')}
-      </SquareButton>
+      </TxButton>
     </div>
   )
 }

@@ -307,10 +307,10 @@ const TokenBalanceWarning: React.FC<{ isBalanceSufficient: boolean; chainId: num
   return (
     <Banner
       theme={BannerTheme.rainbowBorder}
-      innerClassName='px-2 flex flex-col items-center text-center space-y-2 text-xs'
+      innerClassName='px-2 xs:px-8 flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-pt-red-light' />
-      <p className='text-xxs'>
+      <p className='text-xxs xs:text-xs'>
         {t(
           'tokensPerEpochAmountTooLarge',
           'The tokens you have requested to send via this promotion is more than your balance'
@@ -326,10 +326,10 @@ const PromotionFundsLockWarning: React.FC = () => {
   return (
     <Banner
       theme={BannerTheme.rainbowBorder}
-      innerClassName='px-2 flex flex-col items-center text-center space-y-2 text-xs'
+      innerClassName='px-2 xs:px-8 flex flex-col items-center text-center space-y-2 text-xs'
     >
       <FeatherIcon icon='alert-triangle' className='text-yellow' />
-      <p className='text-xxs'>{t('createPromotionConfirmationDescription')}</p>
+      <p className='text-xxs xs:text-xs'>{t('createPromotionConfirmationDescription')}</p>
       <a
         className='transition text-pt-teal dark:hover:text-white underline hover:underline xs:flex items-center space-x-1 text-xxs'
         href={REWARDS_LEARN_MORE_URL}

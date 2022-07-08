@@ -83,7 +83,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           />
         )}
 
-        <div className='xs:mx-2'>{list}</div>
+        <div>{list}</div>
 
         <EditDelegationModal chainId={chainId} />
         <CreateDelegationModal chainId={chainId} delegator={delegator} />
