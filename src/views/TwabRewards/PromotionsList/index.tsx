@@ -71,7 +71,7 @@ export const PromotionsList: React.FC<PromotionsListProps> = (props) => {
           />
         )}
 
-        <div className='xs:mx-2'>{list}</div>
+        <div>{list}</div>
 
         <CreatePromotionModal
           chainId={chainId}

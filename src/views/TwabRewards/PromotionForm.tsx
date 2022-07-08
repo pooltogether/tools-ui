@@ -342,9 +342,9 @@ const ErrorMessage: React.FC<{ className?: string }> = (props) => {
   return (
     <p
       {...props}
-      className={classNames(props.className, 'xs:h-5 xs:block mt-1 text-xxs text-pt-red-light', {
-        'h-5 mb-4': Boolean(props.children),
-        'mb-0 h-1': !Boolean(props.children)
+      className={classNames(props.className, 'mt-1 text-xxs text-pt-red-light', {
+        'h-5 mb-4 xs:block': Boolean(props.children),
+        'mb-0 h-2': !Boolean(props.children)
       })}
     />
   )
