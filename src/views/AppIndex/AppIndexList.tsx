@@ -29,8 +29,7 @@ const APPS_TO_LIST: AppInfo[] = [
     titleKey: 'promotionalRewards',
     descriptionKey: 'promotionalRewardsDescription',
     href: 'promotional-rewards',
-    icon: GiftSvg,
-    disabled: true
+    icon: GiftSvg
   },
   {
     titleKey: 'pooltogetherGovernance',
