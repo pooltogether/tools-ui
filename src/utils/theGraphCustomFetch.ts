@@ -22,6 +22,6 @@ export const theGraphCustomFetch = async (request, options, retry = 3) =>
       throw new Error(JSON.stringify(response))
     })
     .catch((reason) => {
-      console.log(reason)
+      console.error(reason)
       return reason
     })

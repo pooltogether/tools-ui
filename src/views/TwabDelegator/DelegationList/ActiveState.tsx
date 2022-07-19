@@ -41,11 +41,13 @@ import classNames from 'classnames'
 import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
+import { useMemo, useState } from 'react'
+import { usePagination } from '@hooks/usePagination'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string
   listState: ListState
-  transactionPending: boolean
+  transactionsPending: boolean
   setListState: (listState: ListState) => void
 }
 
@@ -54,8 +56,20 @@ export interface ActiveStateProps extends DelegationListProps {
  * @returns
  */
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
-  const { chainId, className, listState, setListState, delegator, transactionPending } = props
-  const { data: delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
+  const { chainId, className, listState, setListState, delegator, transactionsPending } = props
+  const { data: _delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
+  const { page, pageSize, next, previous } = usePagination(_delegations?.length, 10, {
+    onNext: () => document.getElementById('delegations-title').scrollIntoView(),
+    onPrevious: () => document.getElementById('delegations-title').scrollIntoView()
+  })
+  const delegations = useMemo(
+    () => _delegations.slice(page * pageSize, page * pageSize + pageSize),
+    [page, _delegations]
+  )
+
+  const { t } = useTranslation()
+  const isPaginated = !!previous || !!next
+
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <ul>
@@ -66,18 +80,46 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
             key={`slot-${delegation.delegationId.slot.toString()}-${listState}`}
             chainId={chainId}
             listState={listState}
-            transactionPending={transactionPending}
+            transactionsPending={transactionsPending}
           />
         ))}
       </ul>
-      <AddSlotButton
-        className='mx-auto mt-8'
-        chainId={chainId}
-        delegator={delegator}
-        listState={listState}
-        setListState={setListState}
-        transactionPending={transactionPending}
-      />
+      <div
+        className={classNames('mt-8 flex', {
+          'mx-auto': !isPaginated,
+          'w-full': isPaginated
+        })}
+      >
+        {isPaginated && (
+          <div className='mr-auto flex space-x-2 items-center'>
+            {!!previous && (
+              <button className='' onClick={previous}>
+                <FeatherIcon
+                  icon='chevron-left'
+                  className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                />
+              </button>
+            )}
+            <span className='text-xxxs'>{t('pageNumber', { pageNumber: page + 1 })}</span>
+            {!!next && (
+              <button className='' onClick={next}>
+                <FeatherIcon
+                  icon='chevron-right'
+                  className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                />
+              </button>
+            )}
+          </div>
+        )}
+        <AddSlotButton
+          className='ml-auto'
+          chainId={chainId}
+          delegator={delegator}
+          listState={listState}
+          setListState={setListState}
+          transactionsPending={transactionsPending}
+        />
+      </div>
     </div>
   )
 }
@@ -128,7 +170,7 @@ const Header = (props) => (
 interface DelegationRowProps {
   listState: ListState
   chainId: number
-  transactionPending: boolean
+  transactionsPending: boolean
   delegationId: DelegationId
   delegation?: Delegation
   delegationUpdate?: DelegationUpdate
@@ -149,7 +191,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
     delegationUpdate,
     delegationFund,
     listState,
-    transactionPending
+    transactionsPending
   } = props
   const { slot } = delegationId
 
@@ -182,7 +224,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
             {...props}
             isZeroBalance={isZeroBalance}
             isLocked={isLocked}
-            transactionPending={transactionPending}
+            transactionsPending={transactionsPending}
           />
         )}
         {isLocked && listState === ListState.withdraw && <div style={{ width: 16 }}></div>}
@@ -207,7 +249,7 @@ const DelegationRow: React.FC<DelegationRowProps> = (props) => {
             {...props}
             isZeroBalance={isZeroBalance}
             isLocked={isLocked}
-            transactionPending={transactionPending}
+            transactionsPending={transactionsPending}
           />
         </div>
       )}
@@ -326,10 +368,10 @@ const DelegationWithdrawToggle: React.FC<
   DelegationRowProps & {
     isZeroBalance: boolean
     isLocked: boolean
-    transactionPending: boolean
+    transactionsPending: boolean
   }
 > = (props) => {
-  const { delegationId, transactionPending, isZeroBalance, isLocked } = props
+  const { delegationId, transactionsPending, isZeroBalance, isLocked } = props
   const delegationWithdrawal = useDelegationWithdrawal(delegationId)
   const addDelegationWithdrawal = useUpdateAtom(addDelegationWithdrawalAtom)
   const removeDelegationWithdrawal = useUpdateAtom(removeDelegationWithdrawalAtom)
@@ -337,7 +379,7 @@ const DelegationWithdrawToggle: React.FC<
 
   return (
     <CheckboxInputGroup
-      disabled={transactionPending || isLocked || isZeroBalance}
+      disabled={transactionsPending || isLocked || isZeroBalance}
       checked={amount?.isZero()}
       handleClick={() =>
         amount?.isZero()
@@ -353,12 +395,12 @@ const DelegationEditToggle: React.FC<
   DelegationRowProps & {
     isZeroBalance: boolean
     isLocked: boolean
-    transactionPending: boolean
+    transactionsPending: boolean
   }
 > = (props) => {
   const {
     delegationId,
-    transactionPending,
+    transactionsPending,
     isLocked,
     delegationCreation,
     delegationFund,
@@ -375,7 +417,7 @@ const DelegationEditToggle: React.FC<
         setDelegationIdToEdit(delegationId)
         setIsOpen(true)
       }}
-      disabled={transactionPending || isLocked}
+      disabled={transactionsPending || isLocked}
     >
       {delegationCreation && <StateChangeIcon icon='plus-circle' tooltipText={t('createSlot')} />}
       {delegationFund && <StateChangeIcon icon='dollar-sign' tooltipText={t('fundDelegatee')} />}
@@ -403,10 +445,10 @@ const AddSlotButton: React.FC<{
   delegator: string
   listState: ListState
   setListState: (listState: ListState) => void
-  transactionPending: boolean
+  transactionsPending: boolean
   className?: string
 }> = (props) => {
-  const { className, listState, transactionPending, delegator, setListState } = props
+  const { className, listState, transactionsPending, delegator, setListState } = props
   const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
   const { t } = useTranslation()
@@ -422,7 +464,7 @@ const AddSlotButton: React.FC<{
         setListState(ListState.edit)
         setIsOpen(true)
       }}
-      disabled={transactionPending}
+      disabled={transactionsPending}
     >
       <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
       <span>{t('newDelegation')}</span>

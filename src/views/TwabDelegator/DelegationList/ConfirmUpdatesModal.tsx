@@ -3,11 +3,15 @@ import { signERC2612Permit } from 'eth-permit'
 import FeatherIcon from 'feather-icons-react'
 import {
   delegationCreationsAtom,
+  delegationCreationsCountAtom,
   delegationFundsAtom,
+  delegationFundsCountAtom,
   delegationUpdatedLocksCountAtom,
   delegationUpdatesAtom,
+  delegationUpdatesCountAtom,
   delegationUpdatesModalOpenAtom,
-  delegationWithdrawalsAtom
+  delegationWithdrawalsAtom,
+  delegationWithdrawlsCountAtom
 } from '@twabDelegator/atoms'
 import { useAtom } from 'jotai'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
@@ -31,7 +35,9 @@ import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import {
   useSendTransaction,
+  useSendTransactions,
   useTransaction,
+  useTransactions,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
@@ -40,6 +46,7 @@ import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUse
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 import { useSigner } from 'wagmi'
+import { EditedIconAndCount } from './ListStateActions'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -54,24 +61,27 @@ enum ConfirmModalState {
 export const ConfirmUpdatesModal: React.FC<{
   chainId: number
   delegator: string
-  transactionId: string
-  transactionPending: boolean
+  transactionIds: string[]
+  transactionsPending: boolean
   setSignaturePending: (pending: boolean) => void
-  setTransactionId: (transactionId: string) => void
-  setListState: (listState: ListState) => void
+  setTransactionIds: (transactionIds: string[]) => void
+  onSuccess?: () => void
 }> = (props) => {
   const {
     chainId,
     delegator,
-    transactionId,
-    transactionPending,
+    transactionIds,
+    transactionsPending,
     setSignaturePending,
-    setListState,
-    setTransactionId
+    onSuccess,
+    setTransactionIds
   } = props
+  const [editsCount] = useAtom(delegationUpdatesCountAtom)
+  const [creationsCount] = useAtom(delegationCreationsCountAtom)
+  const [fundsCount] = useAtom(delegationFundsCountAtom)
   const [modalState, setModalState] = useState(ConfirmModalState.review)
   const [isOpen, setIsOpen] = useAtom(delegationUpdatesModalOpenAtom)
-  const transaction = useTransaction(transactionId)
+  const transactions = useTransactions(transactionIds)
   const { t } = useTranslation()
   const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
   const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
@@ -91,22 +101,42 @@ export const ConfirmUpdatesModal: React.FC<{
           <TicketStakeWarning chainId={chainId} isStakeSufficient={isStakeSufficient} />
         )}
         <DelegationLockWarning />
+
         <div>
-          <p className='text-xs font-bold mb-1 capitalize'>{t('reviewChanges')}</p>
+          <div className='mb-1 flex justify-between'>
+            <p className='text-xs font-bold capitalize'>{t('reviewChanges')}</p>
+            <div className='flex flex-row space-x-2'>
+              <EditedIconAndCount
+                count={creationsCount}
+                icon='plus-circle'
+                tooltipText={t('createSlot')}
+              />
+              <EditedIconAndCount
+                count={fundsCount}
+                icon='dollar-sign'
+                tooltipText={t('fundDelegatee')}
+              />
+              <EditedIconAndCount
+                count={editsCount}
+                icon='edit-2'
+                tooltipText={t('editDelegatee')}
+              />
+            </div>
+          </div>
           <DelegationConfirmationList chainId={chainId} delegator={delegator} />
         </div>
         <SubmitTransactionButton
           chainId={chainId}
           delegator={delegator}
-          transactionPending={transactionPending}
+          transactionsPending={transactionsPending}
           isBalanceSufficient={isBalanceSufficient}
           isStakeSufficient={isStakeSufficient}
           isUserARepresentative={isUserARepresentative}
           isRepresentativeFetched={isRepresentativeFetched}
           setIsOpen={setIsOpen}
-          setTransactionId={setTransactionId}
+          setTransactionIds={setTransactionIds}
           setModalState={setModalState}
-          setListState={setListState}
+          onSuccess={onSuccess}
           setSignaturePending={setSignaturePending}
         />
       </div>
@@ -115,7 +145,9 @@ export const ConfirmUpdatesModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-12'>
         <ModalTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
-        <TransactionReceiptButton chainId={chainId} transaction={transaction} />
+        {transactions.map((transaction) => (
+          <TransactionReceiptButton chainId={chainId} transaction={transaction} />
+        ))}
       </div>
     )
   }
@@ -126,7 +158,7 @@ export const ConfirmUpdatesModal: React.FC<{
       open={isOpen}
       onDismiss={() => {
         setIsOpen(false)
-        if (!transactionPending) {
+        if (!transactionsPending) {
           setModalState(ConfirmModalState.review)
         }
       }}
@@ -223,16 +255,16 @@ const TicketStakeWarning: React.FC<{ isStakeSufficient: boolean; chainId: number
 interface SubmitTransactionButtonProps {
   chainId: number
   delegator: string
-  transactionPending: boolean
+  transactionsPending: boolean
   isBalanceSufficient: boolean
   isStakeSufficient: boolean
   isUserARepresentative: boolean
   isRepresentativeFetched: boolean
   setIsOpen: (isOpen: boolean) => void
   setSignaturePending: (pending: boolean) => void
-  setTransactionId: (id: string) => void
+  setTransactionIds: (id: string) => void
   setModalState: (modalState: ConfirmModalState) => void
-  setListState: (listState: ListState) => void
+  onSuccess?: () => void
 }
 
 /**
@@ -244,7 +276,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const {
     chainId,
     delegator,
-    transactionPending,
+    transactionsPending,
     isBalanceSufficient,
     isStakeSufficient,
     isUserARepresentative,
@@ -252,8 +284,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     setIsOpen,
     setSignaturePending,
     setModalState,
-    setListState,
-    setTransactionId
+    onSuccess,
+    setTransactionIds
   } = props
   const [delegationCreations] = useAtom(delegationCreationsAtom)
   const [delegationUpdates] = useAtom(delegationUpdatesAtom)
@@ -280,7 +312,8 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
 
-  const sendTransaction = useSendTransaction()
+  const sendTransaction = useSendTransaction(t)
+  const sendTransactions = useSendTransactions(t)
 
   const getDelegation = (delegationId: DelegationId) =>
     delegations.find(
@@ -413,6 +446,18 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover
         const v = signature.v < 27 ? signature.v + 27 : signature.v
 
+        console.log({
+          twabDelegatorContract,
+          fnCalls,
+          amountToIncrease,
+          sig: {
+            deadline: signature.deadline,
+            v,
+            r: signature.r,
+            s: signature.s
+          }
+        })
+
         callTransaction = async () =>
           twabDelegatorContract.permitAndMulticall(
             amountToIncrease,
@@ -430,11 +475,12 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         return
       }
     } else {
+      console.log({ twabDelegatorContract, fnCalls })
       callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
     }
 
     const transactionId = sendTransaction({
-      name: t('updateDelegations'),
+      name: t('updateDelegations') + ' (1/2)',
       callTransaction,
       callbacks: {
         onSentToWallet: () => {
@@ -446,7 +492,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         onSuccess: async () => {
           await refetch()
           resetAtoms()
-          setListState(ListState.readOnly)
+          onSuccess?.()
           setIsOpen(false)
           refetchDelegationBalance()
           refetchTicketBalance()
@@ -454,7 +500,29 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         }
       }
     })
-    setTransactionId(transactionId)
+    const transactionId2 = sendTransaction({
+      name: t('updateDelegations') + ' (2/2)',
+      callTransaction,
+      callbacks: {
+        onSentToWallet: () => {
+          setSignaturePending(false)
+        },
+        onConfirmedByUser: () => {
+          setModalState(ConfirmModalState.receipt)
+        },
+        onSuccess: async () => {
+          await refetch()
+          resetAtoms()
+          onSuccess?.()
+          setIsOpen(false)
+          refetchDelegationBalance()
+          refetchTicketBalance()
+          setModalState(ConfirmModalState.review)
+        }
+      }
+    })
+    console.log({ transactionId, transactionId2 })
+    setTransactionIds(transactionId)
   }
 
   const submitUpdateTransactionForRepresentative = async () => {
@@ -550,7 +618,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         onSuccess: async () => {
           await refetch()
           resetAtoms()
-          setListState(ListState.readOnly)
+          onSuccess?.()
           setIsOpen(false)
           refetchDelegationBalance()
           refetchStake()
@@ -558,7 +626,7 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
         }
       }
     })
-    setTransactionId(transactionId)
+    setTransactionIds(transactionId)
   }
 
   return (
@@ -568,13 +636,13 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
       disabled={
         !signer ||
         !isAllowanceFetched ||
-        transactionPending ||
+        transactionsPending ||
         (!isUserARepresentative && !isBalanceSufficient) ||
         (isUserARepresentative && !isStakeSufficient) ||
         !isRepresentativeFetched ||
         (isUserARepresentative && !isStakeFetched)
       }
-      pending={transactionPending}
+      pending={transactionsPending}
       chainId={chainId}
     >
       {t('confirmUpdates')}

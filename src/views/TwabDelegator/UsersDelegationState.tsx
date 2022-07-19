@@ -114,7 +114,7 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
             </div>
           )}
         </div>
-        <div className='flex flex-col space-y-1 mt-4 mr-4'>
+        <div className='flex flex-col space-y-1 mt-4 mr-4 items-end'>
           <ManageRepresentativeButton delegator={delegator} chainId={chainId} />
           <RepresentativeIcon chainId={chainId} delegator={delegator} />
         </div>
