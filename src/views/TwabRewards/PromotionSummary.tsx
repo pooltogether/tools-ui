@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
-import { useTokenBalance } from '@pooltogether/hooks'
+import { useToken } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { BlockExplorerLink } from '@pooltogether/react-components'
 import { format } from 'date-fns'
@@ -35,13 +35,15 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
   } = props
 
   const { t } = useTranslation()
-  const usersAddress = useUsersAddress()
 
-  const { data: tokenData, isFetched: tokenDataIsFetched } = useTokenBalance(
-    chainId,
-    usersAddress,
-    token
-  )
+  const {
+    data: tokenData,
+    isFetched: tokenDataIsFetched,
+    isError: tokenDataIsError
+  } = useToken(chainId, token)
+  if (tokenDataIsError) {
+    console.error(tokenDataIsError)
+  }
 
   if (
     !Boolean(numberOfEpochs) ||

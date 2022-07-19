@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
-import { useTokenBalance } from '@pooltogether/hooks'
+import { useToken } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { DatePicker, TimePicker } from 'antd'
 import { SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
@@ -70,11 +70,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   const numberOfEpochs = watch('numberOfEpochs')
 
   const tokenAddress = watch('token')
-  const { data: tokenData, isFetched: tokenDataIsFetched } = useTokenBalance(
-    chainId,
-    usersAddress,
-    tokenAddress
-  )
+  const { data: tokenData, isFetched: tokenDataIsFetched } = useToken(chainId, tokenAddress)
   const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
 
   useEffect(() => {
@@ -300,16 +296,20 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
                 message: t('minimumTokensPerEpochIsOne', 'Minimum tokens per epoch is 0.01')
               },
               validate: {
-                isNumber: (v) => !isNaN(Number(v)) || 'Start time must be a number',
+                isNumber: (v) => !isNaN(Number(v)) || 'Tokens per epoch must be a number',
                 isValidBigNumber: (v) => {
                   try {
+                    console.log(v)
+                    console.log(tokenData)
+                    console.log(tokenData.decimals)
+                    console.log(parseUnits(v, tokenData.decimals))
                     parseUnits(v, tokenData.decimals)
                     return true
                   } catch (e) {
-                    return 'Invalid startTime'
+                    return 'Invalid tokens per epoch'
                   }
                 },
-                isPositive: (v) => Number(v) >= 0 || 'Balance must be a positive number'
+                isPositive: (v) => Number(v) >= 0 || 'Tokens per epoch must be a positive number'
               }
             })}
           />{' '}
