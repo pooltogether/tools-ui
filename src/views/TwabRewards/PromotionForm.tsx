@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
 import moment from 'moment'
-import { dToS, msToS } from '@pooltogether/utilities'
+import { getNetworkNiceNameByChainId, dToS, msToS } from '@pooltogether/utilities'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
@@ -107,6 +107,15 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     tokensPerEpoch !== '.' &&
     parseUnits(tokensPerEpoch, tokenData?.decimals)
 
+  const validFieldsHidden = !tokenAddressIsValid || !tokenData?.name
+  const hasToken = tokenAddressIsValid && tokenData?.name
+
+  const tokenDataError =
+    tokenAddressIsValid &&
+    tokenDataIsFetched &&
+    !tokenData?.name &&
+    `not a valid token on selected network: '${getNetworkNiceNameByChainId(chainId)}'`
+
   return (
     <form
       onSubmit={handleSubmit((v) => onSubmit(v, reset))}
@@ -115,9 +124,11 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     >
       <Label className='uppercase' htmlFor='token'>
         {t('tokenToDistribute', 'Token to distribute')}:{' '}
-        {!tokenDataIsFetched && tokenAddressIsValid && <ThemedClipSpinner />}
+        {!tokenDataIsFetched && tokenAddressIsValid && (
+          <ThemedClipSpinner className='mx-1' sizeClassName='w-3 h-3' />
+        )}
       </Label>
-      <ValidFieldDisplay hidden={!tokenAddressIsValid && !tokenData?.name}>
+      <ValidFieldDisplay hidden={validFieldsHidden}>
         <TokenDisplay chainId={chainId} tokenData={tokenData} className='xs:text-lg' />
 
         <button
@@ -130,9 +141,10 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       </ValidFieldDisplay>
       <StyledInput
         id='token'
+        disabled={tokenAddressIsValid && !tokenDataIsFetched}
         invalid={!!errors.token}
         className={classNames('w-full', {
-          hidden: tokenAddressIsValid
+          hidden: hasToken
         })}
         placeholder='0xabc...'
         {...register('token', {
@@ -146,11 +158,12 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         })}
       />
 
+      <ErrorMessage>{tokenDataError}</ErrorMessage>
       <ErrorMessage>{errors.token?.message}</ErrorMessage>
 
       <fieldset
         className={classNames('w-full', {
-          hidden: !tokenAddressIsValid && !tokenData?.name
+          hidden: validFieldsHidden
         })}
       >
         <Label className='uppercase' htmlFor='balance'>
@@ -182,7 +195,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
       <fieldset
         className={classNames('w-full', {
-          hidden: !tokenAddressIsValid && !tokenData?.name
+          hidden: validFieldsHidden
         })}
       >
         <div className='col-span-2 flex space-x-2 items-center'>
@@ -225,7 +238,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
       <fieldset
         className={classNames('w-full', {
-          hidden: !tokenAddressIsValid && !tokenData?.name
+          hidden: validFieldsHidden
         })}
       >
         <div className='col-span-2 flex space-x-2 items-center'>
@@ -268,7 +281,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
       <fieldset
         className={classNames('w-full', {
-          hidden: !tokenAddressIsValid && !tokenData?.name
+          hidden: validFieldsHidden
         })}
       >
         <div className='col-span-2 flex space-x-2 items-center'>
@@ -299,10 +312,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
                 isNumber: (v) => !isNaN(Number(v)) || 'Tokens per epoch must be a number',
                 isValidBigNumber: (v) => {
                   try {
-                    console.log(v)
-                    console.log(tokenData)
-                    console.log(tokenData.decimals)
-                    console.log(parseUnits(v, tokenData.decimals))
                     parseUnits(v, tokenData.decimals)
                     return true
                   } catch (e) {
@@ -323,7 +332,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
       <PromotionSummary
         className='w-full px-3 py-1'
         chainId={chainId}
-        hidden={!tokenAddressIsValid && !tokenData?.name}
+        hidden={validFieldsHidden}
         startTimestamp={startTimestamp}
         numberOfEpochs={numberOfEpochs}
         tokensPerEpoch={tokensPerEpochFormatted}
