@@ -5,6 +5,8 @@ export const usePagination = (
   pageSize = 25,
   options?: {
     onNext?: (page?: number) => void
+    onLast?: (page?: number) => void
+    onFirst?: (page?: number) => void
     onPrevious?: (page?: number) => void
   }
 ) => {
@@ -15,13 +17,23 @@ export const usePagination = (
       page,
       setPage,
       pageSize,
+      last: () => {
+        console.log({ pageSize, listLength })
+        const page = Math.ceil(listLength / pageSize) - 1
+        setPage(page)
+        options?.onLast?.(page)
+      },
+      first: () => {
+        setPage(0)
+        options?.onFirst?.(0)
+      },
       next:
-        (page + 1) * pageSize + pageSize > listLength
-          ? null
-          : () => {
+        page * pageSize + pageSize < listLength
+          ? () => {
               setPage(page + 1)
               options?.onNext?.(page + 1)
-            },
+            }
+          : null,
       previous:
         page === 0
           ? null

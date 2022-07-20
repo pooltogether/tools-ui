@@ -197,6 +197,15 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
     <>
       <FixedFooterNav>
         <div className='w-full flex justify-center space-x-2'>
+          <SquareButton
+            className='w-32'
+            size={SquareButtonSize.sm}
+            onClick={() => setIsBulkModalOpen(true)}
+            disabled={transactionsPending}
+          >
+            <FeatherIcon strokeWidth='3' icon='align-justify' className='w-4 h-4 mr-1' />
+            CSV
+          </SquareButton>
           {delegator === usersAddress && (
             <SquareButton
               className='w-32'
@@ -210,15 +219,6 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               {t('stake')}
             </SquareButton>
           )}
-          <SquareButton
-            className='w-32'
-            size={SquareButtonSize.sm}
-            onClick={() => setIsBulkModalOpen(true)}
-            disabled={transactionsPending}
-          >
-            <FeatherIcon strokeWidth='3' icon='align-justify' className='w-4 h-4 mr-1' />
-            CSV
-          </SquareButton>
           <SquareButton
             className='w-32'
             size={SquareButtonSize.sm}

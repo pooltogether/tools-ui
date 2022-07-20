@@ -1,8 +1,5 @@
-import { dToS, getReadProvider } from '@pooltogether/utilities'
+import { dToS } from '@pooltogether/utilities'
 import {
-  addDelegationCreationAtom,
-  addDelegationFundAtom,
-  addDelegationUpdateAtom,
   delegationChainIdAtom,
   delegationCreationsAtom,
   delegationFundsAtom,
@@ -10,15 +7,15 @@ import {
   delegatorAtom
 } from '@twabDelegator/atoms'
 import { DelegationFormValues, DelegationFund, DelegationUpdate } from '@twabDelegator/interfaces'
-import { BigNumber, constants, ethers } from 'ethers'
+import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import FeatherIcon from 'feather-icons-react'
-import { useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
 import classNames from 'classnames'
+import { useState } from 'react'
+import { ThemedClipSpinner } from '@pooltogether/react-components'
 
 export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => void }> = (
   props
@@ -31,12 +28,8 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
   const [, setDelegationCreations] = useAtom(delegationCreationsAtom)
   const [, setDelegationUpdates] = useAtom(delegationUpdatesAtom)
   const [, setDelegationFunds] = useAtom(delegationFundsAtom)
+  const [isUploading, setIsUploading] = useState(false)
   const { data: delegations, isFetched } = useDelegatorsTwabDelegations(chainId, delegator)
-
-  useEffect(() => {
-    const p = getReadProvider(chainId)
-    console.log({ p, ethers })
-  }, [])
 
   // TODO: Handle attempts to overwrite locked delegations
   const updateOrCreateDelegations = (bulkDelegations: DelegationFormValues[]) => {
@@ -60,12 +53,20 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
 
       const isSlotInUse = delegations.find(({ delegationId }) => delegationId.slot.eq(slot))
 
-      if (isSlotInUse) {
-        delegationUpdates.push(delegationUpdate)
+      if (!!isSlotInUse) {
+        if (isSlotInUse.delegation.delegatee !== delegationUpdate.delegatee) {
+          delegationUpdates.push(delegationUpdate)
+        }
       } else {
         delegationCreations.push(delegationUpdate)
       }
-      delegationFunds.push(delegationFund)
+
+      const amountToDelegate = parseUnits(delegation.balance, ticket.decimals)
+      if (!amountToDelegate.isZero()) {
+        if (!isSlotInUse || !isSlotInUse.delegation.balance.eq(amountToDelegate)) {
+          delegationFunds.push(delegationFund)
+        }
+      }
     })
 
     // Clear any existing delegations
@@ -93,17 +94,24 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
         htmlFor='csv-upload'
         className={classNames(
           'square-btn square-btn--teal square-btn--sm flex items-center justify-center space-x-1',
-          { 'opacity-70 cursor-not-allowed': !isFetched }
+          { 'opacity-70 cursor-not-allowed': !isFetched || isUploading }
         )}
       >
-        <FeatherIcon icon='upload' className='w-4 h-4' />
-        <div>Upload CSV</div>
+        {isUploading ? (
+          <ThemedClipSpinner sizeClassName='w-3 h-3' className='mr-1' />
+        ) : (
+          <FeatherIcon icon='upload' className='w-4 h-4' />
+        )}
+        <div>{isUploading ? 'Uploading CSV' : 'Upload CSV'}</div>
         <input
           id='csv-upload'
           className='hidden'
           type='file'
           accept='.csv'
+          onBeforeInput={() => console.log('b41')}
+          onBeforeInputCapture={() => console.log('b42')}
           onChange={async (event) => {
+            setIsUploading(true)
             if (event.target?.files?.item(0)) {
               const file = event.target.files.item(0)
               const fileContents = await file.text()
@@ -111,6 +119,7 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
               updateOrCreateDelegations(rows)
               onUpload?.(rows)
             }
+            setIsUploading(false)
           }}
         />
       </label>

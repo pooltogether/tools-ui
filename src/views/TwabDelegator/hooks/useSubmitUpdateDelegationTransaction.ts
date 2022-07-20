@@ -1,15 +1,11 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { toast } from 'react-toastify'
 import { signERC2612Permit } from 'eth-permit'
-import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
+import { useTokenAllowance } from '@pooltogether/hooks'
 import {
   SendTransactionOptions,
-  TransactionCallbacks,
-  TransactionStatus,
   useSendTransaction,
   useSendTransactions,
-  useTransactions,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 import {
@@ -24,53 +20,46 @@ import { DelegationId } from '@twabDelegator/interfaces'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
 import { getV4TicketContract } from '@utils/getV4TicketContract'
-import { BigNumber, Contract, PopulatedTransaction, Signer } from 'ethers'
+import { BigNumber, PopulatedTransaction } from 'ethers'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { useSigner } from 'wagmi'
-import { useDelegatorsStake } from './useDelegatorsStake'
 import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
 import { useIsUserDelegatorsRepresentative } from './useIsUserDelegatorsRepresentative'
-import { useResetDelegationAtoms } from './useResetDelegationAtoms'
-import { useTotalAmountDelegated } from './useTotalAmountDelegated'
-import { useEffect } from 'react'
 import { useLatestBlock } from '@hooks/useLatestBlock'
-import { RSV } from 'eth-permit/dist/rpc'
 
 export const useSubmitUpdateDelegationTransaction = (
-  transactionIds: string[],
   setSignaturePending: (isPending: boolean) => void,
+  setChunkingPending: (isPending: boolean) => void,
   setTransactionIds: (transactonIds: string[]) => void,
   callbacks?: {
     onAllComplete?: () => void
     onEveryConfirmedByUser?: () => void
   }
 ) => {
-  const transactions = useTransactions(transactionIds)
   const [chainId] = useAtom(delegationChainIdAtom)
   const [delegator] = useAtom(delegatorAtom)
   const [delegationCreations] = useAtom(delegationCreationsAtom)
   const [delegationUpdates] = useAtom(delegationUpdatesAtom)
   const [delegationFunds] = useAtom(delegationFundsAtom)
   const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
-  const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
-  const resetAtoms = useResetDelegationAtoms()
+  const { data: delegations } = useDelegatorsTwabDelegations(chainId, delegator)
   const usersAddress = useUsersAddress()
-  const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
-    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const { data: isUserARepresentative } = useIsUserDelegatorsRepresentative(
+    chainId,
+    usersAddress,
+    delegator
+  )
   const { refetch: getSigner } = useSigner()
   const ticket = useV4Ticket(chainId)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
-  const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
+  const { data: allowance } = useTokenAllowance(
     chainId,
     usersAddress,
     twabDelegatorAddress,
     ticket.address
   )
-  const { refetch: refetchStake } = useDelegatorsStake(chainId, delegator)
   const { data: block } = useLatestBlock(chainId)
-  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
-  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
   const { t } = useTranslation()
   const sendTransaction = useSendTransaction(t)
   const sendTransactions = useSendTransactions(t)
@@ -79,12 +68,20 @@ export const useSubmitUpdateDelegationTransaction = (
     estimateGas: (fnCalls: string[]) => Promise<BigNumber>,
     fnCalls: string[]
   ) => {
-    const gasLimit: BigNumber = block.gasLimit
+    if (fnCalls.length === 1) {
+      return [fnCalls]
+    }
+
+    // Get 80% of the gas limit
+    const gasLimit: BigNumber = (block.gasLimit as BigNumber).sub(
+      (block.gasLimit as BigNumber).div(5)
+    )
 
     let numOfTransactions = 1
     let isSufficientGas = false
     do {
       try {
+        // TODO: estimate gas for EVERY transaction, not just the first. Splitting the fn calls evenly doesn't split the gas evenly.
         const estimatedGas = await estimateGas(
           fnCalls.slice(0, (fnCalls.length - 1) / numOfTransactions)
         )
@@ -104,6 +101,8 @@ export const useSubmitUpdateDelegationTransaction = (
       const chunk = fnCalls.slice(i, i + chunkSize)
       chunkedFnCalls.push(chunk)
     }
+
+    console.log({ chunkedFnCalls })
     return chunkedFnCalls
   }
 
@@ -114,20 +113,8 @@ export const useSubmitUpdateDelegationTransaction = (
         delegation.delegationId.delegator === delegationId.delegator
     )
 
-  useEffect(() => {
-    if (transactions.every((transaction) => transaction.status === TransactionStatus.success)) {
-      refetch()
-      resetAtoms()
-      refetchDelegationBalance()
-      refetchStake()
-      refetchTicketBalance()
-      // setIsOpen(false)
-      // setModalState(ConfirmModalState.review)
-      callbacks?.onAllComplete?.()
-    }
-  }, [transactions])
-
   return async () => {
+    console.log('Start submit')
     const { data: signer } = await getSigner()
     const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
     const ticketContract = getV4TicketContract(chainId)
@@ -198,19 +185,35 @@ export const useSubmitUpdateDelegationTransaction = (
       let populatedTx: PopulatedTransaction
       if (amountToFund.isNegative()) {
         const amountToWithdraw = amountToFund.mul(-1)
-        populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
-          slot,
-          amountToWithdraw,
-          delegator
-        )
+        if (isUserARepresentative) {
+          populatedTx = await twabDelegatorContract.populateTransaction.withdrawDelegationToStake(
+            delegator,
+            slot,
+            amountToWithdraw
+          )
+        } else {
+          populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
+            slot,
+            amountToWithdraw,
+            delegator
+          )
+        }
         withdrawToStakeFnCalls.push(populatedTx.data)
-      } else {
+      } else if (!amountToFund.isZero()) {
         totalAmountToFund = totalAmountToFund.add(amountToFund)
-        populatedTx = await twabDelegatorContract.populateTransaction.fundDelegation(
-          delegator,
-          slot,
-          amountToFund
-        )
+        if (isUserARepresentative) {
+          populatedTx = await twabDelegatorContract.populateTransaction.fundDelegationFromStake(
+            delegator,
+            slot,
+            amountToFund
+          )
+        } else {
+          populatedTx = await twabDelegatorContract.populateTransaction.fundDelegation(
+            delegator,
+            slot,
+            amountToFund
+          )
+        }
         depositToStakeFnCalls.push(populatedTx.data)
       }
     }
@@ -220,7 +223,7 @@ export const useSubmitUpdateDelegationTransaction = (
     let transactionsToSend: SendTransactionOptions[] = []
 
     // If allowance is not high enough get a Permit signature for permitAndMulticall
-    if (!totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
+    if (!isUserARepresentative && !totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
       setSignaturePending(true)
 
       const amountToIncrease = totalAmountToFund.sub(allowance)
@@ -253,6 +256,7 @@ export const useSubmitUpdateDelegationTransaction = (
 
       try {
         const signature = await signaturePromise
+        setChunkingPending(true)
         setSignaturePending(false)
 
         // Overwrite v for hardware wallet signatures
@@ -271,7 +275,10 @@ export const useSubmitUpdateDelegationTransaction = (
             fnCalls
           )
 
+        console.log('a pre')
         const chunkedFnCalls = await getChunkedFnCalls(estimateGas, fnCalls)
+
+        console.log('a post')
 
         transactionsToSend.push({
           name: t('updateDelegations'),
@@ -289,17 +296,7 @@ export const useSubmitUpdateDelegationTransaction = (
           callbacks: {
             onConfirmedByUser: () => {
               callbacks?.onEveryConfirmedByUser?.()
-              // setModalState(ConfirmModalState.receipt)
             }
-            // onSuccess: async () => {
-            // await refetch()
-            // resetAtoms()
-            // onSuccess?.()
-            // setIsOpen(false)
-            // refetchDelegationBalance()
-            // refetchTicketBalance()
-            // setModalState(ConfirmModalState.review)
-            // }
           }
         })
 
@@ -318,13 +315,17 @@ export const useSubmitUpdateDelegationTransaction = (
         }
       } catch (e) {
         setSignaturePending(false)
+        setChunkingPending(false)
         console.error(e)
         return
       }
     } else {
+      console.log('here', { fnCalls })
       const estimateGas = (fnCalls: string[]) =>
         twabDelegatorContract.estimateGas.multicall(fnCalls)
+      console.log('b pre')
       const chunkedFnCalls = await getChunkedFnCalls(estimateGas, fnCalls)
+      console.log('b post')
       chunkedFnCalls.map((fnCalls) => {
         transactionsToSend.push({
           name: t('updateDelegations'),
@@ -338,10 +339,12 @@ export const useSubmitUpdateDelegationTransaction = (
       })
     }
 
-    if (transactionsToSend.length > 1) {
+    console.log({ transactionsToSend })
+    if (transactionsToSend.length === 1) {
       setTransactionIds([sendTransaction(transactionsToSend[0])])
     } else {
       setTransactionIds(sendTransactions(transactionsToSend))
     }
+    setChunkingPending(false)
   }
 }

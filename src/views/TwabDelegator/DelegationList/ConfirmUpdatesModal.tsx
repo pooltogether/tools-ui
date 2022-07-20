@@ -1,52 +1,39 @@
 import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/react-components'
-import { signERC2612Permit } from 'eth-permit'
 import FeatherIcon from 'feather-icons-react'
 import {
-  delegationCreationsAtom,
   delegationCreationsCountAtom,
-  delegationFundsAtom,
   delegationFundsCountAtom,
   delegationUpdatedLocksCountAtom,
-  delegationUpdatesAtom,
   delegationUpdatesCountAtom,
-  delegationUpdatesModalOpenAtom,
-  delegationWithdrawalsAtom,
-  delegationWithdrawlsCountAtom
+  delegationUpdatesModalOpenAtom
 } from '@twabDelegator/atoms'
 import { useAtom } from 'jotai'
 import { DelegationConfirmationList } from './DelegationConfirmationList'
-import { useState } from 'react'
-import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
+import { useEffect, useState } from 'react'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
-import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
-import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
-import { ListState } from '@twabDelegator/DelegationList'
-import { DelegationId } from '@twabDelegator/interfaces'
 import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { getV4TicketContract } from '@utils/getV4TicketContract'
-import { BigNumber, PopulatedTransaction } from 'ethers'
-import { TransactionResponse } from '@ethersproject/providers'
-import { toast } from 'react-toastify'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TransactionButton } from '@components/Buttons/TransactionButton'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import {
-  useSendTransaction,
-  useSendTransactions,
-  useTransaction,
+  TransactionState,
+  TransactionStatus,
   useTransactions,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
-import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
 import { useTranslation } from 'react-i18next'
 import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 import { useSigner } from 'wagmi'
 import { EditedIconAndCount } from './ListStateActions'
+import { useSubmitUpdateDelegationTransaction } from '@twabDelegator/hooks/useSubmitUpdateDelegationTransaction'
+import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
+import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
+import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
 
 enum ConfirmModalState {
   review = 'REVIEW',
@@ -64,6 +51,7 @@ export const ConfirmUpdatesModal: React.FC<{
   transactionIds: string[]
   transactionsPending: boolean
   setSignaturePending: (pending: boolean) => void
+  setChunkingPending: (pending: boolean) => void
   setTransactionIds: (transactionIds: string[]) => void
   onSuccess?: () => void
 }> = (props) => {
@@ -72,6 +60,7 @@ export const ConfirmUpdatesModal: React.FC<{
     delegator,
     transactionIds,
     transactionsPending,
+    setChunkingPending,
     setSignaturePending,
     onSuccess,
     setTransactionIds
@@ -88,6 +77,36 @@ export const ConfirmUpdatesModal: React.FC<{
   const usersAddress = useUsersAddress()
   const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
     useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const resetAtoms = useResetDelegationAtoms()
+  const { refetch } = useDelegatorsTwabDelegations(chainId, delegator)
+  const ticket = useV4Ticket(chainId)
+  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
+  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
+  const { refetch: refetchStake } = useDelegatorsStake(chainId, delegator)
+
+  useEffect(() => {
+    console.log('useEffect', {
+      isAllSuccess: transactions.every(
+        (transaction) => transaction.state === TransactionState.complete
+      )
+    })
+    if (
+      !!transactions &&
+      transactions.length > 0 &&
+      transactions.every((transaction) => transaction.state === TransactionState.complete)
+    ) {
+      console.log('ALL SUCCESS', { transactions, s: TransactionStatus })
+      refetch()
+      resetAtoms()
+      refetchDelegationBalance()
+      refetchStake()
+      refetchTicketBalance()
+      setTransactionIds([])
+      setIsOpen(false)
+      setModalState(ConfirmModalState.review)
+      onSuccess?.()
+    }
+  }, [transactions])
 
   let content
   if (modalState === ConfirmModalState.review) {
@@ -134,10 +153,11 @@ export const ConfirmUpdatesModal: React.FC<{
           isUserARepresentative={isUserARepresentative}
           isRepresentativeFetched={isRepresentativeFetched}
           setIsOpen={setIsOpen}
+          transactionIds={transactionIds}
           setTransactionIds={setTransactionIds}
           setModalState={setModalState}
-          onSuccess={onSuccess}
           setSignaturePending={setSignaturePending}
+          setChunkingPending={setChunkingPending}
         />
       </div>
     )
@@ -146,7 +166,11 @@ export const ConfirmUpdatesModal: React.FC<{
       <div className='flex flex-col space-y-12'>
         <ModalTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
         {transactions.map((transaction) => (
-          <TransactionReceiptButton chainId={chainId} transaction={transaction} />
+          <TransactionReceiptButton
+            key={transaction.id}
+            chainId={chainId}
+            transaction={transaction}
+          />
         ))}
       </div>
     )
@@ -260,11 +284,12 @@ interface SubmitTransactionButtonProps {
   isStakeSufficient: boolean
   isUserARepresentative: boolean
   isRepresentativeFetched: boolean
+  transactionIds: string[]
   setIsOpen: (isOpen: boolean) => void
   setSignaturePending: (pending: boolean) => void
-  setTransactionIds: (id: string) => void
+  setChunkingPending: (pending: boolean) => void
+  setTransactionIds: (ids: string[]) => void
   setModalState: (modalState: ConfirmModalState) => void
-  onSuccess?: () => void
 }
 
 /**
@@ -281,358 +306,41 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     isStakeSufficient,
     isUserARepresentative,
     isRepresentativeFetched,
-    setIsOpen,
+    transactionIds,
     setSignaturePending,
+    setChunkingPending,
     setModalState,
-    onSuccess,
     setTransactionIds
   } = props
-  const [delegationCreations] = useAtom(delegationCreationsAtom)
-  const [delegationUpdates] = useAtom(delegationUpdatesAtom)
-  const [delegationFunds] = useAtom(delegationFundsAtom)
-  const [delegationWithdrawals] = useAtom(delegationWithdrawalsAtom)
-  const { data: delegations, refetch } = useDelegatorsTwabDelegations(chainId, delegator)
-  const resetAtoms = useResetDelegationAtoms()
   const { data: signer } = useSigner()
   const usersAddress = useUsersAddress()
   const ticket = useV4Ticket(chainId)
 
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
-  const { data: allowance, isFetched: isAllowanceFetched } = useTokenAllowance(
+  const { isFetched: isAllowanceFetched } = useTokenAllowance(
     chainId,
     usersAddress,
     twabDelegatorAddress,
     ticket.address
   )
-  const { isFetched: isStakeFetched, refetch: refetchStake } = useDelegatorsStake(
-    chainId,
-    delegator
-  )
-  const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
-  const { refetch: refetchDelegationBalance } = useTotalAmountDelegated(chainId, delegator)
+  const { isFetched: isStakeFetched } = useDelegatorsStake(chainId, delegator)
   const { t } = useTranslation()
 
-  const sendTransaction = useSendTransaction(t)
-  const sendTransactions = useSendTransactions(t)
-
-  const getDelegation = (delegationId: DelegationId) =>
-    delegations.find(
-      (delegation) =>
-        delegation.delegationId.slot.eq(delegationId.slot) &&
-        delegation.delegationId.delegator === delegationId.delegator
-    )
-
-  const submitUpdateTransaction = async () => {
-    if (isUserARepresentative) {
-      return submitUpdateTransactionForRepresentative()
-    }
-    submitUpdateTransactionForDelegator()
-  }
-
-  const submitUpdateTransactionForDelegator = async () => {
-    const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
-    const ticketContract = getV4TicketContract(chainId)
-    const fnCalls: string[] = []
-    let totalAmountToFund = BigNumber.from(0)
-
-    // Add creations to the list of transactions
-    for (const delegationCreation of delegationCreations) {
-      const { slot, delegatee, lockDuration } = delegationCreation
-      const populatedTx = await twabDelegatorContract.populateTransaction.createDelegation(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add updates to the list of transactions
-    for (const delegationUpdate of delegationUpdates) {
-      const { slot, delegatee, lockDuration } = delegationUpdate
-      const populatedTx = await twabDelegatorContract.populateTransaction.updateDelegatee(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add withdrawals to the list of transactions
-    for (const delegationWithdrawal of delegationWithdrawals) {
-      const { slot, amount } = delegationWithdrawal
-      const delegation = getDelegation(delegationWithdrawal)
-      const amountToWithdraw = delegation.delegation.balance.sub(amount)
-      const populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
-        slot,
-        amountToWithdraw,
-        delegator
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add funds to the list of transactions
-    for (const delegationFund of delegationFunds) {
-      const { slot, amount } = delegationFund
-      const delegation = getDelegation(delegationFund)
-      let amountToFund: BigNumber
-
-      // If there's an existing delegation, amountToFund is the difference
-      if (!!delegation) {
-        amountToFund = amount.sub(delegation.delegation.balance)
-      } else {
-        amountToFund = amount
-      }
-
-      let populatedTx: PopulatedTransaction
-
-      if (amountToFund.isNegative()) {
-        const amountToWithdraw = amountToFund.mul(-1)
-        populatedTx = await twabDelegatorContract.populateTransaction.transferDelegationTo(
-          slot,
-          amountToWithdraw,
-          delegator
-        )
-      } else {
-        totalAmountToFund = totalAmountToFund.add(amountToFund)
-        populatedTx = await twabDelegatorContract.populateTransaction.fundDelegation(
-          delegator,
-          slot,
-          amountToFund
-        )
-      }
-      fnCalls.push(populatedTx.data)
-    }
-
-    let callTransaction: () => Promise<TransactionResponse>
-
-    // If allowance is not high enough get a Permit signature for permitAndMulticall
-    if (!totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
-      setSignaturePending(true)
-
-      const amountToIncrease = totalAmountToFund.sub(allowance)
-      const domain = {
-        name: 'PoolTogether ControlledToken',
-        version: '1',
-        chainId,
-        verifyingContract: ticketContract.address
-      }
-
-      // NOTE: Nonce must be passed manually for signERC2612Permit to work with WalletConnect
-      const deadline = (await signer.provider.getBlock('latest')).timestamp + 5 * 60
-      const response = await ticketContract.functions.nonces(usersAddress)
-      const nonce: BigNumber = response[0]
-
-      const signaturePromise = signERC2612Permit(
-        signer,
-        domain,
-        usersAddress,
-        twabDelegatorContract.address,
-        amountToIncrease.toString(),
-        deadline,
-        nonce.toNumber()
-      )
-
-      toast.promise(signaturePromise, {
-        pending: t('signatureIsPending'),
-        error: t('signatureRejected')
-      })
-
-      try {
-        const signature = await signaturePromise
-
-        // Overwrite v for hardware wallet signatures
-        // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover
-        const v = signature.v < 27 ? signature.v + 27 : signature.v
-
-        console.log({
-          twabDelegatorContract,
-          fnCalls,
-          amountToIncrease,
-          sig: {
-            deadline: signature.deadline,
-            v,
-            r: signature.r,
-            s: signature.s
-          }
-        })
-
-        callTransaction = async () =>
-          twabDelegatorContract.permitAndMulticall(
-            amountToIncrease,
-            {
-              deadline: signature.deadline,
-              v,
-              r: signature.r,
-              s: signature.s
-            },
-            fnCalls
-          )
-      } catch (e) {
-        setSignaturePending(false)
-        console.error(e)
-        return
-      }
-    } else {
-      console.log({ twabDelegatorContract, fnCalls })
-      callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
-    }
-
-    const transactionId = sendTransaction({
-      name: t('updateDelegations') + ' (1/2)',
-      callTransaction,
-      callbacks: {
-        onSentToWallet: () => {
-          setSignaturePending(false)
-        },
-        onConfirmedByUser: () => {
-          setModalState(ConfirmModalState.receipt)
-        },
-        onSuccess: async () => {
-          await refetch()
-          resetAtoms()
-          onSuccess?.()
-          setIsOpen(false)
-          refetchDelegationBalance()
-          refetchTicketBalance()
-          setModalState(ConfirmModalState.review)
-        }
-      }
-    })
-    const transactionId2 = sendTransaction({
-      name: t('updateDelegations') + ' (2/2)',
-      callTransaction,
-      callbacks: {
-        onSentToWallet: () => {
-          setSignaturePending(false)
-        },
-        onConfirmedByUser: () => {
-          setModalState(ConfirmModalState.receipt)
-        },
-        onSuccess: async () => {
-          await refetch()
-          resetAtoms()
-          onSuccess?.()
-          setIsOpen(false)
-          refetchDelegationBalance()
-          refetchTicketBalance()
-          setModalState(ConfirmModalState.review)
-        }
-      }
-    })
-    console.log({ transactionId, transactionId2 })
-    setTransactionIds(transactionId)
-  }
-
-  const submitUpdateTransactionForRepresentative = async () => {
-    const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
-    const fnCalls: string[] = []
-    let totalAmountToFund = BigNumber.from(0)
-
-    // Add creations to the list of transactions
-    for (const delegationCreation of delegationCreations) {
-      const { slot, delegatee, lockDuration } = delegationCreation
-      const populatedTx = await twabDelegatorContract.populateTransaction.createDelegation(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add updates to the list of transactions
-    for (const delegationUpdate of delegationUpdates) {
-      const { slot, delegatee, lockDuration } = delegationUpdate
-      const populatedTx = await twabDelegatorContract.populateTransaction.updateDelegatee(
-        delegator,
-        slot,
-        delegatee,
-        lockDuration
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add withdrawals to the list of transactions
-    for (const delegationWithdrawal of delegationWithdrawals) {
-      const { slot, amount } = delegationWithdrawal
-      const delegation = getDelegation(delegationWithdrawal)
-      const amountToWithdraw = delegation.delegation.balance.sub(amount)
-      const populatedTx = await twabDelegatorContract.populateTransaction.withdrawDelegationToStake(
-        delegator,
-        slot,
-        amountToWithdraw
-      )
-      fnCalls.push(populatedTx.data)
-    }
-
-    // Add funds to the list of transactions
-    const withdrawToStakeFnCalls = []
-    const depositToStakeFnCalls = []
-    for (const delegationFund of delegationFunds) {
-      const { slot, amount } = delegationFund
-      const delegation = getDelegation(delegationFund)
-      let amountToFund: BigNumber
-
-      // If there's an existing delegation, amountToFund is the difference
-      if (!!delegation) {
-        amountToFund = amount.sub(delegation.delegation.balance)
-      } else {
-        amountToFund = amount
-      }
-
-      let populatedTx: PopulatedTransaction
-      if (amountToFund.isNegative()) {
-        const amountToWithdraw = amountToFund.mul(-1)
-        populatedTx = await twabDelegatorContract.populateTransaction.withdrawDelegationToStake(
-          delegator,
-          slot,
-          amountToWithdraw
-        )
-        withdrawToStakeFnCalls.push(populatedTx.data)
-      } else {
-        totalAmountToFund = totalAmountToFund.add(amountToFund)
-        populatedTx = await twabDelegatorContract.populateTransaction.fundDelegationFromStake(
-          delegator,
-          slot,
-          amountToFund
-        )
-        depositToStakeFnCalls.push(populatedTx.data)
+  const submit = useSubmitUpdateDelegationTransaction(
+    setSignaturePending,
+    setChunkingPending,
+    setTransactionIds,
+    {
+      onEveryConfirmedByUser: () => {
+        setModalState(ConfirmModalState.receipt)
       }
     }
-    fnCalls.push(...withdrawToStakeFnCalls, ...depositToStakeFnCalls)
-
-    const callTransaction = async () => twabDelegatorContract.multicall(fnCalls)
-
-    const transactionId = sendTransaction({
-      name: t('updateDelegations'),
-      callTransaction,
-      callbacks: {
-        onSentToWallet: () => {
-          setSignaturePending(false)
-        },
-        onConfirmedByUser: () => {
-          setModalState(ConfirmModalState.receipt)
-        },
-        onSuccess: async () => {
-          await refetch()
-          resetAtoms()
-          onSuccess?.()
-          setIsOpen(false)
-          refetchDelegationBalance()
-          refetchStake()
-          setModalState(ConfirmModalState.review)
-        }
-      }
-    })
-    setTransactionIds(transactionId)
-  }
+  )
 
   return (
     <TransactionButton
       className='w-full'
-      onClick={submitUpdateTransaction}
+      onClick={submit}
       disabled={
         !signer ||
         !isAllowanceFetched ||

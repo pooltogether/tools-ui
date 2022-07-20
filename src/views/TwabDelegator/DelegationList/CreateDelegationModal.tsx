@@ -30,7 +30,7 @@ export const CreateDelegationModal: React.FC<{
 
   return (
     <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
-      <ModalTitle chainId={chainId} title={t('createDelegation')} />
+      <ModalTitle chainId={chainId} title={t('createDelegation') + ` #${nextSlotId.toString()}`} />
       <CreateDelegationForm
         chainId={chainId}
         delegationId={{

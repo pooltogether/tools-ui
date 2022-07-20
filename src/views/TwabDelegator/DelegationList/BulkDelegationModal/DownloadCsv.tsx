@@ -10,7 +10,7 @@ export const DownloadCsv = () => {
       className='flex items-center justify-center space-x-1'
     >
       <FeatherIcon icon='download' className='w-4 h-4' />
-      <span>Download template</span>
+      <span>Download Template</span>
     </SquareLink>
   )
 }

@@ -58,14 +58,14 @@ export interface ActiveStateProps extends DelegationListProps {
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, listState, setListState, delegator, transactionsPending } = props
   const { data: _delegations } = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
-  const { page, pageSize, next, previous } = usePagination(_delegations?.length, 10, {
+  const { page, pageSize, next, previous, last, first } = usePagination(_delegations?.length, 10, {
     onNext: () => document.getElementById('delegations-title').scrollIntoView(),
     onPrevious: () => document.getElementById('delegations-title').scrollIntoView()
   })
-  const delegations = useMemo(
-    () => _delegations.slice(page * pageSize, page * pageSize + pageSize),
-    [page, _delegations]
-  )
+
+  const delegations = useMemo(() => {
+    return _delegations.slice(page * pageSize, page * pageSize + pageSize)
+  }, [page, _delegations])
 
   const { t } = useTranslation()
   const isPaginated = !!previous || !!next
@@ -77,7 +77,11 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         {delegations.map((delegation) => (
           <DelegationRow
             {...delegation}
-            key={`slot-${delegation.delegationId.slot.toString()}-${listState}`}
+            key={`slot-${delegation.delegationId.slot.toString()}-${listState}-${
+              delegation.delegationUpdate?.delegatee ||
+              delegation.delegationCreation?.delegatee ||
+              delegation.delegation?.delegatee
+            }-${delegation.delegationFund?.amount.toString() || delegation.delegation?.balance}`}
             chainId={chainId}
             listState={listState}
             transactionsPending={transactionsPending}
@@ -93,21 +97,37 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
         {isPaginated && (
           <div className='mr-auto flex space-x-2 items-center'>
             {!!previous && (
-              <button className='' onClick={previous}>
-                <FeatherIcon
-                  icon='chevron-left'
-                  className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
-                />
-              </button>
+              <>
+                <button className='' onClick={first}>
+                  <FeatherIcon
+                    icon='chevrons-left'
+                    className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                  />
+                </button>
+                <button className='' onClick={previous}>
+                  <FeatherIcon
+                    icon='chevron-left'
+                    className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                  />
+                </button>
+              </>
             )}
             <span className='text-xxxs'>{t('pageNumber', { pageNumber: page + 1 })}</span>
             {!!next && (
-              <button className='' onClick={next}>
-                <FeatherIcon
-                  icon='chevron-right'
-                  className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
-                />
-              </button>
+              <>
+                <button className='' onClick={next}>
+                  <FeatherIcon
+                    icon='chevron-right'
+                    className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                  />
+                </button>
+                <button className='' onClick={last}>
+                  <FeatherIcon
+                    icon='chevrons-right'
+                    className='w-4 h-4 stroke-2 text-pt-teal hover:opacity-70 transition'
+                  />
+                </button>
+              </>
             )}
           </div>
         )}
