@@ -5,23 +5,35 @@ import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
 import { useToken } from '@pooltogether/hooks'
 import { BlockExplorerLink } from '@pooltogether/react-components'
 import { format } from 'date-fns'
-import { Promotion } from '@twabRewards/interfaces'
 
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
 
 interface PromotionSummaryProps {
   chainId: number
-  promotion: Promotion
+  token: string
+  startTimestamp: number
+  tokensPerEpoch: BigNumber
+  epochDuration: number
+  numberOfEpochs: number
+  promotionId?: string
   className?: string
   isIndex?: boolean
   hidden?: boolean
 }
 
 export const PromotionSummary = (props: PromotionSummaryProps) => {
-  const { chainId, promotion, isIndex, hidden } = props
-  const { token, startTimestamp, epochDuration, numberOfEpochs } = promotion
-  const tokensPerEpoch = BigNumber.from(promotion.tokensPerEpoch)
+  const {
+    chainId,
+    token,
+    promotionId,
+    tokensPerEpoch,
+    startTimestamp,
+    epochDuration,
+    numberOfEpochs,
+    isIndex,
+    hidden
+  } = props
 
   const { t } = useTranslation()
 
@@ -87,7 +99,7 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
   if (isIndex) {
     return (
       <>
-        <span className='xs:w-1/12 hidden xs:block'>{parseInt(promotion.id, 16)}</span>
+        <span className='xs:w-1/12 hidden xs:block'>{parseInt(promotionId, 16)}</span>
         <span className='xs:w-5/12'>{StartsAndEndsDisplay}</span>
         <span className='xs:w-1/2'>{SummaryDisplay}</span>
       </>

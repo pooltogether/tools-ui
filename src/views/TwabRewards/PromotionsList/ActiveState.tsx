@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
+import { BigNumber } from 'ethers'
 import { useTranslation } from 'react-i18next'
 import { Tooltip } from '@pooltogether/react-components'
 
@@ -78,7 +79,7 @@ interface PromotionRowProps {
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
   const { chainId, index, promotion } = props
 
-  const { startTimestamp } = promotion
+  const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
 
   const { t } = useTranslation()
 
@@ -98,7 +99,12 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
             isIndex
             className='mt-2 xs:mt-0'
             chainId={chainId}
-            promotion={promotion}
+            token={token}
+            tokensPerEpoch={BigNumber.from(tokensPerEpoch)}
+            startTimestamp={startTimestamp}
+            epochDuration={epochDuration}
+            numberOfEpochs={numberOfEpochs}
+            promotionId={promotion.id}
           />
         </div>
         <div className='flex justify-end w-4 xs:w-auto'>

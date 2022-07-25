@@ -6,6 +6,7 @@ export interface Promotion {
   startTimestamp: number
   epochDuration: number
   numberOfEpochs: number
+  id?: string
 }
 
 export interface PromotionId {
