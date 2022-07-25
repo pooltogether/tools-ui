@@ -3,36 +3,25 @@ import { formatUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
 import { useToken } from '@pooltogether/hooks'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { BlockExplorerLink } from '@pooltogether/react-components'
 import { format } from 'date-fns'
+import { Promotion } from '@twabRewards/interfaces'
 
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
 
 interface PromotionSummaryProps {
   chainId: number
-  token: string
-  startTimestamp: number
-  tokensPerEpoch: BigNumber
-  epochDuration: number
-  numberOfEpochs: number
+  promotion: Promotion
   className?: string
   isIndex?: boolean
   hidden?: boolean
 }
 
 export const PromotionSummary = (props: PromotionSummaryProps) => {
-  const {
-    chainId,
-    startTimestamp,
-    numberOfEpochs,
-    epochDuration,
-    tokensPerEpoch,
-    token,
-    isIndex,
-    hidden
-  } = props
+  const { chainId, promotion, isIndex, hidden } = props
+  const { token, startTimestamp, epochDuration, numberOfEpochs } = promotion
+  const tokensPerEpoch = BigNumber.from(promotion.tokensPerEpoch)
 
   const { t } = useTranslation()
 
@@ -98,7 +87,8 @@ export const PromotionSummary = (props: PromotionSummaryProps) => {
   if (isIndex) {
     return (
       <>
-        <span className='xs:w-1/2'>{StartsAndEndsDisplay}</span>
+        <span className='xs:w-1/12 hidden xs:block'>{parseInt(promotion.id, 16)}</span>
+        <span className='xs:w-5/12'>{StartsAndEndsDisplay}</span>
         <span className='xs:w-1/2'>{SummaryDisplay}</span>
       </>
     )
