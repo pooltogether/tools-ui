@@ -65,8 +65,6 @@ export const SwapIn: React.FC<{
     isAllowanceFetched
   ])
 
-  console.log({ isExactAmountOutFetched, isExactAmountFetching })
-
   return (
     <SwapAmountContainer
       className={classNames(
@@ -90,7 +88,6 @@ export const SwapIn: React.FC<{
               isAllowanceFetched: () => !!isAllowanceFetched || 'Fetching allowance',
               isBalanceFetched: () => !!isUsersBalanceFetched || 'Fetching balance',
               isAmountOutFetched: () => {
-                console.log('isAmountOutFetched', { isExactAmountOutFetched })
                 return !!isExactAmountOutFetched || 'Fetching amount to receive'
               },
               isAmountBigNumberish: (v) => {

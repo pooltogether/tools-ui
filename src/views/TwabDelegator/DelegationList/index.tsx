@@ -10,7 +10,7 @@ import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDel
 import { useResetDelegationAtomsOnAccountChange } from '@twabDelegator/hooks/useResetDelegationAtomsOnAccountChange'
 import classNames from 'classnames'
 import { NoDelegatorState } from './NoDelegatorState'
-import { TransactionState, useTransaction } from '@pooltogether/wallet-connection'
+import { TransactionState, useTransaction, useTransactions } from '@pooltogether/wallet-connection'
 
 export interface DelegationListProps {
   className?: string
@@ -38,7 +38,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
   const transaction = useTransaction(transactionId)
   const [signaturePending, setSignaturePending] = useState(false)
 
-  const transactionPending = transaction?.state === TransactionState.pending || signaturePending
+  const transactionsPending = transaction?.state === TransactionState.pending || signaturePending
   const { data: delegations, isFetched } = useQueryResult
 
   if (isFetched) {
@@ -62,13 +62,16 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           delegator={delegator}
           listState={listState}
           setListState={setListState}
-          transactionPending={transactionPending}
+          transactionsPending={transactionsPending}
         />
       )
     }
     return (
       <div className={classNames(className, 'text-xxxs xs:text-xs')}>
-        <p className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'>
+        <p
+          className='text-center text-xs xs:text-sm uppercase font-semibold text-pt-purple-light mt-8 mb-2 xs:mb-2 xs:mt-2'
+          id='delegations-title'
+        >
           Delegations
         </p>
 
@@ -79,7 +82,7 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
             delegator={delegator}
             setDelegator={setDelegator}
             setListState={setListState}
-            transactionPending={transactionPending}
+            transactionsPending={transactionsPending}
           />
         )}
 
@@ -91,10 +94,10 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           chainId={chainId}
           delegator={delegator}
           transactionId={transactionId}
-          transactionPending={transactionPending}
           setSignaturePending={setSignaturePending}
           setTransactionId={setTransactionId}
-          setListState={setListState}
+          onSuccess={() => setListState(ListState.readOnly)}
+          transactionsPending={transactionsPending}
         />
       </div>
     )

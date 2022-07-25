@@ -12,7 +12,6 @@ import {
   ThemedClipSpinner,
   Tooltip
 } from '@pooltogether/react-components'
-
 import {
   delegationUpdatesCountAtom,
   delegationFundsAtom,
@@ -33,19 +32,21 @@ import { useTranslation } from 'react-i18next'
 import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import { StakeModal } from './StakeModal'
 import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
+import { FixedFooterNav } from '@twabDelegator/FixedFooterNav'
+import Link from 'next/link'
 
 interface ListStateActionsProps {
   chainId: number
   listState: ListState
   delegator: string
-  transactionPending: boolean
+  transactionsPending: boolean
   setListState: (listState: ListState) => void
   setDelegator: (delegator: string) => void
 }
 
 // TODO: Cancel confirmation modal
 export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
-  const { chainId, listState, transactionPending, delegator, setDelegator, setListState } = props
+  const { chainId, listState, transactionsPending, delegator, setDelegator, setListState } = props
   const [editsCount] = useAtom(delegationUpdatesCountAtom)
   const [creationsCount] = useAtom(delegationCreationsCountAtom)
   const [fundsCount] = useAtom(delegationFundsCountAtom)
@@ -56,8 +57,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const resetDelegationFunds = useResetAtom(delegationFundsAtom)
   const resetDelegationWithdrawals = useResetAtom(delegationWithdrawalsAtom)
   const usersAddress = useUsersAddress()
-  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
-  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
+  const [delegationFunds] = useAtom(delegationFundsAtom)
+  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator, delegationFunds)
+  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator, delegationFunds)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -74,7 +76,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           <SquareButton
             className='px-8'
             size={SquareButtonSize.sm}
-            disabled={transactionPending}
+            disabled={transactionsPending}
             onClick={() => {
               setIsOpen(true)
             }}
@@ -98,7 +100,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           <ConfirmCancellationButton
             chainId={chainId}
             delegator={delegator}
-            disabled={transactionPending}
+            disabled={transactionsPending}
             cancelUpdates={() => {
               resetDelegationUpdates()
               resetDelegationCreations()
@@ -108,7 +110,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             updatesCount={creationsCount + fundsCount + editsCount}
           />
           <div className='flex space-x-2 items-center'>
-            <div className='flex flex-col space-y-1 justify-between items-center'>
+            <div className='flex flex-col space-y-1 justify-between items-end'>
               <EditedIconAndCount
                 count={creationsCount}
                 icon='plus-circle'
@@ -148,9 +150,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               disabled={!fundsCount && !editsCount && !creationsCount}
             >
               <span className='capitalize'>
-                {transactionPending ? t('savingChanges') : t('saveChanges')}
+                {transactionsPending ? t('savingChanges') : t('saveChanges')}
               </span>
-              {transactionPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
+              {transactionsPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
             </SquareButton>
           </div>
         </>
@@ -163,7 +165,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
           <ConfirmCancellationButton
             chainId={chainId}
             delegator={delegator}
-            disabled={transactionPending}
+            disabled={transactionsPending}
             cancelUpdates={() => {
               resetDelegationWithdrawals()
               setListState(ListState.readOnly)
@@ -177,13 +179,13 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             disabled={!withdrawlsCount}
           >
             <span>
-              {transactionPending
+              {transactionsPending
                 ? t('withdrawing')
                 : withdrawlsCount
                 ? `${t('withdraw')} (${withdrawlsCount})`
                 : t('withdraw')}
             </span>
-            {transactionPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
+            {transactionsPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
           </SquareButton>
         </div>
       </FixedFooterNav>
@@ -199,7 +201,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               className='w-32'
               size={SquareButtonSize.sm}
               onClick={() => setIsStakeModalOpen(true)}
-              disabled={transactionPending}
+              disabled={transactionsPending}
             >
               <div className='text-primary w-4 h-4 mr-1'>
                 <StakeSvg />
@@ -211,7 +213,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             className='w-32'
             size={SquareButtonSize.sm}
             onClick={() => setListState(ListState.withdraw)}
-            disabled={transactionPending}
+            disabled={transactionsPending}
           >
             <div className='text-primary w-4 h-4 mr-1'>
               <WithdrawSvg />
@@ -222,7 +224,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             className='w-24'
             size={SquareButtonSize.sm}
             onClick={() => setListState(ListState.edit)}
-            disabled={transactionPending}
+            disabled={transactionsPending}
           >
             <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
           </SquareButton>
@@ -238,23 +240,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   )
 }
 
-const FixedFooterNav: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  return (
-    <>
-      {/* Desktop */}
-      <div className='hidden xs:flex w-full items-center justify-between mb-20'>{children}</div>
-      {/* Mobile */}
-      <div
-        className='flex xs:hidden items-center fixed b-0 l-0 r-0 h-20 bg-pt-purple-bright justify-between space-x-2 px-2'
-        style={{ zIndex: 3 }}
-      >
-        {children}
-      </div>
-    </>
-  )
-}
-
-const EditedIconAndCount: React.FC<{ count: number; icon: string; tooltipText: string }> = ({
+export const EditedIconAndCount: React.FC<{ count: number; icon: string; tooltipText: string }> = ({
   count,
   icon,
   tooltipText

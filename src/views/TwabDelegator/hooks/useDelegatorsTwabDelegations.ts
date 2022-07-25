@@ -38,15 +38,16 @@ const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string
   const provider = getReadProvider(chainId, RPC_API_KEYS)
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
 
-  const pageSize = 10
-  let slotIndexOffset = 0
   let batchCalls = []
 
   const delegationsWithIds: { delegation: Delegation; delegationId: DelegationId }[] = []
 
-  const fetchPageOfTwabDelegations = async () => {
-    for (let i = 0; i < slotIndexOffset + pageSize; i++) {
-      const slotIndex = i + slotIndexOffset
+  const fetchTwabDelegationsPage = async (pageNumber: number = 0, pageSize: number = 50) => {
+    for (
+      let slotIndex = pageNumber * pageSize;
+      slotIndex < pageNumber * pageSize + pageSize;
+      slotIndex++
+    ) {
       const twabDelegatorContract = contract(
         slotIndex.toString(),
         TwabDelegatorAbi,
@@ -82,14 +83,13 @@ const getUsersTwabDelegationsWithIds = async (chainId: number, delegator: string
 
     // If the highest slot was filled, fetch another page. Otherwise, assume there are no more filled slots.
 
-    const lastSlotIndex = slotIndexOffset + pageSize - 1
+    const lastSlotIndex = pageNumber * pageSize + pageSize - 1
     const lastDelegationInPage: Delegation = response[lastSlotIndex].getDelegation
     if (lastDelegationInPage.wasCreated) {
-      slotIndexOffset += pageSize
-      await fetchPageOfTwabDelegations()
+      await fetchTwabDelegationsPage(pageNumber + 1)
     }
   }
 
-  await fetchPageOfTwabDelegations()
+  await fetchTwabDelegationsPage()
   return delegationsWithIds
 }

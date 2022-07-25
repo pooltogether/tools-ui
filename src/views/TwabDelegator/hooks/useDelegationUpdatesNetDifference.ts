@@ -1,4 +1,5 @@
 import { delegationFundsAtom } from '@twabDelegator/atoms'
+import { DelegationFund } from '@twabDelegator/interfaces'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
 import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
@@ -9,9 +10,12 @@ import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
  * @param delegator
  * @returns
  */
-export const useDelegationUpdatesNetDifference = (chainId: number, delegator: string) => {
+export const useDelegationUpdatesNetDifference = (
+  chainId: number,
+  delegator: string,
+  delegationFunds: DelegationFund[]
+) => {
   const { data: delegations, isFetched } = useDelegatorsTwabDelegations(chainId, delegator)
-  const [delegationFunds] = useAtom(delegationFundsAtom)
 
   if (!isFetched) return null
 
