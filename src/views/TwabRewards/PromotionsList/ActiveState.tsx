@@ -1,10 +1,7 @@
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
-import { dToS } from '@pooltogether/utilities'
-import { BigNumber } from 'ethers'
-import { useTokenBalance } from '@pooltogether/hooks'
 import { useTranslation } from 'react-i18next'
-import { Tooltip, BlockExplorerLink, TokenIcon } from '@pooltogether/react-components'
+import { Tooltip } from '@pooltogether/react-components'
 
 import { PromotionsListProps } from '.'
 import { Promotion } from '@twabRewards/interfaces'
@@ -30,10 +27,11 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
       <div className={classNames(className, 'flex flex-col pb-32')}>
         <ul>
           <ListHeaders />
-          {promotions?.map((promotion) => {
+          {promotions?.map((promotion, index) => {
             return (
               <PromotionRow
                 key={`slot-${promotion.createdAt.toString()}`}
+                index={index}
                 promotion={promotion}
                 chainId={chainId}
               />
@@ -51,6 +49,7 @@ const ListHeaders: React.FC = () => {
   return (
     <li
       className={classNames(
+        'even:bg-pt-teal odd:bg-blue-100',
         'flex items-center',
         'xs:px-2 py-1 border-b border-pt-purple border-opacity-50'
       )}
@@ -68,6 +67,7 @@ const Header = (props) => (
 
 interface PromotionRowProps {
   chainId: number
+  index: number
   promotion?: Promotion
 }
 
@@ -76,9 +76,9 @@ interface PromotionRowProps {
  * @returns
  */
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
-  const { chainId, promotion } = props
+  const { chainId, index, promotion } = props
 
-  const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
+  const { startTimestamp } = promotion
 
   const { t } = useTranslation()
 
@@ -86,7 +86,10 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
     <li
       className={classNames(
         'flex items-center',
-        'xs:px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 text-xxs'
+        'xs:px-2 py-2 first:border-t border-b border-pt-purple border-opacity-50 text-xxs',
+        {
+          'bg-actually-black bg-opacity-5 dark:bg-pt-purple-dark': index % 2 === 0
+        }
       )}
     >
       <div className='flex items-center w-full'>
@@ -95,11 +98,7 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
             isIndex
             className='mt-2 xs:mt-0'
             chainId={chainId}
-            startTimestamp={startTimestamp}
-            numberOfEpochs={numberOfEpochs}
-            tokensPerEpoch={BigNumber.from(tokensPerEpoch)}
-            epochDuration={epochDuration}
-            token={token}
+            promotion={promotion}
           />
         </div>
         <div className='flex justify-end w-4 xs:w-auto'>
