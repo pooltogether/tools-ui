@@ -2,27 +2,30 @@ import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { useTokenBalance } from '@pooltogether/hooks'
 import { delegationFundsAtom } from '@twabDelegator/atoms'
 import { DelegationFund } from '@twabDelegator/interfaces'
+import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
+import { useMemo } from 'react'
 import { useDelegationUpdatesNetDifference } from './useDelegationUpdatesNetDifference'
-import { useIsAmountSufficientForFunds } from './useIsAmountSufficientForFunds'
 
 /**
- * Fetches the delegators ticket balances and checks if it is greater than the amount of tickets the user has committed to delegating while updating their delegations
+ * Compares to see if an amount is sufficient for proposed updates
  * @param chainId
  * @param delegator
  * @returns
  */
-export const useIsDelegatorsBalanceSufficient = (
+export const useIsAmountSufficientForFunds = (
   chainId: number,
   delegator: string,
+  amountUnformatted: BigNumber,
   delegationFunds: DelegationFund[]
 ) => {
-  const ticket = useV4Ticket(chainId)
-  const { data: tokenBalance, isFetched } = useTokenBalance(chainId, delegator, ticket.address)
-  return useIsAmountSufficientForFunds(
+  const totalDelegationAmount = useDelegationUpdatesNetDifference(
     chainId,
     delegator,
-    tokenBalance?.amountUnformatted,
     delegationFunds
   )
+  return useMemo(() => {
+    if (!amountUnformatted || !totalDelegationAmount) return null
+    return amountUnformatted.gte(totalDelegationAmount)
+  }, [amountUnformatted?.toString(), totalDelegationAmount?.toString()])
 }

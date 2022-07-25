@@ -2,6 +2,7 @@ import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/reac
 import FeatherIcon from 'feather-icons-react'
 import {
   delegationCreationsCountAtom,
+  delegationFundsAtom,
   delegationFundsCountAtom,
   delegationUpdatedLocksCountAtom,
   delegationUpdatesCountAtom,
@@ -21,6 +22,7 @@ import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
 import {
   TransactionState,
   TransactionStatus,
+  useTransaction,
   useTransactions,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
@@ -48,32 +50,31 @@ enum ConfirmModalState {
 export const ConfirmUpdatesModal: React.FC<{
   chainId: number
   delegator: string
-  transactionIds: string[]
+  transactionId: string
   transactionsPending: boolean
   setSignaturePending: (pending: boolean) => void
-  setChunkingPending: (pending: boolean) => void
-  setTransactionIds: (transactionIds: string[]) => void
+  setTransactionId: (transactionIds: string) => void
   onSuccess?: () => void
 }> = (props) => {
   const {
     chainId,
     delegator,
-    transactionIds,
+    transactionId,
     transactionsPending,
-    setChunkingPending,
     setSignaturePending,
-    onSuccess,
-    setTransactionIds
+    onSuccess: _onSuccess,
+    setTransactionId
   } = props
   const [editsCount] = useAtom(delegationUpdatesCountAtom)
   const [creationsCount] = useAtom(delegationCreationsCountAtom)
   const [fundsCount] = useAtom(delegationFundsCountAtom)
   const [modalState, setModalState] = useState(ConfirmModalState.review)
   const [isOpen, setIsOpen] = useAtom(delegationUpdatesModalOpenAtom)
-  const transactions = useTransactions(transactionIds)
+  const transaction = useTransaction(transactionId)
   const { t } = useTranslation()
-  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
-  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
+  const [delegationFunds] = useAtom(delegationFundsAtom)
+  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator, delegationFunds)
+  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator, delegationFunds)
   const usersAddress = useUsersAddress()
   const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
     useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
@@ -84,29 +85,17 @@ export const ConfirmUpdatesModal: React.FC<{
   const { refetch: refetchTicketBalance } = useTokenBalance(chainId, delegator, ticket.address)
   const { refetch: refetchStake } = useDelegatorsStake(chainId, delegator)
 
-  useEffect(() => {
-    console.log('useEffect', {
-      isAllSuccess: transactions.every(
-        (transaction) => transaction.state === TransactionState.complete
-      )
-    })
-    if (
-      !!transactions &&
-      transactions.length > 0 &&
-      transactions.every((transaction) => transaction.state === TransactionState.complete)
-    ) {
-      console.log('ALL SUCCESS', { transactions, s: TransactionStatus })
-      refetch()
-      resetAtoms()
-      refetchDelegationBalance()
-      refetchStake()
-      refetchTicketBalance()
-      setTransactionIds([])
-      setIsOpen(false)
-      setModalState(ConfirmModalState.review)
-      onSuccess?.()
-    }
-  }, [transactions])
+  const onSuccess = () => {
+    refetch()
+    resetAtoms()
+    refetchDelegationBalance()
+    refetchStake()
+    refetchTicketBalance()
+    setIsOpen(false)
+    setModalState(ConfirmModalState.review)
+    setTransactionId('')
+    _onSuccess?.()
+  }
 
   let content
   if (modalState === ConfirmModalState.review) {
@@ -153,11 +142,10 @@ export const ConfirmUpdatesModal: React.FC<{
           isUserARepresentative={isUserARepresentative}
           isRepresentativeFetched={isRepresentativeFetched}
           setIsOpen={setIsOpen}
-          transactionIds={transactionIds}
-          setTransactionIds={setTransactionIds}
+          setTransactionId={setTransactionId}
+          onSuccess={onSuccess}
           setModalState={setModalState}
           setSignaturePending={setSignaturePending}
-          setChunkingPending={setChunkingPending}
         />
       </div>
     )
@@ -165,13 +153,11 @@ export const ConfirmUpdatesModal: React.FC<{
     content = (
       <div className='flex flex-col space-y-12'>
         <ModalTitle chainId={chainId} title={t('delegationTransactionSubmitted')} />
-        {transactions.map((transaction) => (
-          <TransactionReceiptButton
-            key={transaction.id}
-            chainId={chainId}
-            transaction={transaction}
-          />
-        ))}
+        <TransactionReceiptButton
+          key={transaction?.id}
+          chainId={chainId}
+          transaction={transaction}
+        />
       </div>
     )
   }
@@ -284,11 +270,10 @@ interface SubmitTransactionButtonProps {
   isStakeSufficient: boolean
   isUserARepresentative: boolean
   isRepresentativeFetched: boolean
-  transactionIds: string[]
+  onSuccess: () => void
   setIsOpen: (isOpen: boolean) => void
   setSignaturePending: (pending: boolean) => void
-  setChunkingPending: (pending: boolean) => void
-  setTransactionIds: (ids: string[]) => void
+  setTransactionId: (id: string) => void
   setModalState: (modalState: ConfirmModalState) => void
 }
 
@@ -306,11 +291,10 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
     isStakeSufficient,
     isUserARepresentative,
     isRepresentativeFetched,
-    transactionIds,
+    onSuccess,
     setSignaturePending,
-    setChunkingPending,
     setModalState,
-    setTransactionIds
+    setTransactionId
   } = props
   const { data: signer } = useSigner()
   const usersAddress = useUsersAddress()
@@ -326,16 +310,10 @@ const SubmitTransactionButton: React.FC<SubmitTransactionButtonProps> = (props) 
   const { isFetched: isStakeFetched } = useDelegatorsStake(chainId, delegator)
   const { t } = useTranslation()
 
-  const submit = useSubmitUpdateDelegationTransaction(
-    setSignaturePending,
-    setChunkingPending,
-    setTransactionIds,
-    {
-      onEveryConfirmedByUser: () => {
-        setModalState(ConfirmModalState.receipt)
-      }
-    }
-  )
+  const submit = useSubmitUpdateDelegationTransaction(setTransactionId, setSignaturePending, {
+    onConfirmedByUser: () => setModalState(ConfirmModalState.receipt),
+    onSuccess
+  })
 
   return (
     <TransactionButton

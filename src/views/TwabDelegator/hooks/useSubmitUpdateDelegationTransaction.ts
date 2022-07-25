@@ -4,8 +4,8 @@ import { signERC2612Permit } from 'eth-permit'
 import { useTokenAllowance } from '@pooltogether/hooks'
 import {
   SendTransactionOptions,
+  TransactionCallbacks,
   useSendTransaction,
-  useSendTransactions,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 import {
@@ -29,13 +29,9 @@ import { useIsUserDelegatorsRepresentative } from './useIsUserDelegatorsRepresen
 import { useLatestBlock } from '@hooks/useLatestBlock'
 
 export const useSubmitUpdateDelegationTransaction = (
+  setTransactionId: (id: string) => void,
   setSignaturePending: (isPending: boolean) => void,
-  setChunkingPending: (isPending: boolean) => void,
-  setTransactionIds: (transactonIds: string[]) => void,
-  callbacks?: {
-    onAllComplete?: () => void
-    onEveryConfirmedByUser?: () => void
-  }
+  callbacks?: TransactionCallbacks
 ) => {
   const [chainId] = useAtom(delegationChainIdAtom)
   const [delegator] = useAtom(delegatorAtom)
@@ -59,52 +55,8 @@ export const useSubmitUpdateDelegationTransaction = (
     twabDelegatorAddress,
     ticket.address
   )
-  const { data: block } = useLatestBlock(chainId)
   const { t } = useTranslation()
   const sendTransaction = useSendTransaction(t)
-  const sendTransactions = useSendTransactions(t)
-
-  const getChunkedFnCalls = async (
-    estimateGas: (fnCalls: string[]) => Promise<BigNumber>,
-    fnCalls: string[]
-  ) => {
-    if (fnCalls.length === 1) {
-      return [fnCalls]
-    }
-
-    // Get 80% of the gas limit
-    const gasLimit: BigNumber = (block.gasLimit as BigNumber).sub(
-      (block.gasLimit as BigNumber).div(5)
-    )
-
-    let numOfTransactions = 1
-    let isSufficientGas = false
-    do {
-      try {
-        // TODO: estimate gas for EVERY transaction, not just the first. Splitting the fn calls evenly doesn't split the gas evenly.
-        const estimatedGas = await estimateGas(
-          fnCalls.slice(0, (fnCalls.length - 1) / numOfTransactions)
-        )
-        if (estimatedGas.lt(gasLimit)) {
-          isSufficientGas = true
-        } else {
-          numOfTransactions++
-        }
-      } catch (e) {
-        numOfTransactions++
-      }
-    } while (!isSufficientGas)
-
-    const chunkSize = (fnCalls.length - 1) / numOfTransactions
-    const chunkedFnCalls: string[][] = []
-    for (let i = 0; i < fnCalls.length; i += chunkSize) {
-      const chunk = fnCalls.slice(i, i + chunkSize)
-      chunkedFnCalls.push(chunk)
-    }
-
-    console.log({ chunkedFnCalls })
-    return chunkedFnCalls
-  }
 
   const getDelegation = (delegationId: DelegationId) =>
     delegations.find(
@@ -220,13 +172,15 @@ export const useSubmitUpdateDelegationTransaction = (
     // Add withdrawal transactions before deposits to ensure balance is sufficient
     fnCalls.push(...withdrawToStakeFnCalls, ...depositToStakeFnCalls)
 
-    let transactionsToSend: SendTransactionOptions[] = []
+    let transactionToSend: SendTransactionOptions
 
     // If allowance is not high enough get a Permit signature for permitAndMulticall
     if (!isUserARepresentative && !totalAmountToFund.isZero() && allowance.lt(totalAmountToFund)) {
       setSignaturePending(true)
 
-      const amountToIncrease = totalAmountToFund.sub(allowance)
+      const amountToIncrease = totalAmountToFund //.sub(allowance)
+
+      console.log({ amountToIncrease, totalAmountToFund, allowance })
       const domain = {
         name: 'PoolTogether ControlledToken',
         version: '1',
@@ -256,31 +210,13 @@ export const useSubmitUpdateDelegationTransaction = (
 
       try {
         const signature = await signaturePromise
-        setChunkingPending(true)
-        setSignaturePending(false)
+        console.log('signature', { signature })
 
         // Overwrite v for hardware wallet signatures
         // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover
         const v = signature.v < 27 ? signature.v + 27 : signature.v
 
-        const estimateGas = (fnCalls: string[]) =>
-          twabDelegatorContract.estimateGas.permitAndMulticall(
-            amountToIncrease,
-            {
-              deadline: signature.deadline,
-              v,
-              r: signature.r,
-              s: signature.s
-            },
-            fnCalls
-          )
-
-        console.log('a pre')
-        const chunkedFnCalls = await getChunkedFnCalls(estimateGas, fnCalls)
-
-        console.log('a post')
-
-        transactionsToSend.push({
+        transactionToSend = {
           name: t('updateDelegations'),
           callTransaction: async () =>
             twabDelegatorContract.permitAndMulticall(
@@ -291,60 +227,24 @@ export const useSubmitUpdateDelegationTransaction = (
                 r: signature.r,
                 s: signature.s
               },
-              chunkedFnCalls[0]
+              fnCalls
             ),
-          callbacks: {
-            onConfirmedByUser: () => {
-              callbacks?.onEveryConfirmedByUser?.()
-            }
-          }
-        })
-
-        if (chunkedFnCalls.length > 1) {
-          for (let i = 1; i < chunkedFnCalls.length; i++) {
-            transactionsToSend.push({
-              name: t('updateDelegations'),
-              callTransaction: async () => twabDelegatorContract.multicall(chunkedFnCalls[i]),
-              callbacks: {
-                onConfirmedByUser: () => {
-                  callbacks?.onEveryConfirmedByUser?.()
-                }
-              }
-            })
-          }
+          callbacks
         }
       } catch (e) {
         setSignaturePending(false)
-        setChunkingPending(false)
         console.error(e)
         return
       }
     } else {
-      console.log('here', { fnCalls })
-      const estimateGas = (fnCalls: string[]) =>
-        twabDelegatorContract.estimateGas.multicall(fnCalls)
-      console.log('b pre')
-      const chunkedFnCalls = await getChunkedFnCalls(estimateGas, fnCalls)
-      console.log('b post')
-      chunkedFnCalls.map((fnCalls) => {
-        transactionsToSend.push({
-          name: t('updateDelegations'),
-          callTransaction: async () => twabDelegatorContract.multicall(fnCalls),
-          callbacks: {
-            onConfirmedByUser: () => {
-              callbacks?.onEveryConfirmedByUser?.()
-            }
-          }
-        })
-      })
+      transactionToSend = {
+        name: t('updateDelegations'),
+        callTransaction: async () => twabDelegatorContract.multicall(fnCalls),
+        callbacks
+      }
     }
 
-    console.log({ transactionsToSend })
-    if (transactionsToSend.length === 1) {
-      setTransactionIds([sendTransaction(transactionsToSend[0])])
-    } else {
-      setTransactionIds(sendTransactions(transactionsToSend))
-    }
-    setChunkingPending(false)
+    setTransactionId(sendTransaction(transactionToSend))
+    setSignaturePending(false)
   }
 }

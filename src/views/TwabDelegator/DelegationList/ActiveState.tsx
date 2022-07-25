@@ -64,7 +64,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   })
 
   const delegations = useMemo(() => {
-    return _delegations.slice(page * pageSize, page * pageSize + pageSize)
+    return _delegations?.slice(page * pageSize, page * pageSize + pageSize) || []
   }, [page, _delegations])
 
   const { t } = useTranslation()

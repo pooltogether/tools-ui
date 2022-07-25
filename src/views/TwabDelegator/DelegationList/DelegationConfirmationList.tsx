@@ -28,18 +28,20 @@ export const DelegationConfirmationList: React.FC<{ chainId: number; delegator: 
           <li key={`update-${index}`}>{update}</li>
         ))}
       </ul>
-      <div className='flex mt-4 -ml-2 text-xxs'>
-        {!!previous && (
-          <button className='mr-auto' onClick={previous}>
-            Previous
-          </button>
-        )}
-        {!!next && (
-          <button className='ml-auto' onClick={next}>
-            Next
-          </button>
-        )}
-      </div>
+      {(!!previous || !!next) && (
+        <div className='flex mt-4 -ml-2 text-xxs'>
+          {!!previous && (
+            <button className='mr-auto' onClick={previous}>
+              Previous
+            </button>
+          )}
+          {!!next && (
+            <button className='ml-auto' onClick={next}>
+              Next
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

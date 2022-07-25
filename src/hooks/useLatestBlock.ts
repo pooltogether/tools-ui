@@ -1,6 +1,6 @@
 import { Block } from '@ethersproject/providers'
 import { getReadProvider } from '@pooltogether/utilities'
-import { useQuery } from 'wagmi'
+import { useQuery } from 'react-query'
 
 export const useLatestBlock = (chainId: number) => {
   return useQuery(

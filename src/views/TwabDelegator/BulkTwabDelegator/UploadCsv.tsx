@@ -16,22 +16,32 @@ import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegators
 import classNames from 'classnames'
 import { useState } from 'react'
 import { ThemedClipSpinner } from '@pooltogether/react-components'
+import { useIsWalletConnected } from '@pooltogether/wallet-connection'
+import { useIsADelegationLocked } from '@twabDelegator/hooks/useIsADelegationLocked'
 
-export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => void }> = (
-  props
-) => {
-  const { onUpload } = props
+export const UploadCsv: React.FC<{
+  setCsvUpdates: (updates: {
+    delegationUpdates: DelegationUpdate[]
+    delegationCreations: DelegationUpdate[]
+    delegationFunds: DelegationFund[]
+  }) => void
+  onUpload?: (rows: DelegationFormValues[]) => void
+}> = (props) => {
+  const { onUpload, setCsvUpdates } = props
 
+  const isWalletConnected = useIsWalletConnected()
   const [chainId] = useAtom(delegationChainIdAtom)
   const [delegator] = useAtom(delegatorAtom)
   const ticket = useV4Ticket(chainId)
-  const [, setDelegationCreations] = useAtom(delegationCreationsAtom)
-  const [, setDelegationUpdates] = useAtom(delegationUpdatesAtom)
-  const [, setDelegationFunds] = useAtom(delegationFundsAtom)
   const [isUploading, setIsUploading] = useState(false)
   const { data: delegations, isFetched } = useDelegatorsTwabDelegations(chainId, delegator)
+  const isDelegationsLocked = useIsADelegationLocked(chainId, delegator)
 
-  // TODO: Handle attempts to overwrite locked delegations
+  /**
+   * Builds all of the data objects that need to be submitted in transactions to overwrite the state of delegations
+   * TODO: Handle attempts to overwrite locked delegations
+   * @param bulkDelegations
+   */
   const updateOrCreateDelegations = (bulkDelegations: DelegationFormValues[]) => {
     const delegationCreations: DelegationUpdate[] = []
     const delegationUpdates: DelegationUpdate[] = []
@@ -83,18 +93,31 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
       }
     })
 
-    setDelegationCreations(delegationCreations.slice(0, 500))
-    setDelegationUpdates(delegationUpdates)
-    setDelegationFunds(delegationFunds)
+    setCsvUpdates({
+      delegationCreations,
+      delegationUpdates,
+      delegationFunds
+    })
   }
 
+  const disabled =
+    !isFetched ||
+    isUploading ||
+    !isWalletConnected ||
+    isDelegationsLocked === null ||
+    isDelegationsLocked
+
   return (
-    <div className='flex flex-col'>
+    <div className={classNames('flex flex-col', { 'cursor-not-allowed': disabled })}>
       <label
         htmlFor='csv-upload'
         className={classNames(
-          'square-btn square-btn--teal square-btn--sm flex items-center justify-center space-x-1',
-          { 'opacity-70 cursor-not-allowed': !isFetched || isUploading }
+          'square-btn square-btn--sm flex items-center justify-center space-x-1',
+          {
+            'bg-pt-purple-darkest text-pt-purple-light pointer-events-none border-transparent':
+              disabled,
+            'square-btn--teal': !disabled
+          }
         )}
       >
         {isUploading ? (
@@ -108,8 +131,6 @@ export const UploadCsv: React.FC<{ onUpload?: (rows: DelegationFormValues[]) => 
           className='hidden'
           type='file'
           accept='.csv'
-          onBeforeInput={() => console.log('b41')}
-          onBeforeInputCapture={() => console.log('b42')}
           onChange={async (event) => {
             setIsUploading(true)
             if (event.target?.files?.item(0)) {
@@ -135,11 +156,11 @@ const parseCsv = (unformattedCsv: string) => {
     .split('\n')
     .map((row) => {
       const rowData = row.split(',')
-      if (rowData.length === 3) {
+      if (rowData.length === 2) {
         return {
           delegatee: rowData[0],
-          duration: Number(rowData[1]),
-          balance: rowData[2]
+          duration: 0,
+          balance: rowData[1]
         }
       }
     })

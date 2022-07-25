@@ -8,7 +8,9 @@ import {
   BlockExplorerLink,
   BottomSheet,
   SquareButton,
+  SquareButtonSize,
   SquareButtonTheme,
+  SquareLink,
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
@@ -25,6 +27,9 @@ import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRe
 import { useDelegatorsStake } from './hooks/useDelegatorsStake'
 import { StakeSvg } from '@components/SvgComponents'
 import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { getNetworkNameAliasByChainId } from '@pooltogether/utilities'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -115,7 +120,8 @@ export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props)
           )}
         </div>
         <div className='flex flex-col space-y-1 mt-4 mr-4 items-end'>
-          <ManageRepresentativeButton delegator={delegator} chainId={chainId} />
+          <BulkDelegationRepresentativeButton chainId={chainId} delegator={delegator} />
+          <ManageRepresentativeButton chainId={chainId} delegator={delegator} />
           <RepresentativeIcon chainId={chainId} delegator={delegator} />
         </div>
       </div>
@@ -280,6 +286,30 @@ const ManageRepresentativeButton: React.FC<{
         chainId={chainId}
       />
     </>
+  )
+}
+
+const BulkDelegationRepresentativeButton: React.FC<{
+  delegator: string
+  chainId: number
+}> = (props) => {
+  const { chainId, delegator } = props
+
+  const router = useRouter()
+
+  if (router.pathname === '/delegate/bulk') return null
+
+  return (
+    <Link
+      href={`/delegate/bulk?delegator=${delegator}&delegation_chain=${getNetworkNameAliasByChainId(
+        chainId
+      )}`}
+    >
+      <a className='flex space-x-2 transition  hover:opacity-70 items-center text-right'>
+        <span>Bulk delegation</span>
+        <FeatherIcon icon='align-justify' className='w-4 h-4 text-highlight-3' />
+      </a>
+    </Link>
   )
 }
 

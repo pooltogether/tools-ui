@@ -11,7 +11,6 @@ import { useResetDelegationAtomsOnAccountChange } from '@twabDelegator/hooks/use
 import classNames from 'classnames'
 import { NoDelegatorState } from './NoDelegatorState'
 import { TransactionState, useTransaction, useTransactions } from '@pooltogether/wallet-connection'
-import { BulkDelegationModal } from './BulkDelegationModal'
 
 export interface DelegationListProps {
   className?: string
@@ -35,15 +34,13 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
   useResetDelegationAtomsOnAccountChange()
   const useQueryResult = useDelegatorsUpdatedTwabDelegations(chainId, delegator)
   const [listState, setListState] = useState<ListState>(ListState.readOnly)
-  const [transactionIds, setTransactionIds] = useState<string[]>()
-  const transactions = useTransactions(transactionIds)
+  const [transactionId, setTransactionId] = useState<string>()
+  const transaction = useTransaction(transactionId)
   const [signaturePending, setSignaturePending] = useState(false)
   const [chunkingPending, setChunkingPending] = useState(false)
 
   const transactionsPending =
-    transactions.some((transaction) => transaction?.state === TransactionState.pending) ||
-    signaturePending ||
-    chunkingPending
+    transaction?.state === TransactionState.pending || signaturePending || chunkingPending
   const { data: delegations, isFetched } = useQueryResult
 
   if (isFetched) {
@@ -94,15 +91,14 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
         <div>{list}</div>
 
         <EditDelegationModal chainId={chainId} />
-        <BulkDelegationModal chainId={chainId} setListState={setListState} />
         <CreateDelegationModal chainId={chainId} delegator={delegator} />
         <ConfirmUpdatesModal
           chainId={chainId}
           delegator={delegator}
-          transactionIds={transactionIds}
+          transactionId={transactionId}
           setSignaturePending={setSignaturePending}
           setChunkingPending={setChunkingPending}
-          setTransactionIds={setTransactionIds}
+          setTransactionId={setTransactionId}
           onSuccess={() => setListState(ListState.readOnly)}
           transactionsPending={transactionsPending}
         />

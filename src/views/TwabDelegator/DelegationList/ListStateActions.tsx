@@ -12,7 +12,6 @@ import {
   ThemedClipSpinner,
   Tooltip
 } from '@pooltogether/react-components'
-
 import {
   delegationUpdatesCountAtom,
   delegationFundsAtom,
@@ -35,6 +34,7 @@ import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUse
 import { StakeModal } from './StakeModal'
 import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 import { FixedFooterNav } from '@twabDelegator/FixedFooterNav'
+import Link from 'next/link'
 
 interface ListStateActionsProps {
   chainId: number
@@ -59,8 +59,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const resetDelegationFunds = useResetAtom(delegationFundsAtom)
   const resetDelegationWithdrawals = useResetAtom(delegationWithdrawalsAtom)
   const usersAddress = useUsersAddress()
-  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator)
-  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator)
+  const [delegationFunds] = useAtom(delegationFundsAtom)
+  const isBalanceSufficient = useIsDelegatorsBalanceSufficient(chainId, delegator, delegationFunds)
+  const isStakeSufficient = useIsDelegatorsStakeSufficient(chainId, delegator, delegationFunds)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -197,15 +198,6 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
     <>
       <FixedFooterNav>
         <div className='w-full flex justify-center space-x-2'>
-          <SquareButton
-            className='w-32'
-            size={SquareButtonSize.sm}
-            onClick={() => setIsBulkModalOpen(true)}
-            disabled={transactionsPending}
-          >
-            <FeatherIcon strokeWidth='3' icon='align-justify' className='w-4 h-4 mr-1' />
-            CSV
-          </SquareButton>
           {delegator === usersAddress && (
             <SquareButton
               className='w-32'
