@@ -37,10 +37,8 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
   const [transactionId, setTransactionId] = useState<string>()
   const transaction = useTransaction(transactionId)
   const [signaturePending, setSignaturePending] = useState(false)
-  const [chunkingPending, setChunkingPending] = useState(false)
 
-  const transactionsPending =
-    transaction?.state === TransactionState.pending || signaturePending || chunkingPending
+  const transactionsPending = transaction?.state === TransactionState.pending || signaturePending
   const { data: delegations, isFetched } = useQueryResult
 
   if (isFetched) {
@@ -97,7 +95,6 @@ export const DelegationList: React.FC<DelegationListProps> = (props) => {
           delegator={delegator}
           transactionId={transactionId}
           setSignaturePending={setSignaturePending}
-          setChunkingPending={setChunkingPending}
           setTransactionId={setTransactionId}
           onSuccess={() => setListState(ListState.readOnly)}
           transactionsPending={transactionsPending}

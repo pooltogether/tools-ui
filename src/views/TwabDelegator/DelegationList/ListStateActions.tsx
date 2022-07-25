@@ -21,8 +21,7 @@ import {
   delegationWithdrawalsAtom,
   delegationWithdrawlsCountAtom,
   delegationCreationsCountAtom,
-  delegationCreationsAtom,
-  bulkDelegationModalOpenAtom
+  delegationCreationsAtom
 } from '@twabDelegator/atoms'
 import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
 import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
@@ -53,7 +52,6 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const [fundsCount] = useAtom(delegationFundsCountAtom)
   const [withdrawlsCount] = useAtom(delegationWithdrawlsCountAtom)
   const setIsConfirmationModalOpen = useUpdateAtom(delegationUpdatesModalOpenAtom)
-  const setIsBulkModalOpen = useUpdateAtom(bulkDelegationModalOpenAtom)
   const resetDelegationUpdates = useResetAtom(delegationUpdatesAtom)
   const resetDelegationCreations = useResetAtom(delegationCreationsAtom)
   const resetDelegationFunds = useResetAtom(delegationFundsAtom)
