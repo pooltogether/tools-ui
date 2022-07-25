@@ -122,7 +122,7 @@ const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
   return (
     <ToastContainer
       {...props}
-      limit={3}
+      // limit={3}
       style={{ zIndex: '99999' }}
       position={screenSize > ScreenSize.sm ? 'bottom-right' : 'top-center'}
       autoClose={7000}

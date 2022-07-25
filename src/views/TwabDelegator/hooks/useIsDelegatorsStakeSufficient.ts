@@ -1,6 +1,10 @@
 import { useTokenBalance } from '@pooltogether/hooks'
+import { delegationFundsAtom } from '@twabDelegator/atoms'
+import { DelegationFund } from '@twabDelegator/interfaces'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
+import { useAtom } from 'jotai'
 import { useDelegationUpdatesNetDifference } from './useDelegationUpdatesNetDifference'
+import { useIsAmountSufficientForFunds } from './useIsAmountSufficientForFunds'
 
 /**
  * Fetches the delegators staked balances and checks if it is greater than the amount of tickets the user has committed to delegating while updating their delegations
@@ -8,15 +12,17 @@ import { useDelegationUpdatesNetDifference } from './useDelegationUpdatesNetDiff
  * @param delegator
  * @returns
  */
-export const useIsDelegatorsStakeSufficient = (chainId: number, delegator: string) => {
+export const useIsDelegatorsStakeSufficient = (
+  chainId: number,
+  delegator: string,
+  delegationFunds: DelegationFund[]
+) => {
   const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
-  const { data: stakeBalance, isFetched } = useTokenBalance(
+  const { data: stakeBalance } = useTokenBalance(chainId, delegator, twabDelegatorAddress)
+  return useIsAmountSufficientForFunds(
     chainId,
     delegator,
-    twabDelegatorAddress
+    stakeBalance?.amountUnformatted,
+    delegationFunds
   )
-  const totalDelegationAmount = useDelegationUpdatesNetDifference(chainId, delegator)
-
-  if (!isFetched || !totalDelegationAmount) return null
-  return stakeBalance.amountUnformatted.gte(totalDelegationAmount)
 }
