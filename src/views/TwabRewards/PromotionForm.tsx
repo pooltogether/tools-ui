@@ -71,7 +71,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
 
   const tokenAddress = watch('token')
   const { data: tokenData, isFetched: tokenDataIsFetched } = useToken(chainId, tokenAddress)
-  const tokenAddressIsValid = tokenAddress && !Boolean(errors.token?.message)
+  const tokenAddressIsValid = isAddress(tokenAddress) && !Boolean(errors.token?.message)
 
   useEffect(() => {
     const tokenDecimals = tokenData?.decimals ? tokenData?.decimals : null
@@ -86,6 +86,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
     const date = getValues('dateString')
     const time = getValues('timeString')
     const dateTimeString = `${date}:${time}`
+
     setValue('startTimestamp', msToS(Date.parse(dateTimeString)))
     trigger()
   }

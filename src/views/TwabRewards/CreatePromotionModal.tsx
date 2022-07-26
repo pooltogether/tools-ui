@@ -176,6 +176,15 @@ const CreatePromotionForm: React.FC<{
     const { tokensPerEpoch, epochDuration, numberOfEpochs, startTimestamp, token, tokenDecimals } =
       data
 
+    console.log('%c Summary: ', 'background: #222; color: #bada55')
+    console.log({ tokensPerEpoch: tokensPerEpoch })
+    console.log({ tokensPerEpochBigNum: parseUnits(tokensPerEpoch, tokenDecimals).toString() })
+    console.log({ epochDuration: dToS(epochDuration) })
+    console.log({ numberOfEpochs })
+    console.log({ startTimestamp: Math.round(startTimestamp) })
+    console.log({ token })
+    console.log({ tokenDecimals })
+
     const params: Promotion = {
       epochDuration: dToS(epochDuration),
       numberOfEpochs,
@@ -198,7 +207,7 @@ const CreatePromotionForm: React.FC<{
         epochDuration: 3,
         numberOfEpochs: 4,
         tokensPerEpoch: '1000',
-        dateString: format(new Date(), 'yyyy/MM/dd'),
+        dateString: format(new Date(), 'yyyy-MM-dd'),
         timeString: format(new Date(), 'HH:mm'),
         tokenDecimals: null
       }}
