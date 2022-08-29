@@ -5,7 +5,7 @@ import { NextPage } from 'next/types'
 import { LoadingScreen } from '@components/LoadingScreen'
 
 const TestnetFaucet = dynamic(
-  () => import('../views/TestnetFaucet').then((mod) => mod.TestnetFaucet),
+  () => import('../tools/TestnetFaucet').then((mod) => mod.TestnetFaucet),
   {
     loading: () => <LoadingScreen />
   }

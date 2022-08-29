@@ -4,21 +4,24 @@ import { NextPage } from 'next/types'
 
 import { LoadingScreen } from '@components/LoadingScreen'
 
-const Liquidator = dynamic(() => import('../tools/Liquidator').then((mod) => mod.Liquidator), {
-  loading: () => <LoadingScreen />
-})
+const AirdropClaim = dynamic(
+  () => import('../tools/AirdropClaim').then((mod) => mod.AirdropClaim),
+  {
+    loading: () => <LoadingScreen />
+  }
+)
 
 const Home: NextPage = () => {
   return (
     <div>
       <Head>
         <title>Liquidate Prizes - PoolTogether</title>
-        <meta name='description' content='Swap prize tokens for tickets at a discount.' />
+        <meta name='description' content='Claim POOL from the initial merkle tree distribution.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
       <main>
-        <Liquidator />
+        <AirdropClaim />
       </main>
 
       <footer></footer>

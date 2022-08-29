@@ -5,7 +5,7 @@ import { NextPage } from 'next/types'
 import { LoadingScreen } from '@components/LoadingScreen'
 
 const TwabDelegator = dynamic(
-  () => import('../../views/TwabDelegator').then((mod) => mod.TwabDelegator),
+  () => import('../../tools/TwabDelegator').then((mod) => mod.TwabDelegator),
   {
     loading: () => <LoadingScreen />
   }

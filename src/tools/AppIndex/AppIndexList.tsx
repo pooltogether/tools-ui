@@ -59,6 +59,13 @@ const APPS_TO_LIST: AppInfo[] = [
     href: 'testnet-faucet',
     testnet: true,
     emoji: '🚰'
+  },
+  {
+    titleKey: 'pooltogetherAirdrop',
+    descriptionKey: 'pooltogetherAirdropDescription',
+    href: 'initial-pool-distribution',
+    iconClasses: 'ml-1',
+    emoji: '🏊‍♂️'
   }
 ]
 
@@ -68,7 +75,7 @@ const APPS_TO_LIST: AppInfo[] = [
  */
 export const AppIndexList: React.FC = () => {
   return (
-    <ul className='flex flex-col space-y-4'>
+    <ul className='grid grid-cols-1 sm:grid-cols-2 gap-2 xs:gap-4'>
       {APPS_TO_LIST.map((appInfo) => (
         <AppLink key={appInfo.href} {...appInfo} />
       ))}
@@ -88,19 +95,23 @@ const AppLink: React.FC<AppInfo> = (props) => {
       <Link href={href}>
         <a
           className={classNames(
-            'flex flex-col items-center w-full p-6 xs:px-24 sm:px-32 bg-pt-purple-bright hover:bg-pt-purple transition',
+            'flex flex-col items-center w-full h-full rounded-xl p-6 xs:px-24 sm:px-32 bg-pt-purple-bright hover:bg-pt-purple transition',
             {
               'opacity-50': props.disabled,
               'pointer-events-none': disabled
             }
           )}
         >
-          <div className='w-12 h-12 mx-6 p-2 mb-2 bg-green rounded-full text-black'>
-            {icon && <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>}
-            {emoji && <div className={classNames('mx-auto text-xl', iconClasses)}>{emoji}</div>}
+          <div className='mx-auto w-full grid grid-cols-4 xs:grid-cols-1 xs:gap-y-2'>
+            <div className='w-12 h-12 p-2 m-auto bg-green rounded-full text-black col-span-1'>
+              {icon && <div className={classNames('mx-auto', iconClasses)}>{icon()}</div>}
+              {emoji && <div className={classNames('mx-auto text-xl', iconClasses)}>{emoji}</div>}
+            </div>
+            <div className='col-span-3'>
+              <h6 className='text-white font-normal mb-2 text-center'>{t(titleKey)}</h6>
+              <p className='text-white text-opacity-70 text-center text-xxs'>{t(descriptionKey)}</p>
+            </div>
           </div>
-          <h6 className='text-white font-normal mb-2'>{t(titleKey)}</h6>
-          <p className='text-white text-opacity-70 text-center text-xxs'>{t(descriptionKey)}</p>
         </a>
       </Link>
     </ListItemContainer>
@@ -108,8 +119,5 @@ const AppLink: React.FC<AppInfo> = (props) => {
 }
 
 const ListItemContainer: React.FC<{ disabled: boolean }> = (props) => (
-  <li
-    {...props}
-    className={classNames('rounded-xl flex flex-col items-center overflow-hidden relative')}
-  />
+  <li {...props} className={classNames('rounded-xl flex flex-col items-center relative')} />
 )

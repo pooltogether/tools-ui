@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { NextPage } from 'next/types'
 
-import { TwabRewards } from '../views/TwabRewards'
+import { TwabRewards } from '../tools/TwabRewards'
 
 const Home: NextPage = () => {
   return (

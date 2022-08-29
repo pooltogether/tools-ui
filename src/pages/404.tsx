@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ErrorLinks } from '../views/ErrorPage'
+import { ErrorLinks } from '../tools/ErrorPage'
 
 const Custom404 = () => {
   const { t } = useTranslation()

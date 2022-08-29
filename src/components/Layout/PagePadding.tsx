@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 interface PagePaddingProps {
   children?: React.ReactNode
   className?: string
+  maxWidthClassName?: string
 }
 
 /**
@@ -13,7 +14,7 @@ interface PagePaddingProps {
  * @returns
  */
 export const PagePadding = (props: PagePaddingProps) => {
-  const { className, children } = props
+  const { className, maxWidthClassName, children } = props
 
   const shouldReduceMotion = useReducedMotion()
 
@@ -31,10 +32,14 @@ export const PagePadding = (props: PagePaddingProps) => {
         animate={{
           opacity: 1
         }}
-        className={classNames('max-w-xl mx-auto px-2 pb-20', className)}
+        className={classNames('px-2 pb-20 mx-auto', maxWidthClassName, className)}
       >
         {children}
       </motion.div>
     </AnimatePresence>
   )
+}
+
+PagePadding.defaultProps = {
+  maxWidthClassName: 'max-w-xl'
 }

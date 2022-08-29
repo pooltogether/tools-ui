@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { AppIndex } from '../views/AppIndex'
+import { AppIndex } from '../tools/AppIndex'
 
 const Home: NextPage = () => {
   return (

@@ -1,6 +1,6 @@
 import React from 'react'
 import * as Sentry from '@sentry/react'
-import { ErrorPage } from '../views/ErrorPage'
+import { ErrorPage } from '../tools/ErrorPage'
 import { useAccount } from 'wagmi'
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
