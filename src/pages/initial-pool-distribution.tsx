@@ -15,7 +15,7 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Liquidate Prizes - PoolTogether</title>
+        <title>Claim POOL - PoolTogether</title>
         <meta name='description' content='Claim POOL from the initial merkle tree distribution.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
