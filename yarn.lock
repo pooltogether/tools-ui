@@ -1701,10 +1701,10 @@
   resolved "https://registry.yarnpkg.com/@pooltogether/contract-list-schema/-/contract-list-schema-0.1.4.tgz#52a4b35e1ef1b263c643e517ca1908180cf1cb6e"
   integrity sha512-oLAu9TGfU9xf1QFJJZQxUj0hsfcRao/DMCZ1hVvDkmwOnX1PUkuhuvZfvgwLFd4hJ4m2kjdCyTJ+VJ5qvgjyww==
 
-"@pooltogether/current-pool-data@^3.7.2":
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/@pooltogether/current-pool-data/-/current-pool-data-3.7.2.tgz#c3050a746c299836e8835eab0ac718c0ecc89b08"
-  integrity sha512-UB9DRhck7t47Xz3vUCy39E5EB+dm6PeOXf9UEi/aru2hfFk0RVbSOcsCaB0bJ3lM1yK4DYW2hEGFImxrjgGVIQ==
+"@pooltogether/current-pool-data@^3.7.3":
+  version "3.7.3"
+  resolved "https://registry.yarnpkg.com/@pooltogether/current-pool-data/-/current-pool-data-3.7.3.tgz#5baa9d3540e8037631480b64119eeeac57b52163"
+  integrity sha512-CHpQNUBisWOFbF5L6KS/cFYVdbmAHOPNF1CX2vNyXpAskQV2g76NeiWdCrb9Gx1LYaZnFFiqhbMAFmDiJzCYfw==
 
 "@pooltogether/draw-calculator-js@1.0.3-beta.4":
   version "1.0.3-beta.4"
@@ -1741,10 +1741,10 @@
   resolved "https://registry.yarnpkg.com/@pooltogether/fixed-point/-/fixed-point-1.0.0-beta.2.tgz#d76a1e77f21833e9b680296d65526b0ffd7415d7"
   integrity sha512-aUw4R0Z2oM0AK3W4LIXyBaojTOzRRbhLDHX0egeuvxfjy4gBb6X66v81gI7Wngg/7O0y9QL/B8jWkUnAFzhTig==
 
-"@pooltogether/hooks@^1.10.4":
-  version "1.10.4"
-  resolved "https://registry.yarnpkg.com/@pooltogether/hooks/-/hooks-1.10.4.tgz#28705828c53f1de21d20dc55747cae245f06cc71"
-  integrity sha512-NekbTL70xKLk3bjq57GA+qs76UDa6KAf5idpu4aO+yvigMRw0rMyvEbGHO+QNL/wzIsueIm1tJXt09tQQ6vVGw==
+"@pooltogether/hooks@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@pooltogether/hooks/-/hooks-1.12.0.tgz#c1451389fd37b2f8151ca5950dd69b01ed9fb369"
+  integrity sha512-xsylfpH946lTE0/gkzuOwtV4aDUOaYA1MMEKMyICZO1oif7plMNAuEehVQDGg9OHuHXjfy3bSZ5wnPSmAVNr8g==
 
 "@pooltogether/owner-manager-contracts@1.1.0":
   version "1.1.0"

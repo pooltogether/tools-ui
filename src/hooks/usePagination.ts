@@ -18,7 +18,6 @@ export const usePagination = (
       setPage,
       pageSize,
       last: () => {
-        console.log({ pageSize, listLength })
         const page = Math.ceil(listLength / pageSize) - 1
         setPage(page)
         options?.onLast?.(page)

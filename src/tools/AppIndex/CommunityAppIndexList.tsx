@@ -79,7 +79,7 @@ const APPS_TO_LIST: AppInfo[] = [
  */
 export const CommunityAppIndexList: React.FC = () => {
   return (
-    <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-4'>
+    <ul className='grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-4'>
       {APPS_TO_LIST.map((appInfo) => (
         <AppLink key={appInfo.href} {...appInfo} />
       ))}
@@ -106,7 +106,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
     <ListItemContainer>
       <button
         onClick={() => setIsOpen(true)}
-        className='rounded-xl flex flex-col items-center w-full h-full p-6 xs:px-24 sm:px-32 bg-pt-purple-bright hover:bg-pt-purple transition'
+        className='rounded-xl flex flex-col items-center w-full h-full p-6 xs:px-8 sm:px-32 bg-pt-purple-bright hover:bg-pt-purple transition'
       >
         <h6 className='text-white font-normal mb-2 text-center'>{t(titleKey)}</h6>
         <p className='text-white text-opacity-70 text-center text-xxs'>{t(descriptionKey)}</p>

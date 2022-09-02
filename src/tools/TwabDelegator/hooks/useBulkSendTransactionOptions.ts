@@ -121,7 +121,6 @@ export const useBulkSendTransactionOptions = (
     do {
       try {
         chunkedFnCalls = chunkArray<string>(fnCalls, numOfTransactions)
-        console.log('Checking:', { numOfTransactions, chunkedFnCalls })
 
         const estimateGasPromises: Promise<BigNumber>[] = chunkedFnCalls.map((fnCalls) =>
           estimateGas(fnCalls)
@@ -160,26 +159,12 @@ export const useBulkSendTransactionOptions = (
       throw new Error('Too many transactions')
     }
 
-    console.log('Final', { numOfTransactions, chunkedFnCalls })
     return chunkedFnCalls
   }
-
-  console.log(
-    csvUpdates.delegationUpdates.length > 0,
-    csvUpdates.delegationCreations.length > 0,
-    csvUpdates.delegationFunds.length > 0,
-    isSignerFetched,
-    !!usersAddress,
-    isBlockFetched,
-    isUsersDelegationsFetched,
-    isWalletOnCorrectNetwork
-  )
 
   return useQuery(
     ['useBulkTransactions', chainId, usersAddress, delegator, csvUpdates],
     async () => {
-      console.log(['useBulkTransactions', chainId, usersAddress, delegator, csvUpdates])
-
       const { delegationUpdates, delegationCreations, delegationFunds } = csvUpdates
 
       const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
@@ -305,9 +290,7 @@ export const useBulkSendTransactionOptions = (
         })
 
         try {
-          console.log('pre sig')
           const signature = await signaturePromise
-          console.log('post sig')
           setChunkingPending(true)
           setSignaturePending(false)
 
@@ -327,7 +310,6 @@ export const useBulkSendTransactionOptions = (
               fnCalls
             )
 
-          console.log('Get chunks with permit')
           const chunkedFnCalls = await getChunkedFnCalls(fnCalls, estimatePermitAndMulticallGas)
 
           transactionsToSend.push({
@@ -361,7 +343,6 @@ export const useBulkSendTransactionOptions = (
           return
         }
       } else {
-        console.log('Get chunks without permit')
         const chunkedFnCalls = await getChunkedFnCalls(fnCalls, estimateMulticallGas)
         chunkedFnCalls.map((fnCalls) => {
           transactionsToSend.push({

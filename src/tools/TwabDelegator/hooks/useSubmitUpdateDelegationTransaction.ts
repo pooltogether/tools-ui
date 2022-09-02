@@ -66,7 +66,6 @@ export const useSubmitUpdateDelegationTransaction = (
     )
 
   return async () => {
-    console.log('Start submit')
     const { data: signer } = await getSigner()
     const twabDelegatorContract = getTwabDelegatorContract(chainId, signer)
     const ticketContract = getV4TicketContract(chainId)
@@ -180,7 +179,6 @@ export const useSubmitUpdateDelegationTransaction = (
 
       const amountToIncrease = totalAmountToFund //.sub(allowance)
 
-      console.log({ amountToIncrease, totalAmountToFund, allowance })
       const domain = {
         name: 'PoolTogether ControlledToken',
         version: '1',
@@ -210,7 +208,6 @@ export const useSubmitUpdateDelegationTransaction = (
 
       try {
         const signature = await signaturePromise
-        console.log('signature', { signature })
 
         // Overwrite v for hardware wallet signatures
         // https://ethereum.stackexchange.com/questions/103307/cannot-verifiy-a-signature-produced-by-ledger-in-solidity-using-ecrecover

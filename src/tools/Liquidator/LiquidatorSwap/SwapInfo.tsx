@@ -9,8 +9,8 @@ import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailabl
 import { useFormState, useWatch } from 'react-hook-form'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
 import { parseUnits } from 'ethers/lib/utils'
-import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
 import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
+import { getAmountFromBigNumber } from '@pooltogether/hooks'
 
 // TODO: Show discounts
 export const SwapInfo: React.FC<{

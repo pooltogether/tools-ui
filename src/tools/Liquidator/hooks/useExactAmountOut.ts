@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { Amount, Token } from '@pooltogether/hooks'
+import { Amount, getAmountFromBigNumber, Token } from '@pooltogether/hooks'
 import { getReadProvider } from '@pooltogether/wallet-connection'
 import { RPC_API_KEYS } from '@constants/config'
 import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
@@ -7,7 +7,6 @@ import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
 import { POOL } from '@constants/pool'
 import { parseUnits } from 'ethers/lib/utils'
-import { getAmountFromBigNumber } from '@utils/getAmountFromBigNumber'
 import { useQuery } from 'react-query'
 
 export const useExactAmountOut = (chainId: number, ticket: Token, amountIn: string) => {

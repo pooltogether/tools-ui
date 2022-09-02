@@ -33,10 +33,6 @@ export const BulkTwabDelegationSteps = () => {
   const pushTransactionId = (id: string) => setTransactionIds((ids) => [...ids, id])
   const transactions = useTransactions(transactionIds)
 
-  useEffect(() => {
-    console.log(transactionIds)
-  }, [transactionIds])
-
   const { t } = useTranslation()
 
   const {

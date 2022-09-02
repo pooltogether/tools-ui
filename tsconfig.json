@@ -27,7 +27,8 @@
       "@styles/*": ["./src/styles/*"],
       "@twabDelegator/*": ["./src/tools/TwabDelegator/*"],
       "@twabRewards/*": ["./src/tools/TwabRewards/*"],
-      "@liquidator/*": ["./src/tools/Liquidator/*"]
+      "@liquidator/*": ["./src/tools/Liquidator/*"],
+      "@tokenFaucet/*": ["./src/tools/TokenFaucet/*"]
     }
   },
   "include": ["src", "next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],

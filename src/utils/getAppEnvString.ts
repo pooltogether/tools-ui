@@ -1,4 +1,4 @@
-import { useIsTestnets, APP_ENVIRONMENTS, getStoredIsTestnetsCookie } from '@pooltogether/hooks'
+import { APP_ENVIRONMENTS, getStoredIsTestnetsCookie } from '@pooltogether/hooks'
 
 export const getAppEnvString = () => {
   const isTestnets = getStoredIsTestnetsCookie()
