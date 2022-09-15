@@ -1,8 +1,8 @@
+import React from 'react'
 import type { AppProps } from 'next/app'
-import dynamic from 'next/dynamic'
-import { LoadingScreen } from '@components/LoadingScreen'
+import { AppContainer } from '@components/AppContainer'
 
-// Styles must be imported in _app
+// CSS
 import '@styles/index.css'
 import '@pooltogether/react-components/dist/globals.css'
 import 'react-toastify/dist/ReactToastify.css'
@@ -11,20 +11,8 @@ import '@styles/bottomSheet.css'
 import '@styles/tools.css'
 import '@styles/antd-custom.css'
 
-const AppContainer = dynamic(
-  () => import('../components/AppContainer').then((mod) => mod.AppContainer),
-  {
-    ssr: false,
-    loading: () => <LoadingScreen />
-  }
-)
-
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <AppContainer>
-      <Component {...pageProps} />
-    </AppContainer>
-  )
+const App: React.FC<AppProps> = (props) => {
+  return <AppContainer {...props} />
 }
 
-export default MyApp
+export default App

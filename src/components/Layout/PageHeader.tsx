@@ -8,10 +8,10 @@ import {
   TestnetSettingsItem,
   FeatureRequestSettingsItem,
   ThemeSettingsItem,
-  SocialLinks
+  SocialLinks,
+  HeaderLogo
 } from '@pooltogether/react-components'
 import { useTranslation } from 'react-i18next'
-
 import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { useSupportedChains } from '@hooks/app/useSupportedChains'
 import { SUPPORTED_LANGUAGES } from '@constants/languages'
@@ -23,10 +23,16 @@ export enum ContentPaneState {
 }
 
 export const PageHeader = (props) => {
-  const chains = useSupportedChains()
-
   return (
-    <PageHeaderContainer Link={Link}>
+    <PageHeaderContainer
+      logo={
+        <Link href='/'>
+          <a>
+            <HeaderLogo />
+          </a>
+        </Link>
+      }
+    >
       <div className='flex flex-row justify-end items-center space-x-4'>
         <FullWalletConnectionButtonWrapper />
         <Settings />

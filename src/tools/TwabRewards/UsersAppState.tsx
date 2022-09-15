@@ -1,4 +1,3 @@
-import classNames from 'classnames'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import FeatherIcon from 'feather-icons-react'
@@ -6,20 +5,16 @@ import { useTranslation } from 'react-i18next'
 import { constants } from 'ethers/lib'
 import { isAddress } from 'ethers/lib/utils'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
-import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import {
-  BlockExplorerLink,
   BottomSheet,
   NetworkIcon,
   SquareButton,
   SquareButtonTheme
 } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-
 import { StyledInput } from '@components/Input'
 import { useRewardsSupportedChainIds } from './hooks/useRewardsSupportedChainIds'
-import { getTwabRewardsContractAddress } from './utils/getTwabRewardsContractAddress'
 
 interface UsersAppStateProps {
   className?: string

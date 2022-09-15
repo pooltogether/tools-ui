@@ -5,8 +5,8 @@ import { TokenWithAllBalances, useTokenBalances } from '@pooltogether/hooks'
 import faucetAbi from '../abis/faucet'
 import { useSigner } from 'wagmi'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import {
+  BlockExplorerLink,
   TransactionStatus,
   useSendTransaction,
   useTransaction,
@@ -16,7 +16,7 @@ import { TxButton } from '@components/Buttons/TxButton'
 import classNames from 'classnames'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { ethers } from 'ethers'
-import { BlockExplorerLink, SquareButtonSize, TokenIcon } from '@pooltogether/react-components'
+import { SquareButtonSize, TokenIcon } from '@pooltogether/react-components'
 
 export const TokenFaucetList = () => {
   const [chainId] = useAtom(testnetFaucetChainIdAtom)

@@ -1,6 +1,5 @@
 import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
-import { BlockExplorerLink } from '@pooltogether/react-components'
-import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import { constants } from 'ethers'
 import { useAtom } from 'jotai'

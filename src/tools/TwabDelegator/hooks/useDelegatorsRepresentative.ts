@@ -32,7 +32,7 @@ const getUsersRepresentative = async (chainId: number, delegator: string) => {
 
 // TODO: Make this useIsUserDelegatorsRepresentative and check if wallet connected is a rep for the delegator address we're currently looking at. If so, edit is available. Otherwise, it is not. Need to ensure that edit available means only adjusting according to the stake, not the wallet balance.
 
-// const provider = getReadProvider(chainId, RPC_API_KEYS)
+// const provider = getReadProvider(chainId)
 // const twabDelegatorAddress = getTwabDelegatorContractAddress(chainId)
 
 // const twabDelegatorContract = contract(

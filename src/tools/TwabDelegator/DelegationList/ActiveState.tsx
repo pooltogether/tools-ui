@@ -1,5 +1,5 @@
 import FeatherIcon from 'feather-icons-react'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
 import {
   delegationUpdatesAtom,
@@ -22,13 +22,14 @@ import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { DelegationListProps, ListState } from '.'
 import {
-  BlockExplorerLink,
   CheckboxInputGroup,
   SquareButton,
   SquareButtonSize,
   SquareButtonTheme,
   TokenIcon,
-  Tooltip
+  Tooltip,
+  ScreenSize,
+  useScreenSize
 } from '@pooltogether/react-components'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
@@ -38,7 +39,6 @@ import { getDuration } from '@twabDelegator/utils/getDuration'
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
 import { BigNumber } from 'ethers'
 import classNames from 'classnames'
-import { ScreenSize, useScreenSize } from '@pooltogether/hooks'
 import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
 import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react'

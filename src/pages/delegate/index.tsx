@@ -1,8 +1,7 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { NextPage } from 'next/types'
-
-import { LoadingScreen } from '@components/LoadingScreen'
+import { LoadingScreen } from '@pooltogether/react-components'
 
 const TwabDelegator = dynamic(
   () => import('../../tools/TwabDelegator').then((mod) => mod.TwabDelegator),

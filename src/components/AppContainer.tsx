@@ -1,5 +1,5 @@
 import { Provider as JotaiProvider } from 'jotai'
-import { createClient, createStorage, Provider as WagmiProvider } from 'wagmi'
+import { createClient, WagmiConfig } from 'wagmi'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
@@ -7,16 +7,15 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { useTranslation } from 'react-i18next'
-import { BaseProvider } from '@ethersproject/providers'
-import { LoadingLogo, ThemeContext, ThemeContextProvider } from '@pooltogether/react-components'
-import { CustomErrorBoundary } from './CustomErrorBoundary'
 import {
+  LoadingLogo,
+  ThemeContext,
+  ThemeContextProvider,
   ScreenSize,
-  useInitCookieOptions,
-  useInitReducedMotion,
-  useScreenSize,
-  initProviderApiKeys as initProviderApiKeysForHooks
-} from '@pooltogether/hooks'
+  useScreenSize
+} from '@pooltogether/react-components'
+import { CustomErrorBoundary } from './CustomErrorBoundary'
+import { useInitCookieOptions } from '@pooltogether/hooks'
 import { initSentry } from '../services/sentry'
 import '../services/i18n'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
@@ -24,36 +23,40 @@ import { useContext } from 'react'
 import { CHAIN_ID } from '@constants/misc'
 import { getSupportedChains } from '@utils/getSupportedChains'
 import {
-  getReadProvider,
-  getRpcUrl,
-  getRpcUrls,
   useUpdateStoredPendingTransactions,
-  initProviderApiKeys as initProviderApiKeysForWalletConnection
+  getReadProvider,
+  initRpcUrls
 } from '@pooltogether/wallet-connection'
-import { RPC_API_KEYS } from '@constants/config'
+import { AppProps } from 'next/app'
+import { RPC_URLS } from '@constants/config'
 
 // Initialize react-query Query Client
-const queryClient = new QueryClient()
-// Initialize read provider API keys to @pooltogether/hooks
-initProviderApiKeysForHooks(RPC_API_KEYS)
-// Initialize read provider API keys to @pooltogether/wallet-connection
-initProviderApiKeysForWalletConnection(RPC_API_KEYS)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchInterval: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false
+    }
+  }
+})
+
 // Initialize Sentry error logging
 initSentry()
 
+// Initialize global RPC URLs for external packages
+initRpcUrls(RPC_URLS)
+
 // Initialize WAGMI wallet connectors
 const chains = getSupportedChains()
-const connectors = ({ chainId }) => {
+const connectors = () => {
   return [
     new MetaMaskConnector({ chains, options: {} }),
     new WalletConnectConnector({
       chains,
       options: {
-        chainId: chainId || CHAIN_ID.mainnet,
-        rpc: getRpcUrls(
-          chains.map((chain) => chain.id),
-          RPC_API_KEYS
-        ),
         bridge: 'https://pooltogether.bridge.walletconnect.org/',
         qrcode: true
       }
@@ -61,8 +64,7 @@ const connectors = ({ chainId }) => {
     new CoinbaseWalletConnector({
       chains,
       options: {
-        appName: 'PoolTogether',
-        jsonRpcUrl: getRpcUrl(chainId || CHAIN_ID.mainnet, RPC_API_KEYS)
+        appName: 'PoolTogether'
       }
     }),
     new InjectedConnector({ chains, options: {} })
@@ -72,10 +74,7 @@ const connectors = ({ chainId }) => {
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  provider: ({ chainId }) =>
-    (chainId
-      ? getReadProvider(chainId, RPC_API_KEYS)
-      : getReadProvider(CHAIN_ID.mainnet, RPC_API_KEYS)) as BaseProvider
+  provider: ({ chainId }) => getReadProvider(chainId || CHAIN_ID.mainnet)
 })
 
 /**
@@ -84,14 +83,14 @@ const wagmiClient = createClient({
  * @param props
  * @returns
  */
-export const AppContainer: React.FC = (props) => {
-  const { children } = props
+export const AppContainer: React.FC<AppProps> = (props) => {
+  const { Component, pageProps } = props
 
   useInitPoolTogetherHooks()
   const { i18n } = useTranslation()
 
   return (
-    <WagmiProvider client={wagmiClient}>
+    <WagmiConfig client={wagmiClient}>
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />
@@ -99,7 +98,7 @@ export const AppContainer: React.FC = (props) => {
             <ThemedToastContainer />
             <CustomErrorBoundary>
               {i18n.isInitialized ? (
-                <>{children}</>
+                <Component {...pageProps} />
               ) : (
                 <div className='flex flex-col h-screen absolute top-0 w-screen'>
                   <LoadingLogo className='m-auto' />
@@ -109,7 +108,7 @@ export const AppContainer: React.FC = (props) => {
           </ThemeContextProvider>
         </QueryClientProvider>
       </JotaiProvider>
-    </WagmiProvider>
+    </WagmiConfig>
   )
 }
 
@@ -135,6 +134,5 @@ const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
  * Initializes PoolTogether tooling global state
  */
 const useInitPoolTogetherHooks = () => {
-  useInitReducedMotion(Boolean(process.env.NEXT_PUBLIC_REDUCE_MOTION))
   useInitCookieOptions(process.env.NEXT_PUBLIC_DOMAIN_NAME)
 }

@@ -8,15 +8,10 @@ import {
   useUsersAddress,
   useTransaction,
   TransactionStatus,
-  useSendTransaction
+  useSendTransaction,
+  formatBlockExplorerTxUrl
 } from '@pooltogether/wallet-connection'
-import {
-  formatBlockExplorerTxUrl,
-  SquareLink,
-  SquareButton,
-  SquareButtonTheme,
-  ThemedClipSpinner
-} from '@pooltogether/react-components'
+import { SquareLink, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
 import { useSigner } from 'wagmi'
 
 import { TxButton } from '@components/Buttons/TxButton'

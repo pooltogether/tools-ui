@@ -1,12 +1,5 @@
-/** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
-
 const path = require('path');
-
 const { withSentryConfig } = require('@sentry/nextjs');
-
 
 const sentryWebpackPluginOptions = {
   // Additional config options for the Sentry Webpack plugin. Keep in mind that
@@ -22,11 +15,14 @@ const sentryWebpackPluginOptions = {
 
 const nextConfig = {
   reactStrictMode: true,
+  productionBrowserSourceMaps: true,
+  async redirects() {
+    return []
+  },
   webpack(config, options) {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@abis': path.resolve(__dirname, './src/abis'),
-      '@assets': path.resolve(__dirname, './src/assets'),
       '@atoms': path.resolve(__dirname, './src/atoms'),
       '@components': path.resolve(__dirname, './src/components'),
       '@constants': path.resolve(__dirname, './src/constants'),
@@ -44,4 +40,4 @@ const nextConfig = {
   }
 }
 
-module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), sentryWebpackPluginOptions);
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);

@@ -1,4 +1,4 @@
-const env = process.env.NODE_ENV || 'development'
+const env = process.env.NODE_ENV
 const dev = env !== 'production'
 
 import i18n from 'i18next'

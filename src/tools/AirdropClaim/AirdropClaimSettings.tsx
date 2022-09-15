@@ -1,6 +1,6 @@
-import { BlockExplorerLink, NetworkIcon } from '@pooltogether/react-components'
+import { NetworkIcon } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import { constants } from 'ethers'
 import { useTranslation } from 'react-i18next'

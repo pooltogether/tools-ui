@@ -2,15 +2,12 @@ import FeatherIcon from 'feather-icons-react'
 import { constants } from 'ethers/lib'
 import { isAddress } from 'ethers/lib/utils'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
-  BlockExplorerLink,
   BottomSheet,
   SquareButton,
-  SquareButtonSize,
   SquareButtonTheme,
-  SquareLink,
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'

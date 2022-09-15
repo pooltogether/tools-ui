@@ -1,7 +1,6 @@
 import Layout from '@components/Layout'
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
-import { DelegationList } from '@twabDelegator/DelegationList'
 import { useEffect } from 'react'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
 import { useAtom } from 'jotai'

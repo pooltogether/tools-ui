@@ -1,5 +1,5 @@
 import { Block } from '@ethersproject/providers'
-import { getReadProvider } from '@pooltogether/utilities'
+import { getReadProvider } from '@pooltogether/wallet-connection'
 import { useQuery } from 'react-query'
 
 export const useLatestBlock = (chainId: number) => {

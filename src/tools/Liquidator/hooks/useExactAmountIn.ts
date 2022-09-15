@@ -1,13 +1,12 @@
 import { BigNumber, ethers } from 'ethers'
 import { getAmountFromBigNumber, Token } from '@pooltogether/hooks'
-import { getReadProvider } from '@pooltogether/wallet-connection'
-import { RPC_API_KEYS } from '@constants/config'
 import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
 import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
 import { POOL } from '@constants/pool'
 import { parseUnits } from 'ethers/lib/utils'
 import { useQuery } from 'react-query'
+import { getReadProvider } from '@pooltogether/wallet-connection'
 
 export const useExactAmountIn = (chainId: number, ticket: Token, amountOut: string) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
@@ -24,7 +23,7 @@ const getExactAmountIn = async (
   prizePoolAddress: string,
   amountOut: string
 ) => {
-  const provider = getReadProvider(chainId, RPC_API_KEYS)
+  const provider = getReadProvider(chainId)
   const liquidatorAddress = LIQUIDATOR_ADDRESS[chainId]
   const liquidatorContract = new ethers.Contract(liquidatorAddress, liquidatorAbi, provider)
   const prizeToken = POOL[chainId]

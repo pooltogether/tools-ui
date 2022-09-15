@@ -3,11 +3,10 @@ import { formatUnits } from 'ethers/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
 import { useToken } from '@pooltogether/hooks'
-import { BlockExplorerLink } from '@pooltogether/react-components'
 import { format } from 'date-fns'
-
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
+import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 
 interface PromotionSummaryProps {
   chainId: number

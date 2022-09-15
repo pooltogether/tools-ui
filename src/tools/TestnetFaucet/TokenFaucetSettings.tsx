@@ -1,13 +1,9 @@
 import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
-import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
-import { BlockExplorerLink } from '@pooltogether/react-components'
-import { AccountAvatar, useUsersAddress } from '@pooltogether/wallet-connection'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import { constants } from 'ethers'
 import { useAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
 import { testnetFaucetChainIdAtom } from './atoms'
-import { FAUCET_SUPPORTED_CHAIN_IDS } from './config'
 import { getTestnetFaucetChainIds } from './utils/getTestnetFaucetChainIds'
 
 export const TokenFaucetSettings: React.FC<{ className?: string }> = (props) => {

@@ -1,53 +1,46 @@
 import React from 'react'
 import Link from 'next/link'
-import classNames from 'classnames'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
+import { NavigationContainer, NavigationLink } from '@pooltogether/react-components'
 
-interface NavLinkInfo {
-  i18nKey: string
-  href: string
-}
-
-const NavLinks: NavLinkInfo[] = [
+const navLinks = [
   {
     i18nKey: 'deposit',
-    href: '/deposit'
+    externalHref: 'https://app.pooltogether.com/deposit'
   },
   {
     i18nKey: 'prizes',
-    href: '/prizes'
+    externalHref: 'https://app.pooltogether.com/prizes'
   },
   {
     i18nKey: 'account',
-    href: '/account'
+    externalHref: 'https://app.pooltogether.com/account'
+  },
+  {
+    i18nKey: 'tools',
+    href: '/',
+    regex: /^\//
   }
 ]
 
-const NavLink: React.FC<NavLinkInfo & { isSelected: boolean }> = (props) => {
-  const { isSelected, i18nKey, href } = props
+export const Navigation: React.FC<{ className?: string }> = (props) => {
+  const { className } = props
   const { t } = useTranslation()
   const router = useRouter()
 
   return (
-    <Link
-      href={{
-        pathname: href,
-        query: router.query
-      }}
-    >
-      <a
-        className={classNames(
-          'transition',
-          'text-xs hover:text-white active:bg-highlight-9',
-          { 'bg-highlight-9 text-white': isSelected },
-          { 'hover:opacity-60': !isSelected }
-        )}
-      >
-        <span className={classNames({ 'text-white opacity-70 hover:opacity-100': !isSelected })}>
-          {t(i18nKey)}
-        </span>
-      </a>
-    </Link>
+    <NavigationContainer className={className}>
+      {navLinks.map((link) => (
+        <NavigationLink
+          {...link}
+          key={`nav-${link.i18nKey}`}
+          t={t}
+          Link={Link}
+          pathname={router.pathname}
+          selectedClassName='bg-pt-teal'
+        />
+      ))}
+    </NavigationContainer>
   )
 }
