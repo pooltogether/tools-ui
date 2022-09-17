@@ -1,6 +1,9 @@
 import classNames from 'classnames'
+import { DetailedHTMLProps, HTMLAttributes } from 'react'
 
-export const SwapAmountContainer: React.FC<{ className?: string }> = (props) => (
+export const SwapAmountContainer: React.FC<
+  DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+> = (props) => (
   <div
     {...props}
     className={classNames(

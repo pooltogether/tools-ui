@@ -1,9 +1,8 @@
 import { ExternalLink, Modal, SquareLink } from '@pooltogether/react-components'
-import { useTransaction } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
+import { Trans, useTranslation } from 'next-i18next'
 import { useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
 
 interface AppInfo {
   titleKey: string
@@ -139,7 +138,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
   )
 }
 
-const ListItemContainer: React.FC = (props) => (
+const ListItemContainer: React.FC<{ children: React.ReactNode }> = (props) => (
   <li {...props} className={classNames('flex flex-col items-center relative')} />
 )
 
@@ -166,7 +165,7 @@ const UserLink: React.FC<{
         <Trans
           i18nKey='redirectedToApp'
           components={{
-            a: <ExternalLink href={url} />
+            a: <ExternalLink href={url} children={undefined} />
           }}
           values={{ name: twitter || github || discordName }}
         />
@@ -193,7 +192,10 @@ const RepoLink: React.FC<{ repo?: string; ignoreNoRepo?: boolean }> = (props) =>
 
   return (
     <p className='text-xs'>
-      <Trans i18nKey='openSourceAppVerifyHere' components={{ a: <ExternalLink href={repo} /> }} />
+      <Trans
+        i18nKey='openSourceAppVerifyHere'
+        components={{ a: <ExternalLink href={repo} children={undefined} /> }}
+      />
     </p>
   )
 }

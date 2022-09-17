@@ -1,6 +1,6 @@
-import { ethers, Signer } from 'ethers'
-import { TransactionResponse } from '@ethersproject/providers'
 import ERC20Abi from '@abis/ERC20'
+import { TransactionResponse } from '@ethersproject/providers'
+import { ethers, Signer } from 'ethers'
 
 export const approveErc20Spender = async (
   signer: Signer,

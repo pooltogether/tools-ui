@@ -1,9 +1,9 @@
-import { Contract, ethers } from 'ethers'
-import { BaseProvider } from '@ethersproject/providers'
-import { Signer } from '@ethersproject/abstract-signer'
 import MulticallAbi from '@abis/Multicall'
-import { getMulticallContractAddress } from '@utils/getMulticallContractAddress'
+import { Signer } from '@ethersproject/abstract-signer'
+import { BaseProvider } from '@ethersproject/providers'
 import { getReadProvider } from '@pooltogether/wallet-connection'
+import { getMulticallContractAddress } from '@utils/getMulticallContractAddress'
+import { Contract, ethers } from 'ethers'
 
 export const getMulticallContract = (
   chainId: number,

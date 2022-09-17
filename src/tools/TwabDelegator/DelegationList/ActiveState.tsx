@@ -1,6 +1,19 @@
-import FeatherIcon from 'feather-icons-react'
-import { BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
+import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
+import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
+import { usePagination } from '@hooks/usePagination'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
+import {
+  CheckboxInputGroup,
+  SquareButton,
+  SquareButtonSize,
+  SquareButtonTheme,
+  TokenIcon,
+  Tooltip,
+  ScreenSize,
+  useScreenSize
+} from '@pooltogether/react-components'
 import { sToD, shorten, msToS, sToM, numberWithCommas } from '@pooltogether/utilities'
+import { BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   delegationUpdatesAtom,
   delegationWithdrawalsAtom,
@@ -12,37 +25,24 @@ import {
   createDelegationModalOpenAtom,
   delegationCreationsAtom
 } from '@twabDelegator/atoms'
+import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
 import {
   Delegation,
   DelegationFund,
   DelegationId,
   DelegationUpdate
 } from '@twabDelegator/interfaces'
+import { getBalance } from '@twabDelegator/utils/getBalance'
+import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
+import { getDuration } from '@twabDelegator/utils/getDuration'
+import classNames from 'classnames'
+import { BigNumber } from 'ethers'
+import FeatherIcon from 'feather-icons-react'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { DelegationListProps, ListState } from '.'
-import {
-  CheckboxInputGroup,
-  SquareButton,
-  SquareButtonSize,
-  SquareButtonTheme,
-  TokenIcon,
-  Tooltip,
-  ScreenSize,
-  useScreenSize
-} from '@pooltogether/react-components'
-import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
-import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { getDelegatee } from '@twabDelegator/utils/getDelegatee'
-import { getBalance } from '@twabDelegator/utils/getBalance'
-import { getDuration } from '@twabDelegator/utils/getDuration'
-import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from '@constants/misc'
-import { BigNumber } from 'ethers'
-import classNames from 'classnames'
-import { LockedSvg, UnlockedSvg } from '@components/SvgComponents'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 import { useMemo, useState } from 'react'
-import { usePagination } from '@hooks/usePagination'
+import { DelegationListProps, ListState } from '.'
 
 export interface ActiveStateProps extends DelegationListProps {
   delegator: string

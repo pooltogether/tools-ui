@@ -1,21 +1,27 @@
-import Layout from '@components/Layout'
-import FeatherIcon from 'feather-icons-react'
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { PromotionsList } from '@twabRewards/PromotionsList'
 import { RewardsTitle } from '@twabRewards/RewardsTitle'
-import { useEffect } from 'react'
 import { UsersAppState } from '@twabRewards/UsersAppState'
+import FeatherIcon from 'feather-icons-react'
 import { useAtom } from 'jotai'
+import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
+import { useEffect } from 'react'
 import {
   rewardsChainIdAtom,
   currentAccountAtom,
   setRewardsChainAtom,
   setCurrentAccountAtom
 } from './atoms'
-import { useUpdateAtom } from 'jotai/utils'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { useTranslation } from 'react-i18next'
+import dynamic from 'next/dynamic.js'
+import { Suspense } from 'react'
+import { LoadingScreen } from '@pooltogether/react-components'
+
+const Layout = dynamic(() => import('@components/Layout'), {
+  suspense: true
+})
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const TwabRewards: React.FC = () => {
@@ -33,25 +39,27 @@ export const TwabRewards: React.FC = () => {
   }, [usersAddress])
 
   return (
-    <Layout>
-      <PagePadding>
-        <PageTitle title='Promotional Rewards' />
-        <ClaimingRewardsWarning />
-        <RewardsTitle className='mb-8' />
-        <UsersAppState
-          chainId={chainId}
-          currentAccount={currentAccount}
-          setCurrentAccount={setCurrentAccount}
-          setChainId={setChainId}
-          className='mb-8'
-        />
-        <PromotionsList
-          currentAccount={currentAccount}
-          chainId={chainId}
-          setCurrentAccount={setCurrentAccount}
-        />
-      </PagePadding>
-    </Layout>
+    <Suspense fallback={<LoadingScreen />}>
+      <Layout>
+        <PagePadding>
+          <PageTitle title='Promotional Rewards' />
+          <ClaimingRewardsWarning />
+          <RewardsTitle className='mb-8' />
+          <UsersAppState
+            chainId={chainId}
+            currentAccount={currentAccount}
+            setCurrentAccount={setCurrentAccount}
+            setChainId={setChainId}
+            className='mb-8'
+          />
+          <PromotionsList
+            currentAccount={currentAccount}
+            chainId={chainId}
+            setCurrentAccount={setCurrentAccount}
+          />
+        </PagePadding>
+      </Layout>
+    </Suspense>
   )
 }
 

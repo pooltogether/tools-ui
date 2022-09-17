@@ -1,4 +1,3 @@
-import FeatherIcon from 'feather-icons-react'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
 import { liquidatorChainIdAtom } from '@liquidator/atoms'
@@ -14,9 +13,10 @@ import {
 } from '@pooltogether/wallet-connection'
 import { approveErc20Spender } from '@utils/transactions/approveErc20Spender'
 import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
 import { useAtom } from 'jotai'
+import { useTranslation } from 'next-i18next'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useSigner } from 'wagmi'
 
 export const ApproveSwapButton: React.FC<{ className?: string }> = (props) => {

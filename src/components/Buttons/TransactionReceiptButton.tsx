@@ -1,14 +1,9 @@
-import {
-  formatBlockExplorerTxUrl,
-  SquareLink,
-  SquareButtonTheme,
-  SquareButtonSize
-} from '@pooltogether/react-components'
-import FeatherIcon from 'feather-icons-react'
-import { useTranslation } from 'react-i18next'
-import React from 'react'
-import { Transaction } from '@pooltogether/wallet-connection'
+import { SquareLink, SquareButtonTheme, SquareButtonSize } from '@pooltogether/react-components'
+import { formatBlockExplorerTxUrl, Transaction } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
+import React from 'react'
 
 export const TransactionReceiptButton: React.FC<{
   chainId: number

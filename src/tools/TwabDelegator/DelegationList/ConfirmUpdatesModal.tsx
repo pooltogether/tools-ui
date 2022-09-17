@@ -1,5 +1,15 @@
+import { TransactionButton } from '@components/Buttons/TransactionButton'
+import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
+import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
 import { Banner, BannerTheme, BottomSheet, ModalTitle } from '@pooltogether/react-components'
-import FeatherIcon from 'feather-icons-react'
+import {
+  TransactionState,
+  TransactionStatus,
+  useTransaction,
+  useTransactions,
+  useUsersAddress
+} from '@pooltogether/wallet-connection'
 import {
   delegationCreationsCountAtom,
   delegationFundsAtom,
@@ -8,34 +18,24 @@ import {
   delegationUpdatesCountAtom,
   delegationUpdatesModalOpenAtom
 } from '@twabDelegator/atoms'
-import { useAtom } from 'jotai'
-import { DelegationConfirmationList } from './DelegationConfirmationList'
-import { useEffect, useState } from 'react'
-import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
-import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
-import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
-import { TransactionButton } from '@components/Buttons/TransactionButton'
-import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
-import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
-import {
-  TransactionState,
-  TransactionStatus,
-  useTransaction,
-  useTransactions,
-  useUsersAddress
-} from '@pooltogether/wallet-connection'
-import { useTranslation } from 'react-i18next'
-import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
-import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
-import { useSigner } from 'wagmi'
-import { EditedIconAndCount } from './ListStateActions'
-import { useSubmitUpdateDelegationTransaction } from '@twabDelegator/hooks/useSubmitUpdateDelegationTransaction'
-import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
 import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
+import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
+import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
+import { useResetDelegationAtoms } from '@twabDelegator/hooks/useResetDelegationAtoms'
+import { useSubmitUpdateDelegationTransaction } from '@twabDelegator/hooks/useSubmitUpdateDelegationTransaction'
 import { useTotalAmountDelegated } from '@twabDelegator/hooks/useTotalAmountDelegated'
+import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
+import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
+import FeatherIcon from 'feather-icons-react'
+import { useAtom } from 'jotai'
+import { useTranslation } from 'next-i18next'
+import { useEffect, useState } from 'react'
+import { useSigner } from 'wagmi'
+import { DelegationConfirmationList } from './DelegationConfirmationList'
+import { EditedIconAndCount } from './ListStateActions'
 
 enum ConfirmModalState {
   review = 'REVIEW',

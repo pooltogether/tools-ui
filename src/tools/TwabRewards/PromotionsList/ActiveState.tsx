@@ -1,13 +1,12 @@
-import classNames from 'classnames'
-import FeatherIcon from 'feather-icons-react'
-import { BigNumber } from 'ethers'
-import { useTranslation } from 'react-i18next'
 import { Tooltip } from '@pooltogether/react-components'
-
-import { PromotionsListProps } from '.'
+import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
 import { Promotion } from '@twabRewards/interfaces'
 import { PromotionSummary } from '@twabRewards/PromotionSummary'
-import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
+import classNames from 'classnames'
+import { BigNumber } from 'ethers'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
+import { PromotionsListProps } from '.'
 
 export interface ActiveStateProps extends PromotionsListProps {
   currentAccount: string

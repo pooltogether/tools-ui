@@ -1,7 +1,6 @@
+import { getTwabRewardsSubgraphClient } from '@twabRewards/utils/getTwabRewardsSubgraphClient'
 import gql from 'graphql-tag'
 import { useQuery } from 'react-query'
-
-import { useTwabRewardsSubgraphClient } from '@twabRewards/hooks/useTwabRewardsSubgraphClient'
 
 /**
  *
@@ -25,7 +24,7 @@ export const getAccountsPromotions = async (chainId, account) => {
     accountAddress: account.toLowerCase()
   }
 
-  const client = useTwabRewardsSubgraphClient(chainId)
+  const client = getTwabRewardsSubgraphClient(chainId)
 
   return client.request(query, variables).catch((e) => {
     console.error(e.message)

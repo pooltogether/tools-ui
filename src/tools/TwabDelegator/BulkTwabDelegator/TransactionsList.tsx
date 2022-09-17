@@ -1,4 +1,3 @@
-import FeatherIcon from 'feather-icons-react'
 import { ThemedClipSpinner } from '@pooltogether/react-components'
 import {
   BlockExplorerLink,
@@ -6,6 +5,7 @@ import {
   TransactionState,
   TransactionStatus
 } from '@pooltogether/wallet-connection'
+import FeatherIcon from 'feather-icons-react'
 
 export const TransactionsList: React.FC<{ transactions: Transaction[] }> = (props) => {
   const { transactions } = props

@@ -3,7 +3,7 @@ import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import { constants } from 'ethers'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 import { getAirdropClaimChainId } from './utils/getAirdropClaimChainId'
 
 export const AirdropClaimSettings: React.FC<{ className?: string }> = (props) => {

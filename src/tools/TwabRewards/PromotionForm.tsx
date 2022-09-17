@@ -1,20 +1,19 @@
-import { useEffect } from 'react'
-import FeatherIcon from 'feather-icons-react'
-import classNames from 'classnames'
-import moment from 'moment'
-import { getNetworkNiceNameByChainId, dToS, msToS } from '@pooltogether/utilities'
-import { format } from 'date-fns'
-import { useForm } from 'react-hook-form'
-import { isAddress, parseUnits } from 'ethers/lib/utils'
-import { useTranslation } from 'react-i18next'
-import { useToken } from '@pooltogether/hooks'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { DatePicker, TimePicker } from 'antd'
-import { SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
-
-import { PromotionFormValues } from '@twabRewards/interfaces'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
+import { useToken } from '@pooltogether/hooks'
+import { SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
+import { getNetworkNiceNameByChainId, dToS, msToS } from '@pooltogether/utilities'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { PromotionFormValues } from '@twabRewards/interfaces'
+import { DatePicker, TimePicker } from 'antd'
+import classNames from 'classnames'
+import { format } from 'date-fns'
+import { isAddress, parseUnits } from 'ethers/lib/utils'
+import FeatherIcon from 'feather-icons-react'
+import moment from 'moment'
+import { useTranslation } from 'next-i18next'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { PromotionSummary } from './PromotionSummary'
 import { TokenDisplay } from './TokenDisplay'
 
@@ -348,7 +347,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
   )
 }
 
-const ErrorMessage: React.FC<{ className?: string }> = (props) => {
+const ErrorMessage: React.FC<JSX.IntrinsicElements['p']> = (props) => {
   return (
     <p
       {...props}

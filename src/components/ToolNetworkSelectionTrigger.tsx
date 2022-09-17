@@ -1,6 +1,6 @@
-import FeatherIcon from 'feather-icons-react'
 import { NetworkIcon } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
+import FeatherIcon from 'feather-icons-react'
 import { useState } from 'react'
 import { SelectNetworkModal } from './SelectNetworkModal'
 

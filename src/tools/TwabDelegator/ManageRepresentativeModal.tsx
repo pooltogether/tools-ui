@@ -1,4 +1,3 @@
-import FeatherIcon from 'feather-icons-react'
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
 import {
@@ -13,14 +12,15 @@ import {
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 import { isAddress } from 'ethers/lib/utils'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
+import { useSigner } from 'wagmi'
 import { DELEGATION_LEARN_MORE_URL } from './constants'
 import { ErrorMessage } from './DelegationForm'
 import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
 import { getTwabDelegatorContract } from './utils/getTwabDelegatorContract'
-import { useSigner } from 'wagmi'
 
 enum ModalState {
   main = 'MAIN',

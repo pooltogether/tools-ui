@@ -1,16 +1,16 @@
 import { liquidatorChainIdAtom, slippagePercentAtom, ticketTokenAtom } from '@liquidator/atoms'
 import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
-import { Collapse, ThemedClipSpinner } from '@pooltogether/react-components'
-import { useAtom } from 'jotai'
-import classNames from 'classnames'
 import { usePrizeToken } from '@liquidator/hooks/usePrizeToken'
-import React from 'react'
 import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
-import { useFormState, useWatch } from 'react-hook-form'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
-import { parseUnits } from 'ethers/lib/utils'
-import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
 import { getAmountFromBigNumber } from '@pooltogether/hooks'
+import { Collapse, ThemedClipSpinner } from '@pooltogether/react-components'
+import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
+import classNames from 'classnames'
+import { parseUnits } from 'ethers/lib/utils'
+import { useAtom } from 'jotai'
+import React from 'react'
+import { useFormState, useWatch } from 'react-hook-form'
 
 // TODO: Show discounts
 export const SwapInfo: React.FC<{

@@ -1,10 +1,13 @@
-import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
+import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { liquidatorChainIdAtom, slippagePercentAtom, ticketTokenAtom } from '@liquidator/atoms'
+import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
+import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
 import { useLiquidatorAddress } from '@liquidator/hooks/useLiquidatorAddress'
 import { usePrizeToken } from '@liquidator/hooks/usePrizeToken'
-import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
+import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
+import { useTicketPrizePoolAddress } from '@liquidator/hooks/useTicketPrizePoolAddress'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
 import { useTokenAllowance, useTokenBalance } from '@pooltogether/hooks'
 import {
@@ -13,18 +16,15 @@ import {
   useTransaction,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
+import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
 import classNames from 'classnames'
+import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
+import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { useFormState, useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { useSigner } from 'wagmi'
-import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
-import { ethers } from 'ethers'
-import { useTicketPrizePoolAddress } from '@liquidator/hooks/useTicketPrizePoolAddress'
-import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
-import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
 
 /**
  *
@@ -118,7 +118,9 @@ export const SendSwapButton: React.FC<{
         disabled={disabled}
         onClick={() => submitSwapTransaction()}
       >
-        {errors?.amountIn?.message || 'Swap'}
+        {!!errors?.amountIn?.message && typeof errors.amountIn.message === 'string'
+          ? errors.amountIn.message
+          : 'Swap'}
       </TxButton>
       {showReceiptButton && (
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />

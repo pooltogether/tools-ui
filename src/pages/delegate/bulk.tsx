@@ -1,30 +1,27 @@
+import { BulkTwabDelegator } from '@twabDelegator/BulkTwabDelegator'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
-import dynamic from 'next/dynamic'
 import { NextPage } from 'next/types'
-import { LoadingScreen } from '@pooltogether/react-components'
+import nextI18NextConfig from '../../../next-i18next.config.js'
 
-const TwabDelegator = dynamic(
-  () => import('../../tools/TwabDelegator/BulkTwabDelegator').then((mod) => mod.BulkTwabDelegator),
-  {
-    loading: () => <LoadingScreen />
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig))
+    }
   }
-)
+}
 
 const Home: NextPage = () => {
   return (
-    <div>
+    <>
       <Head>
         <title>Bulk Delegate - PoolTogether</title>
         <meta name='description' content='Manage your deposit delegations.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-
-      <main>
-        <TwabDelegator />
-      </main>
-
-      <footer></footer>
-    </div>
+      <BulkTwabDelegator />
+    </>
   )
 }
 

@@ -1,10 +1,10 @@
 import React from 'react'
-import classNames from 'classnames'
-import { PageHeader } from './PageHeader'
 import { Navigation } from './Navigation'
+import { PageHeader } from './PageHeader'
 
 interface LayoutProps {
   className?: string
+  children: React.ReactNode
 }
 
 /**
@@ -16,11 +16,11 @@ const Layout: React.FC<LayoutProps> = (props) => {
   const { children, className } = props
 
   return (
-    <div className={classNames(className, 'min-h-screen minimal-scrollbar')}>
+    <>
       <PageHeader />
       <Navigation />
-      {children}
-    </div>
+      <main>{children}</main>
+    </>
   )
 }
 

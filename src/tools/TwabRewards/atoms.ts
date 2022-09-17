@@ -17,7 +17,8 @@ const getStartingAccount = () => {
 /**
  * The address to use as the delegator for the rewards view
  */
-export const currentAccountAtom = atom<string>(getStartingAccount())
+export const currentAccountAtom = atom<string>('')
+currentAccountAtom.onMount = (setAtom) => setAtom(getStartingAccount())
 
 /**
  * Write-only
@@ -52,7 +53,8 @@ const getStartingRewardsChainId = () => {
  * The chain id to use for the rewards view.
  * Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
  */
-export const rewardsChainIdAtom = atom<number>(getStartingRewardsChainId())
+export const rewardsChainIdAtom = atom<number>(0)
+rewardsChainIdAtom.onMount = (setAtom) => setAtom(getStartingRewardsChainId())
 
 /**
  * Write-only

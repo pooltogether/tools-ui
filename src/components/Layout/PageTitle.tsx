@@ -1,8 +1,8 @@
-import React from 'react'
 import FeatherIcon from 'feather-icons-react'
-import { useRouter } from 'next/router'
+import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
-import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/router'
+import React from 'react'
 
 export const Breadcrumbs = () => {
   const router = useRouter()

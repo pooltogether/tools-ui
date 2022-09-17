@@ -1,21 +1,27 @@
-import Layout from '@components/Layout'
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
-import { useEffect } from 'react'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
 import { useAtom } from 'jotai'
+import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
+import { useEffect } from 'react'
 import {
   delegationChainIdAtom,
   delegatorAtom,
   setDelegationChainAtom,
   setDelegatorAtom
 } from '../atoms'
-import { useUpdateAtom } from 'jotai/utils'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
-import { useTranslation } from 'react-i18next'
 import { BulkDelegationDescription } from './BulkDelegationDescription'
 import { BulkTwabDelegationSteps } from './BulkTwabDelegationSteps'
 import { LockedDelegationsWarning } from './LockedDelegationsWarning'
+import dynamic from 'next/dynamic.js'
+import { Suspense } from 'react'
+import { LoadingScreen } from '@pooltogether/react-components'
+
+const Layout = dynamic(() => import('@components/Layout'), {
+  suspense: true
+})
 
 // TODO: Go to confirmation modal while wallet is on wrong network. Switch networks. Lotsa problems.
 export const BulkTwabDelegator: React.FC = () => {
@@ -34,20 +40,22 @@ export const BulkTwabDelegator: React.FC = () => {
   }, [usersAddress])
 
   return (
-    <Layout>
-      <PagePadding>
-        <PageTitle title={t('bulkDepositDelegator', 'Bulk deposit delegator') + ' (beta)'} />
-        <BulkDelegationDescription className='mb-8' />
-        <UsersDelegationState
-          chainId={chainId}
-          delegator={delegator}
-          setDelegator={setDelegator}
-          setChainId={setChainId}
-          className='mb-8'
-        />
-        <LockedDelegationsWarning chainId={chainId} delegator={delegator} />
-        <BulkTwabDelegationSteps />
-      </PagePadding>
-    </Layout>
+    <Suspense fallback={<LoadingScreen />}>
+      <Layout>
+        <PagePadding>
+          <PageTitle title={t('bulkDepositDelegator', 'Bulk deposit delegator') + ' (beta)'} />
+          <BulkDelegationDescription className='mb-8' />
+          <UsersDelegationState
+            chainId={chainId}
+            delegator={delegator}
+            setDelegator={setDelegator}
+            setChainId={setChainId}
+            className='mb-8'
+          />
+          <LockedDelegationsWarning chainId={chainId} delegator={delegator} />
+          <BulkTwabDelegationSteps />
+        </PagePadding>
+      </Layout>
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 import { useTokenBalance } from '@pooltogether/hooks'
-import { BigNumber } from 'ethers'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { BigNumber } from 'ethers'
 
 /**
  * Fetches the delegators ticket balances and checks if it is greater than the amount of tickets the user has committed to delegating while updating their delegations

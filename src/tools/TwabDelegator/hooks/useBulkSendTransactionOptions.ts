@@ -1,5 +1,6 @@
-import { toast } from 'react-toastify'
-import { signERC2612Permit } from 'eth-permit'
+import { useLatestBlock } from '@hooks/useLatestBlock'
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
+import { useTokenAllowance } from '@pooltogether/hooks'
 import {
   SendTransactionOptions,
   useIsWalletOnChainId,
@@ -7,23 +8,21 @@ import {
 } from '@pooltogether/wallet-connection'
 import { delegationChainIdAtom, delegatorAtom } from '@twabDelegator/atoms'
 import { DelegationFund, DelegationId, DelegationUpdate } from '@twabDelegator/interfaces'
-import { useQuery } from 'react-query'
-import { useIsUserDelegatorsRepresentative } from './useIsUserDelegatorsRepresentative'
-import { useAtom } from 'jotai'
-import { useSigner } from 'wagmi'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
-import { getV4TicketContract } from '@utils/getV4TicketContract'
-import { BigNumber, PopulatedTransaction } from 'ethers'
-import { useLatestBlock } from '@hooks/useLatestBlock'
-import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
-import { useTokenAllowance } from '@pooltogether/hooks'
-import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
-import { useTranslation } from 'react-i18next'
 import { chunkArray } from '@utils/chunkArray'
-import { useDelegatorsStake } from './useDelegatorsStake'
+import { getV4TicketContract } from '@utils/getV4TicketContract'
+import { signERC2612Permit } from 'eth-permit'
+import { BigNumber, PopulatedTransaction } from 'ethers'
+import { useAtom } from 'jotai'
+import { useTranslation } from 'next-i18next'
+import { useQuery } from 'react-query'
+import { toast } from 'react-toastify'
+import { useSigner } from 'wagmi'
+import { useDelegatorsTwabDelegations } from './useDelegatorsTwabDelegations'
 import { useIsDelegatorsBalanceSufficient } from './useIsDelegatorsBalanceSufficient'
 import { useIsDelegatorsStakeSufficient } from './useIsDelegatorsStakeSufficient'
+import { useIsUserDelegatorsRepresentative } from './useIsUserDelegatorsRepresentative'
 
 /**
  *

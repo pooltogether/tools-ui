@@ -1,14 +1,14 @@
-import FeatherIcon from 'feather-icons-react'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { SquareButton, Tooltip } from '@pooltogether/react-components'
 import { sToD } from '@pooltogether/utilities'
+import { useMaxLockDuration } from '@twabDelegator/hooks/useMaxLockDuration'
 import { DelegationFormValues } from '@twabDelegator/interfaces'
 import classNames from 'classnames'
 import { isAddress, parseUnits } from 'ethers/lib/utils'
+import FeatherIcon from 'feather-icons-react'
 import { useForm } from 'react-hook-form'
-import { useMaxLockDuration } from '@twabDelegator/hooks/useMaxLockDuration'
 
 interface DelegationFormProps {
   onSubmit: (data: DelegationFormValues, resetForm: () => void) => void
@@ -63,7 +63,11 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
           }
         })}
       />
-      <ErrorMessage className='mb-4'>{errors.delegatee?.message}</ErrorMessage>
+      <ErrorMessage className='mb-4'>
+        {!!errors?.delegatee?.message && typeof errors.delegatee.message === 'string'
+          ? errors.delegatee.message
+          : null}
+      </ErrorMessage>
       <Label className='uppercase' htmlFor='balance'>
         {`Amount (${ticket.symbol})`} *
       </Label>
@@ -133,6 +137,6 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
   )
 }
 
-export const ErrorMessage: React.FC<{ className?: string }> = (props) => (
+export const ErrorMessage: React.FC<JSX.IntrinsicElements['p']> = (props) => (
   <p {...props} className={classNames(props.className, 'h-5 mt-1 text-xxs text-pt-red-light')} />
 )

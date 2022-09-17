@@ -1,12 +1,12 @@
 import { BottomSheet } from '@pooltogether/react-components'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
+import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { slippagePercentAtom, slippageSettingAtom } from '../atoms'
 import { SlippageAmounts, SlippageSetting } from '../constants'
-import { useAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
 
 export const Options: React.FC<{ className?: string }> = (props) => {
   const { className } = props

@@ -1,13 +1,12 @@
-import React from 'react'
-import classNames from 'classnames'
-import { useForm } from 'react-hook-form'
-import { isAddress } from 'ethers/lib/utils'
-import { SquareButton, SquareButtonSize } from '@pooltogether/react-components'
-
 import { StyledInput } from '@components/Input'
-import { DelegationListProps } from '.'
-import { useTranslation } from 'react-i18next'
+import { SquareButton, SquareButtonSize } from '@pooltogether/react-components'
 import { useConnectWallet } from '@pooltogether/wallet-connection'
+import classNames from 'classnames'
+import { isAddress } from 'ethers/lib/utils'
+import { useTranslation } from 'next-i18next'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { DelegationListProps } from '.'
 
 /**
  *

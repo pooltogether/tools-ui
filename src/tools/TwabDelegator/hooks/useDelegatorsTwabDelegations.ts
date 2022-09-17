@@ -1,10 +1,10 @@
 import { batch, contract } from '@pooltogether/etherplex'
-import TwabDelegatorAbi from '@twabDelegator/abis/TwabDelegator'
-import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
-import { useQuery } from 'react-query'
-import { Delegation, DelegationId } from '@twabDelegator/interfaces'
-import { BigNumber } from 'ethers'
 import { getReadProvider } from '@pooltogether/wallet-connection'
+import TwabDelegatorAbi from '@twabDelegator/abis/TwabDelegator'
+import { Delegation, DelegationId } from '@twabDelegator/interfaces'
+import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'
+import { BigNumber } from 'ethers'
+import { useQuery } from 'react-query'
 
 /**
  *

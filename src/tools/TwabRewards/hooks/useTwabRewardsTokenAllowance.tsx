@@ -1,6 +1,5 @@
 import { useTokenAllowance } from '@pooltogether/hooks'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
-
 import { Promotion } from '@twabRewards/interfaces'
 import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 

@@ -1,11 +1,5 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import FeatherIcon from 'feather-icons-react'
-import { useTranslation } from 'react-i18next'
-import { constants } from 'ethers/lib'
-import { isAddress } from 'ethers/lib/utils'
+import { StyledInput } from '@components/Input'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
-import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   BottomSheet,
   NetworkIcon,
@@ -13,7 +7,13 @@ import {
   SquareButtonTheme
 } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-import { StyledInput } from '@components/Input'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
+import { constants } from 'ethers/lib'
+import { isAddress } from 'ethers/lib/utils'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useRewardsSupportedChainIds } from './hooks/useRewardsSupportedChainIds'
 
 interface UsersAppStateProps {

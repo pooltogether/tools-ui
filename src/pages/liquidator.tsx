@@ -1,27 +1,27 @@
+import { Liquidator } from '@liquidator/index'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
-import dynamic from 'next/dynamic'
 import { NextPage } from 'next/types'
-import { LoadingScreen } from '@pooltogether/react-components'
+import nextI18NextConfig from '../../next-i18next.config.js'
 
-const Liquidator = dynamic(() => import('../tools/Liquidator').then((mod) => mod.Liquidator), {
-  loading: () => <LoadingScreen />
-})
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig))
+    }
+  }
+}
 
 const Home: NextPage = () => {
   return (
-    <div>
+    <>
       <Head>
         <title>Liquidate Prizes - PoolTogether</title>
         <meta name='description' content='Swap prize tokens for tickets at a discount.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-
-      <main>
-        <Liquidator />
-      </main>
-
-      <footer></footer>
-    </div>
+      <Liquidator />
+    </>
   )
 }
 

@@ -1,4 +1,7 @@
+import { useV4Ticket } from '@hooks/v4/useV4Ticket'
+import { ThemedClipSpinner } from '@pooltogether/react-components'
 import { dToS } from '@pooltogether/utilities'
+import { useIsWalletConnected } from '@pooltogether/wallet-connection'
 import {
   delegationChainIdAtom,
   delegationCreationsAtom,
@@ -6,18 +9,15 @@ import {
   delegationUpdatesAtom,
   delegatorAtom
 } from '@twabDelegator/atoms'
+import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
+import { useIsADelegationLocked } from '@twabDelegator/hooks/useIsADelegationLocked'
 import { DelegationFormValues, DelegationFund, DelegationUpdate } from '@twabDelegator/interfaces'
+import classNames from 'classnames'
 import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import FeatherIcon from 'feather-icons-react'
 import { useAtom } from 'jotai'
-import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
-import classNames from 'classnames'
 import { useState } from 'react'
-import { ThemedClipSpinner } from '@pooltogether/react-components'
-import { useIsWalletConnected } from '@pooltogether/wallet-connection'
-import { useIsADelegationLocked } from '@twabDelegator/hooks/useIsADelegationLocked'
 
 export const UploadCsv: React.FC<{
   setCsvUpdates: (updates: {

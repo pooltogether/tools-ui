@@ -1,7 +1,7 @@
-import FeatherIcon from 'feather-icons-react'
 import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
 import { DELEGATION_LEARN_MORE_URL } from './constants'
-import { useTranslation } from 'react-i18next'
 
 export const DelegationDescription: React.FC<{ className?: string }> = (props) => {
   const { t } = useTranslation()

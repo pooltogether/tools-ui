@@ -1,3 +1,5 @@
+import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
+import { TxButton } from '@components/Buttons/TxButton'
 import {
   useCoingeckoTokenPrices,
   useTokenFaucetData,
@@ -7,22 +9,20 @@ import {
   V3PrizePool
 } from '@pooltogether/hooks'
 import { SquareButtonSize, ThemedClipSpinner, TokenIcon } from '@pooltogether/react-components'
-import TokenFaucetAbi from './abis/TokenFaucet'
 import {
   TransactionStatus,
   useSendTransaction,
   useTransaction,
   useUsersAddress
 } from '@pooltogether/wallet-connection'
+import classNames from 'classnames'
 import { ethers } from 'ethers'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
+import TokenFaucetAbi from './abis/TokenFaucet'
 import { tokenFaucetChainIdAtom } from './atoms'
 import { TOKEN_FAUCET_ADDRESSES } from './config'
-import { TxButton } from '@components/Buttons/TxButton'
-import classNames from 'classnames'
-import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 
 export const TokenFaucetList = () => {
   const [chainId] = useAtom(tokenFaucetChainIdAtom)

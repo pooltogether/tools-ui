@@ -1,10 +1,10 @@
+import { QUERY_PARAM, SlippageAmounts, SlippageSetting, SwapState } from '@liquidator/constants'
+import { getDefaultLiquidatorChainId } from '@liquidator/utils/getDefaultLiquidatorChainId'
+import { getLiquidatorSupportedChainIds } from '@liquidator/utils/getLiquidatorSupportedChainIds'
 import { Token } from '@pooltogether/hooks'
 import { getChainIdByAlias } from '@pooltogether/utilities'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { atom } from 'jotai'
-import { QUERY_PARAM, SlippageAmounts, SlippageSetting, SwapState } from '@liquidator/constants'
-import { getDefaultLiquidatorChainId } from '@liquidator/utils/getDefaultLiquidatorChainId'
-import { getLiquidatorSupportedChainIds } from '@liquidator/utils/getLiquidatorSupportedChainIds'
 
 /**
  * Tries to get the chain id from a query param, otherwise returns the default
@@ -23,7 +23,8 @@ const getStartingLiquidatorChainId = () => {
 /**
  * The chain id to use for the liquidator view.
  */
-export const liquidatorChainIdAtom = atom<number>(getStartingLiquidatorChainId())
+export const liquidatorChainIdAtom = atom<number>(0)
+liquidatorChainIdAtom.onMount = (setAtom) => setAtom(getStartingLiquidatorChainId())
 
 /**
  * The slippage setting that determines the slippage amount in the price of the token.

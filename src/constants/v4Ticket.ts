@@ -1,5 +1,5 @@
-import { Token } from '@pooltogether/hooks'
 import { CHAIN_ID } from '@constants/misc'
+import { Token } from '@pooltogether/hooks'
 
 export const V4_TICKET: { [chainId: number]: Token } = Object.freeze({
   [CHAIN_ID.optimism]: {

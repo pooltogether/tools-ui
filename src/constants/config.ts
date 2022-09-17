@@ -1,8 +1,8 @@
-import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
-import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
-import { CHAIN_ID, getChain } from '@pooltogether/wallet-connection'
-import { Chain } from 'wagmi'
 import { LIQUIDATOR_SUPPORTED_CHAIN_IDS } from '@liquidator/config'
+import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
+import { CHAIN_ID, getChain } from '@pooltogether/wallet-connection'
+import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
+import { Chain } from 'wagmi'
 
 /////////////////////////////////////////////////////////////////////
 // Required constant aggregates from the various tools in the app.

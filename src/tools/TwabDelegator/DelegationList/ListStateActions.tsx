@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import FeatherIcon from 'feather-icons-react'
-import { useAtom } from 'jotai'
-import { useResetAtom, useUpdateAtom } from 'jotai/utils'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
+import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
 import {
   BottomSheet,
   ModalTitle,
@@ -12,6 +8,7 @@ import {
   ThemedClipSpinner,
   Tooltip
 } from '@pooltogether/react-components'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   delegationUpdatesCountAtom,
   delegationFundsAtom,
@@ -23,17 +20,20 @@ import {
   delegationCreationsCountAtom,
   delegationCreationsAtom
 } from '@twabDelegator/atoms'
-import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
-import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
-import { DelegationConfirmationList } from './DelegationConfirmationList'
-import { ListState } from '.'
-import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
-import { useTranslation } from 'react-i18next'
-import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
-import { StakeModal } from './StakeModal'
-import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
 import { FixedFooterNav } from '@twabDelegator/FixedFooterNav'
+import { useIsDelegatorsBalanceSufficient } from '@twabDelegator/hooks/useIsDelegatorsBalanceSufficient'
+import { useIsDelegatorsStakeSufficient } from '@twabDelegator/hooks/useIsDelegatorsStakeSufficient'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
+import { ChangeDelegatorModal } from '@twabDelegator/UsersDelegationState'
+import FeatherIcon from 'feather-icons-react'
+import { useAtom } from 'jotai'
+import { useResetAtom, useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
+import { useState } from 'react'
+import { ListState } from '.'
+import { DelegationConfirmationList } from './DelegationConfirmationList'
+import { StakeModal } from './StakeModal'
 
 interface ListStateActionsProps {
   chainId: number

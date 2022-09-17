@@ -1,9 +1,9 @@
-import { Contract, ethers } from 'ethers'
-import { BaseProvider } from '@ethersproject/providers'
-import { Signer } from '@ethersproject/abstract-signer'
 import TicketAbi from '@abis/Ticket'
-import { getV4TicketContractAddress } from '@utils/getV4TicketContractAddress'
+import { Signer } from '@ethersproject/abstract-signer'
+import { BaseProvider } from '@ethersproject/providers'
 import { getReadProvider } from '@pooltogether/wallet-connection'
+import { getV4TicketContractAddress } from '@utils/getV4TicketContractAddress'
+import { Contract, ethers } from 'ethers'
 
 export const getV4TicketContract = (
   chainId: number,

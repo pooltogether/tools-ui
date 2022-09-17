@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import Link from 'next/link'
+import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
+import { SUPPORTED_LANGUAGES } from '@constants/languages'
+import { useSupportedChains } from '@hooks/app/useSupportedChains'
 import {
   LanguagePickerDropdown,
   PageHeaderContainer,
@@ -11,10 +12,9 @@ import {
   SocialLinks,
   HeaderLogo
 } from '@pooltogether/react-components'
-import { useTranslation } from 'react-i18next'
-import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
-import { useSupportedChains } from '@hooks/app/useSupportedChains'
-import { SUPPORTED_LANGUAGES } from '@constants/languages'
+import { useTranslation } from 'next-i18next'
+import Link from 'next/link'
+import React, { useState } from 'react'
 
 export enum ContentPaneState {
   deposit = 'deposit',

@@ -1,5 +1,3 @@
-import React, { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { SquareButton, SquareButtonProps } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import {
@@ -9,7 +7,9 @@ import {
   useIsWalletConnected,
   useIsWalletOnChainId
 } from '@pooltogether/wallet-connection'
-import { useNetwork } from 'wagmi'
+import { useTranslation } from 'next-i18next'
+import React, { useMemo } from 'react'
+import { useNetwork, useSwitchNetwork } from 'wagmi'
 
 export interface TxButtonProps extends SquareButtonProps {
   state?: TransactionState
@@ -34,7 +34,7 @@ export const TxButton = (props: TxButtonProps) => {
   } = props
   const isWalletConnected = useIsWalletConnected()
   const connectWallet = useConnectWallet()
-  const { switchNetwork } = useNetwork()
+  const { switchNetwork } = useSwitchNetwork()
 
   const { t } = useTranslation()
 

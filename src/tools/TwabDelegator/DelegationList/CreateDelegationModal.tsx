@@ -17,7 +17,7 @@ import {
 import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 
 export const CreateDelegationModal: React.FC<{
   chainId: number

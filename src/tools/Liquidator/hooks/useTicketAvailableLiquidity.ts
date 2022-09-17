@@ -1,10 +1,11 @@
-import { BigNumber, ethers } from 'ethers'
-import { Amount, getAmountFromBigNumber, Token, useRefetchInterval } from '@pooltogether/hooks'
-import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
 import liquidatorAbi from '@liquidator/abis/Liquidator'
-import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
-import { useQuery } from 'react-query'
+import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
+import { Amount, getAmountFromBigNumber, Token, useRefetchInterval } from '@pooltogether/hooks'
 import { getReadProvider } from '@pooltogether/wallet-connection'
+import { BigNumber, ethers } from 'ethers'
+import { useQuery } from 'react-query'
+import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
+
 
 export const useTicketAvailableLiquidity = (chainId: number, ticket: Token) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)

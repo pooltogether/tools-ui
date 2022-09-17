@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
+import { useQuery } from 'react-query'
 
 export const useIsUserDelegatorsRepresentative = (
   chainId: number,

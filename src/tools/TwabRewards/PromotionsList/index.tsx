@@ -1,16 +1,15 @@
-import { useState } from 'react'
-import classNames from 'classnames'
-import { useAtom } from 'jotai'
 import { TransactionState, useTransaction } from '@pooltogether/wallet-connection'
-
-import { ActiveState } from './ActiveState'
-import { EmptyState } from './EmptyState'
-import { PromotionListActions } from './PromotionListActions'
-import { LoadingState } from './LoadingState'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { CreatePromotionModal } from '@twabRewards/CreatePromotionModal'
 import { useAccountsPromotions } from '@twabRewards/hooks/useAccountsPromotions'
+import classNames from 'classnames'
+import { useAtom } from 'jotai'
+import { useState } from 'react'
+import { ActiveState } from './ActiveState'
+import { EmptyState } from './EmptyState'
+import { LoadingState } from './LoadingState'
 import { NoAccountState } from './NoAccountState'
+import { PromotionListActions } from './PromotionListActions'
 
 export interface PromotionsListProps {
   className?: string

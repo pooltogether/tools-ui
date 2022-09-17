@@ -2,7 +2,7 @@ import { SendTransactionOptions } from '@pooltogether/wallet-connection'
 import { EditedIconAndCount } from '@twabDelegator/DelegationList/ListStateActions'
 import { DelegationFund, DelegationUpdate } from '@twabDelegator/interfaces'
 import { chunkArray } from '@utils/chunkArray'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 
 export const BulkDelegationNumberOfTransactions: React.FC<{
   isSignaturePending: boolean

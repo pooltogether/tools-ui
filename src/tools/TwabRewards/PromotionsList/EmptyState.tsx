@@ -1,11 +1,11 @@
-import FeatherIcon from 'feather-icons-react'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
-import { useUpdateAtom } from 'jotai/utils'
-import { PromotionsListProps } from '.'
 import classNames from 'classnames'
-import { useTranslation } from 'react-i18next'
+import FeatherIcon from 'feather-icons-react'
+import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
+import { PromotionsListProps } from '.'
 
 interface EmptyStateProps extends PromotionsListProps {
   currentAccount: string

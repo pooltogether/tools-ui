@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
-import classNames from 'classnames'
-import { useTranslation } from 'react-i18next'
-import { ethers, BigNumber } from 'ethers'
-import { TokenWithAllBalances } from '@pooltogether/hooks'
+
+import { TxButton } from '@components/Buttons/TxButton'
 import { TransactionResponse } from '@ethersproject/providers'
+import { TokenWithAllBalances } from '@pooltogether/hooks'
+import { SquareLink, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
 import {
   useUsersAddress,
   useTransaction,
@@ -11,12 +10,13 @@ import {
   useSendTransaction,
   formatBlockExplorerTxUrl
 } from '@pooltogether/wallet-connection'
-import { SquareLink, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
-import { useSigner } from 'wagmi'
-
-import { TxButton } from '@components/Buttons/TxButton'
 import { getTwabRewardsContractAddress } from '@twabRewards/utils/getTwabRewardsContractAddress'
 import { approveErc20Spender } from '@utils/transactions/approveErc20Spender'
+import classNames from 'classnames'
+import { ethers, BigNumber } from 'ethers'
+import { useTranslation } from 'next-i18next'
+import React, { useState } from 'react'
+import { useSigner } from 'wagmi'
 
 interface ModalApproveGateProps {
   chainId: number

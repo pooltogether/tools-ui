@@ -1,30 +1,27 @@
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
-import dynamic from 'next/dynamic'
 import { NextPage } from 'next/types'
-import { LoadingScreen } from '@pooltogether/react-components'
+import nextI18NextConfig from '../../next-i18next.config.js'
+import { AirdropClaim } from '../tools/AirdropClaim'
 
-const AirdropClaim = dynamic(
-  () => import('../tools/AirdropClaim').then((mod) => mod.AirdropClaim),
-  {
-    loading: () => <LoadingScreen />
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig))
+    }
   }
-)
+}
 
 const Home: NextPage = () => {
   return (
-    <div>
+    <>
       <Head>
         <title>Claim POOL - PoolTogether</title>
         <meta name='description' content='Claim POOL from the initial merkle tree distribution.' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-
-      <main>
-        <AirdropClaim />
-      </main>
-
-      <footer></footer>
-    </div>
+      <AirdropClaim />
+    </>
   )
 }
 

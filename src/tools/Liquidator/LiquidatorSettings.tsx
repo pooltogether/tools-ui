@@ -3,7 +3,7 @@ import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether
 import classNames from 'classnames'
 import { constants } from 'ethers'
 import { useAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 import { liquidatorChainIdAtom } from './atoms'
 import { useLiquidatorSupportedChainIds } from './hooks/useLiquidatorSupportedChainIds'
 

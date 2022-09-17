@@ -23,7 +23,8 @@ const getStartingTokenFaucetChainId = () => {
  * The chain id to use for the tokenFaucet view.
  * TODO: Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
  */
-export const tokenFaucetChainIdAtom = atom<number>(getStartingTokenFaucetChainId())
+export const tokenFaucetChainIdAtom = atom<number>(0)
+tokenFaucetChainIdAtom.onMount = (setAtom) => setAtom(getStartingTokenFaucetChainId())
 
 /**
  * The default token faucet address to use for the tokenFaucet view.

@@ -1,11 +1,11 @@
-import React from 'react'
-import Link from 'next/link'
-import { useTranslation } from 'react-i18next'
 
-import classNames from 'classnames'
 
 import { DiceSvg, GiftSvg, VoteSvg, GraphSvg } from '@components/SvgComponents'
 import { useIsTestnets } from '@pooltogether/hooks'
+import classNames from 'classnames'
+import { useTranslation } from 'next-i18next'
+import Link from 'next/link'
+import React from 'react'
 
 interface AppInfo {
   titleKey: string
@@ -117,7 +117,7 @@ const AppLink: React.FC<AppInfo> = (props) => {
   )
 }
 
-const ListItemContainer: React.FC<{ disabled: boolean }> = (props) => (
+const ListItemContainer: React.FC<{ children: React.ReactNode; disabled: boolean }> = (props) => (
   <li
     {...props}
     className={classNames('rounded-xl flex flex-col justify-center items-center relative')}

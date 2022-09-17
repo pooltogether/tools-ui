@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
-import FeatherIcon from 'feather-icons-react'
-import classNames from 'classnames'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
-import { useUpdateAtom } from 'jotai/utils'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
-
 import { ChangeAccountModal } from '@twabRewards/UsersAppState'
-import { useTranslation } from 'react-i18next'
+import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
+import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
+import React, { useState } from 'react'
 
 interface PromotionListActionsProps {
   noPromotions: boolean

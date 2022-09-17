@@ -1,34 +1,27 @@
-import { Provider as JotaiProvider } from 'jotai'
-import { createClient, WagmiConfig } from 'wagmi'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
-import { useTranslation } from 'react-i18next'
-import {
-  LoadingLogo,
-  ThemeContext,
-  ThemeContextProvider,
-  ScreenSize,
-  useScreenSize
-} from '@pooltogether/react-components'
-import { CustomErrorBoundary } from './CustomErrorBoundary'
-import { useInitCookieOptions } from '@pooltogether/hooks'
-import { initSentry } from '../services/sentry'
-import '../services/i18n'
-import { ToastContainer, ToastContainerProps } from 'react-toastify'
-import { useContext } from 'react'
+import { RPC_URLS } from '@constants/config'
 import { CHAIN_ID } from '@constants/misc'
-import { getSupportedChains } from '@utils/getSupportedChains'
+import { useInitCookieOptions } from '@pooltogether/hooks'
+import { ScreenSize, useScreenSize, LoadingScreen } from '@pooltogether/react-components'
 import {
   useUpdateStoredPendingTransactions,
   getReadProvider,
   initRpcUrls
 } from '@pooltogether/wallet-connection'
+import { getSupportedChains } from '@utils/getSupportedChains'
+import { Provider as JotaiProvider } from 'jotai'
+import { useTranslation } from 'next-i18next'
+import { ThemeProvider, useTheme } from 'next-themes'
 import { AppProps } from 'next/app'
-import { RPC_URLS } from '@constants/config'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
+import { ToastContainer, ToastContainerProps } from 'react-toastify'
+import { createClient, useAccount, useConnect, WagmiConfig } from 'wagmi'
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import { initSentry } from '../services/sentry'
+import { CustomErrorBoundary } from './CustomErrorBoundary'
 
 // Initialize react-query Query Client
 const queryClient = new QueryClient({
@@ -84,55 +77,51 @@ const wagmiClient = createClient({
  * @returns
  */
 export const AppContainer: React.FC<AppProps> = (props) => {
-  const { Component, pageProps } = props
-
-  useInitPoolTogetherHooks()
-  const { i18n } = useTranslation()
-
   return (
     <WagmiConfig client={wagmiClient}>
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />
-          <ThemeContextProvider>
+          <ThemeProvider attribute='class'>
             <ThemedToastContainer />
             <CustomErrorBoundary>
-              {i18n.isInitialized ? (
-                <Component {...pageProps} />
-              ) : (
-                <div className='flex flex-col h-screen absolute top-0 w-screen'>
-                  <LoadingLogo className='m-auto' />
-                </div>
-              )}
+              <Content {...props} />
             </CustomErrorBoundary>
-          </ThemeContextProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </JotaiProvider>
     </WagmiConfig>
   )
 }
 
-const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
-  // This doesn't quite fit here, it needs to be nested below Jotai though.
-  useUpdateStoredPendingTransactions()
+const Content: React.FC<AppProps> = (props) => {
+  const { Component, pageProps } = props
+  const isInitialized = useInitialLoad()
 
-  const { theme } = useContext(ThemeContext)
+  if (!isInitialized) {
+    return <LoadingScreen />
+  }
+  return <Component {...pageProps} />
+}
+
+const useInitialLoad = () => {
+  const { i18n } = useTranslation()
+  useUpdateStoredPendingTransactions()
+  useInitCookieOptions(process.env.NEXT_PUBLIC_DOMAIN_NAME)
+  const { status } = useAccount()
+  return !!i18n.isInitialized && status !== 'reconnecting' && status !== 'connecting'
+}
+
+const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
+  const { theme, systemTheme } = useTheme()
   const screenSize = useScreenSize()
   return (
     <ToastContainer
       {...props}
-      // limit={3}
       style={{ zIndex: '99999' }}
       position={screenSize > ScreenSize.sm ? 'bottom-right' : 'top-center'}
       autoClose={7000}
-      theme={theme}
+      theme={theme === 'system' ? systemTheme : (theme as 'dark' | 'light')}
     />
   )
-}
-
-/**
- * Initializes PoolTogether tooling global state
- */
-const useInitPoolTogetherHooks = () => {
-  useInitCookieOptions(process.env.NEXT_PUBLIC_DOMAIN_NAME)
 }

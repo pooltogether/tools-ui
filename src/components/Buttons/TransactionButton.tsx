@@ -1,8 +1,8 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { SquareButton, SquareButtonProps, ThemedClipSpinner } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { useIsWalletOnChainId } from '@pooltogether/wallet-connection'
+import { useTranslation } from 'next-i18next'
+import React from 'react'
 
 export interface TransactionButtonProps extends SquareButtonProps {
   chainId: number

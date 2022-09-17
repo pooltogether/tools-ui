@@ -1,12 +1,12 @@
+import { useToken } from '@pooltogether/hooks'
+import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
+import { BlockExplorerLink } from '@pooltogether/wallet-connection'
+import { format } from 'date-fns'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useTranslation } from 'react-i18next'
-import { sToD, sToMs, numberWithCommas } from '@pooltogether/utilities'
-import { useToken } from '@pooltogether/hooks'
-import { format } from 'date-fns'
+import { useTranslation } from 'next-i18next'
 import { SummaryWell } from './SummaryWell'
 import { TokenDisplay } from './TokenDisplay'
-import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 
 interface PromotionSummaryProps {
   chainId: number

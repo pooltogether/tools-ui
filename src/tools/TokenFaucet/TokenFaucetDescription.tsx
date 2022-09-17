@@ -1,7 +1,7 @@
-import FeatherIcon from 'feather-icons-react'
-import classNames from 'classnames'
-import { useTranslation } from 'react-i18next'
 import { ExternalLink } from '@pooltogether/react-components'
+import classNames from 'classnames'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
 
 export const TokenFaucetDescription: React.FC<{ className?: string }> = (props) => {
   const { t } = useTranslation()

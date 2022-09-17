@@ -1,9 +1,8 @@
-import React from 'react'
 import { BottomSheet, NetworkIcon } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-
 import classNames from 'classnames'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
+import React from 'react'
 
 interface SelectNetworkModalProps {
   isOpen: boolean

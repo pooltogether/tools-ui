@@ -1,8 +1,7 @@
-import FeatherIcon from 'feather-icons-react'
-import { constants } from 'ethers/lib'
-import { isAddress } from 'ethers/lib/utils'
+import { StyledInput } from '@components/Input'
+import { StakeSvg } from '@components/SvgComponents'
+import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BottomSheet,
@@ -11,22 +10,23 @@ import {
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
-import classNames from 'classnames'
-import { useState } from 'react'
-import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedChainIds'
-import { useForm } from 'react-hook-form'
-import { StyledInput } from '@components/Input'
+import { getNetworkNameAliasByChainId } from '@pooltogether/utilities'
+import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import { getPoolTogetherDepositUrl } from '@utils/getPoolTogetherDepositUrl'
-import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
-import { useTranslation } from 'react-i18next'
-import { ManageRepresentativeModal } from './ManageRepresentativeModal'
-import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
-import { useDelegatorsStake } from './hooks/useDelegatorsStake'
-import { StakeSvg } from '@components/SvgComponents'
-import { ToolNetworkSelectionTrigger } from '@components/ToolNetworkSelectionTrigger'
+import classNames from 'classnames'
+import { constants } from 'ethers/lib'
+import { isAddress } from 'ethers/lib/utils'
+import FeatherIcon from 'feather-icons-react'
+import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { getNetworkNameAliasByChainId } from '@pooltogether/utilities'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useDelegationSupportedChainIds } from './hooks/useDelegationSupportedChainIds'
+import { useDelegatorsStake } from './hooks/useDelegatorsStake'
+import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
+import { useTotalAmountDelegated } from './hooks/useTotalAmountDelegated'
+import { ManageRepresentativeModal } from './ManageRepresentativeModal'
 
 interface UsersDelegationStateProps {
   className?: string
@@ -38,6 +38,7 @@ interface UsersDelegationStateProps {
 
 export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props) => {
   const { className, chainId, setChainId, setDelegator, delegator } = props
+  console.log('UsersDelegationState', chainId)
   const ticket = useV4Ticket(chainId)
   const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
     chainId,

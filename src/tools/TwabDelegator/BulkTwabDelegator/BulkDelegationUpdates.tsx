@@ -1,6 +1,6 @@
 import { EditedIconAndCount } from '@twabDelegator/DelegationList/ListStateActions'
 import { DelegationFund, DelegationUpdate } from '@twabDelegator/interfaces'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'next-i18next'
 
 export const BulkDelegationUpdates: React.FC<{
   csvUpdates: {

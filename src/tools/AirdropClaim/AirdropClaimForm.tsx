@@ -1,24 +1,24 @@
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
-import MerkleDistributorAbi from './abis/MerkleDistributor'
 import { useRetroactivePoolClaimData } from '@pooltogether/hooks'
+import { ThemedClipSpinner } from '@pooltogether/react-components'
+import { shorten } from '@pooltogether/utilities'
 import {
   Transaction,
   useIsWalletConnected,
   useSendTransaction,
   useTransaction
 } from '@pooltogether/wallet-connection'
+import { Contract } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
+import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { useSigner } from 'wagmi'
+import MerkleDistributorAbi from './abis/MerkleDistributor'
+import { MERKLE_DISTRIBUTOR_ADDRESS } from './config'
 import { AirdropClaimFormValues } from './interfaces'
 import { getAirdropClaimChainId } from './utils/getAirdropClaimChainId'
-import { shorten } from '@pooltogether/utilities'
-import { Contract } from 'ethers'
-import { ThemedClipSpinner } from '@pooltogether/react-components'
-import { MERKLE_DISTRIBUTOR_ADDRESS } from './config'
 
 export const AirdropClaimForm = () => {
   const methods = useForm<AirdropClaimFormValues>({
