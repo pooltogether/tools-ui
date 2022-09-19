@@ -7,7 +7,6 @@ import { BottomSheet } from '@pooltogether/react-components'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
 import { useAtom } from 'jotai'
-import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { UseFormReset } from 'react-hook-form'
@@ -33,8 +32,8 @@ export const TokenToSwap: React.FC<{
       <div className={classNames(defaultClassNames, defaultColorClassNames)}>
         <TokenSymbolAndIcon
           chainId={chainId}
-          address={prizeToken.address}
-          symbol={prizeToken.symbol}
+          address={prizeToken?.address}
+          symbol={prizeToken?.symbol}
         />
       </div>
     )
@@ -91,7 +90,7 @@ const TicketSelectionModal: React.FC<{
         Select a ticket to swap prize tokens for
       </p>
       <ul className='space-y-2 mx-auto max-w-sm'>
-        {tickets.map((ticket) => (
+        {tickets?.map((ticket) => (
           <TicketOption
             key={ticket.address}
             chainId={chainId}

@@ -37,12 +37,12 @@ export const SwapIn: React.FC<{
     data: allowance,
     isFetched: isAllowanceFetched,
     isFetching: isAllowanceFetching
-  } = useTokenAllowance(chainId, usersAddress, liquidatorAddress, prizeToken.address)
+  } = useTokenAllowance(chainId, usersAddress, liquidatorAddress, prizeToken?.address)
   const {
     data: balance,
     isFetched: isUsersBalanceFetched,
     isFetching: isUsersBalanceFetching
-  } = useTokenBalance(chainId, usersAddress, prizeToken.address)
+  } = useTokenBalance(chainId, usersAddress, prizeToken?.address)
   const [ticket] = useAtom(ticketTokenAtom)
   const {
     data: amountOut,

@@ -48,12 +48,12 @@ export const SendSwapButton: React.FC<{
     chainId,
     usersAddress,
     liquidatorAddress,
-    prizeToken.address
+    prizeToken?.address
   )
   const { refetch: refetchPrizeTokenBalance } = useTokenBalance(
     chainId,
     usersAddress,
-    prizeToken.address
+    prizeToken?.address
   )
   const { isValid, isValidating, errors } = useFormState()
   const [ticket] = useAtom(ticketTokenAtom)

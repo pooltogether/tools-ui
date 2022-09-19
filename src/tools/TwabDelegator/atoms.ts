@@ -1,4 +1,5 @@
 import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
+import { CHAIN_ID } from '@pooltogether/wallet-connection'
 import { DelegationFund, DelegationId, DelegationUpdate } from '@twabDelegator/interfaces'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { BigNumber } from 'ethers'
@@ -56,7 +57,7 @@ const getStartingDelegationChainId = () => {
  * The chain id to use for the delegation view.
  * TODO: Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
  */
-export const delegationChainIdAtom = atom<number>(0)
+export const delegationChainIdAtom = atom<number>(CHAIN_ID.mainnet)
 delegationChainIdAtom.onMount = (setAtom) => setAtom(getStartingDelegationChainId())
 
 /**

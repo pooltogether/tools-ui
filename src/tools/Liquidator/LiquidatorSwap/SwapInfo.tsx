@@ -55,7 +55,7 @@ const SwapInfoTitle = () => {
       )}
       {!isExactAmountOutFetching && isExactAmountOutFetched && !error && (
         <div className='h-5'>
-          1 {prizeToken.symbol} = {amountOut.amount} {ticket.symbol}
+          1 {prizeToken?.symbol} = {amountOut.amount} {ticket.symbol}
         </div>
       )}
       {!isExactAmountOutFetching && !!error && (

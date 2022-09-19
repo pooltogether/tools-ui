@@ -1,4 +1,5 @@
 import { getChainIdByAlias, getNetworkNameAliasByChainId } from '@pooltogether/utilities'
+import { CHAIN_ID } from '@pooltogether/wallet-connection'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { getAddress, isAddress } from 'ethers/lib/utils'
 import { atom } from 'jotai'
@@ -53,7 +54,7 @@ const getStartingRewardsChainId = () => {
  * The chain id to use for the rewards view.
  * Eventually we'll need to update this to a specific deployment when there are more than 1 on a chain.
  */
-export const rewardsChainIdAtom = atom<number>(0)
+export const rewardsChainIdAtom = atom<number>(CHAIN_ID.mainnet)
 rewardsChainIdAtom.onMount = (setAtom) => setAtom(getStartingRewardsChainId())
 
 /**

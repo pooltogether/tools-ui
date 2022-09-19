@@ -35,7 +35,7 @@ export const ApproveSwapButton: React.FC<{ className?: string }> = (props) => {
     data: allowance,
     isFetched: isAllowanceFetched,
     refetch: refetchAllowance
-  } = useTokenAllowance(chainId, usersAddress, liquidatorAddress, prizeToken.address)
+  } = useTokenAllowance(chainId, usersAddress, liquidatorAddress, prizeToken?.address)
 
   if (
     !usersAddress ||
@@ -47,7 +47,8 @@ export const ApproveSwapButton: React.FC<{ className?: string }> = (props) => {
   }
 
   const submitApproveTransaction = async () => {
-    const callTransaction = () => approveErc20Spender(signer, prizeToken.address, liquidatorAddress)
+    const callTransaction = () =>
+      approveErc20Spender(signer, prizeToken?.address, liquidatorAddress)
 
     const transactionId = sendTransaction({
       name: t('allowTicker', { ticker: prizeToken?.name }),

@@ -3,6 +3,7 @@ import { getDefaultLiquidatorChainId } from '@liquidator/utils/getDefaultLiquida
 import { getLiquidatorSupportedChainIds } from '@liquidator/utils/getLiquidatorSupportedChainIds'
 import { Token } from '@pooltogether/hooks'
 import { getChainIdByAlias } from '@pooltogether/utilities'
+import { CHAIN_ID } from '@pooltogether/wallet-connection'
 import { getUrlQueryParam } from '@utils/getUrlQueryParam'
 import { atom } from 'jotai'
 
@@ -23,7 +24,7 @@ const getStartingLiquidatorChainId = () => {
 /**
  * The chain id to use for the liquidator view.
  */
-export const liquidatorChainIdAtom = atom<number>(0)
+export const liquidatorChainIdAtom = atom<number>(CHAIN_ID.mainnet)
 liquidatorChainIdAtom.onMount = (setAtom) => setAtom(getStartingLiquidatorChainId())
 
 /**

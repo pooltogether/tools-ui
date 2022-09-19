@@ -15,7 +15,6 @@ import { TokenToSwap } from './TokenToSwap'
 export const SwapOut: React.FC<{}> = (props) => {
   const { reset: resetForm, watch } = useFormContext<LiquidatorFormValues>()
   const [chainId] = useAtom(liquidatorChainIdAtom)
-  const prizeToken = usePrizeToken(chainId)
   const [ticket] = useAtom(ticketTokenAtom)
   const [swapOutState] = useAtom(swapOutStateAtom)
   const amountIn = watch('amountIn')
