@@ -2,10 +2,10 @@ import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
 import { LiquidatorDescription } from '@liquidator/LiquidatorDescription'
 import { LiquidatorSwap } from '@liquidator/LiquidatorSwap'
-import { LiquidatorSettings } from './LiquidatorSettings'
+import { LoadingScreen } from '@pooltogether/react-components'
 import dynamic from 'next/dynamic.js'
 import { Suspense } from 'react'
-import { LoadingScreen } from '@pooltogether/react-components'
+import { LiquidatorSettings } from './LiquidatorSettings'
 
 const Layout = dynamic(() => import('@components/Layout'), {
   suspense: true

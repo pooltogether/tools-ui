@@ -14,6 +14,7 @@ import {
 } from '@pooltogether/react-components'
 import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 
 export enum ContentPaneState {
@@ -64,16 +65,19 @@ const Settings = () => {
 
 const LanguagePicker = () => {
   const { i18n: i18next, t } = useTranslation()
-  const [currentLang, setCurrentLang] = useState(i18next.language)
+  const router = useRouter()
+
   return (
     <SettingsItem label={t('language')}>
       <LanguagePickerDropdown
-        langs={SUPPORTED_LANGUAGES}
+        locales={['en', 'es', 'de', 'fa', 'fil', 'fr', 'hi', 'it', 'ko', 'pt', 'tr', 'zh', 'sk']}
         className='dark:text-white'
-        currentLang={currentLang}
-        changeLang={(newLang) => {
-          setCurrentLang(newLang)
-          i18next.changeLanguage(newLang)
+        currentLang={i18next.language}
+        onValueSet={(newLocale) => {
+          i18next.changeLanguage(newLocale)
+          router.push({ pathname: router.pathname, query: router.query }, router.asPath, {
+            locale: newLocale
+          })
         }}
       />
     </SettingsItem>

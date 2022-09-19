@@ -1,11 +1,14 @@
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
+import { LoadingScreen } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'next-i18next'
+import dynamic from 'next/dynamic.js'
 import { useEffect } from 'react'
+import { Suspense } from 'react'
 import {
   delegationChainIdAtom,
   delegatorAtom,
@@ -15,9 +18,6 @@ import {
 import { BulkDelegationDescription } from './BulkDelegationDescription'
 import { BulkTwabDelegationSteps } from './BulkTwabDelegationSteps'
 import { LockedDelegationsWarning } from './LockedDelegationsWarning'
-import dynamic from 'next/dynamic.js'
-import { Suspense } from 'react'
-import { LoadingScreen } from '@pooltogether/react-components'
 
 const Layout = dynamic(() => import('@components/Layout'), {
   suspense: true

@@ -1,11 +1,11 @@
 import { PagePadding } from '@components/Layout/PagePadding'
 import { PageTitle } from '@components/Layout/PageTitle'
+import { LoadingScreen } from '@pooltogether/react-components'
 import { useTranslation } from 'next-i18next'
-import { AppIndexList } from './AppIndexList'
-import { CommunityAppIndexList } from './CommunityAppIndexList'
 import dynamic from 'next/dynamic.js'
 import { Suspense } from 'react'
-import { LoadingScreen } from '@pooltogether/react-components'
+import { AppIndexList } from './AppIndexList'
+import { CommunityAppIndexList } from './CommunityAppIndexList'
 
 const Layout = dynamic(() => import('@components/Layout'), {
   suspense: true
