@@ -3,14 +3,13 @@ import { useExactAmountOut } from '@liquidator/hooks/useExactAmountOut'
 import { usePrizeToken } from '@liquidator/hooks/usePrizeToken'
 import { useTicketAvailableLiquidity } from '@liquidator/hooks/useTicketAvailableLiquidity'
 import { LiquidatorFormValues } from '@liquidator/interfaces'
-import { getAmountFromBigNumber } from '@pooltogether/hooks'
 import { Collapse, ThemedClipSpinner } from '@pooltogether/react-components'
+import { getAmountFromUnformatted } from '@pooltogether/utilities'
 import { percentageOfBigNumber } from '@utils/percentageOfBigNumber'
 import classNames from 'classnames'
-import { parseUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import React from 'react'
-import { useFormState, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 
 // TODO: Show discounts
 export const SwapInfo: React.FC<{
@@ -139,7 +138,7 @@ const MinimumOutput: React.FC<{ amountIn: string }> = (props) => {
 
   const amount =
     isFetched && !isFetching && !isError
-      ? getAmountFromBigNumber(
+      ? getAmountFromUnformatted(
           amountOut.amountUnformatted.sub(
             percentageOfBigNumber(amountOut.amountUnformatted, slippagePercent)
           ),

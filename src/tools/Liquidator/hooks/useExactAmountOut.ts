@@ -1,13 +1,13 @@
 import { POOL } from '@constants/pool'
 import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
-import { Amount, getAmountFromBigNumber, Token } from '@pooltogether/hooks'
+import { Token } from '@pooltogether/hooks'
+import { getAmountFromUnformatted } from '@pooltogether/utilities'
 import { getReadProvider } from '@pooltogether/wallet-connection'
 import { BigNumber, ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { useQuery } from 'react-query'
 import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
-
 
 export const useExactAmountOut = (chainId: number, ticket: Token, amountIn: string) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
@@ -32,5 +32,5 @@ const getExactAmountOut = async (
     prizePoolAddress,
     parseUnits(amountIn, prizeToken.decimals)
   )
-  return getAmountFromBigNumber(response, ticket.decimals)
+  return getAmountFromUnformatted(response, ticket.decimals)
 }

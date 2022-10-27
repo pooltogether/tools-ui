@@ -3,7 +3,7 @@ import { TransactionReceiptButton } from '@components/Buttons/TransactionReceipt
 import { ModalApproveGate } from '@components/ModalApproveGate'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenBalance } from '@pooltogether/hooks'
-import { Banner, BannerTheme, BottomSheet, BottomSheetTitle } from '@pooltogether/react-components'
+import { Banner, BannerTheme, BottomSheet } from '@pooltogether/react-components'
 import { dToS, msToS } from '@pooltogether/utilities'
 import {
   useSendTransaction,
@@ -83,10 +83,11 @@ export const CreatePromotionModal: React.FC<{
   }
 
   let content
+  let title
   if (modalState === CreatePromotionModalState.FORM) {
+    title = t('createPromotion', 'Create promotion')
     content = (
       <>
-        <BottomSheetTitle chainId={chainId} title={t('createPromotion', 'Create promotion')} />
         <CreatePromotionForm
           chainId={chainId}
           setReviewView={setReviewView}
@@ -96,12 +97,9 @@ export const CreatePromotionModal: React.FC<{
     )
   } else if (modalState === CreatePromotionModalState.REVIEW) {
     if (!allowanceOk) {
+      title = t('allowTicker', { ticker: tokenData?.name })
       content = (
         <>
-          <BottomSheetTitle
-            chainId={chainId}
-            title={t('allowTicker', { ticker: tokenData?.name })}
-          />
           <ModalApproveGate
             className='mt-8'
             chainId={chainId}
@@ -113,12 +111,9 @@ export const CreatePromotionModal: React.FC<{
         </>
       )
     } else {
+      title = t('createPromotionConfirmation', 'Create Promotion confirmation')
       content = (
         <div className='flex flex-col space-y-4'>
-          <BottomSheetTitle
-            chainId={chainId}
-            title={t('createPromotionConfirmation', 'Create Promotion confirmation')}
-          />
           <TokenBalanceWarning chainId={chainId} isBalanceSufficient={isBalanceSufficient} />
           <PromotionFundsLockWarning />
           <div className='text-xs font-bold pt-4'>
@@ -141,19 +136,21 @@ export const CreatePromotionModal: React.FC<{
       )
     }
   } else {
+    title = t('createPromotionTransactionSubmitted', 'Create promotion transaction submitted')
     content = (
       <div className='flex flex-col space-y-12'>
-        <BottomSheetTitle
-          chainId={chainId}
-          title={t('createPromotionTransactionSubmitted', 'Create promotion transaction submitted')}
-        />
         <TransactionReceiptButton chainId={chainId} transaction={transaction} />
       </div>
     )
   }
 
   return (
-    <BottomSheet label='delegation-edit-modal' isOpen={isOpen} closeModal={dismissModal}>
+    <BottomSheet
+      label='delegation-edit-modal'
+      isOpen={isOpen}
+      closeModal={dismissModal}
+      title={title}
+    >
       {content}
     </BottomSheet>
   )

@@ -1,11 +1,11 @@
 import liquidatorAbi from '@liquidator/abis/Liquidator'
 import { LIQUIDATOR_ADDRESS } from '@liquidator/config'
-import { Amount, getAmountFromBigNumber, Token, useRefetchInterval } from '@pooltogether/hooks'
+import { Amount, Token, useRefetchInterval } from '@pooltogether/hooks'
+import { getAmountFromUnformatted } from '@pooltogether/utilities'
 import { getReadProvider } from '@pooltogether/wallet-connection'
 import { BigNumber, ethers } from 'ethers'
 import { useQuery } from 'react-query'
 import { useTicketPrizePoolAddress } from './useTicketPrizePoolAddress'
-
 
 export const useTicketAvailableLiquidity = (chainId: number, ticket: Token) => {
   const prizePoolAddress = useTicketPrizePoolAddress(chainId, ticket?.address)
@@ -30,5 +30,5 @@ const getTicketAvailableLiquidity = async (
   const response: BigNumber = await liquidatorContract.callStatic.availableBalanceOf(
     prizePoolAddress
   )
-  return getAmountFromBigNumber(response, ticket.decimals)
+  return getAmountFromUnformatted(response, ticket.decimals)
 }
