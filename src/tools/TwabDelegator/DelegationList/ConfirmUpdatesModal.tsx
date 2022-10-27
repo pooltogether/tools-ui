@@ -165,8 +165,8 @@ export const ConfirmUpdatesModal: React.FC<{
   return (
     <BottomSheet
       label='delegation-edit-modal'
-      open={isOpen}
-      onDismiss={() => {
+      isOpen={isOpen}
+      closeModal={() => {
         setIsOpen(false)
         if (!transactionsPending) {
           setModalState(ConfirmModalState.review)

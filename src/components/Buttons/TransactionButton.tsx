@@ -1,10 +1,10 @@
-import { SquareButton, SquareButtonProps, ThemedClipSpinner } from '@pooltogether/react-components'
+import { Button, ButtonProps, ThemedClipSpinner } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { useIsWalletOnChainId } from '@pooltogether/wallet-connection'
 import { useTranslation } from 'next-i18next'
 import React from 'react'
 
-export interface TransactionButtonProps extends SquareButtonProps {
+export interface TransactionButtonProps extends ButtonProps {
   chainId: number
   pending?: boolean
 }
@@ -18,7 +18,7 @@ export const TransactionButton = (props: TransactionButtonProps) => {
   const networkName = getNetworkNiceNameByChainId(chainId)
 
   return (
-    <SquareButton {...squareButtonProps} disabled={!isWalletOnProperNetwork || disabled}>
+    <Button {...squareButtonProps} disabled={!isWalletOnProperNetwork || disabled}>
       {isWalletOnProperNetwork && (
         <>
           {children}
@@ -27,6 +27,6 @@ export const TransactionButton = (props: TransactionButtonProps) => {
       )}
       {!isWalletOnProperNetwork &&
         t('connectToNetwork', 'Connect to {{networkName}}', { networkName })}
-    </SquareButton>
+    </Button>
   )
 }

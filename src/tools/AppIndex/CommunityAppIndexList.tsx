@@ -1,4 +1,4 @@
-import { ExternalLink, Modal, SquareLink } from '@pooltogether/react-components'
+import { ExternalLink, Modal, ButtonLink } from '@pooltogether/react-components'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
 import { Trans, useTranslation } from 'next-i18next'
@@ -129,10 +129,10 @@ const AppLink: React.FC<AppInfo> = (props) => {
           />
           <RepoLink repo={repo} ignoreNoRepo={ignoreNoRepo} />
         </div>
-        <SquareLink href={href} className='w-full space-x-2 items-center'>
+        <ButtonLink href={href} className='w-full space-x-2 items-center'>
           <span>{t('iUnderstand')}</span>
           <FeatherIcon icon={'external-link'} className='w-4 h-4' />
-        </SquareLink>
+        </ButtonLink>
       </Modal>
     </ListItemContainer>
   )

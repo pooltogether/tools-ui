@@ -1,4 +1,4 @@
-import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import classNames from 'classnames'
@@ -50,8 +50,8 @@ const CreatePromotionButton: React.FC<{
   if (currentAccount !== usersAddress) return null
 
   return (
-    <SquareButton
-      size={SquareButtonSize.sm}
+    <Button
+      size={ButtonSize.sm}
       className={className}
       onClick={() => {
         setIsOpen(true)
@@ -59,6 +59,6 @@ const CreatePromotionButton: React.FC<{
     >
       <FeatherIcon icon='plus' strokeWidth={4} className='w-4 h-4 my-auto mr-1' />
       <span>{t('newPromotion')}</span>
-    </SquareButton>
+    </Button>
   )
 }

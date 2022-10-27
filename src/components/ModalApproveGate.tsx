@@ -1,8 +1,7 @@
-
 import { TxButton } from '@components/Buttons/TxButton'
 import { TransactionResponse } from '@ethersproject/providers'
 import { TokenWithAllBalances } from '@pooltogether/hooks'
-import { SquareLink, SquareButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
+import { ButtonLink, ButtonTheme, ThemedClipSpinner } from '@pooltogether/react-components'
 import {
   useUsersAddress,
   useTransaction,
@@ -68,14 +67,14 @@ export const ModalApproveGate = (props: ModalApproveGateProps) => {
             )}
           </p>
         </div>
-        <SquareLink
+        <ButtonLink
           href={blockExplorerUrl}
           className='w-full mt-6'
-          theme={SquareButtonTheme.tealOutline}
+          theme={ButtonTheme.tealOutline}
           target='_blank'
         >
           {t('viewReceipt', 'View receipt')}
-        </SquareLink>
+        </ButtonLink>
       </div>
     )
   }

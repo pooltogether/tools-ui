@@ -5,8 +5,8 @@ import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { useTokenBalance } from '@pooltogether/hooks'
 import {
   BottomSheet,
-  SquareButton,
-  SquareButtonTheme,
+  Button,
+  ButtonTheme,
   ThemedClipSpinner,
   TokenIcon
 } from '@pooltogether/react-components'
@@ -38,7 +38,6 @@ interface UsersDelegationStateProps {
 
 export const UsersDelegationState: React.FC<UsersDelegationStateProps> = (props) => {
   const { className, chainId, setChainId, setDelegator, delegator } = props
-  console.log('UsersDelegationState', chainId)
   const ticket = useV4Ticket(chainId)
   const { data: ticketBalance, isFetched: isTicketBalanceFetched } = useTokenBalance(
     chainId,
@@ -200,7 +199,7 @@ export const ChangeDelegatorModal: React.FC<{
   }
 
   return (
-    <BottomSheet label='delegator-change-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
+    <BottomSheet label='delegator-change-modal' isOpen={isOpen} closeModal={() => setIsOpen(false)}>
       <h6 className='text-center uppercase text-sm mb-3 mt-2'>{t('viewADelegator')}</h6>
       <p className='max-w-sm mx-auto text-xs mb-8 text-center'>
         {t('enterAddressToViewDelegations')}
@@ -236,21 +235,21 @@ export const ChangeDelegatorModal: React.FC<{
             }
           })}
         />
-        <SquareButton className='w-full capitalize' disabled={!isValid}>
+        <Button className='w-full capitalize' disabled={!isValid}>
           {t('viewDelegations')}
-        </SquareButton>
+        </Button>
         {usersAddress && delegator && usersAddress !== delegator && (
-          <SquareButton
+          <Button
             type='button'
             className='w-full mt-4 capitalize'
-            theme={SquareButtonTheme.orangeOutline}
+            theme={ButtonTheme.orangeOutline}
             onClick={() => {
               setDelegator(usersAddress)
               setIsOpen(false)
             }}
           >
             {t('clearDelegator')}
-          </SquareButton>
+          </Button>
         )}
       </form>
     </BottomSheet>

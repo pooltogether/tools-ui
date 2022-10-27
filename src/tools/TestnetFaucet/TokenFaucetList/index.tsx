@@ -1,7 +1,7 @@
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
 import { TokenWithAllBalances, useTokenBalances } from '@pooltogether/hooks'
-import { SquareButtonSize, TokenIcon } from '@pooltogether/react-components'
+import { ButtonSize, TokenIcon } from '@pooltogether/react-components'
 import {
   BlockExplorerLink,
   TransactionStatus,
@@ -103,7 +103,7 @@ export const TokenFaucet: React.FC<
         <>
           <TxButton
             type='button'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             chainId={chainId}
             state={transaction?.state}
             status={transaction?.status}
@@ -114,7 +114,7 @@ export const TokenFaucet: React.FC<
           </TxButton>
           {showReceiptButton && (
             <TransactionReceiptButton
-              size={SquareButtonSize.sm}
+              size={ButtonSize.sm}
               chainId={chainId}
               transaction={transaction}
             />

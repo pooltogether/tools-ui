@@ -1,6 +1,6 @@
 import { FullWalletConnectionButtonWrapper } from '@components/FullWalletConnectionButtonWrapper'
 import { StyledInput } from '@components/Input'
-import { SquareButton } from '@pooltogether/react-components'
+import { Button } from '@pooltogether/react-components'
 import classNames from 'classnames'
 import { isAddress } from 'ethers/lib/utils'
 import { useTranslation } from 'next-i18next'
@@ -77,9 +77,9 @@ export const NoAccountState: React.FC<PromotionsListProps> = (props) => {
               }
             })}
           />
-          <SquareButton className='w-full' disabled={!isValid}>
+          <Button className='w-full' disabled={!isValid}>
             {t('viewAccount')}
-          </SquareButton>
+          </Button>
         </form>
       </div>
     </>

@@ -81,8 +81,8 @@ const TicketSelectionModal: React.FC<{
   return (
     <BottomSheet
       label={'ticket-selection'}
-      open={isOpen}
-      onDismiss={() => setIsOpen(false)}
+      isOpen={isOpen}
+      closeModal={() => setIsOpen(false)}
       maxWidthClassName='max-w-md'
     >
       <h6 className='text-center uppercase text-sm mb-3'>Tickets</h6>

@@ -4,9 +4,9 @@ import { usePagination } from '@hooks/usePagination'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import {
   CheckboxInputGroup,
-  SquareButton,
-  SquareButtonSize,
-  SquareButtonTheme,
+  Button,
+  ButtonSize,
+  ButtonTheme,
   TokenIcon,
   Tooltip,
   ScreenSize,
@@ -476,10 +476,10 @@ const AddSlotButton: React.FC<{
   if (listState === ListState.withdraw || usersAddress !== delegator) return null
 
   return (
-    <SquareButton
-      theme={SquareButtonTheme.tealOutline}
+    <Button
+      theme={ButtonTheme.tealOutline}
       className={classNames('w-48', className)}
-      size={SquareButtonSize.sm}
+      size={ButtonSize.sm}
       onClick={() => {
         setListState(ListState.edit)
         setIsOpen(true)
@@ -488,7 +488,7 @@ const AddSlotButton: React.FC<{
     >
       <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
       <span>{t('newDelegation')}</span>
-    </SquareButton>
+    </Button>
   )
 }
 

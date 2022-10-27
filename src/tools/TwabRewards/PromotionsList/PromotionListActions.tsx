@@ -1,4 +1,4 @@
-import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createPromotionModalOpenAtom } from '@twabRewards/atoms'
 import { ChangeAccountModal } from '@twabRewards/UsersAppState'
@@ -28,17 +28,17 @@ export const PromotionListActions: React.FC<PromotionListActionsProps> = (props)
     return (
       <FixedFooterNav>
         <div className='w-full flex justify-center'>
-          <SquareButton
+          <Button
             className='px-8'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             disabled={transactionPending}
             onClick={() => {
               setIsOpen(true)
             }}
-            theme={SquareButtonTheme.tealOutline}
+            theme={ButtonTheme.tealOutline}
           >
             {t('changeAccount', 'Change account')}
-          </SquareButton>
+          </Button>
           <ChangeAccountModal
             isOpen={isOpen}
             currentAccount={currentAccount}
@@ -93,10 +93,10 @@ const AddPromotionButton: React.FC<{
   if (usersAddress !== currentAccount) return null
 
   return (
-    <SquareButton
-      theme={SquareButtonTheme.tealOutline}
+    <Button
+      theme={ButtonTheme.tealOutline}
       className={classNames('w-48', className)}
-      size={SquareButtonSize.sm}
+      size={ButtonSize.sm}
       onClick={() => {
         setIsOpen(true)
       }}
@@ -104,6 +104,6 @@ const AddPromotionButton: React.FC<{
     >
       <FeatherIcon icon='plus-circle' className='w-4 h-4 my-auto mr-1' />
       <span>{t('newPromotion')}</span>
-    </SquareButton>
+    </Button>
   )
 }

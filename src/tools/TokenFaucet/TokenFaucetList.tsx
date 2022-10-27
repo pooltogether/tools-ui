@@ -8,7 +8,7 @@ import {
   useV3PrizePools,
   V3PrizePool
 } from '@pooltogether/hooks'
-import { SquareButtonSize, ThemedClipSpinner, TokenIcon } from '@pooltogether/react-components'
+import { ButtonSize, ThemedClipSpinner, TokenIcon } from '@pooltogether/react-components'
 import {
   TransactionStatus,
   useSendTransaction,
@@ -153,7 +153,7 @@ const TokenFaucetItem: React.FC<{ prizePool: V3PrizePool; tokenFaucetAddress: st
             <>
               <TxButton
                 type='button'
-                size={SquareButtonSize.sm}
+                size={ButtonSize.sm}
                 chainId={chainId}
                 state={transaction?.state}
                 status={transaction?.status}
@@ -166,7 +166,7 @@ const TokenFaucetItem: React.FC<{ prizePool: V3PrizePool; tokenFaucetAddress: st
               </TxButton>
               {showReceiptButton && (
                 <TransactionReceiptButton
-                  size={SquareButtonSize.sm}
+                  size={ButtonSize.sm}
                   chainId={chainId}
                   transaction={transaction}
                 />

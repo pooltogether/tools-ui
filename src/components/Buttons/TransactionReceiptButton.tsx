@@ -1,4 +1,4 @@
-import { SquareLink, SquareButtonTheme, SquareButtonSize } from '@pooltogether/react-components'
+import { ButtonLink, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { formatBlockExplorerTxUrl, Transaction } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
@@ -8,8 +8,8 @@ import React from 'react'
 export const TransactionReceiptButton: React.FC<{
   chainId: number
   transaction: Transaction
-  size?: SquareButtonSize
-  theme?: SquareButtonTheme
+  size?: ButtonSize
+  theme?: ButtonTheme
   className?: string
   children?: React.ReactNode
 }> = (props) => {
@@ -19,7 +19,7 @@ export const TransactionReceiptButton: React.FC<{
   const url = formatBlockExplorerTxUrl(transaction?.response?.hash, chainId)
 
   return (
-    <SquareLink
+    <ButtonLink
       target='_blank'
       rel='noreferrer'
       href={url}
@@ -35,17 +35,17 @@ export const TransactionReceiptButton: React.FC<{
           <FeatherIcon
             icon='external-link'
             className={classNames({
-              'w-4 h-4': size !== SquareButtonSize.sm,
-              'w-3 h-3': size === SquareButtonSize.sm
+              'w-4 h-4': size !== ButtonSize.sm,
+              'w-3 h-3': size === ButtonSize.sm
             })}
           />
         </div>
       )}
-    </SquareLink>
+    </ButtonLink>
   )
 }
 
 TransactionReceiptButton.defaultProps = {
-  size: SquareButtonSize.md,
-  theme: SquareButtonTheme.tealOutline
+  size: ButtonSize.md,
+  theme: ButtonTheme.tealOutline
 }

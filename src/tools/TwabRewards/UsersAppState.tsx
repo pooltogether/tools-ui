@@ -1,11 +1,6 @@
 import { StyledInput } from '@components/Input'
 import { SelectNetworkModal } from '@components/SelectNetworkModal'
-import {
-  BottomSheet,
-  NetworkIcon,
-  SquareButton,
-  SquareButtonTheme
-} from '@pooltogether/react-components'
+import { BottomSheet, NetworkIcon, Button, ButtonTheme } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { AccountAvatar, BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
 import { constants } from 'ethers/lib'
@@ -170,8 +165,8 @@ export const ChangeAccountModal: React.FC<{
   return (
     <BottomSheet
       label='current-account-change-modal'
-      open={isOpen}
-      onDismiss={() => setIsOpen(false)}
+      isOpen={isOpen}
+      closeModal={() => setIsOpen(false)}
     >
       <h6 className='text-center uppercase text-sm mb-3 mt-2 dark:text-white'>
         {t('setAccount', 'Set account')}
@@ -203,22 +198,22 @@ export const ChangeAccountModal: React.FC<{
             }
           })}
         />
-        <SquareButton className='w-full' disabled={!isValid}>
+        <Button className='w-full' disabled={!isValid}>
           View Rewards
-        </SquareButton>
+        </Button>
 
         {usersAddress && currentAccount && usersAddress !== currentAccount && (
-          <SquareButton
+          <Button
             type='button'
             className='w-full mt-4'
-            theme={SquareButtonTheme.orangeOutline}
+            theme={ButtonTheme.orangeOutline}
             onClick={() => {
               setCurrentAccount(usersAddress)
               setIsOpen(false)
             }}
           >
             Clear Account
-          </SquareButton>
+          </Button>
         )}
       </form>
     </BottomSheet>

@@ -2,9 +2,9 @@ import { WithdrawSvg, StakeSvg } from '@components/SvgComponents'
 import {
   BottomSheet,
   ModalTitle,
-  SquareButton,
-  SquareButtonSize,
-  SquareButtonTheme,
+  Button,
+  ButtonSize,
+  ButtonTheme,
   ThemedClipSpinner,
   Tooltip
 } from '@pooltogether/react-components'
@@ -73,17 +73,17 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
     return (
       <FixedFooterNav>
         <div className='w-full flex justify-end'>
-          <SquareButton
+          <Button
             className='px-8'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             disabled={transactionsPending}
             onClick={() => {
               setIsOpen(true)
             }}
-            theme={SquareButtonTheme.tealOutline}
+            theme={ButtonTheme.tealOutline}
           >
             {t('changeDelegator')}
-          </SquareButton>
+          </Button>
           <ChangeDelegatorModal
             isOpen={isOpen}
             delegator={delegator}
@@ -143,9 +143,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 <FeatherIcon icon='alert-triangle' className='w-4 h-4 text-pt-red-light' />
               </Tooltip>
             )}
-            <SquareButton
+            <Button
               className='flex space-x-2'
-              size={SquareButtonSize.sm}
+              size={ButtonSize.sm}
               onClick={() => setIsConfirmationModalOpen(true)}
               disabled={!fundsCount && !editsCount && !creationsCount}
             >
@@ -153,7 +153,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 {transactionsPending ? t('savingChanges') : t('saveChanges')}
               </span>
               {transactionsPending && <ThemedClipSpinner sizeClassName='w-4 h-4' />}
-            </SquareButton>
+            </Button>
           </div>
         </>
       </FixedFooterNav>
@@ -172,9 +172,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
             }}
             updatesCount={withdrawlsCount}
           />
-          <SquareButton
+          <Button
             className='flex space-x-2 w-40'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             onClick={() => setIsConfirmationModalOpen(true)}
             disabled={!withdrawlsCount}
           >
@@ -186,7 +186,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 : t('withdraw')}
             </span>
             {transactionsPending && <ThemedClipSpinner sizeClassName='w-3 h-3' />}
-          </SquareButton>
+          </Button>
         </div>
       </FixedFooterNav>
     )
@@ -197,9 +197,9 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
       <FixedFooterNav>
         <div className='w-full flex justify-center space-x-2'>
           {delegator === usersAddress && (
-            <SquareButton
+            <Button
               className='w-32'
-              size={SquareButtonSize.sm}
+              size={ButtonSize.sm}
               onClick={() => setIsStakeModalOpen(true)}
               disabled={transactionsPending}
             >
@@ -207,11 +207,11 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
                 <StakeSvg />
               </div>
               {t('stake')}
-            </SquareButton>
+            </Button>
           )}
-          <SquareButton
+          <Button
             className='w-32'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             onClick={() => setListState(ListState.withdraw)}
             disabled={transactionsPending}
           >
@@ -219,15 +219,15 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
               <WithdrawSvg />
             </div>
             {t('withdraw')}
-          </SquareButton>
-          <SquareButton
+          </Button>
+          <Button
             className='w-24'
-            size={SquareButtonSize.sm}
+            size={ButtonSize.sm}
             onClick={() => setListState(ListState.edit)}
             disabled={transactionsPending}
           >
             <FeatherIcon strokeWidth='3' icon='edit' className='w-4 h-4 mr-1' /> {t('edit')}
-          </SquareButton>
+          </Button>
         </div>
       </FixedFooterNav>
       <StakeModal
@@ -275,9 +275,9 @@ const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) =>
   return (
     <>
       <div>
-        <SquareButton
+        <Button
           className='w-24'
-          size={SquareButtonSize.sm}
+          size={ButtonSize.sm}
           onClick={() => {
             if (!updatesCount) {
               cancelUpdates()
@@ -285,11 +285,11 @@ const ConfirmCancellationButton: React.FC<ConfirmCancellationProps> = (props) =>
               setIsOpen(true)
             }
           }}
-          theme={SquareButtonTheme.tealOutline}
+          theme={ButtonTheme.tealOutline}
           disabled={disabled}
         >
           {t('cancel')}
-        </SquareButton>
+        </Button>
       </div>
       <ConfirmCancellationModal {...props} isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
@@ -310,8 +310,8 @@ const ConfirmCancellationModal: React.FC<{
   return (
     <BottomSheet
       label='cancel-delegation-edits-modal'
-      open={isOpen}
-      onDismiss={() => {
+      isOpen={isOpen}
+      closeModal={() => {
         setIsOpen(false)
       }}
       className='flex flex-col space-y-4'
@@ -321,14 +321,14 @@ const ConfirmCancellationModal: React.FC<{
         <p className='text-xs font-bold mb-1'>{t('Lost changes')}</p>
         <DelegationConfirmationList chainId={chainId} delegator={delegator} />
       </div>
-      <SquareButton
+      <Button
         className='w-full'
         onClick={cancelUpdates}
-        theme={SquareButtonTheme.orangeOutline}
+        theme={ButtonTheme.orangeOutline}
         disabled={disabled}
       >
         {t('cancelChanges')}
-      </SquareButton>
+      </Button>
     </BottomSheet>
   )
 }

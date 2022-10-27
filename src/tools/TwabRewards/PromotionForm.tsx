@@ -1,7 +1,7 @@
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useToken } from '@pooltogether/hooks'
-import { SquareButton, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
+import { Button, Tooltip, ThemedClipSpinner } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId, dToS, msToS } from '@pooltogether/utilities'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { PromotionFormValues } from '@twabRewards/interfaces'
@@ -340,9 +340,9 @@ export const PromotionForm: React.FC<PromotionFormProps> = (props) => {
         token={tokenAddress}
       />
 
-      <SquareButton className='mt-4' disabled={!isValid} type='submit'>
+      <Button className='mt-4' disabled={!isValid} type='submit'>
         {submitString}
-      </SquareButton>
+      </Button>
     </form>
   )
 }

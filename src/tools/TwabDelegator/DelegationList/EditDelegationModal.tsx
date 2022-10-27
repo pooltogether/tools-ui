@@ -1,10 +1,5 @@
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import {
-  BottomSheet,
-  ModalTitle,
-  SquareButton,
-  SquareButtonTheme
-} from '@pooltogether/react-components'
+import { BottomSheet, ModalTitle, Button, ButtonTheme } from '@pooltogether/react-components'
 import { dToS } from '@pooltogether/utilities'
 import {
   editDelegationModalOpenAtom,
@@ -39,7 +34,7 @@ export const EditDelegationModal: React.FC<{ chainId: number }> = (props) => {
   if (!delegationId) return null
 
   return (
-    <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={() => setIsOpen(false)}>
+    <BottomSheet label='delegation-edit-modal' isOpen={isOpen} closeModal={() => setIsOpen(false)}>
       <ModalTitle chainId={chainId} title={`Edit delegation #${delegationId.slot.toString()}`} />
       <EditDelegationForm
         chainId={chainId}
@@ -149,10 +144,10 @@ const EditDelegationForm: React.FC<{
         submitString={t('queueUpdate')}
       />
       {(delegationUpdate || delegationFund || delegationCreation) && (
-        <SquareButton
+        <Button
           className='mt-2 w-full'
           type='button'
-          theme={SquareButtonTheme.orangeOutline}
+          theme={ButtonTheme.orangeOutline}
           onClick={() => {
             closeModal()
             delegationUpdate && removeDelegationUpdate(delegationId)
@@ -161,7 +156,7 @@ const EditDelegationForm: React.FC<{
           }}
         >
           {t('removeUpdate')}
-        </SquareButton>
+        </Button>
       )}
     </>
   )

@@ -1,7 +1,7 @@
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { SquareButton, Tooltip } from '@pooltogether/react-components'
+import { Button, Tooltip } from '@pooltogether/react-components'
 import { sToD } from '@pooltogether/utilities'
 import { useMaxLockDuration } from '@twabDelegator/hooks/useMaxLockDuration'
 import { DelegationFormValues } from '@twabDelegator/interfaces'
@@ -130,9 +130,9 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
         })}
       />
       <ErrorMessage>{errors.duration?.message}</ErrorMessage>
-      <SquareButton className='mt-4' disabled={!isValid || !isMaxLockFetched} type='submit'>
+      <Button className='mt-4' disabled={!isValid || !isMaxLockFetched} type='submit'>
         {submitString}
-      </SquareButton>
+      </Button>
     </form>
   )
 }

@@ -153,7 +153,7 @@ export const CreatePromotionModal: React.FC<{
   }
 
   return (
-    <BottomSheet label='delegation-edit-modal' open={isOpen} onDismiss={dismissModal}>
+    <BottomSheet label='delegation-edit-modal' isOpen={isOpen} closeModal={dismissModal}>
       {content}
     </BottomSheet>
   )

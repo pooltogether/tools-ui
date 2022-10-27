@@ -27,8 +27,8 @@ export const Options: React.FC<{ className?: string }> = (props) => {
       </div>
       <BottomSheet
         label={'swap-settings'}
-        open={isOpen}
-        onDismiss={() => setIsOpen(false)}
+        isOpen={isOpen}
+        closeModal={() => setIsOpen(false)}
         maxWidthClassName='max-w-md'
       >
         <p>Settings</p>

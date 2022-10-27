@@ -1,4 +1,4 @@
-import { SquareButton, SquareButtonProps } from '@pooltogether/react-components'
+import { Button, ButtonProps } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import {
   TransactionState,
@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next'
 import React, { useMemo } from 'react'
 import { useNetwork, useSwitchNetwork } from 'wagmi'
 
-export interface TxButtonProps extends SquareButtonProps {
+export interface TxButtonProps extends ButtonProps {
   state?: TransactionState
   status?: TransactionStatus
   chainId: number
@@ -61,9 +61,9 @@ export const TxButton = (props: TxButtonProps) => {
 
   return (
     <>
-      <SquareButton {...squareButtonProps} onClick={(e) => onClick?.(e)} disabled={disabled}>
+      <Button {...squareButtonProps} onClick={(e) => onClick?.(e)} disabled={disabled}>
         {content}
-      </SquareButton>
+      </Button>
     </>
   )
 }

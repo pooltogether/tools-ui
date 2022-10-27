@@ -1,4 +1,4 @@
-import { SquareButton, SquareButtonSize, ThemedClipSpinner } from '@pooltogether/react-components'
+import { Button, ButtonSize, ThemedClipSpinner } from '@pooltogether/react-components'
 import {
   SendTransactionOptions,
   Transaction,
@@ -130,8 +130,8 @@ export const SubmitBulkDelegations: React.FC<{
   }
 
   return (
-    <SquareButton
-      size={SquareButtonSize.sm}
+    <Button
+      size={ButtonSize.sm}
       disabled={
         disabled ||
         !isWalletOnCorrectNetwork ||
@@ -143,6 +143,6 @@ export const SubmitBulkDelegations: React.FC<{
       onClick={sendTransactions}
     >
       {content}
-    </SquareButton>
+    </Button>
   )
 }

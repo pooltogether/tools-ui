@@ -1,5 +1,5 @@
 import { StyledInput } from '@components/Input'
-import { SquareButton, SquareButtonSize } from '@pooltogether/react-components'
+import { Button, ButtonSize } from '@pooltogether/react-components'
 import { useConnectWallet } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
 import { isAddress } from 'ethers/lib/utils'
@@ -67,9 +67,9 @@ export const NoDelegatorState: React.FC<DelegationListProps> = (props) => {
               }
             })}
           />
-          <SquareButton className='w-full' disabled={!isValid}>
+          <Button className='w-full' disabled={!isValid}>
             {t('viewDelegations')}
-          </SquareButton>
+          </Button>
         </form>
       </div>
     </>
@@ -81,12 +81,12 @@ const ConnectWalletButton = () => {
   const connectWallet = useConnectWallet()
 
   return (
-    <SquareButton
-      size={SquareButtonSize.sm}
+    <Button
+      size={ButtonSize.sm}
       className='flex flex-col mx-auto mt-3'
       onClick={() => connectWallet()}
     >
       {t('connectWallet')}
-    </SquareButton>
+    </Button>
   )
 }

@@ -1,5 +1,5 @@
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
-import { SquareButton, SquareButtonSize, SquareLink } from '@pooltogether/react-components'
+import { Button, ButtonSize, ButtonLink } from '@pooltogether/react-components'
 import { delegationChainIdAtom, delegatorAtom } from '@twabDelegator/atoms'
 import { useDelegatorsTwabDelegations } from '@twabDelegator/hooks/useDelegatorsTwabDelegations'
 import { Delegation, DelegationId } from '@twabDelegator/interfaces'
@@ -14,8 +14,8 @@ export const DownloadDelegationsCsv = () => {
   const ticket = useV4Ticket(chainId)
 
   return (
-    <SquareButton
-      size={SquareButtonSize.sm}
+    <Button
+      size={ButtonSize.sm}
       className='flex items-center justify-center space-x-1'
       disabled={!isFetched}
       onClick={() => {
@@ -25,7 +25,7 @@ export const DownloadDelegationsCsv = () => {
     >
       <FeatherIcon icon='download' className='w-4 h-4' />
       <span>Download Delegations</span>
-    </SquareButton>
+    </Button>
   )
 }
 

@@ -1,5 +1,5 @@
 import { StakeSvg } from '@components/SvgComponents'
-import { SquareButton, SquareButtonSize, SquareButtonTheme } from '@pooltogether/react-components'
+import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { shorten } from '@pooltogether/utilities'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
@@ -62,16 +62,16 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
           <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
           <div className='flex flex-col mx-auto space-y-4 max-w-xs'>
             <CreateSlotButton className='w-full' setListState={setListState} />
-            <SquareButton
+            <Button
               className='w-full'
-              size={SquareButtonSize.sm}
+              size={ButtonSize.sm}
               onClick={() => setIsStakeModalOpen(true)}
             >
               <div className='text-primary w-4 h-4 mr-1'>
                 <StakeSvg />
               </div>
               {t('stake')}
-            </SquareButton>
+            </Button>
           </div>
           <StakeModal
             chainId={chainId}
@@ -95,8 +95,8 @@ const CreateSlotButton: React.FC<{
   const { t } = useTranslation()
 
   return (
-    <SquareButton
-      size={SquareButtonSize.sm}
+    <Button
+      size={ButtonSize.sm}
       className={className}
       onClick={() => {
         setListState(ListState.edit)
@@ -105,6 +105,6 @@ const CreateSlotButton: React.FC<{
     >
       <FeatherIcon icon='plus' strokeWidth={4} className='w-4 h-4 my-auto mr-1' />
       <span>{t('newDelegation')}</span>
-    </SquareButton>
+    </Button>
   )
 }

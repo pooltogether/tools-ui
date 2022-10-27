@@ -2,12 +2,7 @@ import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { Token, useTokenAllowance } from '@pooltogether/hooks'
-import {
-  BottomSheet,
-  ModalTitle,
-  SquareButton,
-  SquareButtonTheme
-} from '@pooltogether/react-components'
+import { BottomSheet, ModalTitle, Button, ButtonTheme } from '@pooltogether/react-components'
 import {
   useSendTransaction,
   useTransaction,
@@ -71,8 +66,8 @@ export const StakeModal: React.FC<{
   return (
     <BottomSheet
       label={`Stake ${ticket.symbol} on deposit delegator modal`}
-      open={isOpen}
-      onDismiss={closeModal}
+      isOpen={isOpen}
+      closeModal={closeModal}
     >
       {view}
     </BottomSheet>
@@ -101,12 +96,12 @@ const ManageStakeHomeView: React.FC<{
       </a>
       <div className='mx-auto space-y-2'>
         <div className='text-xs opacity-70'>Manage Stake</div>
-        <SquareButton onClick={() => setModalState(ModalState.add)} className='w-full'>
+        <Button onClick={() => setModalState(ModalState.add)} className='w-full'>
           {t('stakeToken', { token: ticket.symbol })}
-        </SquareButton>
-        <SquareButton onClick={() => setModalState(ModalState.remove)} className='w-full'>
+        </Button>
+        <Button onClick={() => setModalState(ModalState.remove)} className='w-full'>
           {t('unstakeToken', { token: ticket.symbol })}
-        </SquareButton>
+        </Button>
       </div>
     </>
   )
@@ -134,13 +129,13 @@ const AddStakeView: React.FC<{
         <FeatherIcon icon='external-link' className='w-3 h-3' />
       </a>
       <AddStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
-      <SquareButton
+      <Button
         className='w-full'
-        theme={SquareButtonTheme.tealOutline}
+        theme={ButtonTheme.tealOutline}
         onClick={() => setModalState(ModalState.main)}
       >
         {t('back')}
-      </SquareButton>
+      </Button>
     </>
   )
 }
@@ -167,13 +162,13 @@ const RemoveStakeView: React.FC<{
         <FeatherIcon icon='external-link' className='w-3 h-3' />
       </a>
       <RemoveStakeForm chainId={chainId} delegator={delegator} ticket={ticket} />
-      <SquareButton
+      <Button
         className='w-full'
-        theme={SquareButtonTheme.tealOutline}
+        theme={ButtonTheme.tealOutline}
         onClick={() => setModalState(ModalState.main)}
       >
         {t('back')}
-      </SquareButton>
+      </Button>
     </>
   )
 }

@@ -1,11 +1,6 @@
 import { TxButton } from '@components/Buttons/TxButton'
 import { StyledInput } from '@components/Input'
-import {
-  BottomSheet,
-  ModalTitle,
-  SquareButton,
-  SquareButtonTheme
-} from '@pooltogether/react-components'
+import { BottomSheet, ModalTitle, Button, ButtonTheme } from '@pooltogether/react-components'
 import {
   useSendTransaction,
   useTransaction,
@@ -85,8 +80,8 @@ export const ManageRepresentativeModal: React.FC<{
   return (
     <BottomSheet
       label='representative-management-modal'
-      open={isOpen}
-      onDismiss={() => setIsOpen(false)}
+      isOpen={isOpen}
+      closeModal={() => setIsOpen(false)}
       className='space-y-4'
     >
       {view}
@@ -119,12 +114,12 @@ const ManageRepresentativeHomeView: React.FC<{
       {usersAddress === delegator && (
         <div className='mx-auto space-y-2'>
           <div className='text-xs opacity-70'>{t('manageRepresentatives')}</div>
-          <SquareButton onClick={() => setModalState(ModalState.add)} className='w-full'>
+          <Button onClick={() => setModalState(ModalState.add)} className='w-full'>
             {t('addARep')}
-          </SquareButton>
-          <SquareButton onClick={() => setModalState(ModalState.remove)} className='w-full'>
+          </Button>
+          <Button onClick={() => setModalState(ModalState.remove)} className='w-full'>
             {t('removeARep')}
-          </SquareButton>
+          </Button>
         </div>
       )}
     </>
@@ -225,12 +220,9 @@ const SetRepresentativeView: React.FC<{
         >
           {set ? 'Add representative' : 'Remove representative'}
         </TxButton>
-        <SquareButton
-          theme={SquareButtonTheme.tealOutline}
-          onClick={() => setModalState(ModalState.main)}
-        >
+        <Button theme={ButtonTheme.tealOutline} onClick={() => setModalState(ModalState.main)}>
           Back
-        </SquareButton>
+        </Button>
       </form>
     </>
   )

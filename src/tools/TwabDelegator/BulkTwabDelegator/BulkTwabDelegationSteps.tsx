@@ -1,4 +1,4 @@
-import { SquareButton, SquareButtonSize } from '@pooltogether/react-components'
+import { Button, ButtonSize } from '@pooltogether/react-components'
 import { useSendSequentialTransactions, useTransactions } from '@pooltogether/wallet-connection'
 import { DownloadTemplateCsv } from '@twabDelegator/BulkTwabDelegator/DownloadTemplateCsv'
 import { UploadCsv } from '@twabDelegator/BulkTwabDelegator/UploadCsv'
