@@ -1,4 +1,5 @@
 import { useSupportedChains } from '@hooks/app/useSupportedChains'
+import { ButtonTheme } from '@pooltogether/react-components'
 import { FullWalletConnectionButton } from '@pooltogether/wallet-connection'
 import { Trans } from 'next-i18next'
 
@@ -14,6 +15,7 @@ export const FullWalletConnectionButtonWrapper = (props) => {
     <FullWalletConnectionButton
       {...props}
       chains={chains}
+      theme={ButtonTheme.transparent}
       TosDisclaimer={
         <Trans
           i18nKey='connectWalletTermsAndDisclaimerBlurb'
