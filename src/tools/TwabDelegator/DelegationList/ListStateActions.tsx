@@ -65,6 +65,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
   const { t } = useTranslation()
   const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
     useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const isUserDelegator = delegator === usersAddress
 
   if (!isRepresentativeFetched) return null
 
@@ -196,7 +197,7 @@ export const ListStateActions: React.FC<ListStateActionsProps> = (props) => {
     <>
       <FixedFooterNav>
         <div className='w-full flex justify-center space-x-2'>
-          {delegator === usersAddress && (
+          {isUserDelegator && (
             <Button
               className='w-32'
               size={ButtonSize.sm}

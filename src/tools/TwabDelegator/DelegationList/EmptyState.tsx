@@ -3,6 +3,7 @@ import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { shorten } from '@pooltogether/utilities'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { createDelegationModalOpenAtom } from '@twabDelegator/atoms'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import classNames from 'classnames'
 import FeatherIcon from 'feather-icons-react'
 import { useUpdateAtom } from 'jotai/utils'
@@ -30,6 +31,11 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
   const [isStakeModalOpen, setIsStakeModalOpen] = useState<boolean>(false)
   const usersAddress = useUsersAddress()
   const isUserDelegator = delegator === usersAddress
+  const { data: isUserRepresentative } = useIsUserDelegatorsRepresentative(
+    chainId,
+    usersAddress,
+    delegator
+  )
 
   return (
     <div
@@ -57,21 +63,23 @@ export const EmptyState: React.FC<EmptyStateProps> = (props) => {
         </>
       )}
 
-      {isUserDelegator && (
+      {(isUserRepresentative || isUserDelegator) && (
         <>
           <p className='font-bold text-xs'>{t('getStartedByDelegating')}</p>
           <div className='flex flex-col mx-auto space-y-4 max-w-xs'>
             <CreateSlotButton className='w-full' setListState={setListState} />
-            <Button
-              className='w-full'
-              size={ButtonSize.sm}
-              onClick={() => setIsStakeModalOpen(true)}
-            >
-              <div className='text-primary w-4 h-4 mr-1'>
-                <StakeSvg />
-              </div>
-              {t('stake')}
-            </Button>
+            {isUserDelegator && (
+              <Button
+                className='w-full'
+                size={ButtonSize.sm}
+                onClick={() => setIsStakeModalOpen(true)}
+              >
+                <div className='text-primary w-4 h-4 mr-1'>
+                  <StakeSvg />
+                </div>
+                {t('stake')}
+              </Button>
+            )}
           </div>
           <StakeModal
             chainId={chainId}

@@ -8,10 +8,12 @@ import {
   initRpcUrls
 } from '@pooltogether/wallet-connection'
 import { getSupportedChains } from '@utils/getSupportedChains'
+import * as Fathom from 'fathom-client'
 import { Provider as JotaiProvider } from 'jotai'
 import { useTranslation } from 'next-i18next'
 import { ThemeProvider, useTheme } from 'next-themes'
 import { AppProps } from 'next/app'
+import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
@@ -43,7 +45,13 @@ initSentry()
 initRpcUrls(RPC_URLS)
 
 // Initialize WAGMI wallet connectors
-const chains = getSupportedChains()
+const chains = getSupportedChains().map((chain) => {
+  console.log(chain)
+  if (!!RPC_URLS[chain.id]) {
+    chain.rpcUrls.default = RPC_URLS[chain.id]
+  }
+  return chain
+})
 const connectors = () => {
   return [
     new MetaMaskConnector({ chains, options: {} }),
@@ -67,7 +75,14 @@ const connectors = () => {
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  provider: ({ chainId }) => getReadProvider(chainId || CHAIN_ID.mainnet)
+  provider: ({ chainId }) => {
+    try {
+      return getReadProvider(chainId || CHAIN_ID.mainnet)
+    } catch (e) {
+      console.error(e)
+      return getReadProvider(CHAIN_ID.mainnet)
+    }
+  }
 })
 
 /**
@@ -77,6 +92,27 @@ const wagmiClient = createClient({
  * @returns
  */
 export const AppContainer: React.FC<AppProps> = (props) => {
+  const { router } = props
+
+  useEffect(() => {
+    const fathomSiteId = process.env.NEXT_PUBLIC_FATHOM_SITE_ID
+    if (fathomSiteId) {
+      Fathom.load(process.env.NEXT_PUBLIC_FATHOM_SITE_ID, {
+        url: 'https://goose.pooltogether.com/script.js',
+        includedDomains: ['app.pooltogether.com', 'v4.pooltogether.com']
+      })
+      const onRouteChangeComplete = (url) => {
+        if (window['fathom']) {
+          window['fathom'].trackPageview()
+        }
+      }
+      router.events.on('routeChangeComplete', onRouteChangeComplete)
+      return () => {
+        router.events.off('routeChangeComplete', onRouteChangeComplete)
+      }
+    }
+  }, [])
+
   return (
     <WagmiConfig client={wagmiClient}>
       <JotaiProvider>
