@@ -118,7 +118,7 @@ export const AppContainer: React.FC<AppProps> = (props) => {
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />
-          <ThemeProvider attribute='class'>
+          <ThemeProvider attribute='class' defaultTheme='dark'>
             <ThemedToastContainer />
             <CustomErrorBoundary>
               <Content {...props} />
