@@ -20,7 +20,7 @@ export const TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS = Object.freeze({
     CHAIN_ID.avalanche
   ],
   [APP_ENVIRONMENTS.testnets]: [
-    CHAIN_ID['optimism-kovan'],
+    CHAIN_ID['optimism-goerli'],
     CHAIN_ID.mumbai,
     CHAIN_ID.rinkeby,
     CHAIN_ID.fuji
@@ -33,6 +33,7 @@ export const TWAB_DELEGATOR_ADDRESS: { [chainId: number]: string } = Object.free
   [CHAIN_ID.mainnet]: '0x5cFbEE38362B9A60be276763753f64245EA990F7',
   [CHAIN_ID.avalanche]: '0xd23723fef8A16B77eaDc1fC822aE4170bA9d4009',
   [CHAIN_ID['optimism-kovan']]: '0xDDbd5eab2011a2240F69FD1255246922931C66A6',
+  [CHAIN_ID['optimism-goerli']]: '0x6176776490147b41813C1a0e342080d2CAA4e618',
   [CHAIN_ID.mumbai]: '0xaAc4688AB7AD2c0CbC51E9674D53Bf394910aF6a',
   [CHAIN_ID.rinkeby]: '0x448200d83e48f561B42e90274566d3FA3914B8A4',
   [CHAIN_ID.fuji]: '0xdB4B551C21860028c4CA951CC7067699eB7c5Bfe'

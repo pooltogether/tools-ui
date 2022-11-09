@@ -26,6 +26,7 @@ import {
   delegationCreationsAtom
 } from '@twabDelegator/atoms'
 import { useDelegatorsUpdatedTwabDelegations } from '@twabDelegator/hooks/useDelegatorsUpdatedTwabDelegations'
+import { useIsUserDelegatorsRepresentative } from '@twabDelegator/hooks/useIsUserDelegatorsRepresentative'
 import {
   Delegation,
   DelegationFund,
@@ -468,12 +469,15 @@ const AddSlotButton: React.FC<{
   transactionsPending: boolean
   className?: string
 }> = (props) => {
-  const { className, listState, transactionsPending, delegator, setListState } = props
+  const { chainId, className, listState, transactionsPending, delegator, setListState } = props
   const usersAddress = useUsersAddress()
   const setIsOpen = useUpdateAtom(createDelegationModalOpenAtom)
   const { t } = useTranslation()
+  const { data: isUserARepresentative, isFetched: isRepresentativeFetched } =
+    useIsUserDelegatorsRepresentative(chainId, usersAddress, delegator)
+  const isUserDelegator = delegator === usersAddress
 
-  if (listState === ListState.withdraw || usersAddress !== delegator) return null
+  if (listState === ListState.withdraw || (!isUserDelegator && !isUserARepresentative)) return null
 
   return (
     <Button

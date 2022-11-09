@@ -49,5 +49,11 @@ export const V4_TICKET: { [chainId: number]: Token } = Object.freeze({
     symbol: 'TICK',
     name: 'Ticket',
     decimals: '6'
+  },
+  [CHAIN_ID['optimism-goerli']]: {
+    address: '0x8537C5a9AAd3ec1D31a84e94d19FcFC681E83ED0',
+    symbol: 'TICK',
+    name: 'Ticket',
+    decimals: '6'
   }
 })
