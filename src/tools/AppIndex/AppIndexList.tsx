@@ -1,5 +1,3 @@
-
-
 import { DiceSvg, GiftSvg, VoteSvg, GraphSvg } from '@components/SvgComponents'
 import { useIsTestnets } from '@pooltogether/hooks'
 import classNames from 'classnames'
@@ -68,6 +66,12 @@ const APPS_TO_LIST: AppInfo[] = [
     descriptionKey: 'pooltogetherAirdropDescription',
     href: 'initial-pool-distribution',
     emoji: '🏊'
+  },
+  {
+    titleKey: 'prizeTierController',
+    descriptionKey: 'prizeTierControllerDescription',
+    href: 'prize-tier-controller',
+    emoji: '🕹'
   }
 ]
 

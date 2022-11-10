@@ -1,6 +1,7 @@
 import { LIQUIDATOR_SUPPORTED_CHAIN_IDS } from '@liquidator/config'
 import { APP_ENVIRONMENTS } from '@pooltogether/hooks'
 import { CHAIN_ID, getChain } from '@pooltogether/wallet-connection'
+import { PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS } from '@prizeTierController/config'
 import { TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS } from '@twabDelegator/config'
 import { Chain } from 'wagmi'
 
@@ -40,13 +41,15 @@ export const SUPPORTED_CHAIN_IDS: {
   [APP_ENVIRONMENTS.mainnets]: Array.from(
     new Set([
       ...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets],
-      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets]
+      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets],
+      ...PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.mainnets]
     ])
   ),
   [APP_ENVIRONMENTS.testnets]: Array.from(
     new Set([
       ...TWAB_DELEGATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets],
-      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets]
+      ...LIQUIDATOR_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets],
+      ...PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS[APP_ENVIRONMENTS.testnets]
     ])
   )
 })
