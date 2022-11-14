@@ -183,6 +183,8 @@ const PrizeTiers = (props: {
   return (
     <div>
       Prize Tiers
+      {/* TODO: Need to allow users to add or remove tiers */}
+      {/* TODO: Need to reduce opacity of tiers with prizes set to 0 */}
       {fields.map((item, index) => {
         return (
           <div>

@@ -11,6 +11,7 @@ export const getPrizeTierFromFormValues = (
     bitRangeSize: formValues.bitRangeSize,
     expiryDuration: formValues.expiryDuration,
     maxPicksPerUser: formValues.maxPicksPerUser,
+    // TODO: Need prize amount -> tier percentage calculation from v4 utils
     tiers: formValues.tiers?.map((tier) => tier.value),
     prize: undefined
   }

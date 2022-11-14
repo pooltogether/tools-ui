@@ -12,6 +12,7 @@ export const getPrizeTierFromFormValuesAndCurrent = (
     bitRangeSize: formValues.bitRangeSize || prizeTier.bitRangeSize,
     expiryDuration: formValues.expiryDuration || prizeTier.expiryDuration,
     maxPicksPerUser: formValues.maxPicksPerUser || prizeTier.maxPicksPerUser,
+    // TODO: Need prize amount -> tier percentage calculation from v4 utils
     tiers: formValues.tiers?.map((tier) => tier.value) || prizeTier.tiers,
     prize: formValues.prize ? parseUnits(formValues.prize, decimals) : prizeTier.prize,
     endTimestampOffset: 5_184_000 // TODO: confirm actual value
