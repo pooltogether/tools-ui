@@ -1,4 +1,4 @@
-import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
+import { PrizeTierConfig, calculate } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
@@ -8,13 +8,28 @@ export const getPrizeTierFromFormValuesAndCurrent = (
   prizeTier: PrizeTierConfig,
   decimals: BigNumberish
 ): PrizeTierConfig => {
-  return {
+  const editedPrizeTier: PrizeTierConfig = {
     bitRangeSize: formValues.bitRangeSize || prizeTier.bitRangeSize,
     expiryDuration: formValues.expiryDuration || prizeTier.expiryDuration,
     maxPicksPerUser: formValues.maxPicksPerUser || prizeTier.maxPicksPerUser,
-    // TODO: Need prize amount -> tier percentage calculation from v4 utils
-    tiers: formValues.tiers?.map((tier) => tier.value) || prizeTier.tiers,
+    tiers:
+      formValues.tiers && formValues.bitRangeSize && formValues.prize
+        ? formValues.tiers.map((tier, i) =>
+            parseUnits(
+              calculate
+                .calculateTierPercentageForPrize(
+                  i,
+                  tier.value,
+                  formValues.bitRangeSize,
+                  prizeTier.prize
+                )
+                .toString(),
+              decimals
+            ).toNumber()
+          )
+        : prizeTier.tiers,
     prize: formValues.prize ? parseUnits(formValues.prize, decimals) : prizeTier.prize,
     endTimestampOffset: 5_184_000 // TODO: confirm actual value
   }
+  return editedPrizeTier
 }

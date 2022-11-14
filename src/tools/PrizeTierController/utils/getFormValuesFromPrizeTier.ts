@@ -14,10 +14,10 @@ export const getFormValuesFromPrizeTier = (
     tiers: undefined,
     prize: undefined
   }
-  if (prizeTier.prize) {
+  if (!!prizeTier.prize) {
     formValues.prize = formatUnits(prizeTier.prize, decimals)
   }
-  if (prizeTier.tiers && prizeTier.bitRangeSize && prizeTier.prize) {
+  if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
     formValues.tiers = prizeTier.tiers.map((tier, i) => {
       return {
         value: Number(
