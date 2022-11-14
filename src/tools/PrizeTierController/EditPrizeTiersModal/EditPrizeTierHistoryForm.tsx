@@ -184,7 +184,29 @@ const PrizeTiers = (props: {
     <div>
       Prize Tiers
       {fields.map((item, index) => {
-        return <span>{item.id}</span>
+        return (
+          <div>
+            <Label className='uppercase' htmlFor={item.id}>
+              Tier {index + 1}
+            </Label>
+            <StyledInput
+              id={item.id}
+              invalid={!!errors.tiers?.[index]}
+              className='w-full'
+              onChange={(e) => {}}
+              {...register(`tiers.${index}.value`, {
+                validate: {
+                  isGreaterThanOrEqualToZero: (v) => v >= 0 || 'Invalid Prize Tier'
+                }
+              })}
+            />
+            <ErrorMessage>
+              {!!errors?.tiers?.[index]?.message && typeof errors.tiers[index].message === 'string'
+                ? errors.tiers?.[index]?.message
+                : null}
+            </ErrorMessage>
+          </div>
+        )
       })}
     </div>
   )
