@@ -25,8 +25,8 @@ import { useUpdateAtom } from 'jotai/utils'
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import {
-  EditPrizeTierModalState,
-  editPrizeTierModalStateAtom,
+  // EditPrizeTierModalState,
+  // editPrizeTierModalStateAtom,
   isEditPrizeTiersModalOpenAtom,
   prizeTierControllerChainIdAtom,
   prizeTierEditsAtom,
@@ -59,10 +59,7 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
       <PrizePoolTitle prizePool={prizePool} className='mb-4' />
       {isFetched ? (
-        // <div className='grid grid-cols-2 gap-y-4 gap-x-1'>
-        <div className=''>
-          <PrizeTierState prizePool={prizePool} prizeTier={data.upcomingPrizeTier} />
-        </div>
+        <PrizeTierState prizePool={prizePool} prizeTier={data.upcomingPrizeTier} />
       ) : (
         'Loading...'
       )}
@@ -112,7 +109,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
   const combinedPrizeTier = getCombinedPrizeTier(prizeTier, prizeTierEdits)
 
-  console.log({ prizeTierEdits, prizePool, prizeTierEdits, combinedPrizeTier, prizeTier })
+  // console.log({ prizeTierEdits, prizePool, combinedPrizeTier, prizeTier })
 
   const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
   const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
@@ -130,7 +127,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
+  // const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
   const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
   const setSelectedPrizeTierHistoryAddress = useUpdateAtom(selectedPrizeTierHistoryAddressAtom)
   const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
@@ -161,7 +158,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         <button onClick={() => setSeeMore(!seeMore)}>{seeMore ? 'See less' : 'See more'}</button>
         <Button
           onClick={() => {
-            setPrizeTierModalState(EditPrizeTierModalState.singular)
+            // setPrizeTierModalState(EditPrizeTierModalState.singular)
             setSelectedPrizePoolId(prizePool.id())
             setSelectedPrizeTierHistoryAddress(prizePool.prizeTierHistoryMetadata.address)
             setSelectedPrizeTierHistoryChainId(prizePool.chainId)
@@ -195,7 +192,7 @@ const PrizeTierStats = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
 const Stat = (props: { label: React.ReactNode; value: React.ReactNode }) => (
   <div className='flex flex-col leading-none'>
-    <div className='text-xs opacity-80'>{props.label}</div>
+    <div className='text-xs opacity-80 mb-1'>{props.label}</div>
     <div className='font-bold text-sm'>{props.value}</div>
   </div>
 )

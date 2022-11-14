@@ -1,17 +1,11 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import {
-  EditPrizeTierModalState,
-  editPrizeTierModalStateAtom,
-  isEditPrizeTiersModalOpenAtom,
-  prizeTierEditsAtom
-} from '@prizeTierController/atoms'
+import { isSavePrizeTiersModalOpenAtom, prizeTierEditsAtom } from '@prizeTierController/atoms'
 import classNames from 'classnames'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
 
 export const Actions = (props: { className?: string }) => {
   const { className } = props
-  const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
+  const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
   const resetForm = useResetAtom(prizeTierEditsAtom)
 
   return (
@@ -25,14 +19,14 @@ export const Actions = (props: { className?: string }) => {
       >
         Reset Edits
       </Button>
+      {/* The save edits button should only be enabled if there were edits made and there are no errors */}
       <Button
         onClick={() => {
-          setPrizeTierModalState(EditPrizeTierModalState.all)
           setIsOpen(true)
         }}
         size={ButtonSize.sm}
       >
-        Edit All
+        Save Edits
       </Button>
     </div>
   )

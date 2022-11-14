@@ -4,6 +4,7 @@ import { LoadingScreen } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import { Actions } from '@prizeTierController/Actions'
 import { EditPrizeTiersModal } from '@prizeTierController/EditPrizeTiersModal'
+import { SavePrizeTiersModal } from '@prizeTierController/SavePrizeTiersModal'
 import { PrizeTierHistoryList } from '@prizeTierController/PrizeTierHistoryList'
 import { DelegationList } from '@twabDelegator/DelegationList'
 import { UsersDelegationState } from '@twabDelegator/UsersDelegationState'
@@ -45,6 +46,7 @@ export const PrizeTierController: React.FC = () => {
           <Actions className='mb-4' />
           <PrizeTierHistoryList className='mb-8' />
           <EditPrizeTiersModal />
+          <SavePrizeTiersModal />
         </PagePadding>
       </Layout>
     </Suspense>
