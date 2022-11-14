@@ -134,7 +134,7 @@ const SingularEdit = () => {
     if (!!existingEdits) {
       return getFormValuesFromPrizeTier(existingEdits, tokens.token.decimals)
     }
-    getFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals)
+    return getFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals)
   }, [
     data.upcomingPrizeTier,
     prizePool.chainId,
@@ -145,8 +145,8 @@ const SingularEdit = () => {
 
   return (
     <div>
-      <p>Make changes to a single Prize Tier History configuration.</p>
-      <select
+      <p>Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:</p>
+      {/* <select
         name='drawIds'
         id='drawIds'
         className={classNames(
@@ -171,7 +171,7 @@ const SingularEdit = () => {
             </div>
           </option>
         ))}
-      </select>
+      </select> */}
       {!!selectedPrizePoolId && isTokensFetched && isPrizeTierFetched && (
         <EditPrizeTierHistoryForm onSubmit={onSubmit} defaultValues={defaultValues} />
       )}

@@ -3,5 +3,5 @@ export interface EditPrizeTierFormValues {
   expiryDuration: number
   maxPicksPerUser: number
   prize: string // Formatted as a string: 1.2345
-  tiers: number[]
+  tiers: { value: number }[]
 }

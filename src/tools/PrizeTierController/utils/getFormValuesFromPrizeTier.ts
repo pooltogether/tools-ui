@@ -11,7 +11,9 @@ export const getFormValuesFromPrizeTier = (
     bitRangeSize: prizeTier.bitRangeSize,
     expiryDuration: prizeTier.expiryDuration,
     maxPicksPerUser: prizeTier.maxPicksPerUser,
-    tiers: prizeTier.tiers,
+    tiers: prizeTier.tiers?.map((tier) => {
+      return { value: tier }
+    }),
     prize: undefined
   }
   if (prizeTier.prize) {

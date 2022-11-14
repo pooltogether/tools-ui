@@ -5,18 +5,18 @@ import { Button } from '@pooltogether/react-components'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { BigNumber } from 'ethers'
 import { useState } from 'react'
-import { FieldErrorsImpl, useForm, UseFormRegister } from 'react-hook-form'
+import { FieldErrorsImpl, useForm, UseFormRegister, useFieldArray, Control } from 'react-hook-form'
 
 export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void
   defaultValues?: Partial<EditPrizeTierFormValues>
 }) => {
   const { onSubmit, defaultValues } = props
-  const [showMore, setShowMore] = useState(false)
   const {
     handleSubmit,
     register,
     reset,
+    control,
     formState: { errors, isValid }
   } = useForm<EditPrizeTierFormValues>({
     mode: 'onChange',
@@ -26,22 +26,13 @@ export const EditPrizeTierHistoryForm = (props: {
 
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
-      {showMore ? (
-        <div className='flex flex-col'>
-          <BitRangeSize errors={errors} register={register} />
-          <ExpiryDuration errors={errors} register={register} />
-          <MaxPicksPerUser errors={errors} register={register} />
-          <PrizeValue errors={errors} register={register} />
-          <button type='button' onClick={() => setShowMore(false)}>
-            Show less
-          </button>
-        </div>
-      ) : (
-        <button type='button' onClick={() => setShowMore(true)}>
-          Show more
-        </button>
-      )}
-      <PrizeTiers errors={errors} register={register} />
+      <div className='flex flex-col'>
+        <BitRangeSize errors={errors} register={register} />
+        <ExpiryDuration errors={errors} register={register} />
+        <MaxPicksPerUser errors={errors} register={register} />
+        <PrizeValue errors={errors} register={register} />
+      </div>
+      <PrizeTiers errors={errors} register={register} control={control} />
       <Button type='submit'>Save</Button>
     </form>
   )
@@ -185,6 +176,16 @@ const PrizeValue = (props: {
 const PrizeTiers = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  control: Control<EditPrizeTierFormValues, any>
 }) => {
-  return <div>tiers</div>
+  const { errors, register, control } = props
+  const { fields, append, remove } = useFieldArray({ control, name: 'tiers' })
+  return (
+    <div>
+      Prize Tiers
+      {fields.map((item, index) => {
+        return <span>{item.id}</span>
+      })}
+    </div>
+  )
 }
