@@ -6,7 +6,7 @@ import { formatUnits } from 'ethers/lib/utils'
 export const getFormValuesFromPrizeTier = (
   prizeTier: Partial<PrizeTierConfig>,
   decimals: BigNumberish,
-  options?: { roundTiers?: boolean }
+  options?: { round?: boolean }
 ): Partial<EditPrizeTierFormValues> => {
   const formValues: Partial<EditPrizeTierFormValues> = {
     bitRangeSize: prizeTier.bitRangeSize,
@@ -16,7 +16,10 @@ export const getFormValuesFromPrizeTier = (
     prize: undefined
   }
   if (!!prizeTier.prize) {
-    formValues.prize = formatUnits(prizeTier.prize, decimals)
+    const formattedPrize = formatUnits(prizeTier.prize, decimals)
+    formValues.prize = options?.round
+      ? parseFloat(parseFloat(formattedPrize).toFixed(2)).toString()
+      : formattedPrize
   }
   if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
     formValues.tiers = prizeTier.tiers.map((tier, i) => {
@@ -32,7 +35,7 @@ export const getFormValuesFromPrizeTier = (
         )
       )
       return {
-        value: options?.roundTiers ? parseFloat(calculatedPrize.toFixed(2)) : calculatedPrize
+        value: options?.round ? parseFloat(calculatedPrize.toFixed(2)) : calculatedPrize
       }
     })
   }

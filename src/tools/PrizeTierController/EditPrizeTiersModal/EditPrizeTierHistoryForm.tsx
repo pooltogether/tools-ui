@@ -1,11 +1,12 @@
 import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
-import { Button } from '@pooltogether/react-components'
+import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
+import { getLastNonZeroTier } from '@prizeTierController/utils/getLastNonZeroTier'
 import classNames from 'classnames'
 import { utils } from 'ethers'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister, useFieldArray, Control } from 'react-hook-form'
 
 export const EditPrizeTierHistoryForm = (props: {
@@ -180,36 +181,69 @@ const PrizeTiers = (props: {
   control: Control<EditPrizeTierFormValues, any>
 }) => {
   const { errors, register, control } = props
-  const { fields, append, remove } = useFieldArray({ control, name: 'tiers' })
+  const { fields } = useFieldArray({ control, name: 'tiers' })
+  const lastNonZeroTier = useMemo(() => {
+    return getLastNonZeroTier(fields.map((item) => item.value))
+  }, [fields])
+  const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
+  // TODO: fields are not updating reactively (switch opacity when changing to 0, changing lastNonZeroTier when value changes, etc.)
   return (
     <div>
       Prize Tiers
-      {/* TODO: Need to allow users to add or remove tiers */}
       {fields.map((item, index) => {
-        return (
-          <div key={`prize-tier-${item.id}`}>
-            <Label className='uppercase' htmlFor={item.id}>
-              Tier {index + 1}
-            </Label>
-            <StyledInput
-              id={item.id}
-              invalid={!!errors.tiers?.[index]}
-              className={classNames('w-full', { 'opacity-60': item.value === 0 })}
-              onChange={(e) => {}}
-              {...register(`tiers.${index}.value`, {
-                validate: {
-                  isGreaterThanOrEqualToZero: (v) => v >= 0 || 'Invalid Prize Tier'
-                }
-              })}
-            />
-            <ErrorMessage>
-              {!!errors?.tiers?.[index]?.message && typeof errors.tiers[index].message === 'string'
-                ? errors.tiers?.[index]?.message
-                : null}
-            </ErrorMessage>
-          </div>
-        )
+        if (index <= lastIndexDisplayed) {
+          return (
+            <div key={`prize-tier-${item.id}`}>
+              <Label className='uppercase' htmlFor={item.id}>
+                {/* TODO: Show number of prizes in tier next to tier number */}
+                Tier {index + 1}
+              </Label>
+              <StyledInput
+                id={item.id}
+                invalid={!!errors.tiers?.[index]}
+                className={classNames('w-full', { 'opacity-60': item.value === 0 })}
+                onChange={(e) => {}}
+                {...register(`tiers.${index}.value`, {
+                  validate: {
+                    isGreaterThanOrEqualToZero: (v) => v >= 0 || 'Invalid Prize Tier'
+                  }
+                })}
+              />
+              <ErrorMessage>
+                {!!errors?.tiers?.[index]?.message &&
+                typeof errors.tiers[index].message === 'string'
+                  ? errors.tiers?.[index]?.message
+                  : null}
+              </ErrorMessage>
+            </div>
+          )
+        }
       })}
+      <div className='flex gap-2 mb-6'>
+        {lastIndexDisplayed > lastNonZeroTier && (
+          <Button
+            type='button'
+            onClick={() => {
+              setLastIndexDisplayed(lastIndexDisplayed - 1)
+            }}
+            size={ButtonSize.sm}
+            theme={ButtonTheme.orange}
+          >
+            Remove Tier
+          </Button>
+        )}
+        {lastIndexDisplayed < 15 && (
+          <Button
+            type='button'
+            onClick={() => {
+              setLastIndexDisplayed(lastIndexDisplayed + 1)
+            }}
+            size={ButtonSize.sm}
+          >
+            Add Tier
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

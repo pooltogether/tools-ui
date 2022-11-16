@@ -108,7 +108,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
   const combinedPrizeTier = getCombinedPrizeTier(prizeTier, prizeTierEdits)
 
-  console.log(prizePool.chainId, { prizeTierEdits, combinedPrizeTier, prizeTier })
+  // console.log(prizePool.chainId, { prizeTierEdits, combinedPrizeTier, prizeTier })
 
   const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
   const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
