@@ -5,7 +5,8 @@ import { formatUnits } from 'ethers/lib/utils'
 
 export const getFormValuesFromPrizeTier = (
   prizeTier: Partial<PrizeTierConfig>,
-  decimals: BigNumberish
+  decimals: BigNumberish,
+  options?: { roundTiers?: boolean }
 ): Partial<EditPrizeTierFormValues> => {
   const formValues: Partial<EditPrizeTierFormValues> = {
     bitRangeSize: prizeTier.bitRangeSize,
@@ -19,18 +20,19 @@ export const getFormValuesFromPrizeTier = (
   }
   if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
     formValues.tiers = prizeTier.tiers.map((tier, i) => {
-      return {
-        value: Number(
-          formatUnits(
-            calculate.calculatePrizeForTierPercentage(
-              i,
-              tier,
-              prizeTier.bitRangeSize,
-              prizeTier.prize
-            ),
-            decimals
-          )
+      const calculatedPrize = parseFloat(
+        formatUnits(
+          calculate.calculatePrizeForTierPercentage(
+            i,
+            tier,
+            prizeTier.bitRangeSize,
+            prizeTier.prize
+          ),
+          decimals
         )
+      )
+      return {
+        value: options?.roundTiers ? parseFloat(calculatedPrize.toFixed(2)) : calculatedPrize
       }
     })
   }

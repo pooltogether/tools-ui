@@ -132,9 +132,11 @@ const SingularEdit = () => {
     const existingEdits =
       prizeTierEdits?.[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
     if (!!existingEdits) {
-      return getFormValuesFromPrizeTier(existingEdits, tokens.token.decimals)
+      return getFormValuesFromPrizeTier(existingEdits, tokens.token.decimals, { roundTiers: true })
     }
-    return getFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals)
+    return getFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals, {
+      roundTiers: true
+    })
   }, [
     data.upcomingPrizeTier,
     prizePool.chainId,
