@@ -3,7 +3,8 @@ import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Button } from '@pooltogether/react-components'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
-import { BigNumber } from 'ethers'
+import classNames from 'classnames'
+import { utils } from 'ethers'
 import { useState } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister, useFieldArray, Control } from 'react-hook-form'
 
@@ -54,13 +55,13 @@ const BitRangeSize = (props: {
         invalid={!!errors.bitRangeSize}
         className='w-full'
         {...register('bitRangeSize', {
-          // required: {
-          //   value: true,
-          //   message: 'Bit Range Size is required'
-          // },
-          // validate: {
-          //   isGreaterThanZero: (v) => v > 0 || 'Invalid Bit Range Size'
-          // }
+          required: {
+            value: true,
+            message: 'Bit Range Size is required'
+          },
+          validate: {
+            isGreaterThanZero: (v) => v > 0 || 'Invalid Bit Range Size'
+          }
         })}
       />
       <ErrorMessage>
@@ -88,13 +89,13 @@ const ExpiryDuration = (props: {
         invalid={!!errors.expiryDuration}
         className='w-full'
         {...register('expiryDuration', {
-          // required: {
-          //   value: true,
-          //   message: 'Expiry Duration is required'
-          // },
-          // validate: {
-          //   isGreaterThanZero: (v) => v > 0 || 'Invalid Expiry Duration'
-          // }
+          required: {
+            value: true,
+            message: 'Expiry Duration is required'
+          },
+          validate: {
+            isGreaterThanZero: (v) => v > 0 || 'Invalid Expiry Duration'
+          }
         })}
       />
       <ErrorMessage>
@@ -121,13 +122,13 @@ const MaxPicksPerUser = (props: {
         invalid={!!errors.maxPicksPerUser}
         className='w-full'
         {...register('maxPicksPerUser', {
-          // required: {
-          //   value: true,
-          //   message: 'Max Picks Per User is required'
-          // },
-          // validate: {
-          //   isGreaterThanZero: (v) => v > 0 || 'Invalid Max Picks Per User'
-          // }
+          required: {
+            value: true,
+            message: 'Max Picks Per User is required'
+          },
+          validate: {
+            isGreaterThanZero: (v) => v > 0 || 'Invalid Max Picks Per User'
+          }
         })}
       />
       <ErrorMessage>
@@ -155,13 +156,13 @@ const PrizeValue = (props: {
         className='w-full'
         onChange={(e) => {}}
         {...register('prize', {
-          // required: {
-          //   value: true,
-          //   message: 'Prize Value is required'
-          // },
-          // validate: {
-          //   isGreaterThanZero: (v) => BigNumber.from(v).gt(0) || 'Invalid Prize Value'
-          // }
+          required: {
+            value: true,
+            message: 'Prize Value is required'
+          },
+          validate: {
+            isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
+          }
         })}
       />
       <ErrorMessage>
@@ -184,17 +185,16 @@ const PrizeTiers = (props: {
     <div>
       Prize Tiers
       {/* TODO: Need to allow users to add or remove tiers */}
-      {/* TODO: Need to reduce opacity of tiers with prizes set to 0 */}
       {fields.map((item, index) => {
         return (
-          <div>
+          <div key={`prize-tier-${item.id}`}>
             <Label className='uppercase' htmlFor={item.id}>
               Tier {index + 1}
             </Label>
             <StyledInput
               id={item.id}
               invalid={!!errors.tiers?.[index]}
-              className='w-full'
+              className={classNames('w-full', { 'opacity-60': item.value === 0 })}
               onChange={(e) => {}}
               {...register(`tiers.${index}.value`, {
                 validate: {

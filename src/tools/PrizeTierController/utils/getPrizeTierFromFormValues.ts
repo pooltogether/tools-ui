@@ -19,12 +19,14 @@ export const getPrizeTierFromFormValues = (
   }
   if (!!formValues.tiers && !!formValues.bitRangeSize && !!formValues.prize) {
     prizeTier.tiers = formValues.tiers.map((tier, i) =>
-      parseUnits(
-        calculate
-          .calculateTierPercentageForPrize(i, tier.value, formValues.bitRangeSize, prizeTier.prize)
-          .toString(),
-        decimals
-      ).toNumber()
+      calculate
+        .calculateTierPercentageForPrize(
+          i,
+          parseUnits(tier.value.toString(), decimals),
+          formValues.bitRangeSize,
+          prizeTier.prize
+        )
+        .toNumber()
     )
   }
   return prizeTier

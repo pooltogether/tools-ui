@@ -1977,6 +1977,25 @@
     ethers "^5.5.1"
     lodash "^4.17.21"
 
+"@pooltogether/v4-utils-js@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@pooltogether/v4-utils-js/-/v4-utils-js-0.1.7.tgz#01a00154b1ec5e31269f6137bf8fce1096dfd8c2"
+  integrity sha512-vHkXLYZOCF0G0gyXCM8Kc8GoAH5rQCcDD9Ta2ADaQNNF7X7o/AkQ2jhKVY+UKuzSvpsnTe3ajNETbGqctZvShQ==
+  dependencies:
+    "@ethersproject/abi" "^5.5.0"
+    "@ethersproject/address" "^5.5.0"
+    "@ethersproject/bignumber" "^5.5.0"
+    "@ethersproject/bytes" "^5.5.0"
+    "@ethersproject/contracts" "^5.5.0"
+    "@ethersproject/keccak256" "^5.5.0"
+    "@ethersproject/networks" "^5.5.0"
+    "@ethersproject/solidity" "^5.5.0"
+    "@ethersproject/strings" "^5.5.0"
+    "@ethersproject/units" "^5.5.0"
+    "@pooltogether/contract-list-schema" "^0.1.4"
+    ethers "^5.5.1"
+    lodash "^4.17.21"
+
 "@pooltogether/wallet-connection@^1.0.0-beta.4":
   version "1.0.0-beta.4"
   resolved "https://registry.yarnpkg.com/@pooltogether/wallet-connection/-/wallet-connection-1.0.0-beta.4.tgz#468d2b2cceb3cfd9e7c304231bebb48ce3787c15"

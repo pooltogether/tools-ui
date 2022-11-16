@@ -17,7 +17,6 @@ import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTier
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { getCombinedPrizeTier } from '@prizeTierController/utils/getCombinedPrizeTier'
 import { getPrizeTierFromFormValues } from '@prizeTierController/utils/getPrizeTierFromFormValues'
-import { getPrizeTierFromFormValuesAndCurrent } from '@prizeTierController/utils/getPrizeTierFromFormValuesAndCurrent'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
