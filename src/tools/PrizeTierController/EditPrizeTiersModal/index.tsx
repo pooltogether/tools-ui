@@ -147,7 +147,9 @@ const SingularEdit = () => {
 
   return (
     <div>
-      <p>Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:</p>
+      <p className='mb-4'>
+        Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:
+      </p>
       {/* <select
         name='drawIds'
         id='drawIds'

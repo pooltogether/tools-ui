@@ -2,12 +2,20 @@ import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
+import { calculate } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { getLastNonZeroTier } from '@prizeTierController/utils/getLastNonZeroTier'
 import classNames from 'classnames'
 import { utils } from 'ethers'
-import { useState, useMemo } from 'react'
-import { FieldErrorsImpl, useForm, UseFormRegister, useFieldArray, Control } from 'react-hook-form'
+import { useState } from 'react'
+import {
+  FieldErrorsImpl,
+  useForm,
+  UseFormRegister,
+  UseFormWatch,
+  useFieldArray,
+  Control
+} from 'react-hook-form'
 
 export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void
@@ -19,6 +27,7 @@ export const EditPrizeTierHistoryForm = (props: {
     register,
     reset,
     control,
+    watch,
     formState: { errors, isValid }
   } = useForm<EditPrizeTierFormValues>({
     mode: 'onChange',
@@ -34,7 +43,7 @@ export const EditPrizeTierHistoryForm = (props: {
         <MaxPicksPerUser errors={errors} register={register} />
         <PrizeValue errors={errors} register={register} />
       </div>
-      <PrizeTiers errors={errors} register={register} control={control} />
+      <PrizeTiers errors={errors} register={register} control={control} watch={watch} />
       <Button type='submit'>Save</Button>
     </form>
   )
@@ -179,29 +188,31 @@ const PrizeTiers = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
   control: Control<EditPrizeTierFormValues, any>
+  watch: UseFormWatch<EditPrizeTierFormValues>
 }) => {
-  const { errors, register, control } = props
+  const { errors, register, control, watch } = props
   const { fields } = useFieldArray({ control, name: 'tiers' })
-  const lastNonZeroTier = useMemo(() => {
-    return getLastNonZeroTier(fields.map((item) => item.value))
-  }, [fields])
+  const bitRange = watch('bitRangeSize')
+  const tierValues = watch('tiers').map((item) => item.value)
+  const lastNonZeroTier = getLastNonZeroTier(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
-  // TODO: fields are not updating reactively (switch opacity when changing to 0, changing lastNonZeroTier when value changes, etc.)
   return (
     <div>
-      Prize Tiers
       {fields.map((item, index) => {
         if (index <= lastIndexDisplayed) {
+          const numPrizesInTier = calculate.calculateNumberOfPrizesForTierIndex(bitRange, index)
           return (
             <div key={`prize-tier-${item.id}`}>
-              <Label className='uppercase' htmlFor={item.id}>
-                {/* TODO: Show number of prizes in tier next to tier number */}
-                Tier {index + 1}
+              <Label className='uppercase flex gap-2 justify-between' htmlFor={item.id}>
+                <span>Tier {index + 1}</span>
+                <span>
+                  ({numPrizesInTier} Prize{numPrizesInTier > 1 ? 's' : ''})
+                </span>
               </Label>
               <StyledInput
                 id={item.id}
                 invalid={!!errors.tiers?.[index]}
-                className={classNames('w-full', { 'opacity-60': item.value === 0 })}
+                className={classNames('w-full', { 'opacity-60': !(tierValues[index] > 0) })}
                 onChange={(e) => {}}
                 {...register(`tiers.${index}.value`, {
                   validate: {
@@ -220,6 +231,17 @@ const PrizeTiers = (props: {
         }
       })}
       <div className='flex gap-2 mb-6'>
+        {lastIndexDisplayed < 15 && (
+          <Button
+            type='button'
+            onClick={() => {
+              setLastIndexDisplayed(lastIndexDisplayed + 1)
+            }}
+            size={ButtonSize.sm}
+          >
+            Add Tier
+          </Button>
+        )}
         {lastIndexDisplayed > lastNonZeroTier && (
           <Button
             type='button'
@@ -230,17 +252,6 @@ const PrizeTiers = (props: {
             theme={ButtonTheme.orange}
           >
             Remove Tier
-          </Button>
-        )}
-        {lastIndexDisplayed < 15 && (
-          <Button
-            type='button'
-            onClick={() => {
-              setLastIndexDisplayed(lastIndexDisplayed + 1)
-            }}
-            size={ButtonSize.sm}
-          >
-            Add Tier
           </Button>
         )}
       </div>
