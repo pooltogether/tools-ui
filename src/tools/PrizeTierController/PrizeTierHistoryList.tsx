@@ -12,22 +12,18 @@ import {
   getNetworkNiceNameByChainId
 } from '@pooltogether/utilities'
 import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
-import { BlockExplorerLink, useUsersAddress } from '@pooltogether/wallet-connection'
+import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { getCombinedPrizeTier } from '@prizeTierController/utils/getCombinedPrizeTier'
-import { getPrizeTierFromFormValues } from '@prizeTierController/utils/getPrizeTierFromFormValues'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useState } from 'react'
-import { useQuery } from 'react-query'
 import {
   // EditPrizeTierModalState,
   // editPrizeTierModalStateAtom,
   isEditPrizeTiersModalOpenAtom,
-  prizeTierControllerChainIdAtom,
   prizeTierEditsAtom,
   selectedPrizePoolIdAtom,
   selectedPrizeTierHistoryAddressAtom,
@@ -49,8 +45,6 @@ export const PrizeTierHistoryList = (props: { className?: string }) => {
 
 const PrizePoolItem = (props: { prizePool: PrizePool }) => {
   const { prizePool } = props
-  const [chainId] = useAtom(prizeTierControllerChainIdAtom)
-  const usersAddress = useUsersAddress()
 
   const { data, isFetched } = usePrizeTierHistoryData(prizePool)
 
@@ -120,10 +114,10 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
     )
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
-  const totalValueOfPrizes = valueOfPrizesPerTier.reduce(
-    (a, b, i) => a.add(b.mul(numberOfPrizesPerTier[i])),
-    BigNumber.from(0)
-  )
+  // const totalValueOfPrizes = valueOfPrizesPerTier.reduce(
+  //   (a, b, i) => a.add(b.mul(numberOfPrizesPerTier[i])),
+  //   BigNumber.from(0)
+  // )
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   // const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
@@ -137,9 +131,12 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         <Stat label='Total Prizes' value={totalPrizes} />
         <Stat
           label='Total Value'
-          value={formatUnformattedBigNumberForDisplay(totalValueOfPrizes, tokens?.token.decimals)}
+          value={formatUnformattedBigNumberForDisplay(
+            combinedPrizeTier.prize,
+            tokens?.token.decimals
+          )}
         />
-        {seeMore && <PrizeTierStats prizePool={prizePool} prizeTier={combinedPrizeTier} />}
+        {seeMore && <PrizeTierStats prizeTier={combinedPrizeTier} />}
       </div>
 
       {seeMore && (
@@ -173,17 +170,12 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
 }
 
-const PrizeTierStats = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfig }) => {
-  const { prizeTier, prizePool } = props
-  const { data: tokens } = usePrizePoolTokens(prizePool)
+const PrizeTierStats = (props: { prizeTier: PrizeTierConfig }) => {
+  const { prizeTier } = props
 
   return (
     <>
       <Stat label='Max Picks Per User' value={prizeTier.maxPicksPerUser} />
-      <Stat
-        label='Prize'
-        value={formatUnformattedBigNumberForDisplay(prizeTier.prize, tokens?.token.decimals)}
-      />
       <Stat label='Bit Range Size' value={prizeTier.bitRangeSize} />
     </>
   )

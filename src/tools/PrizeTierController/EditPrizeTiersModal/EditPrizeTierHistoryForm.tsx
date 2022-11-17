@@ -2,7 +2,7 @@ import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { calculate } from '@pooltogether/v4-utils-js'
+import { calculate, calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { getLastNonZeroTier } from '@prizeTierController/utils/getLastNonZeroTier'
 import classNames from 'classnames'
@@ -25,15 +25,26 @@ export const EditPrizeTierHistoryForm = (props: {
   const {
     handleSubmit,
     register,
-    reset,
     control,
     watch,
+    setValue,
     formState: { errors, isValid }
   } = useForm<EditPrizeTierFormValues>({
     mode: 'onChange',
     defaultValues,
     shouldUnregister: true
   })
+
+  // Reactively calculating prize value based on bitrange and tier changes:
+  const bitRange = watch('bitRangeSize')
+  const tierValues = watch('tiers').map((item) => item.value)
+  if (!!bitRange && tierValues.length > 0) {
+    const totalValueOfPrizes = tierValues.reduce(
+      (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
+      0
+    )
+    setValue('prize', totalValueOfPrizes.toString())
+  }
 
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
@@ -44,7 +55,9 @@ export const EditPrizeTierHistoryForm = (props: {
         <PrizeValue errors={errors} register={register} />
       </div>
       <PrizeTiers errors={errors} register={register} control={control} watch={watch} />
-      <Button type='submit'>Save</Button>
+      <Button type='submit' disabled={!isValid}>
+        Save
+      </Button>
     </form>
   )
 }
@@ -70,7 +83,8 @@ const BitRangeSize = (props: {
             message: 'Bit Range Size is required'
           },
           validate: {
-            isGreaterThanZero: (v) => v > 0 || 'Invalid Bit Range Size'
+            isGreaterThanZero: (v) => v > 0 || 'Invalid Bit Range Size',
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size'
           }
         })}
       />
@@ -137,7 +151,8 @@ const MaxPicksPerUser = (props: {
             message: 'Max Picks Per User is required'
           },
           validate: {
-            isGreaterThanZero: (v) => v > 0 || 'Invalid Max Picks Per User'
+            isGreaterThanZero: (v) => v > 0 || 'Invalid Max Picks Per User',
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User'
           }
         })}
       />
@@ -164,7 +179,6 @@ const PrizeValue = (props: {
         id='prize'
         invalid={!!errors.prize}
         className='w-full'
-        onChange={(e) => {}}
         {...register('prize', {
           required: {
             value: true,
@@ -174,6 +188,7 @@ const PrizeValue = (props: {
             isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
           }
         })}
+        disabled
       />
       <ErrorMessage>
         {!!errors?.prize?.message && typeof errors.prize.message === 'string'
@@ -196,6 +211,7 @@ const PrizeTiers = (props: {
   const tierValues = watch('tiers').map((item) => item.value)
   const lastNonZeroTier = getLastNonZeroTier(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
+
   return (
     <div>
       {fields.map((item, index) => {
@@ -206,14 +222,13 @@ const PrizeTiers = (props: {
               <Label className='uppercase flex gap-2 justify-between' htmlFor={item.id}>
                 <span>Tier {index + 1}</span>
                 <span>
-                  ({numPrizesInTier} Prize{numPrizesInTier > 1 ? 's' : ''})
+                  ({numPrizesInTier.toLocaleString()} Prize{numPrizesInTier > 1 ? 's' : ''})
                 </span>
               </Label>
               <StyledInput
                 id={item.id}
                 invalid={!!errors.tiers?.[index]}
                 className={classNames('w-full', { 'opacity-60': !(tierValues[index] > 0) })}
-                onChange={(e) => {}}
                 {...register(`tiers.${index}.value`, {
                   validate: {
                     isGreaterThanOrEqualToZero: (v) => v >= 0 || 'Invalid Prize Tier'

@@ -46,7 +46,7 @@ initRpcUrls(RPC_URLS)
 
 // Initialize WAGMI wallet connectors
 const chains = getSupportedChains().map((chain) => {
-  console.log(chain)
+  // console.log(chain)
   if (!!RPC_URLS[chain.id]) {
     chain.rpcUrls.default = RPC_URLS[chain.id]
   }
