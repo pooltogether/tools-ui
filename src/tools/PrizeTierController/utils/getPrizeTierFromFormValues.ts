@@ -11,8 +11,8 @@ export const getPrizeTierFromFormValues = (
     bitRangeSize: formValues.bitRangeSize,
     expiryDuration: formValues.expiryDuration,
     maxPicksPerUser: formValues.maxPicksPerUser,
-    tiers: undefined,
-    prize: undefined
+    prize: undefined,
+    tiers: undefined
   }
   if (!!formValues.prize) {
     prizeTier.prize = parseUnits(formValues.prize, decimals)

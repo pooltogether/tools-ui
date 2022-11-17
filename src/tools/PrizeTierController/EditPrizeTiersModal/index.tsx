@@ -105,6 +105,7 @@ const SingularEdit = () => {
     (formValues: EditPrizeTierFormValues) => {
       const newPrizeTierEdits = getPrizeTierFromFormValues(formValues, tokens?.token.decimals)
       setPrizeTierEdits((prizeTierEdits) => {
+        // TODO: should check if edits actually make it different from existing data
         const updatedPrizeTierEdits = { ...prizeTierEdits }
         if (!updatedPrizeTierEdits[prizePool.chainId]) {
           updatedPrizeTierEdits[prizePool.chainId] = {}
