@@ -61,3 +61,6 @@ export const selectedPrizeTierHistoryChainIdAtom = atom<number>(-1)
 export const prizeTierEditsAtom = atomWithReset<{
   [chainId: number]: { [prizeTierHistoryAddress: string]: Partial<PrizeTierConfig> }
 }>({})
+export const allCombinedPrizeTiersAtom = atom<{
+  [chainId: number]: { [prizeTierHistoryAddress: string]: PrizeTierConfig }
+}>({})

@@ -15,16 +15,18 @@ import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-j
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { getCombinedPrizeTier } from '@prizeTierController/utils/getCombinedPrizeTier'
+import { checkForPrizeCompatibility } from '@prizeTierController/utils/checkForPrizeCompatibility'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   // EditPrizeTierModalState,
   // editPrizeTierModalStateAtom,
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
+  allCombinedPrizeTiersAtom,
   selectedPrizePoolIdAtom,
   selectedPrizeTierHistoryAddressAtom,
   selectedPrizeTierHistoryChainIdAtom
@@ -96,13 +98,24 @@ const PrizePoolToken = (props: { prizePool: PrizePool }) => {
 const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfig }) => {
   const { prizePool, prizeTier } = props
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
+  const [combinedPrizeTiers, setCombinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
   const prizeTierEdits =
     allPrizeTierEdits[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
   const { data: tokens } = usePrizePoolTokens(prizePool)
 
+  // Calculating combined outcome of existing and edited prize tiers:
   const combinedPrizeTier = getCombinedPrizeTier(prizeTier, prizeTierEdits)
-
-  // console.log(prizePool.chainId, { prizeTierEdits, combinedPrizeTier, prizeTier })
+  useEffect(() => {
+    setCombinedPrizeTiers(() => {
+      const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
+      if (!updatedCombinedPrizeTiers[prizePool.chainId]) {
+        updatedCombinedPrizeTiers[prizePool.chainId] = {}
+      }
+      updatedCombinedPrizeTiers[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address] =
+        combinedPrizeTier
+      return updatedCombinedPrizeTiers
+    })
+  }, [prizeTierEdits])
 
   const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
   const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
@@ -114,10 +127,13 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
     )
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
-  // const totalValueOfPrizes = valueOfPrizesPerTier.reduce(
-  //   (a, b, i) => a.add(b.mul(numberOfPrizesPerTier[i])),
-  //   BigNumber.from(0)
-  // )
+
+  const prizeCompatibility = checkForPrizeCompatibility(combinedPrizeTiers)
+  const prizeAmountErrored =
+    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('prizeAmount')
+
+  // console.log(prizePool.chainId, { prizeTierEdits, combinedPrizeTier, prizeTier })
+
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   // const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
@@ -135,6 +151,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
             combinedPrizeTier.prize,
             tokens?.token.decimals
           )}
+          errored={prizeAmountErrored}
         />
         {seeMore && <PrizeTierStats prizeTier={combinedPrizeTier} />}
       </div>
@@ -181,10 +198,20 @@ const PrizeTierStats = (props: { prizeTier: PrizeTierConfig }) => {
   )
 }
 
-const Stat = (props: { label: React.ReactNode; value: React.ReactNode }) => (
-  <div className='flex flex-col leading-none'>
+const Stat = (props: { label: React.ReactNode; value: React.ReactNode; errored?: boolean }) => (
+  <div
+    className={classNames('flex flex-col leading-none', {
+      'border-2 border-pt-red rounded p-2': props.errored
+    })}
+  >
     <div className='text-xs opacity-80 mb-1'>{props.label}</div>
-    <div className='font-bold text-sm'>{props.value}</div>
+    <div
+      className={classNames('font-bold text-sm', {
+        'text-pt-red': props.errored
+      })}
+    >
+      {props.value}
+    </div>
   </div>
 )
 

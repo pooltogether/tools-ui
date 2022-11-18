@@ -1,5 +1,10 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { isSavePrizeTiersModalOpenAtom, prizeTierEditsAtom } from '@prizeTierController/atoms'
+import { checkForPrizeCompatibility } from '@prizeTierController/utils/checkForPrizeCompatibility'
+import {
+  allCombinedPrizeTiersAtom,
+  isSavePrizeTiersModalOpenAtom,
+  prizeTierEditsAtom
+} from '@prizeTierController/atoms'
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
@@ -9,13 +14,16 @@ export const Actions = (props: { className?: string }) => {
   const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
   const resetForm = useResetAtom(prizeTierEditsAtom)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
+  const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
 
-  let editedPools: { chain: string; address: string }[] = []
-  Object.keys(allPrizeTierEdits).forEach((chain) => {
-    Object.keys(allPrizeTierEdits[chain]).forEach((address) => {
-      editedPools.push({ chain, address })
+  const editedPools: { chainId: string; address: string }[] = []
+  Object.keys(allPrizeTierEdits).forEach((chainId) => {
+    Object.keys(allPrizeTierEdits[chainId]).forEach((address) => {
+      editedPools.push({ chainId, address })
     })
   })
+
+  const prizeCompatibility = checkForPrizeCompatibility(combinedPrizeTiers)
 
   return (
     <div className={classNames(className, 'w-full flex justify-end space-x-2')}>
@@ -35,7 +43,7 @@ export const Actions = (props: { className?: string }) => {
           setIsOpen(true)
         }}
         size={ButtonSize.sm}
-        disabled={editedPools.length === 0}
+        disabled={editedPools.length === 0 || !prizeCompatibility.valid}
       >
         Save Edits
       </Button>
