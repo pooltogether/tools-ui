@@ -11,8 +11,8 @@ import {
 import { EditPrizeTierHistoryForm } from '@prizeTierController/EditPrizeTiersModal/EditPrizeTierHistoryForm'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
-import { getFormValuesFromPrizeTier } from '@prizeTierController/utils/getFormValuesFromPrizeTier'
-import { getPrizeTierFromFormValues } from '@prizeTierController/utils/getPrizeTierFromFormValues'
+import { formatFormValuesFromPrizeTier } from '@prizeTierController/utils/formatFormValuesFromPrizeTier'
+import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/formatPrizeTierFromFormValues'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
@@ -93,7 +93,7 @@ const SingularEdit = () => {
 
   const onSubmit = useCallback(
     (formValues: EditPrizeTierFormValues) => {
-      const newPrizeTierEdits = getPrizeTierFromFormValues(formValues, tokens?.token.decimals)
+      const newPrizeTierEdits = formatPrizeTierFromFormValues(formValues, tokens?.token.decimals)
       setPrizeTierEdits((prizeTierEdits) => {
         // TODO: should check if edits actually make it different from existing data
         const updatedPrizeTierEdits = { ...prizeTierEdits }
@@ -123,9 +123,9 @@ const SingularEdit = () => {
     const existingEdits =
       prizeTierEdits?.[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
     if (!!existingEdits) {
-      return getFormValuesFromPrizeTier(existingEdits, tokens.token.decimals, { round: true })
+      return formatFormValuesFromPrizeTier(existingEdits, tokens.token.decimals, { round: true })
     }
-    return getFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals, {
+    return formatFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals, {
       round: true
     })
   }, [

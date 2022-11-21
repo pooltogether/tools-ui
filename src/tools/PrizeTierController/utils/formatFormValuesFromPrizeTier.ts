@@ -3,7 +3,7 @@ import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
-export const getFormValuesFromPrizeTier = (
+export const formatFormValuesFromPrizeTier = (
   prizeTier: Partial<PrizeTierConfig>,
   decimals: BigNumberish,
   options?: { round?: boolean }

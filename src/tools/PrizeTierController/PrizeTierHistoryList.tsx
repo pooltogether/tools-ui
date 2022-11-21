@@ -14,7 +14,7 @@ import {
 import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { getCombinedPrizeTier } from '@prizeTierController/utils/getCombinedPrizeTier'
+import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import { checkForPrizeCompatibility } from '@prizeTierController/utils/checkForPrizeCompatibility'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
@@ -50,7 +50,7 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
-      <PrizePoolTitle prizePool={prizePool} className='mb-4' />
+      <PrizePoolTitle prizePool={prizePool} showLink className='mb-4' />
       {isFetched ? (
         <PrizeTierState prizePool={prizePool} prizeTier={data.upcomingPrizeTier} />
       ) : (
@@ -65,16 +65,22 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
  * @param props
  * @returns
  */
-export const PrizePoolTitle = (props: { prizePool: PrizePool; className?: string }) => (
+export const PrizePoolTitle = (props: {
+  prizePool: PrizePool
+  showLink?: boolean
+  className?: string
+}) => (
   <div className={classNames('flex justify-between font-bold', props.className)}>
     <div className='flex space-x-2 items-center'>
       <NetworkIcon chainId={props.prizePool.chainId} />
       <div>{getNetworkNiceNameByChainId(props.prizePool.chainId)}</div>
       <PrizePoolToken prizePool={props.prizePool} />
     </div>
-    <BlockExplorerLink address={props.prizePool.address} chainId={props.prizePool.chainId}>
-      <span>{`${props.prizePool.address.slice(0, 6)}...`}</span>
-    </BlockExplorerLink>
+    {props.showLink && (
+      <BlockExplorerLink address={props.prizePool.address} chainId={props.prizePool.chainId}>
+        <span>{`${props.prizePool.address.slice(0, 6)}...`}</span>
+      </BlockExplorerLink>
+    )}
   </div>
 )
 
@@ -102,7 +108,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   const { data: tokens } = usePrizePoolTokens(prizePool)
 
   // Calculating combined outcome of existing and edited prize tiers:
-  const combinedPrizeTier = getCombinedPrizeTier(prizeTier, prizeTierEdits)
+  const combinedPrizeTier = formatCombinedPrizeTier(prizeTier, prizeTierEdits)
   useEffect(() => {
     setCombinedPrizeTiers(() => {
       const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }

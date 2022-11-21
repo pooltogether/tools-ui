@@ -1,10 +1,13 @@
+import { usePrizePools } from '@hooks/usePrizePools'
 import { BottomSheet, Button } from '@pooltogether/react-components'
 import {
   isSavePrizeTiersModalOpenAtom,
   savePrizeTiersModalStateAtom,
-  SavePrizeTiersModalState
-  // prizeTierEditsAtom
+  SavePrizeTiersModalState,
+  allCombinedPrizeTiersAtom
 } from '@prizeTierController/atoms'
+import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
+import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
 import { useAtom } from 'jotai'
 
 export const SavePrizeTiersModal = () => {
@@ -27,16 +30,30 @@ export const SavePrizeTiersModal = () => {
   )
 }
 
-// TODO: use useIsUserDelegatorsRepresentative as example for checking contract owner/manager for each prize pool
-//  ^ modal should only allow transactions from wallets that are the owner/manager of a given pool
-
 const ReviewEdits = (props: { onContinue: Function }) => {
   const { onContinue } = props
-  // const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
-  // TODO: Show every edit that has been made in a easy to view list
+  const prizePools = usePrizePools()
+  const { data, isFetched } = useAllPrizeTierHistoryData()
+  const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+
   return (
     <div>
-      REVIEW VIEW
+      <p className='mb-4'>Review Edits:</p>
+      {isFetched ? (
+        <ul className='flex flex-col gap-4 mb-4'>
+          {prizePools.map((prizePool) => (
+            <PrizePoolEditsDisplay
+              prizePool={prizePool}
+              oldConfig={data[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]}
+              newConfig={
+                combinedPrizeTiers[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]
+              }
+            />
+          ))}
+        </ul>
+      ) : (
+        'Loading...'
+      )}
       <Button type='button' onClick={() => onContinue()}>
         Continue
       </Button>
@@ -47,8 +64,9 @@ const ReviewEdits = (props: { onContinue: Function }) => {
 const SaveEdits = (props: {}) => {
   // TODO: Set drawId to at LEAST `getNewestDrawId() + 1` - ensure this cannot be changed between transactions
   // TODO: Show all TXs to be executed (push)
+  // TODO: modal should only allow transactions from wallets that are the owner or manager of a given pool (use useIsUserDelegatorsRepresentative as example)
   // TODO: Show context for every TX being executed -> ready, ongoing, completed w/ block explorer link, failed, etc
   // TODO: Use `TXButton` or `TransactionButton`?
   // TODO: Use `useSendTransaction` to actually send tx data
-  return <div>TXS VIEW</div>
+  return <div>TXS VIEW (WIP)</div>
 }
