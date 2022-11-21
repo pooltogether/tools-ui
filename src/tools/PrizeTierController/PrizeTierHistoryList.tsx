@@ -128,7 +128,11 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
   const prizeCompatibility = checkForPrizeCompatibility(combinedPrizeTiers)
   const prizeAmountErrored =
-    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('prizeAmount')
+    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('prizeAmounts')
+  const maxPicksErrored =
+    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('maxPicks')
+  const bitRangeErrored =
+    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('bitRanges')
 
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
@@ -148,7 +152,13 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
           )}
           errored={prizeAmountErrored}
         />
-        {seeMore && <PrizeTierStats prizeTier={combinedPrizeTier} />}
+        {seeMore && (
+          <PrizeTierStats
+            prizeTier={combinedPrizeTier}
+            maxPicksErrored={maxPicksErrored}
+            bitRangeErrored={bitRangeErrored}
+          />
+        )}
       </div>
 
       {seeMore && (
@@ -181,13 +191,21 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
 }
 
-const PrizeTierStats = (props: { prizeTier: PrizeTierConfig }) => {
-  const { prizeTier } = props
+const PrizeTierStats = (props: {
+  prizeTier: PrizeTierConfig
+  maxPicksErrored: boolean
+  bitRangeErrored: boolean
+}) => {
+  const { prizeTier, maxPicksErrored, bitRangeErrored } = props
 
   return (
     <>
-      <Stat label='Max Picks Per User' value={prizeTier.maxPicksPerUser} />
-      <Stat label='Bit Range Size' value={prizeTier.bitRangeSize} />
+      <Stat
+        label='Max Picks Per User'
+        value={prizeTier.maxPicksPerUser}
+        errored={maxPicksErrored}
+      />
+      <Stat label='Bit Range Size' value={prizeTier.bitRangeSize} errored={bitRangeErrored} />
     </>
   )
 }
