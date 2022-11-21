@@ -18,8 +18,6 @@ export const Actions = (props: { className?: string }) => {
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
   const usersAddress = useUsersAddress()
 
-  // TODO: The save button should only be enabled if the address is the owner or manager of the prize tier history contract.
-
   const editedPools: { chainId: string; address: string }[] = []
   Object.keys(allPrizeTierEdits).forEach((chainId) => {
     Object.keys(allPrizeTierEdits[chainId]).forEach((address) => {
