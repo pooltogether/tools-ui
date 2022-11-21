@@ -96,7 +96,7 @@ const BitRangeSize = (props: {
         })}
       />
       <ErrorMessage>
-        {!!errors?.bitRangeSize?.message && typeof errors.bitRangeSize.message === 'string'
+        {!!errors.bitRangeSize?.message && typeof errors.bitRangeSize.message === 'string'
           ? errors.bitRangeSize.message
           : null}
       </ErrorMessage>
@@ -131,7 +131,7 @@ const ExpiryDuration = (props: {
         })}
       />
       <ErrorMessage>
-        {!!errors?.expiryDuration?.message && typeof errors.expiryDuration.message === 'string'
+        {!!errors.expiryDuration?.message && typeof errors.expiryDuration.message === 'string'
           ? errors.expiryDuration.message
           : null}
       </ErrorMessage>
@@ -165,7 +165,7 @@ const MaxPicksPerUser = (props: {
         })}
       />
       <ErrorMessage>
-        {!!errors?.maxPicksPerUser?.message && typeof errors.maxPicksPerUser.message === 'string'
+        {!!errors.maxPicksPerUser?.message && typeof errors.maxPicksPerUser.message === 'string'
           ? errors.maxPicksPerUser.message
           : null}
       </ErrorMessage>
@@ -200,7 +200,7 @@ const PrizeValue = (props: {
         disabled
       />
       <ErrorMessage>
-        {!!errors?.prize?.message && typeof errors.prize.message === 'string'
+        {!!errors.prize?.message && typeof errors.prize.message === 'string'
           ? errors.prize.message
           : null}
       </ErrorMessage>
@@ -238,7 +238,9 @@ const PrizeTiers = (props: {
               <StyledInput
                 id={item.id}
                 invalid={!!errors.tiers?.[index]}
-                className={classNames('w-full', { 'opacity-60': !!errors.tiers?.[index] })}
+                className={classNames('w-full', {
+                  'opacity-60': !errors.tiers?.[index] && tierValues[index] == 0
+                })}
                 {...register(`tiers.${index}.value`, {
                   validate: {
                     isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Tier',
@@ -252,8 +254,7 @@ const PrizeTiers = (props: {
               />
               {/* TODO: (BUG) Tier error messages are not being displayed. */}
               <ErrorMessage>
-                {!!errors?.tiers?.[index]?.message &&
-                typeof errors.tiers[index].message === 'string'
+                {!!errors.tiers?.[index]?.message && typeof errors.tiers[index].message === 'string'
                   ? errors.tiers?.[index]?.message
                   : null}
               </ErrorMessage>

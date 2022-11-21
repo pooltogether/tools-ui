@@ -29,7 +29,7 @@ export const getFormValuesFromPrizeTier = (
       )
       return {
         value: options?.round
-          ? parseFloat(calculatedPrize).toFixed(Number(decimals) - 1)
+          ? parseFloat(parseFloat(calculatedPrize).toFixed(Number(decimals) - 1)).toString()
           : calculatedPrize
       }
     })
