@@ -1,30 +1,23 @@
-import { DepositToken } from '@components/PrizePool/DepositToken'
 import { usePrizePools } from '@hooks/usePrizePools'
 import { usePrizePoolTokens } from '@pooltogether/hooks'
-import { BottomSheet, Tabs } from '@pooltogether/react-components'
+import { BottomSheet } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
 import {
-  // EditPrizeTierModalState,
-  // editPrizeTierModalStateAtom,
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
   selectedPrizePoolIdAtom,
-  selectedPrizeTierHistoryAddressAtom,
-  selectedPrizeTierHistoryChainIdAtom
+  selectedPrizeTierHistoryAddressAtom
 } from '@prizeTierController/atoms'
 import { EditPrizeTierHistoryForm } from '@prizeTierController/EditPrizeTiersModal/EditPrizeTierHistoryForm'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizeTierHistoryList'
 import { getFormValuesFromPrizeTier } from '@prizeTierController/utils/getFormValuesFromPrizeTier'
 import { getPrizeTierFromFormValues } from '@prizeTierController/utils/getPrizeTierFromFormValues'
-import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 
-export const EditPrizeTiersModal = (props: {}) => {
+export const EditPrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isEditPrizeTiersModalOpenAtom)
   // const [modalState, setModalState] = useAtom(editPrizeTierModalStateAtom)
 
@@ -92,12 +85,9 @@ export const EditPrizeTiersModal = (props: {}) => {
 const SingularEdit = () => {
   const setIsEditPrizeTierModalOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   const [prizeTierEdits, setPrizeTierEdits] = useAtom(prizeTierEditsAtom)
-  const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
-  const [prizeTierHistoryAddress, setSelectedPrizeTierHistoryAddress] = useAtom(
-    selectedPrizeTierHistoryAddressAtom
-  )
+  const [prizeTierHistoryAddress] = useAtom(selectedPrizeTierHistoryAddressAtom)
   const prizePools = usePrizePools()
-  const [selectedPrizePoolId, setSelectedPrizePoolId] = useAtom(selectedPrizePoolIdAtom)
+  const [selectedPrizePoolId] = useAtom(selectedPrizePoolIdAtom)
   const prizePool = prizePools.find((prizePool) => prizePool.id() === selectedPrizePoolId)
   const { data: tokens, isFetched: isTokensFetched } = usePrizePoolTokens(prizePool)
 
@@ -151,32 +141,6 @@ const SingularEdit = () => {
       <p className='mb-4'>
         Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:
       </p>
-      {/* <select
-        name='drawIds'
-        id='drawIds'
-        className={classNames(
-          'font-semibold transition border-2 border-accent-4 hover:border-default rounded-lg',
-          'px-3 flex flex-row text-xs xs:text-sm hover:text-inverse bg-primary'
-        )}
-        onChange={(event) => {
-          setSelectedPrizePoolId(event.target.value)
-          const prizePool = prizePools.find((prizePool) => prizePool.id() === event.target.value)
-          setSelectedPrizeTierHistoryAddress(prizePool.prizeTierHistoryMetadata.address)
-          setSelectedPrizeTierHistoryChainId(prizePool.chainId)
-        }}
-        value={selectedPrizePoolId}
-      >
-        {prizePools.map((prizePool) => (
-          <option key={`pt-option-${prizePool.id()}`} value={prizePool.id()}>
-            <div className='space-x-2'>
-              <span>{getNetworkNiceNameByChainId(prizePool.chainId)}</span>{' '}
-              <span>
-                <DepositToken prizePool={prizePool} />
-              </span>
-            </div>
-          </option>
-        ))}
-      </select> */}
       {!!selectedPrizePoolId && isTokensFetched && isPrizeTierFetched && (
         <EditPrizeTierHistoryForm
           onSubmit={onSubmit}

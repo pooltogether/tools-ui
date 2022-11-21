@@ -22,8 +22,6 @@ import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useEffect, useState } from 'react'
 import {
-  // EditPrizeTierModalState,
-  // editPrizeTierModalStateAtom,
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
   allCombinedPrizeTiersAtom,
@@ -132,11 +130,8 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   const prizeAmountErrored =
     prizeCompatibility.valid === false && prizeCompatibility.errors.includes('prizeAmount')
 
-  // console.log(prizePool.chainId, { prizeTierEdits, combinedPrizeTier, prizeTier })
-
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  // const setPrizeTierModalState = useUpdateAtom(editPrizeTierModalStateAtom)
   const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
   const setSelectedPrizeTierHistoryAddress = useUpdateAtom(selectedPrizeTierHistoryAddressAtom)
   const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
@@ -171,7 +166,6 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         <button onClick={() => setSeeMore(!seeMore)}>{seeMore ? 'See less' : 'See more'}</button>
         <Button
           onClick={() => {
-            // setPrizeTierModalState(EditPrizeTierModalState.singular)
             setSelectedPrizePoolId(prizePool.id())
             setSelectedPrizeTierHistoryAddress(prizePool.prizeTierHistoryMetadata.address)
             setSelectedPrizeTierHistoryChainId(prizePool.chainId)
