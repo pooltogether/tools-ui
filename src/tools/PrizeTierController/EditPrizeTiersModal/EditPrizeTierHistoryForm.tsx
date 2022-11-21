@@ -20,8 +20,9 @@ import {
 export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void
   defaultValues?: Partial<EditPrizeTierFormValues>
+  decimals: number
 }) => {
-  const { onSubmit, defaultValues } = props
+  const { onSubmit, defaultValues, decimals } = props
   const {
     handleSubmit,
     register,
@@ -36,9 +37,9 @@ export const EditPrizeTierHistoryForm = (props: {
   })
 
   // Reactively calculating prize value based on bitrange and tier changes:
-  const bitRange = watch('bitRangeSize')
-  const tierValues = watch('tiers').map((item) => item.value)
-  if (!!bitRange && tierValues.length > 0) {
+  const bitRange = parseInt(watch('bitRangeSize'))
+  const tierValues = watch('tiers').map((item) => Number(item.value))
+  if (!!bitRange && tierValues.length > 0 && tierValues.every((value) => !Number.isNaN(value))) {
     const totalValueOfPrizes = tierValues.reduce(
       (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
       0
@@ -54,7 +55,13 @@ export const EditPrizeTierHistoryForm = (props: {
         <MaxPicksPerUser errors={errors} register={register} />
         <PrizeValue errors={errors} register={register} />
       </div>
-      <PrizeTiers errors={errors} register={register} control={control} watch={watch} />
+      <PrizeTiers
+        errors={errors}
+        register={register}
+        control={control}
+        watch={watch}
+        decimals={decimals}
+      />
       <Button type='submit' disabled={!isValid}>
         Save
       </Button>
@@ -83,8 +90,8 @@ const BitRangeSize = (props: {
             message: 'Bit Range Size is required'
           },
           validate: {
-            isGreaterThanZero: (v) => v > 0 || 'Invalid Bit Range Size',
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size'
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size',
+            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Bit Range Size'
           }
         })}
       />
@@ -118,7 +125,8 @@ const ExpiryDuration = (props: {
             message: 'Expiry Duration is required'
           },
           validate: {
-            isGreaterThanZero: (v) => v > 0 || 'Invalid Expiry Duration'
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Expiry Duration',
+            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Expiry Duration'
           }
         })}
       />
@@ -151,8 +159,8 @@ const MaxPicksPerUser = (props: {
             message: 'Max Picks Per User is required'
           },
           validate: {
-            isGreaterThanZero: (v) => v > 0 || 'Invalid Max Picks Per User',
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User'
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User',
+            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Max Picks Per User'
           }
         })}
       />
@@ -185,6 +193,7 @@ const PrizeValue = (props: {
             message: 'Prize Value is required'
           },
           validate: {
+            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Value',
             isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
           }
         })}
@@ -204,11 +213,12 @@ const PrizeTiers = (props: {
   register: UseFormRegister<EditPrizeTierFormValues>
   control: Control<EditPrizeTierFormValues, any>
   watch: UseFormWatch<EditPrizeTierFormValues>
+  decimals: number
 }) => {
-  const { errors, register, control, watch } = props
+  const { errors, register, control, watch, decimals } = props
   const { fields } = useFieldArray({ control, name: 'tiers' })
-  const bitRange = watch('bitRangeSize')
-  const tierValues = watch('tiers').map((item) => item.value)
+  const bitRange = parseInt(watch('bitRangeSize'))
+  const tierValues = watch('tiers').map((item) => Number(item.value))
   const lastNonZeroTier = getLastNonZeroTier(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
 
@@ -228,13 +238,19 @@ const PrizeTiers = (props: {
               <StyledInput
                 id={item.id}
                 invalid={!!errors.tiers?.[index]}
-                className={classNames('w-full', { 'opacity-60': !(tierValues[index] > 0) })}
+                className={classNames('w-full', { 'opacity-60': !!errors.tiers?.[index] })}
                 {...register(`tiers.${index}.value`, {
                   validate: {
-                    isGreaterThanOrEqualToZero: (v) => v >= 0 || 'Invalid Prize Tier'
+                    isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Tier',
+                    isGreaterThanOrEqualToZero: (v) => parseFloat(v) >= 0 || 'Invalid Prize Tier',
+                    isNotTooSpecific: (v) =>
+                      v.split('.').length < 2 ||
+                      v.split('.')[1].length < decimals ||
+                      'Invalid Prize Tier (Too Many Decimals)'
                   }
                 })}
               />
+              {/* TODO: (BUG) Tier error messages are not being displayed. */}
               <ErrorMessage>
                 {!!errors?.tiers?.[index]?.message &&
                 typeof errors.tiers[index].message === 'string'

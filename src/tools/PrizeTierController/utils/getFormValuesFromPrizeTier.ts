@@ -9,33 +9,28 @@ export const getFormValuesFromPrizeTier = (
   options?: { round?: boolean }
 ): Partial<EditPrizeTierFormValues> => {
   const formValues: Partial<EditPrizeTierFormValues> = {
-    bitRangeSize: prizeTier.bitRangeSize,
-    expiryDuration: prizeTier.expiryDuration,
-    maxPicksPerUser: prizeTier.maxPicksPerUser,
+    bitRangeSize: prizeTier.bitRangeSize.toString(),
+    expiryDuration: prizeTier.expiryDuration.toString(),
+    maxPicksPerUser: prizeTier.maxPicksPerUser.toString(),
     prize: undefined,
     tiers: undefined
   }
   if (!!prizeTier.prize) {
     const formattedPrize = formatUnits(prizeTier.prize, decimals)
     formValues.prize = options?.round
-      ? parseFloat(parseFloat(formattedPrize).toFixed(2)).toString()
+      ? parseFloat(parseFloat(formattedPrize).toFixed(Number(decimals) - 1)).toString()
       : formattedPrize
   }
   if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
     formValues.tiers = prizeTier.tiers.map((tier, i) => {
-      const calculatedPrize = parseFloat(
-        formatUnits(
-          calculate.calculatePrizeForTierPercentage(
-            i,
-            tier,
-            prizeTier.bitRangeSize,
-            prizeTier.prize
-          ),
-          decimals
-        )
+      const calculatedPrize = formatUnits(
+        calculate.calculatePrizeForTierPercentage(i, tier, prizeTier.bitRangeSize, prizeTier.prize),
+        decimals
       )
       return {
-        value: options?.round ? parseFloat(calculatedPrize.toFixed(2)) : calculatedPrize
+        value: options?.round
+          ? parseFloat(calculatedPrize).toFixed(Number(decimals) - 1)
+          : calculatedPrize
       }
     })
   }

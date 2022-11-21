@@ -178,7 +178,11 @@ const SingularEdit = () => {
         ))}
       </select> */}
       {!!selectedPrizePoolId && isTokensFetched && isPrizeTierFetched && (
-        <EditPrizeTierHistoryForm onSubmit={onSubmit} defaultValues={defaultValues} />
+        <EditPrizeTierHistoryForm
+          onSubmit={onSubmit}
+          defaultValues={defaultValues}
+          decimals={parseInt(tokens.token.decimals)}
+        />
       )}
     </div>
   )
