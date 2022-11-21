@@ -8,6 +8,7 @@ import {
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 
 export const Actions = (props: { className?: string }) => {
   const { className } = props
@@ -15,6 +16,9 @@ export const Actions = (props: { className?: string }) => {
   const resetForm = useResetAtom(prizeTierEditsAtom)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+  const usersAddress = useUsersAddress()
+
+  // TODO: The save button should only be enabled if the address is the owner or manager of the prize tier history contract.
 
   const editedPools: { chainId: string; address: string }[] = []
   Object.keys(allPrizeTierEdits).forEach((chainId) => {
@@ -43,7 +47,7 @@ export const Actions = (props: { className?: string }) => {
           setIsOpen(true)
         }}
         size={ButtonSize.sm}
-        disabled={editedPools.length === 0 || !prizeCompatibility.valid}
+        disabled={usersAddress === null || editedPools.length === 0 || !prizeCompatibility.valid}
       >
         Save Edits
       </Button>

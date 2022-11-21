@@ -8,9 +8,9 @@ export const getPrizeTierFromFormValues = (
   decimals: BigNumberish
 ): Partial<PrizeTierConfig> => {
   const prizeTier: Partial<PrizeTierConfig> = {
-    bitRangeSize: formValues.bitRangeSize,
-    expiryDuration: formValues.expiryDuration,
-    maxPicksPerUser: formValues.maxPicksPerUser,
+    bitRangeSize: parseInt(formValues.bitRangeSize),
+    expiryDuration: parseInt(formValues.expiryDuration),
+    maxPicksPerUser: parseInt(formValues.maxPicksPerUser),
     prize: undefined,
     tiers: undefined
   }
@@ -24,7 +24,7 @@ export const getPrizeTierFromFormValues = (
           .calculateTierPercentageForPrize(
             i,
             parseUnits(tier.value.toString(), decimals),
-            formValues.bitRangeSize,
+            parseInt(formValues.bitRangeSize),
             prizeTier.prize
           )
           .toNumber()
