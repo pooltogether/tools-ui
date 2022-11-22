@@ -5,7 +5,9 @@ import {
   allCombinedPrizeTiersAtom
 } from '@prizeTierController/atoms'
 import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
+import { usePrizeTierHistoryNewestDrawId } from '@prizeTierController/hooks/usePrizeTierHistoryNewestDrawId'
 import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
+import { DrawIdForm } from '@prizeTierController/SavePrizeTiersModal/DrawIdForm'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 
@@ -47,15 +49,21 @@ const ReviewEdits = (props: { onContinue: Function }) => {
       <p className='mb-4'>Review Edits:</p>
       {isFetched ? (
         <ul className='flex flex-col gap-4 mb-4'>
-          {prizePools.map((prizePool) => (
-            <PrizePoolEditsDisplay
-              prizePool={prizePool}
-              oldConfig={data[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]}
-              newConfig={
-                combinedPrizeTiers[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]
-              }
-            />
-          ))}
+          {prizePools.map(
+            (prizePool) =>
+              combinedPrizeTiers[prizePool.chainId] && (
+                <PrizePoolEditsDisplay
+                  prizePool={prizePool}
+                  oldConfig={data[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]}
+                  newConfig={
+                    combinedPrizeTiers[prizePool.chainId][
+                      prizePool.prizeTierHistoryMetadata.address
+                    ]
+                  }
+                  key={`prizePoolEdits-${prizePool.id()}`}
+                />
+              )
+          )}
         </ul>
       ) : (
         'Loading...'
@@ -67,12 +75,29 @@ const ReviewEdits = (props: { onContinue: Function }) => {
   )
 }
 
-const SaveEdits = (props: {}) => {
-  // TODO: Set drawId to at LEAST `getNewestDrawId() + 1` - ensure this cannot be changed between transactions
+const SaveEdits = () => {
+  const prizePools = usePrizePools()
+  const { data, isFetched } = usePrizeTierHistoryNewestDrawId(prizePools[0])
+  const [drawId, setDrawId] = useState(0)
+
   // TODO: Show all TXs to be executed (push)
-  // TODO: modal should only allow transactions from wallets that are the owner or manager of a given pool (use useIsUserDelegatorsRepresentative as example)
+  // TODO: modal should only allow transactions from wallets that are the owner or manager of a given pool
   // TODO: Show context for every TX being executed -> ready, ongoing, completed w/ block explorer link, failed, etc
   // TODO: Use `TXButton` or `TransactionButton`?
   // TODO: Use `useSendTransaction` to actually send tx data
-  return <div>TXS VIEW (WIP)</div>
+
+  return (
+    <div>
+      <p className='mb-4'>Submit Transactions:</p>
+      {isFetched ? (
+        <DrawIdForm
+          onChange={(value) => setDrawId(value)}
+          defaultValues={{ drawId: (data.newestDrawId + 3).toString() }}
+          minDrawId={data.newestDrawId + 1}
+        />
+      ) : (
+        'Loading...'
+      )}
+    </div>
+  )
 }

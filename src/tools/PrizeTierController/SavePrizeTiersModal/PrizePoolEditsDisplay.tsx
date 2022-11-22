@@ -18,7 +18,7 @@ export const PrizePoolEditsDisplay = (props: {
 
   if (edits.edited) {
     return (
-      <li key={`prize-pool-edits-${prizePool.id()}`}>
+      <li>
         <PrizePoolTitle prizePool={prizePool} className='mb-4' />
         <div className='flex flex-col gap-2'>
           {edits.bitRangeSize && (
