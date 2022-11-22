@@ -79,12 +79,7 @@ export const EditPromotionModal = (props: {
     )
   }
 
-  const disableExtend =
-    !isAllowanceFetched ||
-    !tokenDataIsFetched ||
-    !isAllowanceValid ||
-    !isValid ||
-    usersAddress !== currentAccount
+  const disableExtend = !isAllowanceFetched || !tokenDataIsFetched || !isAllowanceValid || !isValid
 
   return (
     <BottomSheet isOpen={isOpen} closeModal={closeModal} className='flex flex-col space-y-4'>
@@ -127,41 +122,45 @@ export const EditPromotionModal = (props: {
           </span>
         </div>
       </div>
-      {!isAllowanceValid && (
+      {usersAddress === currentAccount && (
         <>
-          <ModalApproveGate
-            chainId={chainId}
-            amountUnformatted={additionalTokensNeeded}
-            token={promotion?.token}
-            tokenData={tokenData}
-            twabRewardsAllowanceRefetch={twabRewardsAllowanceRefetch}
-          />
+          {!isAllowanceValid && (
+            <>
+              <ModalApproveGate
+                chainId={chainId}
+                amountUnformatted={additionalTokensNeeded}
+                token={promotion?.token}
+                tokenData={tokenData}
+                twabRewardsAllowanceRefetch={twabRewardsAllowanceRefetch}
+              />
+            </>
+          )}
+          {(!transaction || transaction.state === TransactionState.pending) && (
+            <TxButton
+              disabled={disableExtend}
+              chainId={chainId}
+              onClick={submitExtendTransaction}
+              state={transaction?.state}
+              status={transaction?.status}
+            >
+              Extend Promotion
+            </TxButton>
+          )}
+          {!!transaction?.response?.hash && (
+            <TransactionReceiptButton transaction={transaction} chainId={chainId} />
+          )}
+          {transaction?.state === TransactionState.complete && (
+            <Button
+              theme={ButtonTheme.orangeOutline}
+              onClick={() => {
+                reset()
+                setTransactionId('')
+              }}
+            >
+              Reset Form
+            </Button>
+          )}
         </>
-      )}
-      {(!transaction || transaction.state === TransactionState.pending) && (
-        <TxButton
-          disabled={disableExtend}
-          chainId={chainId}
-          onClick={submitExtendTransaction}
-          state={transaction?.state}
-          status={transaction?.status}
-        >
-          Extend Promotion
-        </TxButton>
-      )}
-      {!!transaction?.response?.hash && (
-        <TransactionReceiptButton transaction={transaction} chainId={chainId} />
-      )}
-      {transaction?.state === TransactionState.complete && (
-        <Button
-          theme={ButtonTheme.orangeOutline}
-          onClick={() => {
-            reset()
-            setTransactionId('')
-          }}
-        >
-          Reset Form
-        </Button>
       )}
     </BottomSheet>
   )

@@ -34,7 +34,7 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
           {promotions?.map((promotion, index) => {
             return (
               <PromotionRow
-                key={`slot-${promotion.createdAt.toString()}`}
+                key={`promo-${promotion.id}`}
                 index={index}
                 promotion={promotion}
                 chainId={chainId}
