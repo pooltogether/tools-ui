@@ -45,26 +45,13 @@ export const setPrizeTierControllerChainAtom = atom<null, number>(null, (get, se
   set(prizeTierControllerChainIdAtom, chainId)
 })
 
-// export enum EditPrizeTierModalState {
-//   'all' = 'all',
-//   'singular' = 'singular'
-// }
-export enum SavePrizeTiersModalState {
-  'review' = 'review',
-  'txs' = 'txs'
-}
-
 export const isEditPrizeTiersModalOpenAtom = atom(false)
 export const isSavePrizeTiersModalOpenAtom = atom(false)
+
 export const selectedPrizePoolIdAtom = atom<string>('')
 export const selectedPrizeTierHistoryAddressAtom = atom<string>('')
 export const selectedPrizeTierHistoryChainIdAtom = atom<number>(-1)
-// export const editPrizeTierModalStateAtom = atom<EditPrizeTierModalState>(
-//   EditPrizeTierModalState.singular
-// )
-export const savePrizeTiersModalStateAtom = atom<SavePrizeTiersModalState>(
-  SavePrizeTiersModalState.review
-)
+
 export const prizeTierEditsAtom = atomWithReset<{
   [chainId: number]: { [prizeTierHistoryAddress: string]: Partial<PrizeTierConfig> }
 }>({})

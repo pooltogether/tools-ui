@@ -17,9 +17,16 @@ import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
 
+// enum EditPrizeTierModalState {
+//   'all' = 'all',
+//   'simple' = 'simple'
+// }
+
 export const EditPrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isEditPrizeTiersModalOpenAtom)
-  // const [modalState, setModalState] = useAtom(editPrizeTierModalStateAtom)
+  // const [modalState, setModalState] = useState<EditPrizeTierModalState>(
+  //   EditPrizeTierModalState.simple
+  // )
 
   return (
     <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)}>
@@ -28,18 +35,18 @@ export const EditPrizeTiersModal = () => {
           {
             id: EditPrizeTierModalState.all,
             view: <BulkEdit />,
-            title: 'Bulk edit'
+            title: 'Bulk Edit'
           },
           {
-            id: EditPrizeTierModalState.singular,
-            view: <SingularEdit />,
-            title: 'Singular edit'
+            id: EditPrizeTierModalState.simple,
+            view: <SimpleEdit />,
+            title: 'Simple Edit'
           }
         ]}
         onTabSelect={(tab) => setModalState(tab.id as EditPrizeTierModalState)}
         initialTabId={modalState}
       /> */}
-      <SingularEdit />
+      <SimpleEdit />
     </BottomSheet>
   )
 }
@@ -82,7 +89,7 @@ export const EditPrizeTiersModal = () => {
 //   )
 // }
 
-const SingularEdit = () => {
+const SimpleEdit = () => {
   const setIsEditPrizeTierModalOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   const [prizeTierEdits, setPrizeTierEdits] = useAtom(prizeTierEditsAtom)
   const [prizeTierHistoryAddress] = useAtom(selectedPrizeTierHistoryAddressAtom)

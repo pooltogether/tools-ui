@@ -2,17 +2,23 @@ import { usePrizePools } from '@hooks/usePrizePools'
 import { BottomSheet, Button } from '@pooltogether/react-components'
 import {
   isSavePrizeTiersModalOpenAtom,
-  savePrizeTiersModalStateAtom,
-  SavePrizeTiersModalState,
   allCombinedPrizeTiersAtom
 } from '@prizeTierController/atoms'
 import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
 import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
 import { useAtom } from 'jotai'
+import { useState } from 'react'
+
+enum SavePrizeTiersModalState {
+  'review' = 'review',
+  'txs' = 'txs'
+}
 
 export const SavePrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isSavePrizeTiersModalOpenAtom)
-  const [modalState, setModalState] = useAtom(savePrizeTiersModalStateAtom)
+  const [modalState, setModalState] = useState<SavePrizeTiersModalState>(
+    SavePrizeTiersModalState.review
+  )
 
   return (
     <BottomSheet

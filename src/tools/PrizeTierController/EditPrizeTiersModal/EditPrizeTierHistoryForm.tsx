@@ -4,10 +4,10 @@ import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { calculate, calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
-import { getLastNonZeroTier } from '@prizeTierController/utils/getLastNonZeroTier'
+import { getLastNonZeroTierIndex } from '@prizeTierController/utils/getLastNonZeroTierIndex'
 import classNames from 'classnames'
 import { utils } from 'ethers'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   FieldErrorsImpl,
   useForm,
@@ -16,6 +16,7 @@ import {
   useFieldArray,
   Control
 } from 'react-hook-form'
+import useDebouncedCallback from 'beautiful-react-hooks/useDebouncedCallback'
 
 export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void
@@ -39,13 +40,22 @@ export const EditPrizeTierHistoryForm = (props: {
   // Reactively calculating prize value based on bitrange and tier changes:
   const bitRange = parseInt(watch('bitRangeSize'))
   const tierValues = watch('tiers').map((item) => Number(item.value))
-  if (!!bitRange && tierValues.length > 0 && tierValues.every((value) => !Number.isNaN(value))) {
-    const totalValueOfPrizes = tierValues.reduce(
-      (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
-      0
-    )
-    setValue('prize', totalValueOfPrizes.toString())
-  }
+  const updatePrizeValue = useDebouncedCallback((bitRange: number, tierValues: number[]) => {
+    if (!!bitRange && tierValues.length > 0 && tierValues.every((value) => !Number.isNaN(value))) {
+      const totalValueOfPrizes = tierValues.reduce(
+        (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
+        0
+      )
+      setValue('prize', totalValueOfPrizes.toString())
+    }
+  })
+  useEffect(() => {
+    updatePrizeValue(bitRange, tierValues)
+    return () => updatePrizeValue.cancel()
+  }, [bitRange, tierValues])
+
+  // TODO: The form should include `endTimestampOffset`
+  // TODO: Less common edits like bit range, expiry duration, max picks and end timestamp offsets should be hidden by default under an "extra" or "advanced" toggle/button
 
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
@@ -219,7 +229,7 @@ const PrizeTiers = (props: {
   const { fields } = useFieldArray({ control, name: 'tiers' })
   const bitRange = parseInt(watch('bitRangeSize'))
   const tierValues = watch('tiers').map((item) => Number(item.value))
-  const lastNonZeroTier = getLastNonZeroTier(tierValues)
+  const lastNonZeroTier = getLastNonZeroTierIndex(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
 
   return (
