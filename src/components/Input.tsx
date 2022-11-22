@@ -33,7 +33,7 @@ export const StyledInput: React.FC<InputProps & { invalid?: boolean }> = React.f
         className={classNames(
           className,
           'transition',
-          'focus:outline-none focus:ring-2 focus:ring-pt-teal hover:ring-opacity-50',
+          'focus:outline-none focus:ring-2 focus:ring-pt-teal hover:ring-opacity-50 bg-white dark:bg-actually-black dark:bg-opacity-20',
           { 'ring-2 ring-pt-red-light': invalid }
         )}
       />
