@@ -14,6 +14,7 @@ export const PrizePoolEditsDisplay = (props: {
   const edits = checkForPrizeEdits(oldConfig, newConfig)
 
   // TODO: Allow user to pick if they want to see tier percentages or prize amount changes
+  // TODO: Style this so it looks nicer :)
 
   if (edits.edited) {
     return (
