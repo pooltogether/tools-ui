@@ -4,9 +4,9 @@ import { BigNumber } from 'ethers'
 type CompatibilityError = 'prizeAmounts' | 'maxPicks' | 'bitRanges'
 
 /**
- * Returns any compatibility errors between pool configs.
+ * Checks for any compatibility errors between pool configs.
  * @param prizePoolConfigs - The configurations of all prize pools.
- * @returns Array of errors found
+ * @returns Array of errors found.
  */
 export const checkForPrizeCompatibility = (prizePoolConfigs: {
   [chainId: number]: { [prizeTierHistoryAddress: string]: PrizeTierConfig }
