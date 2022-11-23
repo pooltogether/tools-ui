@@ -53,7 +53,6 @@ export const PrizePoolTransactionDisplay = (props: {
     !isManagerFetched ||
     (usersAddress !== ownerData.owner && usersAddress !== managerData.manager)
 
-  // TODO: show block explorer link under txbutton when appropriate
   // TODO: allow user to copy current config as json onto clipboard
 
   if (edits.edited) {

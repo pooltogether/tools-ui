@@ -232,6 +232,9 @@ const PrizeTiers = (props: {
   const lastNonZeroTier = getLastNonZeroTierIndex(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
 
+  // TODO: undefined (no input) prize tiers should not error - just assume as 0
+  // TODO: should not be able to remove an errored tier
+
   return (
     <div>
       {fields.map((item, index) => {
