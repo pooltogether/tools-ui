@@ -10,7 +10,7 @@ import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/
 import { PrizePoolTransactionDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolTransactionDisplay'
 import { DrawIdForm } from '@prizeTierController/SavePrizeTiersModal/DrawIdForm'
 import { useAtom } from 'jotai'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { checkForPrizeEdits } from '@prizeTierController/utils/checkForPrizeEdits'
 import { PrizePoolEditHistory } from '@prizeTierController/interfaces'
 
@@ -28,10 +28,9 @@ export const SavePrizeTiersModal = () => {
   const { data, isFetched } = useAllPrizeTierHistoryData()
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
 
-  let allPrizePoolConfigEdits: PrizePoolEditHistory[] = []
-  useEffect(() => {
+  const allPrizePoolConfigEdits = useMemo(() => {
     if (isFetched) {
-      allPrizePoolConfigEdits = prizePools.map((prizePool) => {
+      return prizePools.map((prizePool) => {
         if (combinedPrizeTiers[prizePool.chainId]) {
           const oldConfig = data[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]
           const newConfig =
@@ -71,20 +70,23 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
     <div>
       <p className='mb-4'>Review Edits:</p>
       <ul className='flex flex-col gap-4 mb-4'>
-        {allEdits.map((edit) => (
+        {allEdits.map((editHistory) => (
           <PrizePoolEditsDisplay
-            prizePool={edit.prizePool}
-            oldConfig={edit.oldConfig}
-            newConfig={edit.newConfig}
-            edits={edit.edits}
-            key={`prizePoolEdits-${edit.prizePool.id()}`}
+            prizePool={editHistory.prizePool}
+            oldConfig={editHistory.oldConfig}
+            newConfig={editHistory.newConfig}
+            edits={editHistory.edits}
+            key={`prizePoolEdits-${editHistory.prizePool.id()}`}
           />
         ))}
       </ul>
-      ) : ( 'Loading...' )
-      <Button type='button' onClick={() => onContinue()}>
-        Continue
-      </Button>
+      {allEdits.every((editHistory) => !editHistory.edits.edited) ? (
+        'No edits.'
+      ) : (
+        <Button type='button' onClick={() => onContinue()}>
+          Continue
+        </Button>
+      )}
     </div>
   )
 }
@@ -106,13 +108,13 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
             minDrawId={data.newestDrawId + 1}
           />
           <ul className='flex flex-col gap-4 mb-4'>
-            {allEdits.map((edit) => (
+            {allEdits.map((editHistory) => (
               <PrizePoolTransactionDisplay
-                prizePool={edit.prizePool}
-                newConfig={edit.newConfig}
-                edits={edit.edits}
+                prizePool={editHistory.prizePool}
+                newConfig={editHistory.newConfig}
+                edits={editHistory.edits}
                 drawId={drawId}
-                key={`prizePoolTXs-${edit.prizePool.id()}`}
+                key={`prizePoolTXs-${editHistory.prizePool.id()}`}
               />
             ))}
           </ul>
