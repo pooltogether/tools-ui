@@ -1,7 +1,7 @@
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
+import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
 import { PrizePoolTitle } from '@prizeTierController/PrizeTierHistoryList'
-import { checkForPrizeEdits } from '@prizeTierController/utils/checkForPrizeEdits'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 
@@ -9,9 +9,9 @@ export const PrizePoolEditsDisplay = (props: {
   prizePool: PrizePool
   oldConfig: PrizeTierConfig
   newConfig: PrizeTierConfig
+  edits: PrizeTierEditsCheck
 }) => {
-  const { prizePool, oldConfig, newConfig } = props
-  const edits = checkForPrizeEdits(oldConfig, newConfig)
+  const { prizePool, oldConfig, newConfig, edits } = props
 
   // TODO: Allow user to pick if they want to see tier percentages or prize amount changes
   // TODO: Style this so it looks nicer :)

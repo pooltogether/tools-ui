@@ -1,3 +1,5 @@
+import { PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
+
 export interface EditPrizeTierFormValues {
   bitRangeSize: string
   expiryDuration: string
@@ -13,4 +15,11 @@ export interface PrizeTierEditsCheck {
   maxPicksPerUser: boolean
   prize: boolean
   tiers: boolean[]
+}
+
+export interface PrizePoolEditHistory {
+  prizePool: PrizePool
+  oldConfig: PrizeTierConfig
+  newConfig: PrizeTierConfig
+  edits: PrizeTierEditsCheck
 }
