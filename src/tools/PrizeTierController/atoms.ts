@@ -2,6 +2,8 @@ import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 
+export const isPrizeTierListCollapsed = atom(true)
+
 export const isEditPrizeTiersModalOpenAtom = atom(false)
 export const isSavePrizeTiersModalOpenAtom = atom(false)
 

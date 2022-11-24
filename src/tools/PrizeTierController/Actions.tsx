@@ -1,5 +1,9 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { isSavePrizeTiersModalOpenAtom, prizeTierEditsAtom } from '@prizeTierController/atoms'
+import {
+  isPrizeTierListCollapsed,
+  isSavePrizeTiersModalOpenAtom,
+  prizeTierEditsAtom
+} from '@prizeTierController/atoms'
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
@@ -9,6 +13,7 @@ export const Actions = (props: { className?: string }) => {
   const { className } = props
   const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
   const resetForm = useResetAtom(prizeTierEditsAtom)
+  const [isCollapsed, setIsCollapsed] = useAtom(isPrizeTierListCollapsed)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
   const usersAddress = useUsersAddress()
 
@@ -20,7 +25,13 @@ export const Actions = (props: { className?: string }) => {
   })
 
   return (
-    <div className={classNames(className, 'w-full flex justify-end space-x-2')}>
+    <div className={classNames(className, 'w-full flex justify-end items-center space-x-2')}>
+      <span
+        className='text-xxs cursor-pointer select-none mr-2 opacity-80'
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? 'Expand All' : 'Collapse All'}
+      </span>
       {editedPools.length > 0 && (
         <Button
           onClick={() => {

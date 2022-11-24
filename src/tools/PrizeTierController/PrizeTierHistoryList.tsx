@@ -13,6 +13,7 @@ import {
 } from '@pooltogether/utilities'
 import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
+import { isPrizeTierListCollapsed } from '@prizeTierController/atoms'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import classNames from 'classnames'
@@ -139,6 +140,11 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
   const setSelectedPrizeTierHistoryAddress = useUpdateAtom(selectedPrizeTierHistoryAddressAtom)
   const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
+
+  const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
+  useEffect(() => {
+    setSeeMore(!isCollapsed)
+  }, [isCollapsed])
 
   return (
     <div>
