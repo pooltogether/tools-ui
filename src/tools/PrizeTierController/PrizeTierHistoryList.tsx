@@ -15,7 +15,7 @@ import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-j
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
-import { checkForPrizeCompatibility } from '@prizeTierController/utils/checkForPrizeCompatibility'
+import { checkForPrizeCompatibilityErrors } from '@prizeTierController/utils/checkForPrizeCompatibilityErrors'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -47,6 +47,8 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
   const { prizePool } = props
 
   const { data, isFetched } = usePrizeTierHistoryData(prizePool)
+
+  // TODO: Need to display errored icon when this pool isn't in sync with others
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
@@ -132,13 +134,13 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
-  const prizeCompatibility = checkForPrizeCompatibility(combinedPrizeTiers)
-  const prizeAmountErrored =
-    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('prizeAmounts')
-  const maxPicksErrored =
-    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('maxPicks')
-  const bitRangeErrored =
-    prizeCompatibility.valid === false && prizeCompatibility.errors.includes('bitRanges')
+  const allPrizeCompatibilityErrors = checkForPrizeCompatibilityErrors(combinedPrizeTiers)
+  const prizeTierErrors =
+    allPrizeCompatibilityErrors.find(
+      (entry) =>
+        entry.chainId === prizePool.chainId &&
+        entry.address === prizePool.prizeTierHistoryMetadata.address
+    )?.errors || []
 
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
@@ -156,13 +158,13 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
             combinedPrizeTier.prize,
             tokens?.token.decimals
           )}
-          errored={prizeAmountErrored}
+          errored={prizeTierErrors.includes('prizeAmount')}
         />
         {seeMore && (
           <PrizeTierStats
             prizeTier={combinedPrizeTier}
-            maxPicksErrored={maxPicksErrored}
-            bitRangeErrored={bitRangeErrored}
+            maxPicksErrored={prizeTierErrors.includes('maxPicks')}
+            bitRangeErrored={prizeTierErrors.includes('bitRange')}
           />
         )}
       </div>
@@ -216,6 +218,7 @@ const PrizeTierStats = (props: {
   )
 }
 
+// TODO: An errored stat should show a warning icon instead of red highlights and border
 const Stat = (props: { label: React.ReactNode; value: React.ReactNode; errored?: boolean }) => (
   <div
     className={classNames('flex flex-col leading-none', {

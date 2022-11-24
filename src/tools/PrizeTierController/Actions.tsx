@@ -1,5 +1,5 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { checkForPrizeCompatibility } from '@prizeTierController/utils/checkForPrizeCompatibility'
+import { checkForPrizeCompatibilityErrors } from '@prizeTierController/utils/checkForPrizeCompatibilityErrors'
 import {
   allCombinedPrizeTiersAtom,
   isSavePrizeTiersModalOpenAtom,
@@ -25,7 +25,7 @@ export const Actions = (props: { className?: string }) => {
     })
   })
 
-  const prizeCompatibility = checkForPrizeCompatibility(combinedPrizeTiers)
+  const prizeCompatibilityErrors = checkForPrizeCompatibilityErrors(combinedPrizeTiers)
 
   return (
     <div className={classNames(className, 'w-full flex justify-end space-x-2')}>
@@ -45,7 +45,9 @@ export const Actions = (props: { className?: string }) => {
           setIsOpen(true)
         }}
         size={ButtonSize.sm}
-        disabled={usersAddress === null || editedPools.length === 0 || !prizeCompatibility.valid}
+        disabled={
+          usersAddress === null || editedPools.length === 0 || prizeCompatibilityErrors.length > 0
+        }
       >
         Save Edits
       </Button>
