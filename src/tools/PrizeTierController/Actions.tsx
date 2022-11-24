@@ -1,10 +1,5 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { checkForPrizeCompatibilityErrors } from '@prizeTierController/utils/checkForPrizeCompatibilityErrors'
-import {
-  allCombinedPrizeTiersAtom,
-  isSavePrizeTiersModalOpenAtom,
-  prizeTierEditsAtom
-} from '@prizeTierController/atoms'
+import { isSavePrizeTiersModalOpenAtom, prizeTierEditsAtom } from '@prizeTierController/atoms'
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
@@ -15,7 +10,6 @@ export const Actions = (props: { className?: string }) => {
   const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
   const resetForm = useResetAtom(prizeTierEditsAtom)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
-  const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
   const usersAddress = useUsersAddress()
 
   const editedPools: { chainId: string; address: string }[] = []
@@ -24,8 +18,6 @@ export const Actions = (props: { className?: string }) => {
       editedPools.push({ chainId, address })
     })
   })
-
-  const prizeCompatibilityErrors = checkForPrizeCompatibilityErrors(combinedPrizeTiers)
 
   return (
     <div className={classNames(className, 'w-full flex justify-end space-x-2')}>
@@ -45,9 +37,7 @@ export const Actions = (props: { className?: string }) => {
           setIsOpen(true)
         }}
         size={ButtonSize.sm}
-        disabled={
-          usersAddress === null || editedPools.length === 0 || prizeCompatibilityErrors.length > 0
-        }
+        disabled={usersAddress === null || editedPools.length === 0}
       >
         Save Edits
       </Button>

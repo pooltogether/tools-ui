@@ -15,7 +15,6 @@ import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-j
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
-import { checkForPrizeCompatibilityErrors } from '@prizeTierController/utils/checkForPrizeCompatibilityErrors'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -47,8 +46,6 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
   const { prizePool } = props
 
   const { data, isFetched } = usePrizeTierHistoryData(prizePool)
-
-  // TODO: Need to display errored icon when this pool isn't in sync with others
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
@@ -123,6 +120,9 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
     })
   }, [prizeTierEdits])
 
+  const defaultNumberofPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
+  const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
+
   const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
   const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
     calculate.calculatePrizeForTierPercentage(
@@ -134,14 +134,6 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
-  const allPrizeCompatibilityErrors = checkForPrizeCompatibilityErrors(combinedPrizeTiers)
-  const prizeTierErrors =
-    allPrizeCompatibilityErrors.find(
-      (entry) =>
-        entry.chainId === prizePool.chainId &&
-        entry.address === prizePool.prizeTierHistoryMetadata.address
-    )?.errors || []
-
   const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
@@ -151,20 +143,23 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   return (
     <div>
       <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': seeMore })}>
-        <Stat label='Total Prizes' value={totalPrizes} />
+        <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
         <Stat
           label='Total Value'
           value={formatUnformattedBigNumberForDisplay(
             combinedPrizeTier.prize,
             tokens?.token.decimals
           )}
-          errored={prizeTierErrors.includes('prizeAmount')}
+          defaultValue={formatUnformattedBigNumberForDisplay(
+            prizeTier.prize,
+            tokens?.token.decimals
+          )}
         />
         {seeMore && (
           <PrizeTierStats
             prizeTier={combinedPrizeTier}
-            maxPicksErrored={prizeTierErrors.includes('maxPicks')}
-            bitRangeErrored={prizeTierErrors.includes('bitRange')}
+            defaultMaxPicksValue={prizeTier.maxPicksPerUser}
+            defaultBitRangeValue={prizeTier.bitRangeSize}
           />
         )}
       </div>
@@ -201,37 +196,52 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
 const PrizeTierStats = (props: {
   prizeTier: PrizeTierConfig
-  maxPicksErrored: boolean
-  bitRangeErrored: boolean
+  defaultMaxPicksValue: number
+  defaultBitRangeValue: number
 }) => {
-  const { prizeTier, maxPicksErrored, bitRangeErrored } = props
+  const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue } = props
 
   return (
     <>
       <Stat
         label='Max Picks Per User'
         value={prizeTier.maxPicksPerUser}
-        errored={maxPicksErrored}
+        defaultValue={defaultMaxPicksValue}
       />
-      <Stat label='Bit Range Size' value={prizeTier.bitRangeSize} errored={bitRangeErrored} />
+      <Stat
+        label='Bit Range Size'
+        value={prizeTier.bitRangeSize}
+        defaultValue={defaultBitRangeValue}
+      />
     </>
   )
 }
 
-// TODO: An errored stat should show a warning icon instead of red highlights and border
-const Stat = (props: { label: React.ReactNode; value: React.ReactNode; errored?: boolean }) => (
-  <div
-    className={classNames('flex flex-col leading-none', {
-      'border-2 border-pt-red rounded p-2': props.errored
-    })}
-  >
+const Stat = (props: { label: string; value: number | string; defaultValue?: number | string }) => (
+  <div className='flex flex-col leading-none'>
     <div className='text-xs opacity-80 mb-1'>{props.label}</div>
-    <div
-      className={classNames('font-bold text-sm', {
-        'text-pt-red': props.errored
-      })}
-    >
-      {props.value}
+    <div className='flex gap-2 font-bold text-sm'>
+      {props.defaultValue !== undefined && props.value !== props.defaultValue && (
+        <span className='line-through opacity-40'>{props.defaultValue}</span>
+      )}
+      <span
+        className={classNames({
+          'text-pt-green':
+            !!props.defaultValue &&
+            (typeof props.value === 'string' && typeof props.defaultValue === 'string'
+              ? parseFloat(props.value.replaceAll(',', '')) >
+                parseFloat(props.defaultValue.replaceAll(',', ''))
+              : props.value > props.defaultValue),
+          'text-pt-red':
+            !!props.defaultValue &&
+            (typeof props.value === 'string' && typeof props.defaultValue === 'string'
+              ? parseFloat(props.value.replaceAll(',', '')) <
+                parseFloat(props.defaultValue.replaceAll(',', ''))
+              : props.value < props.defaultValue)
+        })}
+      >
+        {props.value}
+      </span>
     </div>
   </div>
 )
