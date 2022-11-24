@@ -11,6 +11,7 @@ export const formatPrizeTierFromFormValues = (
     bitRangeSize: parseInt(formValues.bitRangeSize),
     expiryDuration: parseInt(formValues.expiryDuration),
     maxPicksPerUser: parseInt(formValues.maxPicksPerUser),
+    endTimestampOffset: parseInt(formValues.endTimestampOffset),
     prize: undefined,
     tiers: undefined
   }

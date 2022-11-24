@@ -42,6 +42,13 @@ export const PrizePoolEditsDisplay = (props: {
               newValue={newConfig.maxPicksPerUser}
             />
           )}
+          {edits.endTimestampOffset && (
+            <EditedNumberValue
+              name='End Timestamp Offset'
+              oldValue={oldConfig.endTimestampOffset}
+              newValue={newConfig.endTimestampOffset}
+            />
+          )}
           {edits.prize && (
             <EditedBigNumberValue
               name='Prize Amount'

@@ -4,6 +4,7 @@ export interface EditPrizeTierFormValues {
   bitRangeSize: string
   expiryDuration: string
   maxPicksPerUser: string
+  endTimestampOffset: string
   prize: string
   tiers: { value: string }[]
 }
@@ -13,6 +14,7 @@ export interface PrizeTierEditsCheck {
   bitRangeSize: boolean
   expiryDuration: boolean
   maxPicksPerUser: boolean
+  endTimestampOffset: boolean
   prize: boolean
   tiers: boolean[]
 }

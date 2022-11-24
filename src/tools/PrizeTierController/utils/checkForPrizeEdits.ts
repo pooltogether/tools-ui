@@ -16,6 +16,7 @@ export const checkForPrizeEdits = (
     bitRangeSize: false,
     expiryDuration: false,
     maxPicksPerUser: false,
+    endTimestampOffset: false,
     prize: false,
     tiers: Array(16).fill(false)
   }
@@ -28,6 +29,9 @@ export const checkForPrizeEdits = (
   } else if (oldConfig.maxPicksPerUser !== newConfig.maxPicksPerUser) {
     result.edited = true
     result.maxPicksPerUser = true
+  } else if (oldConfig.endTimestampOffset !== newConfig.endTimestampOffset) {
+    result.edited = true
+    result.endTimestampOffset = true
   } else if (!oldConfig.prize.eq(newConfig.prize)) {
     result.edited = true
     result.prize = true

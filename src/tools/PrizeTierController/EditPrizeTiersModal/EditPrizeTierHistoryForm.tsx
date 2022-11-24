@@ -54,7 +54,6 @@ export const EditPrizeTierHistoryForm = (props: {
     return () => updatePrizeValue.cancel()
   }, [bitRange, tierValues])
 
-  // TODO: The form should include `endTimestampOffset`
   // TODO: Less common edits like bit range, expiry duration, max picks and end timestamp offsets should be hidden by default under an "extra" or "advanced" toggle/button
 
   return (
@@ -63,6 +62,7 @@ export const EditPrizeTierHistoryForm = (props: {
         <BitRangeSize errors={errors} register={register} />
         <ExpiryDuration errors={errors} register={register} />
         <MaxPicksPerUser errors={errors} register={register} />
+        <EndTimestampOffset errors={errors} register={register} />
         <PrizeValue errors={errors} register={register} />
       </div>
       <PrizeTiers
@@ -148,6 +148,7 @@ const ExpiryDuration = (props: {
     </div>
   )
 }
+
 const MaxPicksPerUser = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
@@ -182,6 +183,43 @@ const MaxPicksPerUser = (props: {
     </div>
   )
 }
+
+const EndTimestampOffset = (props: {
+  errors: FieldErrorsImpl<EditPrizeTierFormValues>
+  register: UseFormRegister<EditPrizeTierFormValues>
+}) => {
+  const { errors, register } = props
+
+  return (
+    <div>
+      <Label className='uppercase' htmlFor='endTimestampOffset'>
+        End Timestamp Offset
+      </Label>
+      <StyledInput
+        id='endTimestampOffset'
+        invalid={!!errors.endTimestampOffset}
+        className='w-full'
+        {...register('endTimestampOffset', {
+          required: {
+            value: true,
+            message: 'End Timestamp Offset is required'
+          },
+          validate: {
+            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid End Timestamp Offset',
+            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid End Timestamp Offset'
+          }
+        })}
+      />
+      <ErrorMessage>
+        {!!errors.endTimestampOffset?.message &&
+        typeof errors.endTimestampOffset.message === 'string'
+          ? errors.endTimestampOffset.message
+          : null}
+      </ErrorMessage>
+    </div>
+  )
+}
+
 const PrizeValue = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
