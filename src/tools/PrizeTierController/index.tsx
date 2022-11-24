@@ -17,6 +17,8 @@ const Layout = dynamic(() => import('@components/Layout'), {
 export const PrizeTierController: React.FC = () => {
   const { t } = useTranslation()
 
+  // TODO: user should be able to expand and collapse all prize pool items' info
+
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Layout>

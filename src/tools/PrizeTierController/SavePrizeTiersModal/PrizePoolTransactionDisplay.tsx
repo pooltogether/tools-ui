@@ -16,6 +16,8 @@ import { ethers } from 'ethers'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
+import { CopyIcon } from '@pooltogether/react-components'
+import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 
 export const PrizePoolTransactionDisplay = (props: {
   prizePool: PrizePool
@@ -33,13 +35,15 @@ export const PrizePoolTransactionDisplay = (props: {
   const [transactionId, setTransactionId] = useState<string>('')
   const transaction = useTransaction(transactionId)
 
+  const prizeTier: PrizeTier = { ...newConfig, drawId }
+  const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
+
   const submitPushTransaction = () => {
     const prizeTierHistoryContract = new ethers.Contract(
       prizePool.prizeTierHistoryMetadata.address,
       prizeTierHistoryABI,
       signer
     )
-    const prizeTier: PrizeTier = { ...newConfig, drawId }
     setTransactionId(
       sendTransaction({
         name: 'Push Prize Tier Config',
@@ -53,12 +57,14 @@ export const PrizePoolTransactionDisplay = (props: {
     !isManagerFetched ||
     (usersAddress !== ownerData.owner && usersAddress !== managerData.manager)
 
-  // TODO: allow user to copy current config as json onto clipboard
-
   if (edits.edited) {
     return (
       <li>
         <PrizePoolTitle prizePool={prizePool} className='mb-4' />
+        <div className='flex gap-2'>
+          Copy Raw Config
+          <CopyIcon text={rawPrizeTierString} />
+        </div>
         <div>
           {(!transaction || transaction.state === TransactionState.pending) && (
             <TxButton
@@ -74,7 +80,6 @@ export const PrizePoolTransactionDisplay = (props: {
           {!!transaction?.response?.hash && (
             <TransactionReceiptButton transaction={transaction} chainId={prizePool.chainId} />
           )}
-          {transaction?.state === TransactionState.complete && 'Done!'}
         </div>
       </li>
     )

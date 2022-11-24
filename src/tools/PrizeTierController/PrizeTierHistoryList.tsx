@@ -118,7 +118,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         combinedPrizeTier
       return updatedCombinedPrizeTiers
     })
-  }, [prizeTierEdits])
+  }, [prizeTier, prizeTierEdits])
 
   const defaultNumberofPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
   const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
