@@ -59,9 +59,9 @@ export const PrizePoolTransactionDisplay = (props: {
 
   if (edits.edited) {
     return (
-      <li>
-        <PrizePoolTitle prizePool={prizePool} className='mb-4' />
-        <div className='flex gap-2'>
+      <li className='bg-pt-purple-dark p-3 rounded-xl'>
+        <PrizePoolTitle prizePool={prizePool} className='mb-4 pb-2 border-b' />
+        <div className='flex gap-2 opacity-60 text-xxs mb-2'>
           Copy Raw Config
           <CopyIcon text={rawPrizeTierString} />
         </div>
@@ -76,6 +76,12 @@ export const PrizePoolTransactionDisplay = (props: {
             >
               Push Edits
             </TxButton>
+          )}
+          {!transaction && isOwnerFetched && isManagerFetched && txButtonDisabled && (
+            <p className='mt-2 text-xxxs text-pt-red'>
+              The connected wallet is not the owner or manager of this prize pool's tier history
+              contract.
+            </p>
           )}
           {!!transaction?.response?.hash && (
             <TransactionReceiptButton transaction={transaction} chainId={prizePool.chainId} />

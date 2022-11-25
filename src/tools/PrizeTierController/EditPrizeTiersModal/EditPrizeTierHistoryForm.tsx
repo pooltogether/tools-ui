@@ -22,8 +22,9 @@ export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void
   defaultValues?: Partial<EditPrizeTierFormValues>
   decimals: number
+  displayAdvancedOptions?: boolean
 }) => {
-  const { onSubmit, defaultValues, decimals } = props
+  const { onSubmit, defaultValues, decimals, displayAdvancedOptions } = props
   const {
     handleSubmit,
     register,
@@ -54,15 +55,17 @@ export const EditPrizeTierHistoryForm = (props: {
     return () => updatePrizeValue.cancel()
   }, [bitRange, tierValues])
 
-  // TODO: Less common edits like bit range, expiry duration, max picks and end timestamp offsets should be hidden by default under an "extra" or "advanced" toggle/button
-
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
       <div className='flex flex-col'>
-        <BitRangeSize errors={errors} register={register} />
-        <ExpiryDuration errors={errors} register={register} />
-        <MaxPicksPerUser errors={errors} register={register} />
-        <EndTimestampOffset errors={errors} register={register} />
+        <BitRangeSize errors={errors} register={register} isHidden={!displayAdvancedOptions} />
+        <ExpiryDuration errors={errors} register={register} isHidden={!displayAdvancedOptions} />
+        <MaxPicksPerUser errors={errors} register={register} isHidden={!displayAdvancedOptions} />
+        <EndTimestampOffset
+          errors={errors}
+          register={register}
+          isHidden={!displayAdvancedOptions}
+        />
         <PrizeValue errors={errors} register={register} />
       </div>
       <PrizeTiers
@@ -82,11 +85,16 @@ export const EditPrizeTierHistoryForm = (props: {
 const BitRangeSize = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  isHidden?: boolean
 }) => {
-  const { errors, register } = props
+  const { errors, register, isHidden } = props
 
   return (
-    <div>
+    <div
+      className={classNames({
+        hidden: isHidden
+      })}
+    >
       <Label className='uppercase' htmlFor='bitRangeSize'>
         Bit Range Size
       </Label>
@@ -117,11 +125,16 @@ const BitRangeSize = (props: {
 const ExpiryDuration = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  isHidden?: boolean
 }) => {
-  const { errors, register } = props
+  const { errors, register, isHidden } = props
 
   return (
-    <div>
+    <div
+      className={classNames({
+        hidden: isHidden
+      })}
+    >
       <Label className='uppercase' htmlFor='expiryDuration'>
         Expiry Duration
       </Label>
@@ -152,11 +165,16 @@ const ExpiryDuration = (props: {
 const MaxPicksPerUser = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  isHidden?: boolean
 }) => {
-  const { errors, register } = props
+  const { errors, register, isHidden } = props
 
   return (
-    <div>
+    <div
+      className={classNames({
+        hidden: isHidden
+      })}
+    >
       <Label className='uppercase' htmlFor='maxPicksPerUser'>
         Max Picks Per User
       </Label>
@@ -187,11 +205,16 @@ const MaxPicksPerUser = (props: {
 const EndTimestampOffset = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  isHidden?: boolean
 }) => {
-  const { errors, register } = props
+  const { errors, register, isHidden } = props
 
   return (
-    <div>
+    <div
+      className={classNames({
+        hidden: isHidden
+      })}
+    >
       <Label className='uppercase' htmlFor='endTimestampOffset'>
         End Timestamp Offset
       </Label>
@@ -266,12 +289,9 @@ const PrizeTiers = (props: {
   const { errors, register, control, watch, decimals } = props
   const { fields } = useFieldArray({ control, name: 'tiers' })
   const bitRange = parseInt(watch('bitRangeSize'))
-  const tierValues = watch('tiers').map((item) => Number(item.value))
+  const tierValues = watch('tiers').map((item) => item.value)
   const lastNonZeroTier = getLastNonZeroTierIndex(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
-
-  // TODO: undefined (no input) prize tiers should not error - just assume as 0
-  // TODO: should not be able to remove an errored tier
 
   return (
     <div>
@@ -290,7 +310,7 @@ const PrizeTiers = (props: {
                 id={item.id}
                 invalid={!!errors.tiers?.[index]}
                 className={classNames('w-full', {
-                  'opacity-60': !errors.tiers?.[index] && tierValues[index] == 0
+                  'opacity-60': !errors.tiers?.[index] && Number(tierValues[index]) == 0
                 })}
                 {...register(`tiers.${index}.value`, {
                   validate: {

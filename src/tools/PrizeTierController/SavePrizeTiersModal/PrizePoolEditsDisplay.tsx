@@ -97,14 +97,14 @@ const EditedNumberValue = (props: {
   formattedValues: string[]
   displayRawValues?: boolean
 }) => (
-  <div className='flex gap-2'>
-    <p>{props.name}:</p>
-    <p className='opacity-40'>
+  <div className='flex gap-2 text-xs'>
+    <p className='text-xs'>{props.name}:</p>
+    <p className='opacity-40 text-xs'>
       {props.displayRawValues ? props.values[0] : props.formattedValues[0]}
     </p>
     {'->'}
     <p
-      className={classNames({
+      className={classNames('text-xs', {
         'text-pt-green': props.values[1] > props.values[0],
         'text-pt-red': props.values[1] < props.values[0]
       })}
@@ -120,14 +120,14 @@ const EditedBigNumberValue = (props: {
   formattedValues: string[]
   displayRawValues?: boolean
 }) => (
-  <div className='flex gap-2'>
-    <p>{props.name}:</p>
-    <p className='opacity-40'>
+  <div className='flex gap-2 text-xs'>
+    <p className='text-xs'>{props.name}:</p>
+    <p className='opacity-40 text-xs'>
       {props.displayRawValues ? props.values[0].toString() : props.formattedValues[0]}
     </p>
     {'->'}
     <p
-      className={classNames({
+      className={classNames('text-xs', {
         'text-pt-green': props.values[1].gt(props.values[0]),
         'text-pt-red': props.values[1].lt(props.values[0])
       })}

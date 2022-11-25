@@ -15,7 +15,7 @@ import { formatFormValuesFromPrizeTier } from '@prizeTierController/utils/format
 import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/formatPrizeTierFromFormValues'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 // enum EditPrizeTierModalState {
 //   'all' = 'all',
@@ -97,6 +97,8 @@ const SimpleEdit = () => {
   const [selectedPrizePoolId] = useAtom(selectedPrizePoolIdAtom)
   const prizePool = prizePools.find((prizePool) => prizePool.id() === selectedPrizePoolId)
   const { data: tokens, isFetched: isTokensFetched } = usePrizePoolTokens(prizePool)
+  const { data, isFetched: isPrizeTierFetched } = usePrizeTierHistoryData(prizePool)
+  const [isAdvancedDisplay, setAdvancedDisplay] = useState(false)
 
   const onSubmit = useCallback(
     (formValues: EditPrizeTierFormValues) => {
@@ -124,8 +126,6 @@ const SimpleEdit = () => {
     ]
   )
 
-  const { data, isFetched: isPrizeTierFetched } = usePrizeTierHistoryData(prizePool)
-
   const defaultValues = useMemo(() => {
     const existingEdits =
       prizeTierEdits?.[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
@@ -145,14 +145,16 @@ const SimpleEdit = () => {
 
   return (
     <div>
-      <p className='mb-4'>
-        Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:
-      </p>
+      <p>Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:</p>
+      <button className='mb-4 opacity-60' onClick={() => setAdvancedDisplay(!isAdvancedDisplay)}>
+        {isAdvancedDisplay ? 'Hide' : 'Show'} advanced options
+      </button>
       {!!selectedPrizePoolId && isTokensFetched && isPrizeTierFetched && (
         <EditPrizeTierHistoryForm
           onSubmit={onSubmit}
           defaultValues={defaultValues}
           decimals={parseInt(tokens.token.decimals)}
+          displayAdvancedOptions={isAdvancedDisplay}
         />
       )}
     </div>
