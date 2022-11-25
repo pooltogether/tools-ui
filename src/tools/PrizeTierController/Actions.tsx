@@ -26,12 +26,9 @@ export const Actions = (props: { className?: string }) => {
 
   return (
     <div className={classNames(className, 'w-full flex justify-end items-center space-x-2')}>
-      <span
-        className='text-xxs cursor-pointer select-none mr-2 opacity-80'
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {isCollapsed ? 'Expand All' : 'Collapse All'}
-      </span>
+      <button className='text-xxs mr-2 opacity-80' onClick={() => setIsCollapsed(!isCollapsed)}>
+        {isCollapsed ? 'Expand' : 'Collapse'} All
+      </button>
       {editedPools.length > 0 && (
         <Button
           onClick={() => {

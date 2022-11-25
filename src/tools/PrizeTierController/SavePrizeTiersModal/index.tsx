@@ -65,10 +65,14 @@ export const SavePrizeTiersModal = () => {
 
 const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Function }) => {
   const { allEdits, onContinue } = props
+  const [isRawDisplay, setRawDisplay] = useState(false)
 
   return (
-    <div>
-      <p className='mb-4'>Review Edits:</p>
+    <>
+      <p>Review Edits:</p>
+      <button className='mb-4 opacity-60' onClick={() => setRawDisplay(!isRawDisplay)}>
+        {isRawDisplay ? 'Hide' : 'Show'} raw values
+      </button>
       <ul className='flex flex-col gap-4 mb-4'>
         {allEdits.map((editHistory) => (
           <PrizePoolEditsDisplay
@@ -76,6 +80,7 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
             oldConfig={editHistory.oldConfig}
             newConfig={editHistory.newConfig}
             edits={editHistory.edits}
+            displayRawValues={isRawDisplay}
             key={`prizePoolEdits-${editHistory.prizePool.id()}`}
           />
         ))}
@@ -87,7 +92,7 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
           Continue
         </Button>
       )}
-    </div>
+    </>
   )
 }
 
@@ -98,7 +103,7 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
   const [drawId, setDrawId] = useState(0)
 
   return (
-    <div>
+    <>
       <p className='mb-4'>Submit Transactions:</p>
       {isFetched ? (
         <>
@@ -122,6 +127,6 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
       ) : (
         'Loading...'
       )}
-    </div>
+    </>
   )
 }

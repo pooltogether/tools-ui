@@ -23,16 +23,20 @@ export const checkForPrizeEdits = (
   if (oldConfig.bitRangeSize !== newConfig.bitRangeSize) {
     result.edited = true
     result.bitRangeSize = true
-  } else if (oldConfig.expiryDuration !== newConfig.expiryDuration) {
+  }
+  if (oldConfig.expiryDuration !== newConfig.expiryDuration) {
     result.edited = true
     result.expiryDuration = true
-  } else if (oldConfig.maxPicksPerUser !== newConfig.maxPicksPerUser) {
+  }
+  if (oldConfig.maxPicksPerUser !== newConfig.maxPicksPerUser) {
     result.edited = true
     result.maxPicksPerUser = true
-  } else if (oldConfig.endTimestampOffset !== newConfig.endTimestampOffset) {
+  }
+  if (oldConfig.endTimestampOffset !== newConfig.endTimestampOffset) {
     result.edited = true
     result.endTimestampOffset = true
-  } else if (!oldConfig.prize.eq(newConfig.prize)) {
+  }
+  if (!oldConfig.prize.eq(newConfig.prize)) {
     result.edited = true
     result.prize = true
   }

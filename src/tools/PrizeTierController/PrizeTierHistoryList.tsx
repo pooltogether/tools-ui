@@ -171,18 +171,16 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
       </div>
 
       {seeMore && (
-        <>
-          <PrizesList
-            prizePool={prizePool}
-            prizeTier={combinedPrizeTier}
-            numberOfPrizesPerTier={numberOfPrizesPerTier}
-            valueOfPrizesPerTier={valueOfPrizesPerTier}
-          />
-        </>
+        <PrizesList
+          prizePool={prizePool}
+          prizeTier={combinedPrizeTier}
+          numberOfPrizesPerTier={numberOfPrizesPerTier}
+          valueOfPrizesPerTier={valueOfPrizesPerTier}
+        />
       )}
 
       <div className={classNames('w-full flex justify-between', { 'mt-4': seeMore })}>
-        <button onClick={() => setSeeMore(!seeMore)}>{seeMore ? 'See less' : 'See more'}</button>
+        <button onClick={() => setSeeMore(!seeMore)}>See {seeMore ? 'less' : 'more'}</button>
         <Button
           onClick={() => {
             setSelectedPrizePoolId(prizePool.id())
