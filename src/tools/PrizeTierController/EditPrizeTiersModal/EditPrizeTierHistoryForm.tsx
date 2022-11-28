@@ -74,7 +74,7 @@ export const EditPrizeTierHistoryForm = (props: {
         decimals={decimals}
       />
       <Button type='submit' disabled={!isValid}>
-        Save
+        Queue Edits
       </Button>
     </form>
   )
