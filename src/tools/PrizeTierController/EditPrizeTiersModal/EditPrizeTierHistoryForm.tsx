@@ -58,12 +58,10 @@ export const EditPrizeTierHistoryForm = (props: {
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
       <div className='flex flex-col'>
-        <BitRangeSize errors={errors} register={register} isHidden={!displayAdvancedOptions} />
-        <ExpiryDuration errors={errors} register={register} isHidden={!displayAdvancedOptions} />
-        <MaxPicksPerUser errors={errors} register={register} isHidden={!displayAdvancedOptions} />
-        <EndTimestampOffset
+        <AdvancedOptions
           errors={errors}
           register={register}
+          className='mb-6'
           isHidden={!displayAdvancedOptions}
         />
         <PrizeValue errors={errors} register={register} />
@@ -82,19 +80,35 @@ export const EditPrizeTierHistoryForm = (props: {
   )
 }
 
-const BitRangeSize = (props: {
+const AdvancedOptions = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  className?: string
   isHidden?: boolean
 }) => {
-  const { errors, register, isHidden } = props
-
+  const { errors, register, className, isHidden } = props
   return (
     <div
-      className={classNames({
+      className={classNames(className, 'flex flex-col p-4 pb-0 bg-pt-purple-bright rounded-xl', {
         hidden: isHidden
       })}
     >
+      <BitRangeSize errors={errors} register={register} />
+      <ExpiryDuration errors={errors} register={register} />
+      <MaxPicksPerUser errors={errors} register={register} />
+      <EndTimestampOffset errors={errors} register={register} />
+    </div>
+  )
+}
+
+const BitRangeSize = (props: {
+  errors: FieldErrorsImpl<EditPrizeTierFormValues>
+  register: UseFormRegister<EditPrizeTierFormValues>
+}) => {
+  const { errors, register } = props
+
+  return (
+    <div>
       <Label className='uppercase' htmlFor='bitRangeSize'>
         Bit Range Size
       </Label>
@@ -125,16 +139,11 @@ const BitRangeSize = (props: {
 const ExpiryDuration = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
-  isHidden?: boolean
 }) => {
-  const { errors, register, isHidden } = props
+  const { errors, register } = props
 
   return (
-    <div
-      className={classNames({
-        hidden: isHidden
-      })}
-    >
+    <div>
       <Label className='uppercase' htmlFor='expiryDuration'>
         Expiry Duration
       </Label>
@@ -165,16 +174,11 @@ const ExpiryDuration = (props: {
 const MaxPicksPerUser = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
-  isHidden?: boolean
 }) => {
-  const { errors, register, isHidden } = props
+  const { errors, register } = props
 
   return (
-    <div
-      className={classNames({
-        hidden: isHidden
-      })}
-    >
+    <div>
       <Label className='uppercase' htmlFor='maxPicksPerUser'>
         Max Picks Per User
       </Label>
@@ -205,16 +209,11 @@ const MaxPicksPerUser = (props: {
 const EndTimestampOffset = (props: {
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
-  isHidden?: boolean
 }) => {
-  const { errors, register, isHidden } = props
+  const { errors, register } = props
 
   return (
-    <div
-      className={classNames({
-        hidden: isHidden
-      })}
-    >
+    <div>
       <Label className='uppercase' htmlFor='endTimestampOffset'>
         End Timestamp Offset
       </Label>
