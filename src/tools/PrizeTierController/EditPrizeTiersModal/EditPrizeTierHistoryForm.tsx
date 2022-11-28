@@ -64,7 +64,17 @@ export const EditPrizeTierHistoryForm = (props: {
           className='mb-6'
           isHidden={!displayAdvancedOptions}
         />
-        <PrizeValue errors={errors} register={register} />
+        <FormElement
+          title='Prize Value'
+          formKey='prize'
+          validate={{
+            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Value',
+            isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
+          }}
+          errors={errors}
+          register={register}
+          disabled
+        />
       </div>
       <PrizeTiers
         errors={errors}
@@ -93,185 +103,81 @@ const AdvancedOptions = (props: {
         hidden: isHidden
       })}
     >
-      <BitRangeSize errors={errors} register={register} />
-      <ExpiryDuration errors={errors} register={register} />
-      <MaxPicksPerUser errors={errors} register={register} />
-      <EndTimestampOffset errors={errors} register={register} />
+      <FormElement
+        title='Bit Range Size'
+        formKey='bitRangeSize'
+        validate={{
+          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size',
+          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Bit Range Size'
+        }}
+        errors={errors}
+        register={register}
+      />
+      <FormElement
+        title='Expiry Duration'
+        formKey='expiryDuration'
+        validate={{
+          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Expiry Duration',
+          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Expiry Duration'
+        }}
+        errors={errors}
+        register={register}
+      />
+      <FormElement
+        title='Max Picks Per User'
+        formKey='maxPicksPerUser'
+        validate={{
+          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User',
+          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Max Picks Per User'
+        }}
+        errors={errors}
+        register={register}
+      />
+      <FormElement
+        title='End Timestamp Offset'
+        formKey='endTimestampOffset'
+        validate={{
+          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid End Timestamp Offset',
+          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid End Timestamp Offset'
+        }}
+        errors={errors}
+        register={register}
+      />
     </div>
   )
 }
 
-const BitRangeSize = (props: {
+const FormElement = (props: {
+  title: string
+  formKey: keyof EditPrizeTierFormValues
+  validate?: Record<string, (v: any) => true | string>
+  disabled?: boolean
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
 }) => {
-  const { errors, register } = props
+  const { title, formKey, validate, disabled, errors, register } = props
 
   return (
     <div>
-      <Label className='uppercase' htmlFor='bitRangeSize'>
-        Bit Range Size
+      <Label className='uppercase' htmlFor={formKey}>
+        {title}
       </Label>
       <StyledInput
-        id='bitRangeSize'
-        invalid={!!errors.bitRangeSize}
+        id={formKey}
+        invalid={!!errors[formKey]}
         className='w-full'
-        {...register('bitRangeSize', {
+        {...register(formKey, {
           required: {
             value: true,
-            message: 'Bit Range Size is required'
+            message: `${title} is required`
           },
-          validate: {
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Bit Range Size'
-          }
+          validate: validate
         })}
+        disabled={disabled}
       />
       <ErrorMessage>
-        {!!errors.bitRangeSize?.message && typeof errors.bitRangeSize.message === 'string'
-          ? errors.bitRangeSize.message
-          : null}
-      </ErrorMessage>
-    </div>
-  )
-}
-
-const ExpiryDuration = (props: {
-  errors: FieldErrorsImpl<EditPrizeTierFormValues>
-  register: UseFormRegister<EditPrizeTierFormValues>
-}) => {
-  const { errors, register } = props
-
-  return (
-    <div>
-      <Label className='uppercase' htmlFor='expiryDuration'>
-        Expiry Duration
-      </Label>
-      <StyledInput
-        id='expiryDuration'
-        invalid={!!errors.expiryDuration}
-        className='w-full'
-        {...register('expiryDuration', {
-          required: {
-            value: true,
-            message: 'Expiry Duration is required'
-          },
-          validate: {
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Expiry Duration',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Expiry Duration'
-          }
-        })}
-      />
-      <ErrorMessage>
-        {!!errors.expiryDuration?.message && typeof errors.expiryDuration.message === 'string'
-          ? errors.expiryDuration.message
-          : null}
-      </ErrorMessage>
-    </div>
-  )
-}
-
-const MaxPicksPerUser = (props: {
-  errors: FieldErrorsImpl<EditPrizeTierFormValues>
-  register: UseFormRegister<EditPrizeTierFormValues>
-}) => {
-  const { errors, register } = props
-
-  return (
-    <div>
-      <Label className='uppercase' htmlFor='maxPicksPerUser'>
-        Max Picks Per User
-      </Label>
-      <StyledInput
-        id='maxPicksPerUser'
-        invalid={!!errors.maxPicksPerUser}
-        className='w-full'
-        {...register('maxPicksPerUser', {
-          required: {
-            value: true,
-            message: 'Max Picks Per User is required'
-          },
-          validate: {
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Max Picks Per User'
-          }
-        })}
-      />
-      <ErrorMessage>
-        {!!errors.maxPicksPerUser?.message && typeof errors.maxPicksPerUser.message === 'string'
-          ? errors.maxPicksPerUser.message
-          : null}
-      </ErrorMessage>
-    </div>
-  )
-}
-
-const EndTimestampOffset = (props: {
-  errors: FieldErrorsImpl<EditPrizeTierFormValues>
-  register: UseFormRegister<EditPrizeTierFormValues>
-}) => {
-  const { errors, register } = props
-
-  return (
-    <div>
-      <Label className='uppercase' htmlFor='endTimestampOffset'>
-        End Timestamp Offset
-      </Label>
-      <StyledInput
-        id='endTimestampOffset'
-        invalid={!!errors.endTimestampOffset}
-        className='w-full'
-        {...register('endTimestampOffset', {
-          required: {
-            value: true,
-            message: 'End Timestamp Offset is required'
-          },
-          validate: {
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid End Timestamp Offset',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid End Timestamp Offset'
-          }
-        })}
-      />
-      <ErrorMessage>
-        {!!errors.endTimestampOffset?.message &&
-        typeof errors.endTimestampOffset.message === 'string'
-          ? errors.endTimestampOffset.message
-          : null}
-      </ErrorMessage>
-    </div>
-  )
-}
-
-const PrizeValue = (props: {
-  errors: FieldErrorsImpl<EditPrizeTierFormValues>
-  register: UseFormRegister<EditPrizeTierFormValues>
-}) => {
-  const { errors, register } = props
-
-  return (
-    <div>
-      <Label className='uppercase' htmlFor='prize'>
-        Prize Value
-      </Label>
-      <StyledInput
-        id='prize'
-        invalid={!!errors.prize}
-        className='w-full'
-        {...register('prize', {
-          required: {
-            value: true,
-            message: 'Prize Value is required'
-          },
-          validate: {
-            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Value',
-            isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
-          }
-        })}
-        disabled
-      />
-      <ErrorMessage>
-        {!!errors.prize?.message && typeof errors.prize.message === 'string'
-          ? errors.prize.message
+        {!!errors[formKey]?.message && typeof errors[formKey].message === 'string'
+          ? errors[formKey].message
           : null}
       </ErrorMessage>
     </div>
