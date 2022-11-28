@@ -135,20 +135,16 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
-  const [seeMore, setSeeMore] = useState(false)
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
   const setSelectedPrizeTierHistoryAddress = useUpdateAtom(selectedPrizeTierHistoryAddressAtom)
   const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
 
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
-  useEffect(() => {
-    setSeeMore(!isCollapsed)
-  }, [isCollapsed])
 
   return (
     <div>
-      <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': seeMore })}>
+      <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
         <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
         <Stat
           label='Total Value'
@@ -161,7 +157,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
             tokens?.token.decimals
           )}
         />
-        {seeMore && (
+        {!isCollapsed && (
           <PrizeTierStats
             prizeTier={combinedPrizeTier}
             defaultMaxPicksValue={prizeTier.maxPicksPerUser}
@@ -170,7 +166,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         )}
       </div>
 
-      {seeMore && (
+      {!isCollapsed && (
         <PrizesList
           prizePool={prizePool}
           prizeTier={combinedPrizeTier}
@@ -179,8 +175,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
         />
       )}
 
-      <div className={classNames('w-full flex justify-between', { 'mt-4': seeMore })}>
-        <button onClick={() => setSeeMore(!seeMore)}>See {seeMore ? 'less' : 'more'}</button>
+      <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
         <Button
           onClick={() => {
             setSelectedPrizePoolId(prizePool.id())
