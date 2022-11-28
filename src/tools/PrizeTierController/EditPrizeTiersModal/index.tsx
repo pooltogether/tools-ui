@@ -17,77 +17,15 @@ import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useCallback, useMemo, useState } from 'react'
 
-// enum EditPrizeTierModalState {
-//   'all' = 'all',
-//   'simple' = 'simple'
-// }
-
 export const EditPrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isEditPrizeTiersModalOpenAtom)
-  // const [modalState, setModalState] = useState<EditPrizeTierModalState>(
-  //   EditPrizeTierModalState.simple
-  // )
 
   return (
     <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)}>
-      {/* <Tabs
-        tabs={[
-          {
-            id: EditPrizeTierModalState.all,
-            view: <BulkEdit />,
-            title: 'Bulk Edit'
-          },
-          {
-            id: EditPrizeTierModalState.simple,
-            view: <SimpleEdit />,
-            title: 'Simple Edit'
-          }
-        ]}
-        onTabSelect={(tab) => setModalState(tab.id as EditPrizeTierModalState)}
-        initialTabId={modalState}
-      /> */}
       <SimpleEdit />
     </BottomSheet>
   )
 }
-
-// const BulkEdit = () => {
-//   const setIsEditPrizeTierModalOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-//   const setPrizeTierEdits = useUpdateAtom(prizeTierEditsAtom)
-//   const prizePools = usePrizePools()
-//   const { data: tokens } = usePrizePoolTokens(prizePools[0])
-//   const decimals = tokens?.token.decimals
-
-//   // Update all Prize Tier Histories with the edited values
-//   const onSubmit = useCallback(
-//     (formValues: EditPrizeTierFormValues) => {
-//       const newPrizeTierEdits = getPrizeTierFromFormValues(formValues, decimals)
-
-//       setPrizeTierEdits((prizeTierEdits) => {
-//         const updatedPrizeTierEdits = { ...prizeTierEdits }
-//         prizePools.map((prizePool) => {
-//           if (!updatedPrizeTierEdits[prizePool.chainId]) {
-//             updatedPrizeTierEdits[prizePool.chainId] = {}
-//           }
-//           updatedPrizeTierEdits[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address] = {
-//             ...updatedPrizeTierEdits[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address],
-//             ...newPrizeTierEdits
-//           }
-//         })
-//         return updatedPrizeTierEdits
-//       })
-//       setIsEditPrizeTierModalOpen(false)
-//     },
-//     [decimals, setPrizeTierEdits, setIsEditPrizeTierModalOpen, prizePools]
-//   )
-
-//   return (
-//     <div>
-//       <p>Make changes across all Prize Tier History configurations at once.</p>
-//       <EditPrizeTierHistoryForm onSubmit={onSubmit} />
-//     </div>
-//   )
-// }
 
 const SimpleEdit = () => {
   const setIsEditPrizeTierModalOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
