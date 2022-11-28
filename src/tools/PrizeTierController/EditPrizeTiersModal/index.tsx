@@ -11,6 +11,7 @@ import {
 import { EditPrizeTierHistoryForm } from '@prizeTierController/EditPrizeTiersModal/EditPrizeTierHistoryForm'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
+import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
 import { formatFormValuesFromPrizeTier } from '@prizeTierController/utils/formatFormValuesFromPrizeTier'
 import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/formatPrizeTierFromFormValues'
 import { useAtom } from 'jotai'
@@ -83,7 +84,7 @@ const SimpleEdit = () => {
 
   return (
     <div>
-      <p>Make changes to {getNetworkNiceNameByChainId(prizePool.chainId)}'s Prize Tiers:</p>
+      <PrizePoolTitle prizePool={prizePool} className='text-lg' />
       <button className='mb-4 opacity-60' onClick={() => setAdvancedDisplay(!isAdvancedDisplay)}>
         {isAdvancedDisplay ? 'Hide' : 'Show'} advanced options
       </button>
