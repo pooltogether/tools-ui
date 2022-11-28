@@ -2,6 +2,7 @@ import { usePrizePools } from '@hooks/usePrizePools'
 import { usePrizePoolTokens } from '@pooltogether/hooks'
 import { BottomSheet } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
+import { calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
@@ -41,6 +42,14 @@ const SimpleEdit = () => {
 
   const onSubmit = useCallback(
     (formValues: EditPrizeTierFormValues) => {
+      // Recalculating prize in case of fast submissions:
+      const bitRange = parseInt(formValues.bitRangeSize)
+      const totalPrizeValue = formValues.tiers.reduce(
+        (a, b, i) => a + Number(b.value) * calculateNumberOfPrizesForTierIndex(bitRange, i),
+        0
+      )
+      formValues.prize = totalPrizeValue.toString()
+
       const newPrizeTierEdits = formatPrizeTierFromFormValues(formValues, tokens?.token.decimals)
       setPrizeTierEdits((prizeTierEdits) => {
         // TODO: should check if edits actually make it different from existing data
