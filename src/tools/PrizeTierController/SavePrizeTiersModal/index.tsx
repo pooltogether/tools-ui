@@ -74,16 +74,19 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
         {isRawDisplay ? 'Hide' : 'Show'} raw values
       </button>
       <ul className='flex flex-col gap-4 mb-4'>
-        {allEdits.map((editHistory) => (
-          <PrizePoolEditsDisplay
-            prizePool={editHistory.prizePool}
-            oldConfig={editHistory.oldConfig}
-            newConfig={editHistory.newConfig}
-            edits={editHistory.edits}
-            displayRawValues={isRawDisplay}
-            key={`prizePoolEdits-${editHistory.prizePool.id()}`}
-          />
-        ))}
+        {allEdits.map(
+          (editHistory) =>
+            editHistory && (
+              <PrizePoolEditsDisplay
+                prizePool={editHistory.prizePool}
+                oldConfig={editHistory.oldConfig}
+                newConfig={editHistory.newConfig}
+                edits={editHistory.edits}
+                displayRawValues={isRawDisplay}
+                key={`prizePoolEdits-${editHistory.prizePool.id()}`}
+              />
+            )
+        )}
       </ul>
       {allEdits.every((editHistory) => !editHistory.edits.edited) ? (
         'No edits.'

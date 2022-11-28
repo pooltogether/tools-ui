@@ -48,6 +48,7 @@ const DrawIdInput = (props: {
       <Label className='uppercase' htmlFor='drawId'>
         Draw ID
       </Label>
+      <p className='text-xxxs opacity-80 mb-2'>New prize tier begins on the following draw:</p>
       <StyledInput
         id='drawId'
         invalid={!!errors.drawId}
