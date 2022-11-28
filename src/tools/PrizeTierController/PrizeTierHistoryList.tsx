@@ -37,13 +37,13 @@ export const PrizeTierHistoryList = (props: { className?: string }) => {
 const PrizePoolItem = (props: { prizePool: PrizePool }) => {
   const { prizePool } = props
 
-  const { data, isFetched } = usePrizeTierHistoryData(prizePool)
+  const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizePool)
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
       <PrizePoolTitle prizePool={prizePool} showLink className='mb-4' />
       {isFetched ? (
-        <PrizeTierState prizePool={prizePool} prizeTier={data.upcomingPrizeTier} />
+        <PrizeTierState prizePool={prizePool} prizeTier={upcomingPrizeTier} />
       ) : (
         'Loading...'
       )}

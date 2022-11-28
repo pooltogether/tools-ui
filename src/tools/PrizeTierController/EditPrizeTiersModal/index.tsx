@@ -1,7 +1,6 @@
 import { usePrizePools } from '@hooks/usePrizePools'
 import { usePrizePoolTokens } from '@pooltogether/hooks'
 import { BottomSheet } from '@pooltogether/react-components'
-import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import {
   isEditPrizeTiersModalOpenAtom,
@@ -37,7 +36,8 @@ const SimpleEdit = () => {
   const [selectedPrizePoolId] = useAtom(selectedPrizePoolIdAtom)
   const prizePool = prizePools.find((prizePool) => prizePool.id() === selectedPrizePoolId)
   const { data: tokens, isFetched: isTokensFetched } = usePrizePoolTokens(prizePool)
-  const { data, isFetched: isPrizeTierFetched } = usePrizeTierHistoryData(prizePool)
+  const { data: upcomingPrizeTier, isFetched: isPrizeTierFetched } =
+    usePrizeTierHistoryData(prizePool)
   const [isAdvancedDisplay, setAdvancedDisplay] = useState(false)
 
   const onSubmit = useCallback(
@@ -80,11 +80,11 @@ const SimpleEdit = () => {
     if (!!existingEdits) {
       return formatFormValuesFromPrizeTier(existingEdits, tokens.token.decimals, { round: true })
     }
-    return formatFormValuesFromPrizeTier(data.upcomingPrizeTier, tokens.token.decimals, {
+    return formatFormValuesFromPrizeTier(upcomingPrizeTier, tokens.token.decimals, {
       round: true
     })
   }, [
-    data.upcomingPrizeTier,
+    upcomingPrizeTier,
     prizePool.chainId,
     prizePool.prizeTierHistoryMetadata.address,
     prizeTierEdits,
