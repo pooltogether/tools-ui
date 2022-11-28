@@ -49,6 +49,11 @@ export const SavePrizeTiersModal = () => {
         setIsOpen(false)
         setModalState(SavePrizeTiersModalState.review)
       }}
+      header={
+        modalState === SavePrizeTiersModalState.review
+          ? 'Review Transactions'
+          : 'Submit Transactions'
+      }
     >
       {modalState === SavePrizeTiersModalState.review && (
         <ReviewEdits
@@ -69,7 +74,6 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
 
   return (
     <>
-      <p>Review Edits:</p>
       <button className='mb-4 opacity-60' onClick={() => setRawDisplay(!isRawDisplay)}>
         {isRawDisplay ? 'Hide' : 'Show'} raw values
       </button>
@@ -107,7 +111,6 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
 
   return (
     <>
-      <p className='mb-4'>Submit Transactions:</p>
       {isFetched ? (
         <>
           <DrawIdForm
@@ -116,15 +119,18 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
             minDrawId={data.newestDrawId + 1}
           />
           <ul className='flex flex-col gap-4 mb-4'>
-            {allEdits.map((editHistory) => (
-              <PrizePoolTransactionDisplay
-                prizePool={editHistory.prizePool}
-                newConfig={editHistory.newConfig}
-                edits={editHistory.edits}
-                drawId={drawId}
-                key={`prizePoolTXs-${editHistory.prizePool.id()}`}
-              />
-            ))}
+            {allEdits.map(
+              (editHistory) =>
+                editHistory && (
+                  <PrizePoolTransactionDisplay
+                    prizePool={editHistory.prizePool}
+                    newConfig={editHistory.newConfig}
+                    edits={editHistory.edits}
+                    drawId={drawId}
+                    key={`prizePoolTXs-${editHistory.prizePool.id()}`}
+                  />
+                )
+            )}
           </ul>
         </>
       ) : (

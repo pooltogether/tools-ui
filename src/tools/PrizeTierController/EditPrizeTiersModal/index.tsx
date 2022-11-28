@@ -23,7 +23,7 @@ export const EditPrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isEditPrizeTiersModalOpenAtom)
 
   return (
-    <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)}>
+    <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)} header='Edit Prize Tiers'>
       <SimpleEdit />
     </BottomSheet>
   )
