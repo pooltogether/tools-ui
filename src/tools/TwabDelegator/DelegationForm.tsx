@@ -1,3 +1,4 @@
+import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
@@ -136,7 +137,3 @@ export const DelegationForm: React.FC<DelegationFormProps> = (props) => {
     </form>
   )
 }
-
-export const ErrorMessage: React.FC<JSX.IntrinsicElements['p']> = (props) => (
-  <p {...props} className={classNames(props.className, 'h-5 mt-1 text-xxs text-pt-red-light')} />
-)

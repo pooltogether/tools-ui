@@ -32,7 +32,7 @@ export const PagePadding = (props: PagePaddingProps) => {
         animate={{
           opacity: 1
         }}
-        className={classNames('px-2 pb-20 mx-auto', maxWidthClassName, className)}
+        className={classNames('px-2 pt-4 pb-20 mx-auto', maxWidthClassName, className)}
       >
         {children}
       </motion.div>
@@ -41,5 +41,5 @@ export const PagePadding = (props: PagePaddingProps) => {
 }
 
 PagePadding.defaultProps = {
-  maxWidthClassName: 'max-w-xl'
+  maxWidthClassName: 'max-w-screen-sm'
 }
