@@ -1,4 +1,5 @@
 import { TxButton } from '@components/Buttons/TxButton'
+import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { useV4Ticket } from '@hooks/v4/useV4Ticket'
 import { Token, useTokenAllowance } from '@pooltogether/hooks'
@@ -9,7 +10,6 @@ import {
   useUsersAddress
 } from '@pooltogether/wallet-connection'
 import { DELEGATION_LEARN_MORE_URL } from '@twabDelegator/constants'
-import { ErrorMessage } from '@twabDelegator/DelegationForm'
 import { useDelegatorsStake } from '@twabDelegator/hooks/useDelegatorsStake'
 import { getTwabDelegatorContract } from '@twabDelegator/utils/getTwabDelegatorContract'
 import { getTwabDelegatorContractAddress } from '@twabDelegator/utils/getTwabDelegatorContractAddress'

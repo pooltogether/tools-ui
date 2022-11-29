@@ -5,6 +5,7 @@ import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { calculate, calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { getLastNonZeroTierIndex } from '@prizeTierController/utils/getLastNonZeroTierIndex'
+import useDebouncedCallback from 'beautiful-react-hooks/useDebouncedCallback'
 import classNames from 'classnames'
 import { utils } from 'ethers'
 import { useEffect, useState } from 'react'
@@ -16,7 +17,6 @@ import {
   useFieldArray,
   Control
 } from 'react-hook-form'
-import useDebouncedCallback from 'beautiful-react-hooks/useDebouncedCallback'
 
 export const EditPrizeTierHistoryForm = (props: {
   onSubmit: (prizeTier: EditPrizeTierFormValues) => void

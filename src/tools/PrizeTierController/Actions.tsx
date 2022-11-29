@@ -1,4 +1,5 @@
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
+import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   isPrizeTierListCollapsed,
   isSavePrizeTiersModalOpenAtom,
@@ -7,7 +8,6 @@ import {
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
-import { useUsersAddress } from '@pooltogether/wallet-connection'
 
 export const Actions = (props: { className?: string }) => {
   const { className } = props

@@ -1,5 +1,6 @@
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
+import { CopyIcon } from '@pooltogether/react-components'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
@@ -8,16 +9,15 @@ import {
   useTransaction,
   TransactionState
 } from '@pooltogether/wallet-connection'
+import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
 import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
 import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import { ethers } from 'ethers'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
-import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
-import { CopyIcon } from '@pooltogether/react-components'
-import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 
 export const PrizePoolTransactionDisplay = (props: {
   prizePool: PrizePool

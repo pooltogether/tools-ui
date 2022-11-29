@@ -1,7 +1,7 @@
 import { usePrizePools } from '@hooks/usePrizePools'
 import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
-import { useQueries } from 'react-query'
 import { getQueryKey, getQueryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
+import { useQueries } from 'react-query'
 
 export const useAllPrizeTierHistoryData = () => {
   const prizePools = usePrizePools()
