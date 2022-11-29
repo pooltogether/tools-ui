@@ -5,8 +5,6 @@ export const usePrizeTierHistoryManager = (prizePool: PrizePool) => {
   return useQuery(['usePrizeTierHistoryManager', prizePool?.id()], async () => {
     const manager: string = await prizePool.prizeTierHistoryContract.functions.manager()
 
-    return {
-      manager
-    }
+    return manager
   })
 }

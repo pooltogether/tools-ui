@@ -5,7 +5,7 @@ import {
   allCombinedPrizeTiersAtom
 } from '@prizeTierController/atoms'
 import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
-import { usePrizeTierHistoryNewestDrawId } from '@prizeTierController/hooks/usePrizeTierHistoryNewestDrawId'
+import { useDrawBeaconDrawId } from '@prizeTierController/hooks/useDrawBeaconDrawId'
 import { PrizePoolEditHistory } from '@prizeTierController/interfaces'
 import { DrawIdForm } from '@prizeTierController/SavePrizeTiersModal/DrawIdForm'
 import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
@@ -106,7 +106,7 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
 const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
   const { allEdits } = props
   const prizePools = usePrizePools()
-  const { data, isFetched } = usePrizeTierHistoryNewestDrawId(prizePools[0])
+  const { data: nextDrawId, isFetched } = useDrawBeaconDrawId(prizePools[0])
   const [drawId, setDrawId] = useState(0)
 
   return (
@@ -115,8 +115,8 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
         <>
           <DrawIdForm
             onChange={(value) => setDrawId(value)}
-            defaultValues={{ drawId: (data.newestDrawId + 3).toString() }}
-            minDrawId={data.newestDrawId + 1}
+            defaultValues={{ drawId: (nextDrawId + 1).toString() }}
+            minDrawId={nextDrawId}
           />
           <ul className='flex flex-col gap-4 mb-4'>
             {allEdits.map(

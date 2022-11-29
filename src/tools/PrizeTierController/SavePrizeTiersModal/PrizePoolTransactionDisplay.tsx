@@ -26,8 +26,8 @@ export const PrizePoolTransactionDisplay = (props: {
   drawId: number
 }) => {
   const { prizePool, newConfig, edits, drawId } = props
-  const { data: ownerData, isFetched: isOwnerFetched } = usePrizeTierHistoryOwner(prizePool)
-  const { data: managerData, isFetched: isManagerFetched } = usePrizeTierHistoryManager(prizePool)
+  const { data: owner, isFetched: isOwnerFetched } = usePrizeTierHistoryOwner(prizePool)
+  const { data: manager, isFetched: isManagerFetched } = usePrizeTierHistoryManager(prizePool)
 
   const usersAddress = useUsersAddress()
   const { data: signer } = useSigner()
@@ -53,9 +53,7 @@ export const PrizePoolTransactionDisplay = (props: {
   }
 
   const txButtonDisabled =
-    !isOwnerFetched ||
-    !isManagerFetched ||
-    (usersAddress !== ownerData.owner && usersAddress !== managerData.manager)
+    !isOwnerFetched || !isManagerFetched || (usersAddress !== owner && usersAddress !== manager)
 
   if (edits.edited) {
     return (
