@@ -16,7 +16,7 @@ export const formatPrettyConfig = (config: PrizeTierConfig, decimals: string) =>
     expiryDuration: config.expiryDuration.toLocaleString() + 's',
     maxPicksPerUser: config.maxPicksPerUser.toLocaleString(),
     prize: formatUnformattedBigNumberForDisplay(config.prize, decimals),
-    tiers: config.tiers.map((tier) => (tier / 10 ** 9).toLocaleString() + '%'),
+    tiers: config.tiers.map((tier) => (tier / 10 ** 7).toLocaleString() + '%'),
     endTimestampOffset: config.endTimestampOffset.toLocaleString() + 's'
   }
   return prettyConfig
