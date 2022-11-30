@@ -1,18 +1,18 @@
 import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
 import { calculate, PrizeTierConfig } from '@pooltogether/v4-client-js'
-import { isPrizeTierListCollapsed } from '@prizeTierController/atoms'
-import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
-import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
   allCombinedPrizeTiersAtom,
-  selectedPrizeTierHistoryContractIdAtom
+  selectedPrizeTierHistoryContractIdAtom,
+  isPrizeTierListCollapsed
 } from '@prizeTierController/atoms'
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
+import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'

@@ -1,8 +1,8 @@
 import { NetworkIcon, TokenIcon } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
-import classNames from 'classnames'
 import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import classNames from 'classnames'
 
 /**
  *
