@@ -5,10 +5,10 @@ import { Actions } from '@prizeTierController/Actions'
 import { EditPrizeTiersModal } from '@prizeTierController/EditPrizeTiersModal'
 import { PrizeTierHistoryList } from '@prizeTierController/PrizeTierHistoryList'
 import { SavePrizeTiersModal } from '@prizeTierController/SavePrizeTiersModal'
+import { PrizeTierControllerDescription } from '@prizeTierController/PrizeTierControllerDescription'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic.js'
 import { Suspense } from 'react'
-import { PrizeTierControllerDescription } from './PrizeTierControllerDescription'
 
 const Layout = dynamic(() => import('@components/Layout'), {
   suspense: true

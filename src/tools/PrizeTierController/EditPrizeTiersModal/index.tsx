@@ -1,14 +1,12 @@
-import { usePrizePools } from '@hooks/usePrizePools'
-import { usePrizePoolTokens } from '@pooltogether/hooks'
 import { BottomSheet } from '@pooltogether/react-components'
 import { calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
-  selectedPrizePoolIdAtom,
-  selectedPrizeTierHistoryAddressAtom
+  selectedPrizeTierHistoryContractIdAtom
 } from '@prizeTierController/atoms'
 import { EditPrizeTierHistoryForm } from '@prizeTierController/EditPrizeTiersModal/EditPrizeTierHistoryForm'
+import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
@@ -31,13 +29,13 @@ export const EditPrizeTiersModal = () => {
 const SimpleEdit = () => {
   const setIsEditPrizeTierModalOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
   const [prizeTierEdits, setPrizeTierEdits] = useAtom(prizeTierEditsAtom)
-  const [prizeTierHistoryAddress] = useAtom(selectedPrizeTierHistoryAddressAtom)
-  const prizePools = usePrizePools()
-  const [selectedPrizePoolId] = useAtom(selectedPrizePoolIdAtom)
-  const prizePool = prizePools.find((prizePool) => prizePool.id() === selectedPrizePoolId)
-  const { data: tokens, isFetched: isTokensFetched } = usePrizePoolTokens(prizePool)
+  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
+  const [selectedPrizeTierHistoryContractId] = useAtom(selectedPrizeTierHistoryContractIdAtom)
+  const prizeTierHistoryContract = prizeTierHistoryContracts.find(
+    (contract) => contract.id === selectedPrizeTierHistoryContractId
+  )
   const { data: upcomingPrizeTier, isFetched: isPrizeTierFetched } =
-    usePrizeTierHistoryData(prizePool)
+    usePrizeTierHistoryData(prizeTierHistoryContract)
   const [isAdvancedDisplay, setAdvancedDisplay] = useState(false)
 
   const onSubmit = useCallback(
@@ -50,58 +48,70 @@ const SimpleEdit = () => {
       )
       formValues.prize = totalPrizeValue.toString()
 
-      const newPrizeTierEdits = formatPrizeTierFromFormValues(formValues, tokens?.token.decimals)
+      const newPrizeTierEdits = formatPrizeTierFromFormValues(
+        formValues,
+        prizeTierHistoryContract.token.decimals
+      )
       setPrizeTierEdits((prizeTierEdits) => {
         // TODO: should check if edits actually make it different from existing data
         const updatedPrizeTierEdits = { ...prizeTierEdits }
-        if (!updatedPrizeTierEdits[prizePool.chainId]) {
-          updatedPrizeTierEdits[prizePool.chainId] = {}
+        if (!updatedPrizeTierEdits[prizeTierHistoryContract.chainId]) {
+          updatedPrizeTierEdits[prizeTierHistoryContract.chainId] = {}
         }
-        updatedPrizeTierEdits[prizePool.chainId][prizeTierHistoryAddress] = {
-          ...updatedPrizeTierEdits[prizePool.chainId][prizeTierHistoryAddress],
-          ...newPrizeTierEdits
-        }
+        updatedPrizeTierEdits[prizeTierHistoryContract.chainId][prizeTierHistoryContract.address] =
+          {
+            ...updatedPrizeTierEdits[prizeTierHistoryContract.chainId][
+              prizeTierHistoryContract.address
+            ],
+            ...newPrizeTierEdits
+          }
         return updatedPrizeTierEdits
       })
       setIsEditPrizeTierModalOpen(false)
     },
     [
-      prizePool.chainId,
-      prizeTierHistoryAddress,
+      prizeTierHistoryContract.chainId,
+      prizeTierHistoryContract.address,
       setIsEditPrizeTierModalOpen,
       setPrizeTierEdits,
-      tokens?.token.decimals
+      prizeTierHistoryContract.token.decimals
     ]
   )
 
   const defaultValues = useMemo(() => {
     const existingEdits =
-      prizeTierEdits?.[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
+      prizeTierEdits?.[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
     if (!!existingEdits) {
-      return formatFormValuesFromPrizeTier(existingEdits, tokens.token.decimals, { round: true })
+      return formatFormValuesFromPrizeTier(existingEdits, prizeTierHistoryContract.token.decimals, {
+        round: true
+      })
     }
-    return formatFormValuesFromPrizeTier(upcomingPrizeTier, tokens.token.decimals, {
-      round: true
-    })
+    return formatFormValuesFromPrizeTier(
+      upcomingPrizeTier,
+      prizeTierHistoryContract.token.decimals,
+      {
+        round: true
+      }
+    )
   }, [
     upcomingPrizeTier,
-    prizePool.chainId,
-    prizePool.prizeTierHistoryMetadata.address,
+    prizeTierHistoryContract.chainId,
+    prizeTierHistoryContract.address,
     prizeTierEdits,
-    tokens.token.decimals
+    prizeTierHistoryContract.token.decimals
   ])
 
   return (
     <div>
-      <PrizePoolTitle prizePool={prizePool} className='text-lg' />
+      <PrizePoolTitle prizeTierHistoryContract={prizeTierHistoryContract} className='text-lg' />
       <button className='mb-4 opacity-60' onClick={() => setAdvancedDisplay(!isAdvancedDisplay)}>
         {isAdvancedDisplay ? 'Hide' : 'Show'} advanced options
       </button>
-      {!!selectedPrizePoolId && isTokensFetched && isPrizeTierFetched && (
+      {!!selectedPrizeTierHistoryContractId && isPrizeTierFetched && (
         <EditPrizeTierHistoryForm
           onSubmit={onSubmit}
           defaultValues={defaultValues}
-          decimals={parseInt(tokens.token.decimals)}
+          decimals={parseInt(prizeTierHistoryContract.token.decimals)}
           displayAdvancedOptions={isAdvancedDisplay}
         />
       )}

@@ -1,9 +1,8 @@
-import { usePrizePoolTokens } from '@pooltogether/hooks'
 import { NetworkIcon, TokenIcon } from '@pooltogether/react-components'
 import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
-import { PrizePool } from '@pooltogether/v4-client-js'
 import { BlockExplorerLink } from '@pooltogether/wallet-connection'
 import classNames from 'classnames'
+import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 
 /**
  *
@@ -11,31 +10,27 @@ import classNames from 'classnames'
  * @returns
  */
 export const PrizePoolTitle = (props: {
-  prizePool: PrizePool
+  prizeTierHistoryContract: PrizeTierHistoryContract
   showLink?: boolean
   className?: string
 }) => (
   <div className={classNames('flex justify-between font-bold', props.className)}>
     <div className='flex space-x-2 items-center'>
-      <NetworkIcon chainId={props.prizePool.chainId} />
-      <div>{getNetworkNiceNameByChainId(props.prizePool.chainId)}</div>
-      <PrizePoolToken prizePool={props.prizePool} />
+      <NetworkIcon chainId={props.prizeTierHistoryContract.chainId} />
+      <div>{getNetworkNiceNameByChainId(props.prizeTierHistoryContract.chainId)}</div>
+      <TokenIcon
+        address={props.prizeTierHistoryContract.token.address}
+        chainId={props.prizeTierHistoryContract.chainId}
+      />
+      <div>{props.prizeTierHistoryContract.token.name}</div>
     </div>
     {props.showLink && (
-      <BlockExplorerLink address={props.prizePool.address} chainId={props.prizePool.chainId}>
-        <span>{`${props.prizePool.address.slice(0, 6)}...`}</span>
+      <BlockExplorerLink
+        address={props.prizeTierHistoryContract.address}
+        chainId={props.prizeTierHistoryContract.chainId}
+      >
+        <span>{`${props.prizeTierHistoryContract.address.slice(0, 6)}...`}</span>
       </BlockExplorerLink>
     )}
   </div>
 )
-
-const PrizePoolToken = (props: { prizePool: PrizePool }) => {
-  const { prizePool } = props
-  const { data: tokens, isFetched } = usePrizePoolTokens(prizePool)
-  return isFetched ? (
-    <>
-      <TokenIcon address={tokens.token.address} chainId={prizePool.chainId} />
-      <div>{tokens.token.symbol}</div>
-    </>
-  ) : null
-}

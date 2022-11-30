@@ -1,7 +1,6 @@
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
 import { CopyIcon } from '@pooltogether/react-components'
-import { PrizePool } from '@pooltogether/v4-client-js'
 import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
   useUsersAddress,
@@ -12,7 +11,7 @@ import {
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
-import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
+import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import { ethers } from 'ethers'
@@ -20,14 +19,16 @@ import { useState } from 'react'
 import { useSigner } from 'wagmi'
 
 export const PrizePoolTransactionDisplay = (props: {
-  prizePool: PrizePool
+  prizeTierHistoryContract: PrizeTierHistoryContract
   newConfig: PrizeTierConfig
   edits: PrizeTierEditsCheck
   drawId: number
 }) => {
-  const { prizePool, newConfig, edits, drawId } = props
-  const { data: owner, isFetched: isOwnerFetched } = usePrizeTierHistoryOwner(prizePool)
-  const { data: manager, isFetched: isManagerFetched } = usePrizeTierHistoryManager(prizePool)
+  const { prizeTierHistoryContract, newConfig, edits, drawId } = props
+  const { data: owner, isFetched: isOwnerFetched } =
+    usePrizeTierHistoryOwner(prizeTierHistoryContract)
+  const { data: manager, isFetched: isManagerFetched } =
+    usePrizeTierHistoryManager(prizeTierHistoryContract)
 
   const usersAddress = useUsersAddress()
   const { data: signer } = useSigner()
@@ -39,15 +40,15 @@ export const PrizePoolTransactionDisplay = (props: {
   const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
 
   const submitPushTransaction = () => {
-    const prizeTierHistoryContract = new ethers.Contract(
-      prizePool.prizeTierHistoryMetadata.address,
+    const prizeTierHistoryContractWithSigner = new ethers.Contract(
+      prizeTierHistoryContract.address,
       prizeTierHistoryABI,
       signer
     )
     setTransactionId(
       sendTransaction({
         name: 'Push Prize Tier Config',
-        callTransaction: () => prizeTierHistoryContract.push(prizeTier)
+        callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier)
       })
     )
   }
@@ -58,16 +59,19 @@ export const PrizePoolTransactionDisplay = (props: {
   if (edits.edited) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
-        <PrizePoolTitle prizePool={prizePool} className='mb-4 pb-2 border-b' />
+        <PrizePoolTitle
+          prizeTierHistoryContract={prizeTierHistoryContract}
+          className='mb-4 pb-2 border-b'
+        />
         <div className='flex gap-2 opacity-60 text-xxs mb-2'>
           Copy Raw Config
           <CopyIcon text={rawPrizeTierString} />
         </div>
         <div>
-          {(!transaction || transaction.state === TransactionState.pending) && (
+          {(!transaction || transaction?.response?.hash === undefined) && (
             <TxButton
               disabled={txButtonDisabled}
-              chainId={prizePool.chainId}
+              chainId={prizeTierHistoryContract.chainId}
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
@@ -82,7 +86,10 @@ export const PrizePoolTransactionDisplay = (props: {
             </p>
           )}
           {!!transaction?.response?.hash && (
-            <TransactionReceiptButton transaction={transaction} chainId={prizePool.chainId} />
+            <TransactionReceiptButton
+              transaction={transaction}
+              chainId={prizeTierHistoryContract.chainId}
+            />
           )}
         </div>
       </li>

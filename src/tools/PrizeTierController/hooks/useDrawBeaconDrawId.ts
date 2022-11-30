@@ -1,11 +1,10 @@
 import { usePrizePoolNetwork } from '@hooks/usePrizePoolNetwork'
-import { PrizePool } from '@pooltogether/v4-client-js'
 import { useQuery } from 'react-query'
 
-export const useDrawBeaconDrawId = (prizePool: PrizePool) => {
+export const useDrawBeaconDrawId = () => {
   const prizePoolNetwork = usePrizePoolNetwork()
 
-  return useQuery(['useDrawBeaconDrawId', prizePool?.id()], async () => {
+  return useQuery(['useDrawBeaconDrawId', prizePoolNetwork.beaconChainId], async () => {
     const drawBeaconPeriod = await prizePoolNetwork.getDrawBeaconPeriod()
     const drawId = drawBeaconPeriod?.drawId
 
