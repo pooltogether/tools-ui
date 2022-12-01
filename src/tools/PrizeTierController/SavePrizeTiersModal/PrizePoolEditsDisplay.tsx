@@ -1,6 +1,6 @@
 import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
 import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatPrettyConfig } from '@prizeTierController/utils/formatPrettyConfig'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
@@ -20,7 +20,7 @@ export const PrizePoolEditsDisplay = (props: {
   if (edits.edited) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
-        <PrizePoolTitle
+        <PrizeTierHistoryTitle
           prizeTierHistoryContract={prizeTierHistoryContract}
           className='mb-2 pb-2 border-b'
         />

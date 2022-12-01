@@ -5,14 +5,13 @@ import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
   useUsersAddress,
   useSendTransaction,
-  useTransaction,
-  TransactionState
+  useTransaction
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
 import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import { ethers } from 'ethers'
 import { useState } from 'react'
@@ -59,7 +58,7 @@ export const PrizePoolTransactionDisplay = (props: {
   if (edits.edited) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
-        <PrizePoolTitle
+        <PrizeTierHistoryTitle
           prizeTierHistoryContract={prizeTierHistoryContract}
           className='mb-4 pb-2 border-b'
         />

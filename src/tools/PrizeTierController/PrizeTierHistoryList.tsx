@@ -11,7 +11,7 @@ import {
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
@@ -39,7 +39,7 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
-      <PrizePoolTitle
+      <PrizeTierHistoryTitle
         prizeTierHistoryContract={prizeTierHistoryContract}
         showLink
         className='mb-4'

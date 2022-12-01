@@ -9,7 +9,7 @@ import classNames from 'classnames'
  * @param props
  * @returns
  */
-export const PrizePoolTitle = (props: {
+export const PrizeTierHistoryTitle = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
   showLink?: boolean
   className?: string

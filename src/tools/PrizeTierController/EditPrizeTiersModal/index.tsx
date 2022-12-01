@@ -9,7 +9,7 @@ import { EditPrizeTierHistoryForm } from '@prizeTierController/EditPrizeTiersMod
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatFormValuesFromPrizeTier } from '@prizeTierController/utils/formatFormValuesFromPrizeTier'
 import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/formatPrizeTierFromFormValues'
 import { useAtom } from 'jotai'
@@ -103,7 +103,10 @@ const SimpleEdit = () => {
 
   return (
     <div>
-      <PrizePoolTitle prizeTierHistoryContract={prizeTierHistoryContract} className='text-lg' />
+      <PrizeTierHistoryTitle
+        prizeTierHistoryContract={prizeTierHistoryContract}
+        className='text-lg'
+      />
       <button className='mb-4 opacity-60' onClick={() => setAdvancedDisplay(!isAdvancedDisplay)}>
         {isAdvancedDisplay ? 'Hide' : 'Show'} advanced options
       </button>
