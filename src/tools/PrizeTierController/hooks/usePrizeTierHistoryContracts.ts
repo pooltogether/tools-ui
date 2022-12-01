@@ -4,7 +4,7 @@ import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import {
   PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS,
   PRIZE_TIER_HISTORY_V1,
-  TOKEN_INFO
+  PRIZE_TIER_HISTORY_TOKENS
 } from '@prizeTierController/config'
 import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { ethers } from 'ethers'
@@ -16,15 +16,10 @@ export const usePrizeTierHistoryContracts = () => {
 
   const prizeTierHistoryContracts: PrizeTierHistoryContract[] = chainIds.map((chainId) => {
     const contractInfo = PRIZE_TIER_HISTORY_V1[chainId]
-    const tokenInfo = TOKEN_INFO[contractInfo.token]?.[chainId]
-    if (contractInfo && tokenInfo) {
+    const token = PRIZE_TIER_HISTORY_TOKENS[chainId][contractInfo.tokenAddress]
+    if (contractInfo && token) {
       const address = contractInfo.address
       const id = `${address}-${chainId}`
-      const token = {
-        name: contractInfo.token,
-        address: tokenInfo.address,
-        decimals: tokenInfo.decimals.toString()
-      }
       const contract = new ethers.Contract(address, prizeTierHistoryABI, readProviders[chainId])
       return { id, chainId, address, token, contract }
     }

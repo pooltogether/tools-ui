@@ -22,7 +22,7 @@ export const PrizeTierHistoryTitle = (props: {
         address={props.prizeTierHistoryContract.token.address}
         chainId={props.prizeTierHistoryContract.chainId}
       />
-      <div>{props.prizeTierHistoryContract.token.name}</div>
+      <div>{props.prizeTierHistoryContract.token.symbol}</div>
     </div>
     {props.showLink && (
       <BlockExplorerLink
