@@ -1,5 +1,4 @@
-import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
-import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
+import { PrizeTierConfigV2, PrizeTierEditsCheck } from '@prizeTierController/interfaces'
 
 /**
  * Checks if the new prize tier configuration is different from the old one.
@@ -8,8 +7,8 @@ import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
  * @returns Object with a boolean outcomes for each prize tier attribute.
  */
 export const checkForPrizeEdits = (
-  oldConfig: PrizeTierConfig,
-  newConfig: PrizeTierConfig
+  oldConfig: Partial<PrizeTierConfigV2>,
+  newConfig: Partial<PrizeTierConfigV2>
 ): PrizeTierEditsCheck => {
   const result: PrizeTierEditsCheck = {
     edited: false,
@@ -18,7 +17,8 @@ export const checkForPrizeEdits = (
     maxPicksPerUser: false,
     endTimestampOffset: false,
     prize: false,
-    tiers: Array(16).fill(false)
+    tiers: Array(16).fill(false),
+    dpr: false
   }
   if (oldConfig.bitRangeSize !== newConfig.bitRangeSize) {
     result.edited = true
@@ -46,5 +46,9 @@ export const checkForPrizeEdits = (
       result.tiers[i] = true
     }
   })
+  if (oldConfig.dpr !== newConfig.dpr) {
+    result.edited = true
+    result.dpr = true
+  }
   return result
 }

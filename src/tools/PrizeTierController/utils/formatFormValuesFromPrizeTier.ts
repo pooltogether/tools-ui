@@ -1,20 +1,21 @@
-import { PrizeTierConfig, calculate } from '@pooltogether/v4-utils-js'
-import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
+import { calculate } from '@pooltogether/v4-utils-js'
+import { EditPrizeTierFormValues, PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 export const formatFormValuesFromPrizeTier = (
-  prizeTier: Partial<PrizeTierConfig>,
+  prizeTier: Partial<PrizeTierConfigV2>,
   decimals: BigNumberish,
   options?: { round?: boolean }
 ): Partial<EditPrizeTierFormValues> => {
   const formValues: Partial<EditPrizeTierFormValues> = {
-    bitRangeSize: prizeTier.bitRangeSize.toString(),
-    expiryDuration: prizeTier.expiryDuration.toString(),
-    maxPicksPerUser: prizeTier.maxPicksPerUser.toString(),
-    endTimestampOffset: prizeTier.endTimestampOffset.toString(),
+    bitRangeSize: prizeTier.bitRangeSize?.toString(),
+    expiryDuration: prizeTier.expiryDuration?.toString(),
+    maxPicksPerUser: prizeTier.maxPicksPerUser?.toString(),
+    endTimestampOffset: prizeTier.endTimestampOffset?.toString(),
     prize: undefined,
-    tiers: undefined
+    tiers: undefined,
+    dpr: undefined
   }
   if (!!prizeTier.prize) {
     const formattedPrize = formatUnits(prizeTier.prize, decimals)
@@ -34,6 +35,9 @@ export const formatFormValuesFromPrizeTier = (
           : calculatedPrize
       }
     })
+  }
+  if (!!prizeTier.dpr) {
+    formValues.dpr = formatUnits(prizeTier.dpr, 7)
   }
   return formValues
 }

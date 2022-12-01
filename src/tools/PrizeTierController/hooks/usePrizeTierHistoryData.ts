@@ -1,15 +1,16 @@
-import { PrizeTier } from '@pooltogether/v4-utils-js'
+import { PrizeTier, PrizeTierV2 } from '@pooltogether/v4-utils-js'
 import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
-import { Result } from 'ethers/lib/utils'
 import { useQuery } from 'react-query'
 
 export const usePrizeTierHistoryData = (prizeTierHistoryContract: PrizeTierHistoryContract) => {
-  return useQuery(
-    getQueryKey(prizeTierHistoryContract),
-    () => getQueryData(prizeTierHistoryContract),
-    {
-      enabled: !!prizeTierHistoryContract
-    }
+  return useQuery(getQueryKey(prizeTierHistoryContract), () =>
+    getQueryData(prizeTierHistoryContract)
+  )
+}
+
+export const usePrizeTierHistoryDataV2 = (prizeTierHistoryContract: PrizeTierHistoryContract) => {
+  return useQuery(getQueryKey(prizeTierHistoryContract), () =>
+    getQueryDataV2(prizeTierHistoryContract)
   )
 }
 
@@ -21,9 +22,7 @@ export const getQueryData = async (prizeTierHistoryContract: PrizeTierHistoryCon
   const newestDrawId: number = (
     await prizeTierHistoryContract.contract.functions.getNewestDrawId()
   )[0]
-  const result: Result = await prizeTierHistoryContract.contract.functions.getPrizeTier(
-    newestDrawId
-  )
+  const result = (await prizeTierHistoryContract.contract.functions.getPrizeTier(newestDrawId))[0]
   const prizeTier: PrizeTier = {
     bitRangeSize: result[0].bitRangeSize,
     expiryDuration: result[0].expiryDuration,
@@ -34,4 +33,22 @@ export const getQueryData = async (prizeTierHistoryContract: PrizeTierHistoryCon
     drawId: result[0].drawId
   }
   return prizeTier
+}
+
+export const getQueryDataV2 = async (prizeTierHistoryContract: PrizeTierHistoryContract) => {
+  const newestDrawId: number = (
+    await prizeTierHistoryContract.contract.functions.getNewestDrawId()
+  )[0]
+  const result = (await prizeTierHistoryContract.contract.functions.getPrizeTier(newestDrawId))[0]
+  const prizeTierV2: PrizeTierV2 = {
+    bitRangeSize: result.bitRangeSize,
+    expiryDuration: result.expiryDuration,
+    maxPicksPerUser: result.maxPicksPerUser,
+    prize: result.prize,
+    tiers: result.tiers,
+    endTimestampOffset: result.endTimestampOffset,
+    drawId: result.drawId,
+    dpr: result.dpr
+  }
+  return prizeTierV2
 }
