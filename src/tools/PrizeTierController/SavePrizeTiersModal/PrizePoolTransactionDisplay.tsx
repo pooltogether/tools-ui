@@ -5,7 +5,8 @@ import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
   useUsersAddress,
   useSendTransaction,
-  useTransaction
+  useTransaction,
+  TransactionState
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
@@ -67,7 +68,9 @@ export const PrizePoolTransactionDisplay = (props: {
           <CopyIcon text={rawPrizeTierString} />
         </div>
         <div>
-          {(!transaction || transaction?.response?.hash === undefined) && (
+          {(!transaction ||
+            transaction?.state === TransactionState.pending ||
+            transaction?.response?.hash === undefined) && (
             <TxButton
               disabled={txButtonDisabled}
               chainId={prizeTierHistoryContract.chainId}
