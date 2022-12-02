@@ -1,6 +1,5 @@
 import { Token } from '@pooltogether/hooks'
-import { PrizeTierConfig } from '@pooltogether/v4-client-js'
-import { PrizeTier } from '@pooltogether/v4-utils-js'
+import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import { Contract } from 'ethers'
 
 export interface PrizeTierConfigV2 extends PrizeTierConfig {
