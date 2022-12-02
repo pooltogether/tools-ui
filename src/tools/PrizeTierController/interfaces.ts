@@ -28,7 +28,7 @@ export interface EditPrizeTierFormValues {
   endTimestampOffset: string
   prize: string
   tiers: { value: string }[]
-  dpr: string
+  dpr?: string
 }
 
 export interface PrizeTierEditsCheck {

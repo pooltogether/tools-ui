@@ -179,7 +179,7 @@ const PrizeTierStats = (props: {
       />
       {!!prizeTier.dpr && !!defaultDPRValue && (
         <Stat
-          label='Draw Pick Rate'
+          label='Draw Percentage Rate'
           value={formatPrettyPercentage(prizeTier.dpr)}
           defaultValue={formatPrettyPercentage(defaultDPRValue)}
         />

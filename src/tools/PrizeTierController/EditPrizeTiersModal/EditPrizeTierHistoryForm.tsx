@@ -75,6 +75,17 @@ export const EditPrizeTierHistoryForm = (props: {
           register={register}
           disabled
         />
+        <FormElement
+          title='Draw Percentage Rate (%)'
+          formKey='dpr'
+          validate={{
+            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid DPR Value',
+            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid DPR Value',
+            isLessThanOrEqualToOneHundred: (v) => parseInt(v) <= 100 || 'Invalid DPR Value'
+          }}
+          errors={errors}
+          register={register}
+        />
       </div>
       <PrizeTiers
         errors={errors}
