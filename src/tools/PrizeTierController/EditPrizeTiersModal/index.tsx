@@ -53,7 +53,6 @@ const SimpleEdit = () => {
         prizeTierHistoryContract.token.decimals
       )
       setPrizeTierEdits((prizeTierEdits) => {
-        // TODO: should check if edits actually make it different from existing data
         const updatedPrizeTierEdits = { ...prizeTierEdits }
         if (!updatedPrizeTierEdits[prizeTierHistoryContract.chainId]) {
           updatedPrizeTierEdits[prizeTierHistoryContract.chainId] = {}
@@ -83,14 +82,16 @@ const SimpleEdit = () => {
       prizeTierEdits?.[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
     if (!!existingEdits) {
       return formatFormValuesFromPrizeTier(existingEdits, prizeTierHistoryContract.token.decimals, {
-        round: true
+        round: true,
+        isV2: prizeTierHistoryContract.isV2
       })
     }
     return formatFormValuesFromPrizeTier(
       upcomingPrizeTier,
       prizeTierHistoryContract.token.decimals,
       {
-        round: true
+        round: true,
+        isV2: prizeTierHistoryContract.isV2
       }
     )
   }, [

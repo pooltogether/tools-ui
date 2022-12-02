@@ -27,7 +27,7 @@ export const PrizeTierHistoryTitle = (props: {
     <div>
       {props.prizeTierHistoryContract.isV2 && (
         <span className='mr-2'>
-          <strong>V2</strong>
+          <strong>[V2]</strong>
         </span>
       )}
       {props.showLink && (

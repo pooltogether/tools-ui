@@ -48,7 +48,7 @@ export const EditPrizeTierHistoryForm = (props: {
         (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
         0
       )
-      setValue('prize', totalValueOfPrizes.toString())
+      setValue('prize', totalValueOfPrizes.toString(), { shouldValidate: true })
     }
   })
   useEffect(() => {

@@ -46,21 +46,10 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
         className='mb-4'
       />
       {isFetched ? (
-        <>
-          {!!upcomingPrizeTier ? (
-            <PrizeTierState
-              prizeTierHistoryContract={prizeTierHistoryContract}
-              prizeTier={upcomingPrizeTier}
-            />
-          ) : (
-            <>
-              <span>No prize tiers detected.</span>
-              <div>
-                <EditButton contractId={prizeTierHistoryContract.id} />
-              </div>
-            </>
-          )}
-        </>
+        <PrizeTierState
+          prizeTierHistoryContract={prizeTierHistoryContract}
+          prizeTier={upcomingPrizeTier}
+        />
       ) : (
         'Loading...'
       )}
@@ -82,82 +71,102 @@ const PrizeTierState = (props: {
   const prizeTierEdits =
     allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
 
-  // Calculating combined outcome of existing and edited prize tiers:
-  const combinedPrizeTier = formatCombinedPrizeTier(prizeTier, prizeTierEdits)
-  useEffect(() => {
-    setCombinedPrizeTiers(() => {
-      const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
-      if (!updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId]) {
-        updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId] = {}
-      }
-      updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId][
-        prizeTierHistoryContract.address
-      ] = combinedPrizeTier
-      return updatedCombinedPrizeTiers
-    })
-  }, [prizeTier, prizeTierEdits])
-
-  const defaultNumberofPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
-  const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
-
-  const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
-  const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
-    calculate.calculatePrizeForTierPercentage(
-      index,
-      tier,
-      combinedPrizeTier.bitRangeSize,
-      combinedPrizeTier.prize
-    )
-  )
-  const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
-
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
 
-  return (
-    <div>
-      <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
-        <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
-        <Stat
-          label='Total Value'
-          value={formatUnformattedBigNumberForDisplay(
-            combinedPrizeTier.prize,
-            prizeTierHistoryContract.token.decimals
+  const combinedPrizeTier = !!prizeTier
+    ? formatCombinedPrizeTier(prizeTier, prizeTierEdits)
+    : prizeTierEdits
+  useEffect(() => {
+    if (!!combinedPrizeTiers) {
+      setCombinedPrizeTiers(() => {
+        const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
+        if (!updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId]) {
+          updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId] = {}
+        }
+        updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId][
+          prizeTierHistoryContract.address
+        ] = combinedPrizeTier
+        return updatedCombinedPrizeTiers
+      })
+    }
+  }, [prizeTier, prizeTierEdits])
+
+  if (!!combinedPrizeTier) {
+    const defaultNumberofPrizesPerTier: number[] = !!prizeTier
+      ? calculate.calculateNumberOfPrizesPerTier(prizeTier)
+      : Array(16).fill(0)
+    const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
+
+    const numberOfPrizesPerTier: number[] =
+      calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
+    const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
+      calculate.calculatePrizeForTierPercentage(
+        index,
+        tier,
+        combinedPrizeTier.bitRangeSize,
+        combinedPrizeTier.prize
+      )
+    )
+    const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
+    const formattedDefaultTotalValue = !!prizeTier
+      ? formatUnformattedBigNumberForDisplay(
+          prizeTier.prize,
+          prizeTierHistoryContract.token.decimals
+        )
+      : undefined
+
+    return (
+      <div>
+        <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
+          <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
+          <Stat
+            label='Total Value'
+            value={formatUnformattedBigNumberForDisplay(
+              combinedPrizeTier.prize,
+              prizeTierHistoryContract.token.decimals
+            )}
+            defaultValue={formattedDefaultTotalValue}
+          />
+          {!isCollapsed && (
+            <PrizeTierStats
+              prizeTier={combinedPrizeTier}
+              defaultMaxPicksValue={prizeTier?.maxPicksPerUser}
+              defaultBitRangeValue={prizeTier?.bitRangeSize}
+              defaultDPRValue={prizeTier?.dpr}
+            />
           )}
-          defaultValue={formatUnformattedBigNumberForDisplay(
-            prizeTier.prize,
-            prizeTierHistoryContract.token.decimals
-          )}
-        />
+        </div>
+
         {!isCollapsed && (
-          <PrizeTierStats
+          <PrizesList
+            prizeTierHistoryContract={prizeTierHistoryContract}
             prizeTier={combinedPrizeTier}
-            defaultMaxPicksValue={prizeTier.maxPicksPerUser}
-            defaultBitRangeValue={prizeTier.bitRangeSize}
-            defaultDPRValue={prizeTier.dpr}
+            numberOfPrizesPerTier={numberOfPrizesPerTier}
+            valueOfPrizesPerTier={valueOfPrizesPerTier}
           />
         )}
-      </div>
 
-      {!isCollapsed && (
-        <PrizesList
-          prizeTierHistoryContract={prizeTierHistoryContract}
-          prizeTier={combinedPrizeTier}
-          numberOfPrizesPerTier={numberOfPrizesPerTier}
-          valueOfPrizesPerTier={valueOfPrizesPerTier}
-        />
-      )}
-
-      <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
-        <EditButton contractId={prizeTierHistoryContract.id} />
+        <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
+          <EditButton contractId={prizeTierHistoryContract.id} />
+        </div>
       </div>
-    </div>
-  )
+    )
+  } else {
+    return (
+      <>
+        <span className='text-xxs opacity-80'>No prize tiers detected.</span>
+        <div className='w-full flex justify-end'>
+          <EditButton contractId={prizeTierHistoryContract.id} />
+        </div>
+      </>
+    )
+  }
 }
 
 const PrizeTierStats = (props: {
   prizeTier: PrizeTierConfigV2
-  defaultMaxPicksValue: number
-  defaultBitRangeValue: number
+  defaultMaxPicksValue?: number
+  defaultBitRangeValue?: number
   defaultDPRValue?: number
 }) => {
   const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue, defaultDPRValue } = props

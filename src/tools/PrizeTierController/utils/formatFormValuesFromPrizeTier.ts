@@ -6,38 +6,58 @@ import { formatUnits } from 'ethers/lib/utils'
 export const formatFormValuesFromPrizeTier = (
   prizeTier: Partial<PrizeTierConfigV2>,
   decimals: BigNumberish,
-  options?: { round?: boolean }
+  options?: { round?: boolean; isV2?: boolean }
 ): Partial<EditPrizeTierFormValues> => {
-  const formValues: Partial<EditPrizeTierFormValues> = {
-    bitRangeSize: prizeTier.bitRangeSize?.toString(),
-    expiryDuration: prizeTier.expiryDuration?.toString(),
-    maxPicksPerUser: prizeTier.maxPicksPerUser?.toString(),
-    endTimestampOffset: prizeTier.endTimestampOffset?.toString(),
-    prize: undefined,
-    tiers: undefined,
-    dpr: undefined
+  if (!!prizeTier) {
+    const formValues: Partial<EditPrizeTierFormValues> = {
+      bitRangeSize: prizeTier.bitRangeSize?.toString(),
+      expiryDuration: prizeTier.expiryDuration?.toString(),
+      maxPicksPerUser: prizeTier.maxPicksPerUser?.toString(),
+      endTimestampOffset: prizeTier.endTimestampOffset?.toString(),
+      prize: undefined,
+      tiers: undefined,
+      dpr: undefined
+    }
+    if (!!prizeTier.prize) {
+      const formattedPrize = formatUnits(prizeTier.prize, decimals)
+      formValues.prize = options?.round
+        ? parseFloat(parseFloat(formattedPrize).toFixed(Number(decimals) - 1)).toString()
+        : formattedPrize
+    }
+    if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
+      formValues.tiers = prizeTier.tiers.map((tier, i) => {
+        const calculatedPrize = formatUnits(
+          calculate.calculatePrizeForTierPercentage(
+            i,
+            tier,
+            prizeTier.bitRangeSize,
+            prizeTier.prize
+          ),
+          decimals
+        )
+        return {
+          value: options?.round
+            ? parseFloat(parseFloat(calculatedPrize).toFixed(Number(decimals) - 1)).toString()
+            : calculatedPrize
+        }
+      })
+    }
+    if (!!prizeTier.dpr) {
+      formValues.dpr = formatUnits(prizeTier.dpr, 7)
+    }
+    return formValues
+  } else {
+    const fallbackFormValues: EditPrizeTierFormValues = {
+      bitRangeSize: '1',
+      expiryDuration: '5184000',
+      maxPicksPerUser: '1',
+      endTimestampOffset: '900',
+      prize: '0',
+      tiers: Array(16).fill({ value: '0' })
+    }
+    if (options?.isV2) {
+      fallbackFormValues.dpr = '100'
+    }
+    return fallbackFormValues
   }
-  if (!!prizeTier.prize) {
-    const formattedPrize = formatUnits(prizeTier.prize, decimals)
-    formValues.prize = options?.round
-      ? parseFloat(parseFloat(formattedPrize).toFixed(Number(decimals) - 1)).toString()
-      : formattedPrize
-  }
-  if (!!prizeTier.tiers && !!prizeTier.bitRangeSize && !!prizeTier.prize) {
-    formValues.tiers = prizeTier.tiers.map((tier, i) => {
-      const calculatedPrize = formatUnits(
-        calculate.calculatePrizeForTierPercentage(i, tier, prizeTier.bitRangeSize, prizeTier.prize),
-        decimals
-      )
-      return {
-        value: options?.round
-          ? parseFloat(parseFloat(calculatedPrize).toFixed(Number(decimals) - 1)).toString()
-          : calculatedPrize
-      }
-    })
-  }
-  if (!!prizeTier.dpr) {
-    formValues.dpr = formatUnits(prizeTier.dpr, 7)
-  }
-  return formValues
 }
