@@ -20,35 +20,49 @@ export const checkForPrizeEdits = (
     tiers: Array(16).fill(false),
     dpr: false
   }
-  if (oldConfig.bitRangeSize !== newConfig.bitRangeSize) {
-    result.edited = true
-    result.bitRangeSize = true
-  }
-  if (oldConfig.expiryDuration !== newConfig.expiryDuration) {
-    result.edited = true
-    result.expiryDuration = true
-  }
-  if (oldConfig.maxPicksPerUser !== newConfig.maxPicksPerUser) {
-    result.edited = true
-    result.maxPicksPerUser = true
-  }
-  if (oldConfig.endTimestampOffset !== newConfig.endTimestampOffset) {
-    result.edited = true
-    result.endTimestampOffset = true
-  }
-  if (!oldConfig.prize.eq(newConfig.prize)) {
-    result.edited = true
-    result.prize = true
-  }
-  oldConfig.tiers.forEach((tier, i) => {
-    if (tier !== newConfig.tiers[i]) {
-      result.edited = true
-      result.tiers[i] = true
+  if (oldConfig === undefined) {
+    for (const key in newConfig) {
+      if (key === 'tiers') {
+        newConfig.tiers.forEach((tier, i) => {
+          if (tier !== 0) {
+            result.tiers[i] = true
+          }
+        })
+      } else {
+        result[key] = true
+      }
     }
-  })
-  if (oldConfig.dpr !== newConfig.dpr) {
-    result.edited = true
-    result.dpr = true
+  } else {
+    if (oldConfig.bitRangeSize !== newConfig.bitRangeSize) {
+      result.edited = true
+      result.bitRangeSize = true
+    }
+    if (oldConfig.expiryDuration !== newConfig.expiryDuration) {
+      result.edited = true
+      result.expiryDuration = true
+    }
+    if (oldConfig.maxPicksPerUser !== newConfig.maxPicksPerUser) {
+      result.edited = true
+      result.maxPicksPerUser = true
+    }
+    if (oldConfig.endTimestampOffset !== newConfig.endTimestampOffset) {
+      result.edited = true
+      result.endTimestampOffset = true
+    }
+    if (!oldConfig.prize.eq(newConfig.prize)) {
+      result.edited = true
+      result.prize = true
+    }
+    oldConfig.tiers.forEach((tier, i) => {
+      if (tier !== newConfig.tiers[i]) {
+        result.edited = true
+        result.tiers[i] = true
+      }
+    })
+    if (oldConfig.dpr !== newConfig.dpr) {
+      result.edited = true
+      result.dpr = true
+    }
   }
   return result
 }

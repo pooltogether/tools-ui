@@ -116,6 +116,7 @@ const SimpleEdit = () => {
           defaultValues={defaultValues}
           decimals={parseInt(prizeTierHistoryContract.token.decimals)}
           displayAdvancedOptions={isAdvancedDisplay}
+          isV2={prizeTierHistoryContract.isV2}
         />
       )}
     </div>

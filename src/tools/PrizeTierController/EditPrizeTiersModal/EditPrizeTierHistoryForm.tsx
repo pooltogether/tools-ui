@@ -23,8 +23,9 @@ export const EditPrizeTierHistoryForm = (props: {
   defaultValues?: Partial<EditPrizeTierFormValues>
   decimals: number
   displayAdvancedOptions?: boolean
+  isV2?: boolean
 }) => {
-  const { onSubmit, defaultValues, decimals, displayAdvancedOptions } = props
+  const { onSubmit, defaultValues, decimals, displayAdvancedOptions, isV2 } = props
   const {
     handleSubmit,
     register,
@@ -75,17 +76,19 @@ export const EditPrizeTierHistoryForm = (props: {
           register={register}
           disabled
         />
-        <FormElement
-          title='Draw Percentage Rate (%)'
-          formKey='dpr'
-          validate={{
-            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid DPR Value',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid DPR Value',
-            isLessThanOrEqualToOneHundred: (v) => parseInt(v) <= 100 || 'Invalid DPR Value'
-          }}
-          errors={errors}
-          register={register}
-        />
+        {isV2 && (
+          <FormElement
+            title='Draw Percentage Rate (%)'
+            formKey='dpr'
+            validate={{
+              isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid DPR Value',
+              isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid DPR Value',
+              isLessThanOrEqualToOneHundred: (v) => parseInt(v) <= 100 || 'Invalid DPR Value'
+            }}
+            errors={errors}
+            register={register}
+          />
+        )}
       </div>
       <PrizeTiers
         errors={errors}

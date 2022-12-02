@@ -46,10 +46,21 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
         className='mb-4'
       />
       {isFetched ? (
-        <PrizeTierState
-          prizeTierHistoryContract={prizeTierHistoryContract}
-          prizeTier={upcomingPrizeTier}
-        />
+        <>
+          {!!upcomingPrizeTier ? (
+            <PrizeTierState
+              prizeTierHistoryContract={prizeTierHistoryContract}
+              prizeTier={upcomingPrizeTier}
+            />
+          ) : (
+            <>
+              <span>No prize tiers detected.</span>
+              <div>
+                <EditButton contractId={prizeTierHistoryContract.id} />
+              </div>
+            </>
+          )}
+        </>
       ) : (
         'Loading...'
       )}
@@ -100,11 +111,6 @@ const PrizeTierState = (props: {
   )
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
-  const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
-    selectedPrizeTierHistoryContractIdAtom
-  )
-
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
 
   return (
@@ -142,16 +148,7 @@ const PrizeTierState = (props: {
       )}
 
       <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
-        <Button
-          onClick={() => {
-            setSelectedPrizeTierHistoryContractId(prizeTierHistoryContract.id)
-            setIsOpen(true)
-          }}
-          theme={ButtonTheme.transparent}
-          size={ButtonSize.sm}
-        >
-          Edit
-        </Button>
+        <EditButton contractId={prizeTierHistoryContract.id} />
       </div>
     </div>
   )
@@ -253,5 +250,25 @@ const PrizesList = (props: {
         })
         .filter(Boolean)}
     </ul>
+  )
+}
+
+const EditButton = (props: { contractId: string }) => {
+  const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
+  const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
+    selectedPrizeTierHistoryContractIdAtom
+  )
+
+  return (
+    <Button
+      onClick={() => {
+        setSelectedPrizeTierHistoryContractId(props.contractId)
+        setIsOpen(true)
+      }}
+      theme={ButtonTheme.transparent}
+      size={ButtonSize.sm}
+    >
+      Edit
+    </Button>
   )
 }

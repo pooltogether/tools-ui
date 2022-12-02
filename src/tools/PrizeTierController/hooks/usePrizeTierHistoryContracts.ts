@@ -1,6 +1,7 @@
 import { APP_ENVIRONMENTS, Token, useIsTestnets } from '@pooltogether/hooks'
 import { useReadProviders } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
+import prizeTierHistoryV2ABI from '@prizeTierController/abis/PrizeTierHistory'
 import {
   PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS,
   PRIZE_TIER_HISTORY_V1,
@@ -61,7 +62,11 @@ const formatPrizeTierHistoryContract = (
   options?: { isV2?: boolean }
 ): PrizeTierHistoryContract => {
   const id = `${address}-${chainId}`
-  const contract = new ethers.Contract(address, prizeTierHistoryABI, provider)
   const isV2 = options?.isV2
+  const contract = new ethers.Contract(
+    address,
+    isV2 ? prizeTierHistoryV2ABI : prizeTierHistoryABI,
+    provider
+  )
   return { id, chainId, address, token, contract, isV2 }
 }

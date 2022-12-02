@@ -20,27 +20,29 @@ export const useAllPrizeTierHistoryData = () => {
   if (isFetched) {
     prizeTierHistoryContracts.forEach((contract, i) => {
       const prizeTier = results[i].data
-      if (allPrizeTierHistoryData[contract.chainId] === undefined) {
-        allPrizeTierHistoryData[contract.chainId] = {}
-      }
-      if (contract.isV2) {
-        allPrizeTierHistoryData[contract.chainId][contract.address] = {
-          bitRangeSize: prizeTier.bitRangeSize,
-          expiryDuration: prizeTier.expiryDuration,
-          maxPicksPerUser: prizeTier.maxPicksPerUser,
-          prize: prizeTier.prize,
-          tiers: prizeTier.tiers,
-          endTimestampOffset: prizeTier.endTimestampOffset,
-          dpr: prizeTier.dpr
+      if (!!prizeTier) {
+        if (allPrizeTierHistoryData[contract.chainId] === undefined) {
+          allPrizeTierHistoryData[contract.chainId] = {}
         }
-      } else {
-        allPrizeTierHistoryData[contract.chainId][contract.address] = {
-          bitRangeSize: prizeTier.bitRangeSize,
-          expiryDuration: prizeTier.expiryDuration,
-          maxPicksPerUser: prizeTier.maxPicksPerUser,
-          prize: prizeTier.prize,
-          tiers: prizeTier.tiers,
-          endTimestampOffset: prizeTier.endTimestampOffset
+        if (contract.isV2) {
+          allPrizeTierHistoryData[contract.chainId][contract.address] = {
+            bitRangeSize: prizeTier.bitRangeSize,
+            expiryDuration: prizeTier.expiryDuration,
+            maxPicksPerUser: prizeTier.maxPicksPerUser,
+            prize: prizeTier.prize,
+            tiers: prizeTier.tiers,
+            endTimestampOffset: prizeTier.endTimestampOffset,
+            dpr: prizeTier.dpr
+          }
+        } else {
+          allPrizeTierHistoryData[contract.chainId][contract.address] = {
+            bitRangeSize: prizeTier.bitRangeSize,
+            expiryDuration: prizeTier.expiryDuration,
+            maxPicksPerUser: prizeTier.maxPicksPerUser,
+            prize: prizeTier.prize,
+            tiers: prizeTier.tiers,
+            endTimestampOffset: prizeTier.endTimestampOffset
+          }
         }
       }
     })
