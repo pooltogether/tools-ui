@@ -1,7 +1,6 @@
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
 import { CopyIcon } from '@pooltogether/react-components'
-import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
   useUsersAddress,
   useSendTransaction,
@@ -9,9 +8,15 @@ import {
   TransactionState
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
+import prizeTierHistoryV2ABI from '@prizeTierController/abis/PrizeTierHistoryV2'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
-import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import {
+  PrizeTierConfigV2,
+  PrizeTierV2,
+  PrizeTierEditsCheck,
+  PrizeTierHistoryContract
+} from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import { ethers } from 'ethers'
@@ -20,7 +25,7 @@ import { useSigner } from 'wagmi'
 
 export const PrizePoolTransactionDisplay = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  newConfig: PrizeTierConfig
+  newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
   drawId: number
 }) => {
@@ -36,18 +41,18 @@ export const PrizePoolTransactionDisplay = (props: {
   const [transactionId, setTransactionId] = useState<string>('')
   const transaction = useTransaction(transactionId)
 
-  const prizeTier: PrizeTier = { ...newConfig, drawId }
+  const prizeTier: PrizeTierV2 = { ...newConfig, drawId }
   const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
 
   const submitPushTransaction = () => {
     const prizeTierHistoryContractWithSigner = new ethers.Contract(
       prizeTierHistoryContract.address,
-      prizeTierHistoryABI,
+      prizeTierHistoryContract.isV2 ? prizeTierHistoryV2ABI : prizeTierHistoryABI,
       signer
     )
     setTransactionId(
       sendTransaction({
-        name: 'Push Prize Tier Config',
+        name: `Push Prize Tier ${prizeTierHistoryContract.isV2 ? 'V2 ' : ''}Config`,
         callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier)
       })
     )

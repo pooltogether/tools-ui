@@ -1,5 +1,8 @@
-import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
-import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import {
+  PrizeTierConfigV2,
+  PrizeTierEditsCheck,
+  PrizeTierHistoryContract
+} from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatPrettyConfig } from '@prizeTierController/utils/formatPrettyConfig'
 import classNames from 'classnames'
@@ -7,8 +10,8 @@ import { BigNumber } from 'ethers'
 
 export const PrizePoolEditsDisplay = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  oldConfig: PrizeTierConfig
-  newConfig: PrizeTierConfig
+  oldConfig: PrizeTierConfigV2
+  newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
   displayRawValues?: boolean
 }) => {
@@ -71,6 +74,14 @@ export const PrizePoolEditsDisplay = (props: {
               name='Prize Amount'
               values={[oldConfig.prize, newConfig.prize]}
               formattedValues={[formattedOldConfig.prize, formattedNewConfig.prize]}
+              displayRawValues={displayRawValues}
+            />
+          )}
+          {edits.dpr && (
+            <EditedNumberValue
+              name='Draw Percentage Rate'
+              values={[oldConfig.dpr, newConfig.dpr]}
+              formattedValues={[formattedOldConfig.dpr, formattedNewConfig.dpr]}
               displayRawValues={displayRawValues}
             />
           )}

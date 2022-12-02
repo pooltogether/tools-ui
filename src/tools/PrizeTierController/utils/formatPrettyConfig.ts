@@ -1,16 +1,6 @@
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
-import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
+import { PrizeTierConfigV2, PrettyConfig } from '@prizeTierController/interfaces'
 import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
-
-interface PrettyConfig {
-  bitRangeSize: string
-  expiryDuration: string
-  maxPicksPerUser: string
-  prize: string
-  tiers: string[]
-  endTimestampOffset: string
-  dpr?: string
-}
 
 export const formatPrettyConfig = (config: PrizeTierConfigV2, decimals: string): PrettyConfig => {
   const bitRangeSize = config.bitRangeSize.toLocaleString()

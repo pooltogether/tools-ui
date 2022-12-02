@@ -48,3 +48,13 @@ export interface PrizePoolEditHistory {
   newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
 }
+
+export interface PrettyConfig {
+  bitRangeSize: string
+  expiryDuration: string
+  maxPicksPerUser: string
+  prize: string
+  tiers: string[]
+  endTimestampOffset: string
+  dpr?: string
+}
