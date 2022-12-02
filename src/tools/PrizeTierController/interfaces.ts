@@ -1,9 +1,15 @@
 import { Token } from '@pooltogether/hooks'
 import { PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { PrizeTier } from '@pooltogether/v4-utils-js'
 import { Contract } from 'ethers'
 
 export interface PrizeTierConfigV2 extends PrizeTierConfig {
-  dpr: number
+  dpr?: number
+}
+
+// Once V1 is entirely deprecated, this can be removed and the PrizeTierV2 type from v4-utils-js can be used.
+export interface PrizeTierV2 extends PrizeTier {
+  dpr?: number
 }
 
 export interface PrizeTierHistoryContract {
@@ -37,13 +43,6 @@ export interface PrizeTierEditsCheck {
 }
 
 export interface PrizePoolEditHistory {
-  prizeTierHistoryContract: PrizeTierHistoryContract
-  oldConfig: PrizeTierConfig
-  newConfig: PrizeTierConfig
-  edits: PrizeTierEditsCheck
-}
-
-export interface PrizePoolEditHistoryV2 {
   prizeTierHistoryContract: PrizeTierHistoryContract
   oldConfig: PrizeTierConfigV2
   newConfig: PrizeTierConfigV2

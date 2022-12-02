@@ -1,26 +1,16 @@
-import { PrizeTier, PrizeTierV2 } from '@pooltogether/v4-utils-js'
+import { PrizeTierV2 } from '@prizeTierController/interfaces'
 
-export const formatRawPrizeTierString = (prizeTier: PrizeTier) => {
+export const formatRawPrizeTierString = (prizeTier: PrizeTierV2) => {
   let rawString = ''
   rawString += prizeTier.bitRangeSize
   rawString += ',' + prizeTier.drawId
   rawString += ',' + prizeTier.maxPicksPerUser
   rawString += ',' + prizeTier.expiryDuration
   rawString += ',' + prizeTier.endTimestampOffset
+  if (!!prizeTier.dpr) {
+    rawString += ',' + prizeTier.dpr
+  }
   rawString += ',' + prizeTier.prize.toString()
   rawString += ',[' + prizeTier.tiers.toString() + ']'
-  return rawString
-}
-
-export const formatRawPrizeTierStringV2 = (prizeTierV2: PrizeTierV2) => {
-  let rawString = ''
-  rawString += prizeTierV2.bitRangeSize
-  rawString += ',' + prizeTierV2.drawId
-  rawString += ',' + prizeTierV2.maxPicksPerUser
-  rawString += ',' + prizeTierV2.expiryDuration
-  rawString += ',' + prizeTierV2.endTimestampOffset
-  rawString += ',' + prizeTierV2.dpr
-  rawString += ',' + prizeTierV2.prize.toString()
-  rawString += ',[' + prizeTierV2.tiers.toString() + ']'
   return rawString
 }

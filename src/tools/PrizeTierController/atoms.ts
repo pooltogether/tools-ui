@@ -1,4 +1,4 @@
-import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
+import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 
@@ -10,8 +10,8 @@ export const isSavePrizeTiersModalOpenAtom = atom(false)
 export const selectedPrizeTierHistoryContractIdAtom = atom<string>('')
 
 export const prizeTierEditsAtom = atomWithReset<{
-  [chainId: number]: { [prizeTierHistoryAddress: string]: Partial<PrizeTierConfig> }
+  [chainId: number]: { [prizeTierHistoryAddress: string]: Partial<PrizeTierConfigV2> }
 }>({})
 export const allCombinedPrizeTiersAtom = atom<{
-  [chainId: number]: { [prizeTierHistoryAddress: string]: PrizeTierConfig }
+  [chainId: number]: { [prizeTierHistoryAddress: string]: PrizeTierConfigV2 }
 }>({})

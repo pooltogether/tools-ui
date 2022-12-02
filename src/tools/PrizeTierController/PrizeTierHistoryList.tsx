@@ -1,6 +1,6 @@
 import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
-import { calculate, PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { calculate } from '@pooltogether/v4-client-js'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
@@ -10,9 +10,10 @@ import {
 } from '@prizeTierController/atoms'
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
+import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -62,7 +63,7 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
  */
 const PrizeTierState = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  prizeTier: PrizeTierConfig
+  prizeTier: PrizeTierConfigV2
 }) => {
   const { prizeTierHistoryContract, prizeTier } = props
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
@@ -126,6 +127,7 @@ const PrizeTierState = (props: {
             prizeTier={combinedPrizeTier}
             defaultMaxPicksValue={prizeTier.maxPicksPerUser}
             defaultBitRangeValue={prizeTier.bitRangeSize}
+            defaultDPRValue={prizeTier.dpr}
           />
         )}
       </div>
@@ -156,11 +158,12 @@ const PrizeTierState = (props: {
 }
 
 const PrizeTierStats = (props: {
-  prizeTier: PrizeTierConfig
+  prizeTier: PrizeTierConfigV2
   defaultMaxPicksValue: number
   defaultBitRangeValue: number
+  defaultDPRValue?: number
 }) => {
-  const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue } = props
+  const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue, defaultDPRValue } = props
 
   return (
     <>
@@ -174,6 +177,13 @@ const PrizeTierStats = (props: {
         value={prizeTier.bitRangeSize}
         defaultValue={defaultBitRangeValue}
       />
+      {!!prizeTier.dpr && !!defaultDPRValue && (
+        <Stat
+          label='Draw Pick Rate'
+          value={formatPrettyPercentage(prizeTier.dpr)}
+          defaultValue={formatPrettyPercentage(defaultDPRValue)}
+        />
+      )}
     </>
   )
 }
@@ -209,7 +219,7 @@ const Stat = (props: { label: string; value: number | string; defaultValue?: num
 
 const PrizesList = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  prizeTier: PrizeTierConfig
+  prizeTier: PrizeTierConfigV2
   numberOfPrizesPerTier: number[]
   valueOfPrizesPerTier: BigNumber[]
 }) => {

@@ -14,23 +14,26 @@ export const PrizeTierHistoryTitle = (props: {
   showLink?: boolean
   className?: string
 }) => (
-  <div className={classNames('flex justify-between font-bold', props.className)}>
+  <div className={classNames('flex gap-2 justify-between font-bold', props.className)}>
     <div className='flex space-x-2 items-center'>
       <NetworkIcon chainId={props.prizeTierHistoryContract.chainId} />
-      <div>{getNetworkNiceNameByChainId(props.prizeTierHistoryContract.chainId)}</div>
+      <span>{getNetworkNiceNameByChainId(props.prizeTierHistoryContract.chainId)}</span>
       <TokenIcon
         address={props.prizeTierHistoryContract.token.address}
         chainId={props.prizeTierHistoryContract.chainId}
       />
-      <div>{props.prizeTierHistoryContract.token.symbol}</div>
+      <span>{props.prizeTierHistoryContract.token.symbol}</span>
     </div>
-    {props.showLink && (
-      <BlockExplorerLink
-        address={props.prizeTierHistoryContract.address}
-        chainId={props.prizeTierHistoryContract.chainId}
-      >
-        <span>{`${props.prizeTierHistoryContract.address.slice(0, 6)}...`}</span>
-      </BlockExplorerLink>
-    )}
+    <div>
+      {props.prizeTierHistoryContract.isV2 && <span className='mr-2'>V2</span>}
+      {props.showLink && (
+        <BlockExplorerLink
+          address={props.prizeTierHistoryContract.address}
+          chainId={props.prizeTierHistoryContract.chainId}
+        >
+          <span>{`${props.prizeTierHistoryContract.address.slice(0, 6)}...`}</span>
+        </BlockExplorerLink>
+      )}
+    </div>
   </div>
 )

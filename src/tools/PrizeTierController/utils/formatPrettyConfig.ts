@@ -1,6 +1,6 @@
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
-import { PrizeTierConfig } from '@pooltogether/v4-client-js'
 import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
+import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 
 interface PrettyConfig {
   bitRangeSize: string
@@ -9,33 +9,20 @@ interface PrettyConfig {
   prize: string
   tiers: string[]
   endTimestampOffset: string
+  dpr?: string
 }
 
-interface PrettyConfigV2 extends PrettyConfig {
-  dpr: string
-}
-
-export const formatPrettyConfig = (config: PrizeTierConfig, decimals: string) => {
-  const prettyConfig: PrettyConfig = {
-    bitRangeSize: config.bitRangeSize.toLocaleString(),
-    expiryDuration: config.expiryDuration.toLocaleString() + 's',
-    maxPicksPerUser: config.maxPicksPerUser.toLocaleString(),
-    prize: formatUnformattedBigNumberForDisplay(config.prize, decimals),
-    tiers: config.tiers.map((tier) => (tier / 10 ** 7).toLocaleString() + '%'),
-    endTimestampOffset: config.endTimestampOffset.toLocaleString() + 's'
+export const formatPrettyConfig = (config: PrizeTierConfigV2, decimals: string): PrettyConfig => {
+  const bitRangeSize = config.bitRangeSize.toLocaleString()
+  const expiryDuration = config.expiryDuration.toLocaleString() + 's'
+  const maxPicksPerUser = config.maxPicksPerUser.toLocaleString()
+  const prize = formatUnformattedBigNumberForDisplay(config.prize, decimals)
+  const tiers = config.tiers.map((tier) => formatPrettyPercentage(tier))
+  const endTimestampOffset = config.endTimestampOffset.toLocaleString() + 's'
+  if (!!config.dpr) {
+    const dpr = formatPrettyPercentage(config.dpr)
+    return { bitRangeSize, expiryDuration, maxPicksPerUser, prize, tiers, endTimestampOffset, dpr }
+  } else {
+    return { bitRangeSize, expiryDuration, maxPicksPerUser, prize, tiers, endTimestampOffset }
   }
-  return prettyConfig
-}
-
-export const formatPrettyConfigV2 = (config: PrizeTierConfigV2, decimals: string) => {
-  const prettyConfigV2: PrettyConfigV2 = {
-    bitRangeSize: config.bitRangeSize.toLocaleString(),
-    expiryDuration: config.expiryDuration.toLocaleString() + 's',
-    maxPicksPerUser: config.maxPicksPerUser.toLocaleString(),
-    prize: formatUnformattedBigNumberForDisplay(config.prize, decimals),
-    tiers: config.tiers.map((tier) => (tier / 10 ** 7).toLocaleString() + '%'),
-    endTimestampOffset: config.endTimestampOffset.toLocaleString() + 's',
-    dpr: (config.dpr / 10 ** 7).toLocaleString() + '%'
-  }
-  return prettyConfigV2
 }
