@@ -5,10 +5,12 @@ import {
   useUsersAddress,
   useSendTransaction,
   useTransaction,
-  TransactionState
+  TransactionState,
+  TransactionStatus
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import prizeTierHistoryV2ABI from '@prizeTierController/abis/PrizeTierHistoryV2'
+import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
 import {
@@ -21,7 +23,7 @@ import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitl
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import classNames from 'classnames'
 import { ethers } from 'ethers'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSigner } from 'wagmi'
 
 export const PrizePoolTransactionDisplay = (props: {
@@ -31,6 +33,7 @@ export const PrizePoolTransactionDisplay = (props: {
   drawId: number
 }) => {
   const { prizeTierHistoryContract, newConfig, edits, drawId } = props
+  const { refetch } = usePrizeTierHistoryData(prizeTierHistoryContract)
   const { data: owner, isFetched: isOwnerFetched } =
     usePrizeTierHistoryOwner(prizeTierHistoryContract)
   const { data: manager, isFetched: isManagerFetched } =
@@ -41,6 +44,16 @@ export const PrizePoolTransactionDisplay = (props: {
   const sendTransaction = useSendTransaction()
   const [transactionId, setTransactionId] = useState<string>('')
   const transaction = useTransaction(transactionId)
+
+  // Refetching prize tier history data upon successful transaction:
+  useEffect(() => {
+    if (
+      transaction?.state === TransactionState.complete &&
+      transaction?.status === TransactionStatus.success
+    ) {
+      refetch()
+    }
+  }, [transaction])
 
   const prizeTier: PrizeTierV2 = { ...newConfig, drawId }
   const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
@@ -62,7 +75,7 @@ export const PrizePoolTransactionDisplay = (props: {
   const txButtonDisabled =
     !isOwnerFetched || !isManagerFetched || (usersAddress !== owner && usersAddress !== manager)
 
-  if (edits.edited) {
+  if (edits.edited || transaction?.response?.hash) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
         <PrizeTierHistoryTitle
@@ -83,7 +96,7 @@ export const PrizePoolTransactionDisplay = (props: {
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
-              className={classNames({ 'mb-2': transaction?.state === TransactionState.pending })}
+              className={classNames({ 'mb-3': transaction?.state === TransactionState.pending })}
             >
               Push Edits
             </TxButton>
