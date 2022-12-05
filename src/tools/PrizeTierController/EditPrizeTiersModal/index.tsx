@@ -12,6 +12,7 @@ import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatFormValuesFromPrizeTier } from '@prizeTierController/utils/formatFormValuesFromPrizeTier'
 import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/formatPrizeTierFromFormValues'
+import { formatTotalPrizeValueFromFormValues } from '@prizeTierController/utils/formatTotalPrizeValue'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -41,12 +42,10 @@ const SimpleEdit = () => {
   const onSubmit = useCallback(
     (formValues: EditPrizeTierFormValues) => {
       // Recalculating prize in case of fast submissions:
-      const bitRange = parseInt(formValues.bitRangeSize)
-      const totalPrizeValue = formValues.tiers.reduce(
-        (a, b, i) => a + Number(b.value) * calculateNumberOfPrizesForTierIndex(bitRange, i),
-        0
+      formValues.prize = formatTotalPrizeValueFromFormValues(
+        formValues,
+        prizeTierHistoryContract.token.decimals
       )
-      formValues.prize = totalPrizeValue.toString()
 
       const newPrizeTierEdits = formatPrizeTierFromFormValues(
         formValues,

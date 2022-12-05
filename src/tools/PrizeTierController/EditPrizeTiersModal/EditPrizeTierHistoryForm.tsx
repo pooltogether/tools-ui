@@ -4,6 +4,7 @@ import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { calculate, calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
+import { formatTotalPrizeValue } from '@prizeTierController/utils/formatTotalPrizeValue'
 import { getLastNonZeroTierIndex } from '@prizeTierController/utils/getLastNonZeroTierIndex'
 import useDebouncedCallback from 'beautiful-react-hooks/useDebouncedCallback'
 import classNames from 'classnames'
@@ -44,10 +45,7 @@ export const EditPrizeTierHistoryForm = (props: {
   const tierValues = watch('tiers').map((item) => Number(item.value))
   const updatePrizeValue = useDebouncedCallback((bitRange: number, tierValues: number[]) => {
     if (!!bitRange && tierValues.length > 0 && tierValues.every((value) => !Number.isNaN(value))) {
-      const totalValueOfPrizes = tierValues.reduce(
-        (a, b, i) => a + b * calculateNumberOfPrizesForTierIndex(bitRange, i),
-        0
-      )
+      const totalValueOfPrizes = formatTotalPrizeValue(tierValues, bitRange, decimals)
       setValue('prize', totalValueOfPrizes.toString(), { shouldValidate: true })
     }
   })
