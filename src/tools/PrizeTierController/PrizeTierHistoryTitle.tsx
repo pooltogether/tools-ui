@@ -25,11 +25,7 @@ export const PrizeTierHistoryTitle = (props: {
       <span>{props.prizeTierHistoryContract.token.symbol}</span>
     </div>
     <div>
-      {props.prizeTierHistoryContract.isV2 && (
-        <span className='mr-2'>
-          <strong>[V2]</strong>
-        </span>
-      )}
+      <b className='mr-2'>[{props.prizeTierHistoryContract.isV2 ? 'V2' : 'V1'}]</b>
       {props.showLink && (
         <BlockExplorerLink
           address={props.prizeTierHistoryContract.address}

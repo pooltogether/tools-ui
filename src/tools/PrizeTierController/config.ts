@@ -23,6 +23,8 @@ export const PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS = Object.freeze({
   ]
 })
 
+export const DPR_DECIMALS: number = 7
+
 export const PRIZE_TIER_HISTORY_V1: {
   [chainId: number]: { address: string; tokenAddress: string }
 } = Object.freeze({

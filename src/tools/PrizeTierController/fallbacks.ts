@@ -8,7 +8,7 @@ export const fallbackConfig: PrizeTierConfigV2 = {
   endTimestampOffset: 900,
   prize: BigNumber.from('0'),
   tiers: Array(16).fill(0),
-  dpr: 1_000_000_000
+  dpr: 0
 }
 
 export const fallbackFormValues: EditPrizeTierFormValues = {
@@ -22,5 +22,5 @@ export const fallbackFormValues: EditPrizeTierFormValues = {
 
 export const fallbackFormValuesV2: EditPrizeTierFormValues = {
   ...fallbackFormValues,
-  dpr: '100'
+  dpr: '0'
 }

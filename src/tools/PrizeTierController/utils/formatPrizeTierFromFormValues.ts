@@ -1,4 +1,5 @@
 import { calculate } from '@pooltogether/v4-utils-js'
+import { DPR_DECIMALS } from '@prizeTierController/config'
 import { EditPrizeTierFormValues, PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
@@ -36,7 +37,7 @@ export const formatPrizeTierFromFormValues = (
     prizeTier.tiers = tempTiers
   }
   if (!!formValues.dpr) {
-    prizeTier.dpr = parseFloat(formValues.dpr) * 10 ** 7
+    prizeTier.dpr = parseFloat(formValues.dpr) * 10 ** DPR_DECIMALS
   }
   return prizeTier
 }

@@ -1,3 +1,5 @@
+import { DPR_DECIMALS } from '@prizeTierController/config'
+
 export const formatPrettyPercentage = (value: number) => {
-  return (value / 10 ** 7).toLocaleString() + '%'
+  return (value / 10 ** DPR_DECIMALS).toLocaleString() + '%'
 }

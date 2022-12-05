@@ -92,10 +92,10 @@ const PrizeTierState = (props: {
   }, [prizeTier, prizeTierEdits])
 
   if (!!combinedPrizeTier) {
-    const defaultNumberofPrizesPerTier: number[] = !!prizeTier
+    const defaultNumberOfPrizesPerTier: number[] = !!prizeTier
       ? calculate.calculateNumberOfPrizesPerTier(prizeTier)
       : Array(16).fill(0)
-    const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
+    const defaultTotalPrizes = defaultNumberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
     const numberOfPrizesPerTier: number[] =
       calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)

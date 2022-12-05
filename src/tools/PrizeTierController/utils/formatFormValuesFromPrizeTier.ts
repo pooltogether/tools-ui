@@ -1,4 +1,5 @@
 import { calculate } from '@pooltogether/v4-utils-js'
+import { DPR_DECIMALS } from '@prizeTierController/config'
 import { fallbackFormValues, fallbackFormValuesV2 } from '@prizeTierController/fallbacks'
 import { EditPrizeTierFormValues, PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
@@ -44,7 +45,7 @@ export const formatFormValuesFromPrizeTier = (
       })
     }
     if (!!prizeTier.dpr) {
-      formValues.dpr = formatUnits(prizeTier.dpr, 7)
+      formValues.dpr = formatUnits(prizeTier.dpr, DPR_DECIMALS)
     }
     return formValues
   } else {
