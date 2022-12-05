@@ -9,7 +9,7 @@ export const formatCombinedPrizeTier = (
   const combinedPrizeTier = { ...prizeTier }
   for (const key in prizeTierEdits) {
     if (key === 'tiers') {
-      let tempTiers = Array(16).fill(0)
+      let tempTiers: number[] = Array(16).fill(0)
       prizeTierEdits.tiers.forEach((tier, i) => {
         tempTiers[i] = tier
       })

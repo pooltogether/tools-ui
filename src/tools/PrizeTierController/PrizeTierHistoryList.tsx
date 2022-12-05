@@ -113,7 +113,7 @@ const PrizeTierState = (props: {
           prizeTier.prize,
           prizeTierHistoryContract.token.decimals
         )
-      : undefined
+      : '0'
 
     return (
       <div>
@@ -183,11 +183,11 @@ const PrizeTierStats = (props: {
         value={prizeTier.bitRangeSize}
         defaultValue={defaultBitRangeValue}
       />
-      {!!prizeTier.dpr && !!defaultDPRValue && (
+      {!!prizeTier.dpr && (
         <Stat
           label='Draw Percentage Rate'
           value={formatPrettyPercentage(prizeTier.dpr)}
-          defaultValue={formatPrettyPercentage(defaultDPRValue)}
+          defaultValue={formatPrettyPercentage(defaultDPRValue ?? 1_000_000_000)}
         />
       )}
     </>
@@ -204,13 +204,13 @@ const Stat = (props: { label: string; value: number | string; defaultValue?: num
       <span
         className={classNames({
           'text-pt-green':
-            !!props.defaultValue &&
+            props.defaultValue !== undefined &&
             (typeof props.value === 'string' && typeof props.defaultValue === 'string'
               ? parseFloat(props.value.replaceAll(',', '')) >
                 parseFloat(props.defaultValue.replaceAll(',', ''))
               : props.value > props.defaultValue),
           'text-pt-red':
-            !!props.defaultValue &&
+            props.defaultValue !== undefined &&
             (typeof props.value === 'string' && typeof props.defaultValue === 'string'
               ? parseFloat(props.value.replaceAll(',', '')) <
                 parseFloat(props.defaultValue.replaceAll(',', ''))

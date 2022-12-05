@@ -1,3 +1,4 @@
+import { fallbackConfig } from '@prizeTierController/fallbacks'
 import {
   PrizeTierConfigV2,
   PrizeTierEditsCheck,
@@ -10,14 +11,17 @@ import { BigNumber } from 'ethers'
 
 export const PrizePoolEditsDisplay = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  oldConfig: PrizeTierConfigV2
+  oldConfig?: PrizeTierConfigV2
   newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
   displayRawValues?: boolean
 }) => {
   const { prizeTierHistoryContract, oldConfig, newConfig, edits, displayRawValues } = props
 
-  const formattedOldConfig = formatPrettyConfig(oldConfig, prizeTierHistoryContract.token.decimals)
+  const formattedOldConfig = formatPrettyConfig(
+    oldConfig ?? fallbackConfig,
+    prizeTierHistoryContract.token.decimals
+  )
   const formattedNewConfig = formatPrettyConfig(newConfig, prizeTierHistoryContract.token.decimals)
 
   if (edits.edited) {
@@ -31,7 +35,10 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.bitRangeSize && (
             <EditedNumberValue
               name='Bit Range Size'
-              values={[oldConfig.bitRangeSize, newConfig.bitRangeSize]}
+              values={[
+                oldConfig?.bitRangeSize ?? fallbackConfig.bitRangeSize,
+                newConfig.bitRangeSize
+              ]}
               formattedValues={[formattedOldConfig.bitRangeSize, formattedNewConfig.bitRangeSize]}
               displayRawValues={displayRawValues}
             />
@@ -39,7 +46,10 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.expiryDuration && (
             <EditedNumberValue
               name='Expiry Duration'
-              values={[oldConfig.expiryDuration, newConfig.expiryDuration]}
+              values={[
+                oldConfig?.expiryDuration ?? fallbackConfig.expiryDuration,
+                newConfig.expiryDuration
+              ]}
               formattedValues={[
                 formattedOldConfig.expiryDuration,
                 formattedNewConfig.expiryDuration
@@ -50,7 +60,10 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.maxPicksPerUser && (
             <EditedNumberValue
               name='Max Picks Per User'
-              values={[oldConfig.maxPicksPerUser, newConfig.maxPicksPerUser]}
+              values={[
+                oldConfig?.maxPicksPerUser ?? fallbackConfig.maxPicksPerUser,
+                newConfig.maxPicksPerUser
+              ]}
               formattedValues={[
                 formattedOldConfig.maxPicksPerUser,
                 formattedNewConfig.maxPicksPerUser
@@ -61,7 +74,10 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.endTimestampOffset && (
             <EditedNumberValue
               name='End Timestamp Offset'
-              values={[oldConfig.endTimestampOffset, newConfig.endTimestampOffset]}
+              values={[
+                oldConfig?.endTimestampOffset ?? fallbackConfig.endTimestampOffset,
+                newConfig.endTimestampOffset
+              ]}
               formattedValues={[
                 formattedOldConfig.endTimestampOffset,
                 formattedNewConfig.endTimestampOffset
@@ -72,7 +88,7 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.prize && (
             <EditedBigNumberValue
               name='Prize Amount'
-              values={[oldConfig.prize, newConfig.prize]}
+              values={[oldConfig?.prize ?? fallbackConfig.prize, newConfig.prize]}
               formattedValues={[formattedOldConfig.prize, formattedNewConfig.prize]}
               displayRawValues={displayRawValues}
             />
@@ -80,7 +96,7 @@ export const PrizePoolEditsDisplay = (props: {
           {edits.dpr && (
             <EditedNumberValue
               name='Draw Percentage Rate'
-              values={[oldConfig.dpr, newConfig.dpr]}
+              values={[oldConfig?.dpr ?? fallbackConfig.dpr, newConfig.dpr]}
               formattedValues={[formattedOldConfig.dpr, formattedNewConfig.dpr]}
               displayRawValues={displayRawValues}
             />
@@ -90,7 +106,7 @@ export const PrizePoolEditsDisplay = (props: {
               tier && (
                 <EditedNumberValue
                   name={`Tier ${i + 1}`}
-                  values={[oldConfig.tiers[i], newConfig.tiers[i]]}
+                  values={[oldConfig?.tiers[i] ?? fallbackConfig.tiers[i], newConfig.tiers[i]]}
                   formattedValues={[formattedOldConfig.tiers[i], formattedNewConfig.tiers[i]]}
                   displayRawValues={displayRawValues}
                 />

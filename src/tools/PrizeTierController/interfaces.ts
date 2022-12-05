@@ -43,7 +43,7 @@ export interface PrizeTierEditsCheck {
 
 export interface PrizePoolEditHistory {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  oldConfig: PrizeTierConfigV2
+  oldConfig?: PrizeTierConfigV2
   newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
 }

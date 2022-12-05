@@ -1,4 +1,5 @@
 import { calculate } from '@pooltogether/v4-utils-js'
+import { fallbackFormValues, fallbackFormValuesV2 } from '@prizeTierController/fallbacks'
 import { EditPrizeTierFormValues, PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -47,17 +48,6 @@ export const formatFormValuesFromPrizeTier = (
     }
     return formValues
   } else {
-    const fallbackFormValues: EditPrizeTierFormValues = {
-      bitRangeSize: '1',
-      expiryDuration: '5184000',
-      maxPicksPerUser: '1',
-      endTimestampOffset: '900',
-      prize: '0',
-      tiers: Array(16).fill({ value: '0' })
-    }
-    if (options?.isV2) {
-      fallbackFormValues.dpr = '100'
-    }
-    return fallbackFormValues
+    return options?.isV2 ? fallbackFormValuesV2 : fallbackFormValues
   }
 }

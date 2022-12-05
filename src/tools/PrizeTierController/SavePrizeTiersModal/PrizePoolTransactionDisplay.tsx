@@ -19,6 +19,7 @@ import {
 } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
+import classNames from 'classnames'
 import { ethers } from 'ethers'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
@@ -82,6 +83,7 @@ export const PrizePoolTransactionDisplay = (props: {
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
+              className={classNames({ 'mb-2': transaction?.state === TransactionState.pending })}
             >
               Push Edits
             </TxButton>

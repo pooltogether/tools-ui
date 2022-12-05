@@ -20,9 +20,10 @@ export const formatPrizeTierFromFormValues = (
     prizeTier.prize = parseUnits(formValues.prize, decimals)
   }
   if (!!formValues.tiers && !!formValues.bitRangeSize && !!formValues.prize) {
-    prizeTier.tiers = formValues.tiers.map((tier, i) => {
+    let tempTiers: number[] = Array(16).fill(0)
+    formValues.tiers.forEach((tier, i) => {
       if (!!tier.value) {
-        return calculate
+        tempTiers[i] = calculate
           .calculateTierPercentageForPrize(
             i,
             parseUnits(tier.value.toString(), decimals),
@@ -30,10 +31,9 @@ export const formatPrizeTierFromFormValues = (
             prizeTier.prize
           )
           .toNumber()
-      } else {
-        return 0
       }
     })
+    prizeTier.tiers = tempTiers
   }
   if (!!formValues.dpr) {
     prizeTier.dpr = parseFloat(formValues.dpr) * 10 ** 7
