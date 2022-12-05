@@ -1,4 +1,14 @@
-import { PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { Token } from '@pooltogether/hooks'
+import { PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { Contract } from 'ethers'
+
+export interface PrizeTierHistoryContract {
+  id: string
+  chainId: number
+  address: string
+  token: Token
+  contract: Contract
+}
 
 export interface EditPrizeTierFormValues {
   bitRangeSize: string
@@ -20,7 +30,7 @@ export interface PrizeTierEditsCheck {
 }
 
 export interface PrizePoolEditHistory {
-  prizePool: PrizePool
+  prizeTierHistoryContract: PrizeTierHistoryContract
   oldConfig: PrizeTierConfig
   newConfig: PrizeTierConfig
   edits: PrizeTierEditsCheck

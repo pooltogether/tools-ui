@@ -1,4 +1,3 @@
-import { usePrizePools } from '@hooks/usePrizePools'
 import { BottomSheet, Button } from '@pooltogether/react-components'
 import {
   isSavePrizeTiersModalOpenAtom,
@@ -6,6 +5,7 @@ import {
 } from '@prizeTierController/atoms'
 import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
 import { useDrawBeaconDrawId } from '@prizeTierController/hooks/useDrawBeaconDrawId'
+import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { PrizePoolEditHistory } from '@prizeTierController/interfaces'
 import { DrawIdForm } from '@prizeTierController/SavePrizeTiersModal/DrawIdForm'
 import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
@@ -24,23 +24,28 @@ export const SavePrizeTiersModal = () => {
   const [modalState, setModalState] = useState<SavePrizeTiersModalState>(
     SavePrizeTiersModalState.review
   )
-  const prizePools = usePrizePools()
+  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
   const { data, isFetched } = useAllPrizeTierHistoryData()
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
 
   const allPrizePoolConfigEdits = useMemo(() => {
     if (isFetched) {
-      return prizePools.map((prizePool) => {
-        if (combinedPrizeTiers[prizePool.chainId]) {
-          const oldConfig = data[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]
-          const newConfig =
-            combinedPrizeTiers[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address]
+      return prizeTierHistoryContracts.map((contract) => {
+        if (combinedPrizeTiers[contract.chainId]) {
+          const oldConfig = data[contract.chainId][contract.address]
+          const newConfig = combinedPrizeTiers[contract.chainId][contract.address]
           const edits = checkForPrizeEdits(oldConfig, newConfig)
-          return { prizePool, oldConfig, newConfig, edits }
+          const prizePoolEditHistory: PrizePoolEditHistory = {
+            prizeTierHistoryContract: contract,
+            oldConfig,
+            newConfig,
+            edits
+          }
+          return prizePoolEditHistory
         }
       })
     }
-  }, [prizePools, data, isFetched, combinedPrizeTiers])
+  }, [prizeTierHistoryContracts, data, isFetched, combinedPrizeTiers])
 
   return (
     <BottomSheet
@@ -82,17 +87,17 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
           (editHistory) =>
             editHistory && (
               <PrizePoolEditsDisplay
-                prizePool={editHistory.prizePool}
+                prizeTierHistoryContract={editHistory.prizeTierHistoryContract}
                 oldConfig={editHistory.oldConfig}
                 newConfig={editHistory.newConfig}
                 edits={editHistory.edits}
                 displayRawValues={isRawDisplay}
-                key={`prizePoolEdits-${editHistory.prizePool.id()}`}
+                key={`prizePoolEdits-${editHistory.prizeTierHistoryContract.id}`}
               />
             )
         )}
       </ul>
-      {allEdits.every((editHistory) => !editHistory.edits.edited) ? (
+      {allEdits.every((editHistory) => !!editHistory && !editHistory.edits.edited) ? (
         'No edits.'
       ) : (
         <Button type='button' onClick={() => onContinue()}>
@@ -105,8 +110,7 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
 
 const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
   const { allEdits } = props
-  const prizePools = usePrizePools()
-  const { data: nextDrawId, isFetched } = useDrawBeaconDrawId(prizePools[0])
+  const { data: nextDrawId, isFetched } = useDrawBeaconDrawId()
   const [drawId, setDrawId] = useState(0)
 
   return (
@@ -123,11 +127,11 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
               (editHistory) =>
                 editHistory && (
                   <PrizePoolTransactionDisplay
-                    prizePool={editHistory.prizePool}
+                    prizeTierHistoryContract={editHistory.prizeTierHistoryContract}
                     newConfig={editHistory.newConfig}
                     edits={editHistory.edits}
                     drawId={drawId}
-                    key={`prizePoolTXs-${editHistory.prizePool.id()}`}
+                    key={`prizePoolTXs-${editHistory.prizeTierHistoryContract.id}`}
                   />
                 )
             )}

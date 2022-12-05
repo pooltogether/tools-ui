@@ -1,29 +1,29 @@
-import { usePrizePoolTokens } from '@pooltogether/hooks'
-import { PrizePool } from '@pooltogether/v4-client-js'
 import { PrizeTierConfig } from '@pooltogether/v4-utils-js'
-import { PrizeTierEditsCheck } from '@prizeTierController/interfaces'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatPrettyConfig } from '@prizeTierController/utils/formatPrettyConfig'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 
 export const PrizePoolEditsDisplay = (props: {
-  prizePool: PrizePool
+  prizeTierHistoryContract: PrizeTierHistoryContract
   oldConfig: PrizeTierConfig
   newConfig: PrizeTierConfig
   edits: PrizeTierEditsCheck
   displayRawValues?: boolean
 }) => {
-  const { prizePool, oldConfig, newConfig, edits, displayRawValues } = props
-  const { data: tokens } = usePrizePoolTokens(prizePool)
+  const { prizeTierHistoryContract, oldConfig, newConfig, edits, displayRawValues } = props
 
-  const formattedOldConfig = formatPrettyConfig(oldConfig, tokens.token.decimals)
-  const formattedNewConfig = formatPrettyConfig(newConfig, tokens.token.decimals)
+  const formattedOldConfig = formatPrettyConfig(oldConfig, prizeTierHistoryContract.token.decimals)
+  const formattedNewConfig = formatPrettyConfig(newConfig, prizeTierHistoryContract.token.decimals)
 
   if (edits.edited) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
-        <PrizePoolTitle prizePool={prizePool} className='mb-2 pb-2 border-b' />
+        <PrizeTierHistoryTitle
+          prizeTierHistoryContract={prizeTierHistoryContract}
+          className='mb-2 pb-2 border-b'
+        />
         <div className='flex flex-col gap-2'>
           {edits.bitRangeSize && (
             <EditedNumberValue

@@ -1,49 +1,54 @@
-import { usePrizePools } from '@hooks/usePrizePools'
-import { usePrizePoolTokens } from '@pooltogether/hooks'
 import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
-import { calculate, PrizePool, PrizeTierConfig } from '@pooltogether/v4-client-js'
-import { isPrizeTierListCollapsed } from '@prizeTierController/atoms'
+import { calculate, PrizeTierConfig } from '@pooltogether/v4-client-js'
+import {
+  isEditPrizeTiersModalOpenAtom,
+  prizeTierEditsAtom,
+  allCombinedPrizeTiersAtom,
+  selectedPrizeTierHistoryContractIdAtom,
+  isPrizeTierListCollapsed
+} from '@prizeTierController/atoms'
+import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { PrizePoolTitle } from '@prizeTierController/PrizePoolTitle'
+import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
 import { useEffect } from 'react'
-import {
-  isEditPrizeTiersModalOpenAtom,
-  prizeTierEditsAtom,
-  allCombinedPrizeTiersAtom,
-  selectedPrizePoolIdAtom,
-  selectedPrizeTierHistoryAddressAtom,
-  selectedPrizeTierHistoryChainIdAtom
-} from './atoms'
 
 export const PrizeTierHistoryList = (props: { className?: string }) => {
   const { className } = props
-  const prizePools = usePrizePools()
+  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
 
   return (
     <ul className={classNames('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
-      {prizePools.map((prizePool) => (
-        <PrizePoolItem prizePool={prizePool} key={'pth-item-' + prizePool.id()} />
+      {prizeTierHistoryContracts.map((contract) => (
+        <PrizePoolItem prizeTierHistoryContract={contract} key={'pth-item-' + `${contract.id}`} />
       ))}
     </ul>
   )
 }
 
-const PrizePoolItem = (props: { prizePool: PrizePool }) => {
-  const { prizePool } = props
+const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContract }) => {
+  const { prizeTierHistoryContract } = props
 
-  const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizePool)
+  const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizeTierHistoryContract)
 
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
-      <PrizePoolTitle prizePool={prizePool} showLink className='mb-4' />
+      <PrizeTierHistoryTitle
+        prizeTierHistoryContract={prizeTierHistoryContract}
+        showLink
+        className='mb-4'
+      />
       {isFetched ? (
-        <PrizeTierState prizePool={prizePool} prizeTier={upcomingPrizeTier} />
+        <PrizeTierState
+          prizeTierHistoryContract={prizeTierHistoryContract}
+          prizeTier={upcomingPrizeTier}
+        />
       ) : (
         'Loading...'
       )}
@@ -55,24 +60,27 @@ const PrizePoolItem = (props: { prizePool: PrizePool }) => {
  *
  * @param props
  */
-const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfig }) => {
-  const { prizePool, prizeTier } = props
+const PrizeTierState = (props: {
+  prizeTierHistoryContract: PrizeTierHistoryContract
+  prizeTier: PrizeTierConfig
+}) => {
+  const { prizeTierHistoryContract, prizeTier } = props
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
   const [combinedPrizeTiers, setCombinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
   const prizeTierEdits =
-    allPrizeTierEdits[prizePool.chainId]?.[prizePool.prizeTierHistoryMetadata.address]
-  const { data: tokens } = usePrizePoolTokens(prizePool)
+    allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
 
   // Calculating combined outcome of existing and edited prize tiers:
   const combinedPrizeTier = formatCombinedPrizeTier(prizeTier, prizeTierEdits)
   useEffect(() => {
     setCombinedPrizeTiers(() => {
       const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
-      if (!updatedCombinedPrizeTiers[prizePool.chainId]) {
-        updatedCombinedPrizeTiers[prizePool.chainId] = {}
+      if (!updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId]) {
+        updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId] = {}
       }
-      updatedCombinedPrizeTiers[prizePool.chainId][prizePool.prizeTierHistoryMetadata.address] =
-        combinedPrizeTier
+      updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId][
+        prizeTierHistoryContract.address
+      ] = combinedPrizeTier
       return updatedCombinedPrizeTiers
     })
   }, [prizeTier, prizeTierEdits])
@@ -92,9 +100,9 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
   const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
 
   const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  const setSelectedPrizePoolId = useUpdateAtom(selectedPrizePoolIdAtom)
-  const setSelectedPrizeTierHistoryAddress = useUpdateAtom(selectedPrizeTierHistoryAddressAtom)
-  const setSelectedPrizeTierHistoryChainId = useUpdateAtom(selectedPrizeTierHistoryChainIdAtom)
+  const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
+    selectedPrizeTierHistoryContractIdAtom
+  )
 
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
 
@@ -106,11 +114,11 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
           label='Total Value'
           value={formatUnformattedBigNumberForDisplay(
             combinedPrizeTier.prize,
-            tokens?.token.decimals
+            prizeTierHistoryContract.token.decimals
           )}
           defaultValue={formatUnformattedBigNumberForDisplay(
             prizeTier.prize,
-            tokens?.token.decimals
+            prizeTierHistoryContract.token.decimals
           )}
         />
         {!isCollapsed && (
@@ -124,7 +132,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
 
       {!isCollapsed && (
         <PrizesList
-          prizePool={prizePool}
+          prizeTierHistoryContract={prizeTierHistoryContract}
           prizeTier={combinedPrizeTier}
           numberOfPrizesPerTier={numberOfPrizesPerTier}
           valueOfPrizesPerTier={valueOfPrizesPerTier}
@@ -134,9 +142,7 @@ const PrizeTierState = (props: { prizePool: PrizePool; prizeTier: PrizeTierConfi
       <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
         <Button
           onClick={() => {
-            setSelectedPrizePoolId(prizePool.id())
-            setSelectedPrizeTierHistoryAddress(prizePool.prizeTierHistoryMetadata.address)
-            setSelectedPrizeTierHistoryChainId(prizePool.chainId)
+            setSelectedPrizeTierHistoryContractId(prizeTierHistoryContract.id)
             setIsOpen(true)
           }}
           theme={ButtonTheme.transparent}
@@ -202,13 +208,12 @@ const Stat = (props: { label: string; value: number | string; defaultValue?: num
 )
 
 const PrizesList = (props: {
-  prizePool: PrizePool
+  prizeTierHistoryContract: PrizeTierHistoryContract
   prizeTier: PrizeTierConfig
   numberOfPrizesPerTier: number[]
   valueOfPrizesPerTier: BigNumber[]
 }) => {
-  const { prizePool, prizeTier, numberOfPrizesPerTier, valueOfPrizesPerTier } = props
-  const { data: tokens } = usePrizePoolTokens(prizePool)
+  const { prizeTierHistoryContract, prizeTier, numberOfPrizesPerTier, valueOfPrizesPerTier } = props
   return (
     <ul>
       <li className='grid grid-cols-3 gap-x-4 opacity-80'>
@@ -222,7 +227,7 @@ const PrizesList = (props: {
 
           return (
             <li
-              key={`pl-${index}-${prizePool.id()}`}
+              key={`pl-${index}-${prizeTierHistoryContract.id}`}
               className='grid grid-cols-3 gap-x-4 font-bold'
             >
               <div>{index + 1}</div>
@@ -230,7 +235,7 @@ const PrizesList = (props: {
               <div>
                 {formatUnformattedBigNumberForDisplay(
                   valueOfPrizesPerTier[index],
-                  tokens?.token.decimals
+                  prizeTierHistoryContract.token.decimals
                 )}
               </div>
             </li>
