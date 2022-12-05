@@ -5,6 +5,8 @@ import { EditPrizeTierFormValues, PrizeTierConfigV2 } from '@prizeTierController
 import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
+// TODO: try and clean up some rounding/conversions/formatting once `formatCombinedPrizeTier` handles the last decimal inaccuracies
+
 export const formatFormValuesFromPrizeTier = (
   prizeTier: Partial<PrizeTierConfigV2>,
   decimals: BigNumberish,

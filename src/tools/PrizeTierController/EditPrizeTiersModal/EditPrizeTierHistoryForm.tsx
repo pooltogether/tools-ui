@@ -273,7 +273,7 @@ const PrizeTiers = (props: {
             size={ButtonSize.sm}
             theme={ButtonTheme.orange}
           >
-            Remove Tier
+            Remove Tier {lastIndexDisplayed + 1}
           </Button>
         )}
       </div>
