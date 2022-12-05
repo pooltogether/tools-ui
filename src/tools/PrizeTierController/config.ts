@@ -55,14 +55,9 @@ export const PRIZE_TIER_HISTORY_V1: {
     tokenAddress: '0xD297F7BCF6c030EBBFD0331a8a7C3a92cB45A8a2'
   },
   [CHAIN_ID.goerli]: {
-    // TODO: REMOVE TEST DEPLOYMENT
-    address: '0x9E1abaE273d0db5CeF44121847Df4822A9Ae3a2F',
+    address: '0xF567588A82660F9F93059E97063360900387a2cc',
     tokenAddress: '0xA2025B15a1757311bfD68cb14eaeFCc237AF5b43'
   },
-  // [CHAIN_ID.goerli]: {
-  //   address: '0xF567588A82660F9F93059E97063360900387a2cc',
-  //   tokenAddress: '0xA2025B15a1757311bfD68cb14eaeFCc237AF5b43'
-  // },
   [CHAIN_ID.fuji]: {
     address: '0x145d38344fb8d35606b221F513d2BaEa2691c029',
     tokenAddress: '0x555796ADdc9f9Ee8861b31d12615E0cb49A9Be2F'
@@ -85,12 +80,7 @@ export const PRIZE_TIER_HISTORY_V2: {
     tokenAddress: ''
   },
   [CHAIN_ID.mumbai]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.goerli]: {
-    // TODO: REMOVE TEST DEPLOYMENT
-    address: '0xbD243447555f6C074d4076420DbCB5515ED86b5A',
-    tokenAddress: '0xA2025B15a1757311bfD68cb14eaeFCc237AF5b43'
-  },
-  // [CHAIN_ID.goerli]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.goerli]: { address: '', tokenAddress: '' },
   [CHAIN_ID.fuji]: { address: '', tokenAddress: '' }
 })
 
