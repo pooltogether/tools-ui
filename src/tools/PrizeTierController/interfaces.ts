@@ -2,6 +2,7 @@ import { Token } from '@pooltogether/hooks'
 import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import { Contract } from 'ethers'
 
+// Once `PrizeTierConfigV2` is added to v4-utils-js, this should be refactored as to prevent duplicate types in our codebase.
 export interface PrizeTierConfigV2 extends PrizeTierConfig {
   dpr?: number
 }

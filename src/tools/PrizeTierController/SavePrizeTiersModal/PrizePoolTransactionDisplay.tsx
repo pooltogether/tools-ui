@@ -5,8 +5,7 @@ import {
   useUsersAddress,
   useSendTransaction,
   useTransaction,
-  TransactionState,
-  TransactionStatus
+  TransactionState
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
 import prizeTierHistoryV2ABI from '@prizeTierController/abis/PrizeTierHistoryV2'
@@ -23,7 +22,7 @@ import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitl
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import classNames from 'classnames'
 import { ethers } from 'ethers'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useSigner } from 'wagmi'
 
 export const PrizePoolTransactionDisplay = (props: {
@@ -45,16 +44,6 @@ export const PrizePoolTransactionDisplay = (props: {
   const [transactionId, setTransactionId] = useState<string>('')
   const transaction = useTransaction(transactionId)
 
-  // Refetching prize tier history data upon successful transaction:
-  useEffect(() => {
-    if (
-      transaction?.state === TransactionState.complete &&
-      transaction?.status === TransactionStatus.success
-    ) {
-      refetch()
-    }
-  }, [transaction])
-
   const prizeTier: PrizeTierV2 = { ...newConfig, drawId }
   const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
 
@@ -67,7 +56,12 @@ export const PrizePoolTransactionDisplay = (props: {
     setTransactionId(
       sendTransaction({
         name: `Push Prize Tier ${prizeTierHistoryContract.isV2 ? 'V2 ' : ''}Config`,
-        callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier)
+        callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier),
+        callbacks: {
+          onSuccess: () => {
+            refetch()
+          }
+        }
       })
     )
   }
