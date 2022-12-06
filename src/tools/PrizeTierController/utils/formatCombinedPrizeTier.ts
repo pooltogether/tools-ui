@@ -1,6 +1,5 @@
+import { TIER_DECIMALS } from '@prizeTierController/config'
 import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
-
-// TODO: these functions should also check if tiers add up to 100% and add to the largest tier with a value if necessary
 
 export const formatCombinedPrizeTier = (
   prizeTier: PrizeTierConfigV2,
@@ -24,5 +23,15 @@ export const formatCombinedPrizeTier = (
       }
     }
   }
+
+  // Checking tiers for decimal issues:
+  const tiersSum = combinedPrizeTier.tiers.reduce((a, b) => a + b, 0)
+  if (tiersSum !== 10 ** TIER_DECIMALS) {
+    const firstNonEmptyTier = combinedPrizeTier.tiers.findIndex((value) => value > 0)
+    if (firstNonEmptyTier !== -1) {
+      combinedPrizeTier.tiers[firstNonEmptyTier] += 10 ** TIER_DECIMALS - tiersSum
+    }
+  }
+
   return combinedPrizeTier
 }
