@@ -12,6 +12,7 @@ import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/
 import { PrizePoolTransactionDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolTransactionDisplay'
 import { checkForPrizeEdits } from '@prizeTierController/utils/checkForPrizeEdits'
 import { useAtom } from 'jotai'
+import { useTranslation } from 'next-i18next'
 import { useMemo, useState } from 'react'
 
 enum SavePrizeTiersModalState {
@@ -27,6 +28,7 @@ export const SavePrizeTiersModal = () => {
   const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
   const { data, isFetched } = useAllPrizeTierHistoryData()
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+  const { t } = useTranslation()
 
   const allPrizePoolConfigEdits = useMemo(() => {
     if (isFetched) {
@@ -56,8 +58,8 @@ export const SavePrizeTiersModal = () => {
       }}
       header={
         modalState === SavePrizeTiersModalState.review
-          ? 'Review Transactions'
-          : 'Submit Transactions'
+          ? t('reviewTransactions')
+          : t('submitTransactions')
       }
     >
       {modalState === SavePrizeTiersModalState.review && (
@@ -76,11 +78,12 @@ export const SavePrizeTiersModal = () => {
 const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Function }) => {
   const { allEdits, onContinue } = props
   const [isRawDisplay, setRawDisplay] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <>
       <button className='mb-4 opacity-60' onClick={() => setRawDisplay(!isRawDisplay)}>
-        {isRawDisplay ? 'Hide' : 'Show'} raw values
+        {isRawDisplay ? t('hideRawValues') : t('showRawValues')}
       </button>
       <ul className='flex flex-col gap-4 mb-4'>
         {allEdits.map(
@@ -98,10 +101,10 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
         )}
       </ul>
       {allEdits.every((editHistory) => !!editHistory && !editHistory.edits.edited) ? (
-        'No edits.'
+        t('noEdits')
       ) : (
         <Button type='button' onClick={() => onContinue()}>
-          Continue
+          {t('continue')}
         </Button>
       )}
     </>
@@ -112,6 +115,7 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
   const { allEdits } = props
   const { data: nextDrawId, isFetched } = useDrawBeaconDrawId()
   const [drawId, setDrawId] = useState(0)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -138,7 +142,7 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
           </ul>
         </>
       ) : (
-        'Loading...'
+        t('loading')
       )}
     </>
   )

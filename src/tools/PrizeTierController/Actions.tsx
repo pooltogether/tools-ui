@@ -8,6 +8,7 @@ import {
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
 import { useResetAtom, useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
 
 export const Actions = (props: { className?: string }) => {
   const { className } = props
@@ -16,6 +17,7 @@ export const Actions = (props: { className?: string }) => {
   const [isCollapsed, setIsCollapsed] = useAtom(isPrizeTierListCollapsed)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
   const usersAddress = useUsersAddress()
+  const { t } = useTranslation()
 
   const editedPools: { chainId: string; address: string }[] = []
   Object.keys(allPrizeTierEdits).forEach((chainId) => {
@@ -27,7 +29,7 @@ export const Actions = (props: { className?: string }) => {
   return (
     <div className={classNames(className, 'w-full flex justify-end items-center space-x-2')}>
       <button className='text-xxs mr-2 opacity-80' onClick={() => setIsCollapsed(!isCollapsed)}>
-        {isCollapsed ? 'Expand' : 'Collapse'} All
+        {isCollapsed ? t('expandAll') : t('collapseAll')}
       </button>
       {editedPools.length > 0 && (
         <Button
@@ -37,7 +39,7 @@ export const Actions = (props: { className?: string }) => {
           size={ButtonSize.sm}
           theme={ButtonTheme.orangeOutline}
         >
-          Reset Edits
+          {t('resetEdits')}
         </Button>
       )}
       <Button
@@ -47,7 +49,7 @@ export const Actions = (props: { className?: string }) => {
         size={ButtonSize.sm}
         disabled={usersAddress === null || editedPools.length === 0}
       >
-        Save Edits
+        {t('saveEdits')}
       </Button>
     </div>
   )

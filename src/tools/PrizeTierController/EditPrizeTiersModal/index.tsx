@@ -1,5 +1,4 @@
 import { BottomSheet } from '@pooltogether/react-components'
-import { calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
@@ -15,13 +14,15 @@ import { formatPrizeTierFromFormValues } from '@prizeTierController/utils/format
 import { formatTotalPrizeValueFromFormValues } from '@prizeTierController/utils/formatTotalPrizeValue'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
 import { useCallback, useMemo, useState } from 'react'
 
 export const EditPrizeTiersModal = () => {
   const [isOpen, setIsOpen] = useAtom(isEditPrizeTiersModalOpenAtom)
+  const { t } = useTranslation()
 
   return (
-    <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)} header='Edit Prize Tiers'>
+    <BottomSheet isOpen={isOpen} closeModal={() => setIsOpen(false)} header={t('editPrizeTiers')}>
       <SimpleEdit />
     </BottomSheet>
   )
@@ -38,6 +39,7 @@ const SimpleEdit = () => {
   const { data: upcomingPrizeTier, isFetched: isPrizeTierFetched } =
     usePrizeTierHistoryData(prizeTierHistoryContract)
   const [isAdvancedDisplay, setAdvancedDisplay] = useState(false)
+  const { t } = useTranslation()
 
   const onSubmit = useCallback(
     (formValues: EditPrizeTierFormValues) => {
@@ -108,7 +110,7 @@ const SimpleEdit = () => {
         className='text-lg'
       />
       <button className='mb-4 opacity-60' onClick={() => setAdvancedDisplay(!isAdvancedDisplay)}>
-        {isAdvancedDisplay ? 'Hide' : 'Show'} advanced options
+        {isAdvancedDisplay ? t('hideAdvancedOptions') : t('showAdvancedOptions')}
       </button>
       {!!selectedPrizeTierHistoryContractId && isPrizeTierFetched && (
         <EditPrizeTierHistoryForm
