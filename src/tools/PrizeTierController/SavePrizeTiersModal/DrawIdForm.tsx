@@ -1,6 +1,7 @@
 import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
+import { useTranslation } from 'next-i18next'
 import { useEffect } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister } from 'react-hook-form'
 
@@ -42,13 +43,14 @@ const DrawIdInput = (props: {
   register: UseFormRegister<{ drawId: string }>
 }) => {
   const { minDrawId, errors, register } = props
+  const { t } = useTranslation()
 
   return (
     <div>
       <Label className='uppercase' htmlFor='drawId'>
-        Draw ID
+        {t('drawIdLabel')}
       </Label>
-      <p className='text-xxxs opacity-80 mb-2'>New prize tier begins on the following draw:</p>
+      <p className='text-xxxs opacity-80 mb-2'>{t('newPrizeTierExplanation')}</p>
       <StyledInput
         id='drawId'
         invalid={!!errors.drawId}
@@ -56,12 +58,15 @@ const DrawIdInput = (props: {
         {...register('drawId', {
           required: {
             value: true,
-            message: 'Draw ID is required'
+            message: t('blankIsRequired', { blank: t('drawIdLabel') })
           },
           validate: {
-            isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Draw ID',
-            isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Draw ID',
-            isGreaterThanNewestId: (v) => parseInt(v) > minDrawId || 'Invalid Draw ID (Too Early)'
+            isValidInteger: (v) =>
+              Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('drawIdLabel') }),
+            isGreaterThanZero: (v) =>
+              parseInt(v) > 0 || t('fieldIsInvalid', { field: t('drawIdLabel') }),
+            isGreaterThanNewestId: (v) =>
+              parseInt(v) > minDrawId || t('fieldIsInvalid', { field: t('drawIdLabel') })
           }
         })}
       />

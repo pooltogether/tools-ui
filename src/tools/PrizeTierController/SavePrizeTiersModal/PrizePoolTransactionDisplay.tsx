@@ -22,6 +22,7 @@ import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitl
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
 import classNames from 'classnames'
 import { ethers } from 'ethers'
+import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
 
@@ -37,6 +38,7 @@ export const PrizePoolTransactionDisplay = (props: {
     usePrizeTierHistoryOwner(prizeTierHistoryContract)
   const { data: manager, isFetched: isManagerFetched } =
     usePrizeTierHistoryManager(prizeTierHistoryContract)
+  const { t } = useTranslation()
 
   const usersAddress = useUsersAddress()
   const { data: signer } = useSigner()
@@ -55,7 +57,7 @@ export const PrizePoolTransactionDisplay = (props: {
     )
     setTransactionId(
       sendTransaction({
-        name: `Push Prize Tier ${prizeTierHistoryContract.isV2 ? 'V2 ' : ''}Config`,
+        name: t('pushPrizeTierConfigTX'),
         callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier),
         callbacks: {
           onSuccess: () => {
@@ -77,7 +79,7 @@ export const PrizePoolTransactionDisplay = (props: {
           className='mb-4 pb-2 border-b'
         />
         <div className='flex gap-2 opacity-60 text-xxs mb-2'>
-          Copy Raw Config
+          {t('copyRawConfig')}
           <CopyIcon text={rawPrizeTierString} />
         </div>
         <div>
@@ -92,14 +94,11 @@ export const PrizePoolTransactionDisplay = (props: {
               status={transaction?.status}
               className={classNames({ 'mb-3': transaction?.state === TransactionState.pending })}
             >
-              Push Edits
+              {t('pushEdits')}
             </TxButton>
           )}
           {!transaction && isOwnerFetched && isManagerFetched && txButtonDisabled && (
-            <p className='mt-2 text-xxxs text-pt-red'>
-              The connected wallet is not the owner or manager of this prize pool's tier history
-              contract.
-            </p>
+            <p className='mt-2 text-xxxs text-pt-red'>{t('errorOwnablePrizeTierHistory')}</p>
           )}
           {!!transaction?.response?.hash && (
             <TransactionReceiptButton

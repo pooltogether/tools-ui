@@ -18,6 +18,7 @@ import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
 import { useUpdateAtom } from 'jotai/utils'
+import { useTranslation } from 'next-i18next'
 import { useEffect } from 'react'
 
 export const PrizeTierHistoryList = (props: { className?: string }) => {
@@ -35,6 +36,7 @@ export const PrizeTierHistoryList = (props: { className?: string }) => {
 
 const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContract }) => {
   const { prizeTierHistoryContract } = props
+  const { t } = useTranslation()
 
   const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizeTierHistoryContract)
 
@@ -51,7 +53,7 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
           prizeTier={upcomingPrizeTier}
         />
       ) : (
-        'Loading...'
+        t('loading')
       )}
     </li>
   )
@@ -70,6 +72,7 @@ const PrizeTierState = (props: {
   const [combinedPrizeTiers, setCombinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
   const prizeTierEdits =
     allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
+  const { t } = useTranslation()
 
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
 
@@ -118,9 +121,9 @@ const PrizeTierState = (props: {
     return (
       <div>
         <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
-          <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
+          <Stat label={t('totalPrizes')} value={totalPrizes} defaultValue={defaultTotalPrizes} />
           <Stat
-            label='Total Value'
+            label={t('totalValue')}
             value={formatUnformattedBigNumberForDisplay(
               combinedPrizeTier.prize,
               prizeTierHistoryContract.token.decimals
@@ -154,7 +157,7 @@ const PrizeTierState = (props: {
   } else {
     return (
       <>
-        <span className='text-xxs opacity-80'>No prize tiers detected.</span>
+        <span className='text-xxs opacity-80'>{t('noPrizeTiersDetected')}</span>
         <div className='w-full flex justify-end'>
           <EditButton contractId={prizeTierHistoryContract.id} />
         </div>
@@ -170,22 +173,23 @@ const PrizeTierStats = (props: {
   defaultDPRValue?: number
 }) => {
   const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue, defaultDPRValue } = props
+  const { t } = useTranslation()
 
   return (
     <>
       <Stat
-        label='Max Picks Per User'
+        label={t('maxPicksPerUser')}
         value={prizeTier.maxPicksPerUser}
         defaultValue={defaultMaxPicksValue}
       />
       <Stat
-        label='Bit Range Size'
+        label={t('bitRangeSize')}
         value={prizeTier.bitRangeSize}
         defaultValue={defaultBitRangeValue}
       />
       {!!prizeTier.dpr && (
         <Stat
-          label='Draw Percentage Rate'
+          label={t('drawPercentageRate')}
           value={formatPrettyPercentage(prizeTier.dpr)}
           defaultValue={formatPrettyPercentage(defaultDPRValue ?? 1_000_000_000)}
         />
@@ -230,12 +234,14 @@ const PrizesList = (props: {
   valueOfPrizesPerTier: BigNumber[]
 }) => {
   const { prizeTierHistoryContract, prizeTier, numberOfPrizesPerTier, valueOfPrizesPerTier } = props
+  const { t } = useTranslation()
+
   return (
     <ul>
       <li className='grid grid-cols-3 gap-x-4 opacity-80'>
-        <div>Tier</div>
-        <div>Prizes</div>
-        <div>Value</div>
+        <div>{t('tier')}</div>
+        <div>{t('prizes')}</div>
+        <div>{t('value')}</div>
       </li>
       {prizeTier.tiers
         .map((tier, index) => {
@@ -267,6 +273,7 @@ const EditButton = (props: { contractId: string }) => {
   const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
     selectedPrizeTierHistoryContractIdAtom
   )
+  const { t } = useTranslation()
 
   return (
     <Button
@@ -277,7 +284,7 @@ const EditButton = (props: { contractId: string }) => {
       theme={ButtonTheme.transparent}
       size={ButtonSize.sm}
     >
-      Edit
+      {t('edit')}
     </Button>
   )
 }

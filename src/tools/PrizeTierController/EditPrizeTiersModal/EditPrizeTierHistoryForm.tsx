@@ -2,13 +2,14 @@ import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
-import { calculate, calculateNumberOfPrizesForTierIndex } from '@pooltogether/v4-utils-js'
+import { calculate } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { formatTotalPrizeValue } from '@prizeTierController/utils/formatTotalPrizeValue'
 import { getLastNonZeroTierIndex } from '@prizeTierController/utils/getLastNonZeroTierIndex'
 import useDebouncedCallback from 'beautiful-react-hooks/useDebouncedCallback'
 import classNames from 'classnames'
 import { utils } from 'ethers'
+import { useTranslation } from 'next-i18next'
 import { useEffect, useState } from 'react'
 import {
   FieldErrorsImpl,
@@ -39,6 +40,7 @@ export const EditPrizeTierHistoryForm = (props: {
     defaultValues,
     shouldUnregister: true
   })
+  const { t } = useTranslation()
 
   // Reactively calculating prize value based on bitrange and tier changes:
   const bitRange = parseInt(watch('bitRangeSize'))
@@ -64,11 +66,13 @@ export const EditPrizeTierHistoryForm = (props: {
           isHidden={!displayAdvancedOptions}
         />
         <FormElement
-          title='Prize Value'
+          title={t('prizeValue')}
           formKey='prize'
           validate={{
-            isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Value',
-            isGreaterThanZero: (v) => utils.parseEther(v).gt(0) || 'Invalid Prize Value'
+            isValidNumber: (v) =>
+              !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('prizeValue') }),
+            isGreaterThanZero: (v) =>
+              utils.parseEther(v).gt(0) || t('fieldIsInvalid', { field: t('prizeValue') })
           }}
           errors={errors}
           register={register}
@@ -76,12 +80,15 @@ export const EditPrizeTierHistoryForm = (props: {
         />
         {isV2 && (
           <FormElement
-            title='Draw Percentage Rate (%)'
+            title={`${t('drawPercentageRate')} (%)`}
             formKey='dpr'
             validate={{
-              isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid DPR Value',
-              isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid DPR Value',
-              isLessThanOrEqualToOneHundred: (v) => parseInt(v) <= 100 || 'Invalid DPR Value'
+              isValidNumber: (v) =>
+                !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
+              isGreaterThanZero: (v) =>
+                parseInt(v) > 0 || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
+              isLessThanOrEqualToOneHundred: (v) =>
+                parseInt(v) <= 100 || t('fieldIsInvalid', { field: t('drawPercentageRate') })
             }}
             errors={errors}
             register={register}
@@ -96,7 +103,7 @@ export const EditPrizeTierHistoryForm = (props: {
         decimals={decimals}
       />
       <Button type='submit' disabled={!isValid}>
-        Queue Edits
+        {t('queueUpdate')}
       </Button>
     </form>
   )
@@ -109,6 +116,8 @@ const AdvancedOptions = (props: {
   isHidden?: boolean
 }) => {
   const { errors, register, className, isHidden } = props
+  const { t } = useTranslation()
+
   return (
     <div
       className={classNames(className, 'flex flex-col p-4 pb-0 bg-pt-purple-bright rounded-xl', {
@@ -116,41 +125,49 @@ const AdvancedOptions = (props: {
       })}
     >
       <FormElement
-        title='Bit Range Size'
+        title={t('bitRangeSize')}
         formKey='bitRangeSize'
         validate={{
-          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Bit Range Size',
-          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Bit Range Size'
+          isValidInteger: (v) =>
+            Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('bitRangeSize') }),
+          isGreaterThanZero: (v) =>
+            parseInt(v) > 0 || t('fieldIsInvalid', { field: t('bitRangeSize') })
         }}
         errors={errors}
         register={register}
       />
       <FormElement
-        title='Expiry Duration'
+        title={t('expiryDuration')}
         formKey='expiryDuration'
         validate={{
-          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Expiry Duration',
-          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Expiry Duration'
+          isValidInteger: (v) =>
+            Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('expiryDuration') }),
+          isGreaterThanZero: (v) =>
+            parseInt(v) > 0 || t('fieldIsInvalid', { field: t('expiryDuration') })
         }}
         errors={errors}
         register={register}
       />
       <FormElement
-        title='Max Picks Per User'
+        title={t('maxPicksPerUser')}
         formKey='maxPicksPerUser'
         validate={{
-          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid Max Picks Per User',
-          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid Max Picks Per User'
+          isValidInteger: (v) =>
+            Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('maxPicksPerUser') }),
+          isGreaterThanZero: (v) =>
+            parseInt(v) > 0 || t('fieldIsInvalid', { field: t('maxPicksPerUser') })
         }}
         errors={errors}
         register={register}
       />
       <FormElement
-        title='End Timestamp Offset'
+        title={t('endTimestampOffset')}
         formKey='endTimestampOffset'
         validate={{
-          isValidInteger: (v) => Number.isInteger(Number(v)) || 'Invalid End Timestamp Offset',
-          isGreaterThanZero: (v) => parseInt(v) > 0 || 'Invalid End Timestamp Offset'
+          isValidInteger: (v) =>
+            Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('endTimestampOffset') }),
+          isGreaterThanZero: (v) =>
+            parseInt(v) > 0 || t('fieldIsInvalid', { field: t('endTimestampOffset') })
         }}
         errors={errors}
         register={register}
@@ -168,6 +185,7 @@ const FormElement = (props: {
   register: UseFormRegister<EditPrizeTierFormValues>
 }) => {
   const { title, formKey, validate, disabled, errors, register } = props
+  const { t } = useTranslation()
 
   return (
     <div>
@@ -181,7 +199,7 @@ const FormElement = (props: {
         {...register(formKey, {
           required: {
             value: true,
-            message: `${title} is required`
+            message: t('blankIsRequired', { blank: title })
           },
           validate: validate
         })}
@@ -209,6 +227,7 @@ const PrizeTiers = (props: {
   const tierValues = watch('tiers').map((item) => item.value)
   const lastNonZeroTier = getLastNonZeroTierIndex(tierValues)
   const [lastIndexDisplayed, setLastIndexDisplayed] = useState<number>(lastNonZeroTier)
+  const { t } = useTranslation()
 
   return (
     <div>
@@ -218,9 +237,12 @@ const PrizeTiers = (props: {
           return (
             <div key={`prize-tier-${item.id}`}>
               <Label className='uppercase flex gap-2 justify-between' htmlFor={item.id}>
-                <span>Tier {index + 1}</span>
                 <span>
-                  ({numPrizesInTier.toLocaleString()} Prize{numPrizesInTier > 1 ? 's' : ''})
+                  {t('tier')} {index + 1}
+                </span>
+                <span>
+                  ({numPrizesInTier.toLocaleString()}{' '}
+                  {numPrizesInTier > 1 ? t('prizes') : t('prize')})
                 </span>
               </Label>
               <StyledInput
@@ -231,12 +253,14 @@ const PrizeTiers = (props: {
                 })}
                 {...register(`tiers.${index}.value`, {
                   validate: {
-                    isValidNumber: (v) => !Number.isNaN(Number(v)) || 'Invalid Prize Tier',
-                    isGreaterThanOrEqualToZero: (v) => parseFloat(v) >= 0 || 'Invalid Prize Tier',
+                    isValidNumber: (v) =>
+                      !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('tier') }),
+                    isGreaterThanOrEqualToZero: (v) =>
+                      parseFloat(v) >= 0 || t('fieldIsInvalid', { field: t('tier') }),
                     isNotTooSpecific: (v) =>
                       v.split('.').length < 2 ||
                       v.split('.')[1].length < decimals ||
-                      'Invalid Prize Tier (Too Many Decimals)'
+                      t('fieldIsInvalid', { field: t('tier') })
                   }
                 })}
               />
@@ -259,7 +283,7 @@ const PrizeTiers = (props: {
             }}
             size={ButtonSize.sm}
           >
-            Add Tier
+            {t('addTier')}
           </Button>
         )}
         {lastIndexDisplayed > lastNonZeroTier && (
@@ -271,7 +295,7 @@ const PrizeTiers = (props: {
             size={ButtonSize.sm}
             theme={ButtonTheme.orange}
           >
-            Remove Tier {lastIndexDisplayed + 1}
+            {`${t('removeTier')} ${lastIndexDisplayed + 1}`}
           </Button>
         )}
       </div>
