@@ -1,7 +1,6 @@
 import { TransactionReceiptButton } from '@components/Buttons/TransactionReceiptButton'
 import { TxButton } from '@components/Buttons/TxButton'
 import { CopyIcon } from '@pooltogether/react-components'
-import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import {
   useUsersAddress,
   useSendTransaction,
@@ -9,22 +8,31 @@ import {
   TransactionState
 } from '@pooltogether/wallet-connection'
 import prizeTierHistoryABI from '@prizeTierController/abis/PrizeTierHistory'
+import prizeTierHistoryV2ABI from '@prizeTierController/abis/PrizeTierHistoryV2'
+import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { usePrizeTierHistoryManager } from '@prizeTierController/hooks/usePrizeTierHistoryManager'
 import { usePrizeTierHistoryOwner } from '@prizeTierController/hooks/usePrizeTierHistoryOwner'
-import { PrizeTierEditsCheck, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import {
+  PrizeTierConfigV2,
+  PrizeTierV2,
+  PrizeTierEditsCheck,
+  PrizeTierHistoryContract
+} from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
+import classNames from 'classnames'
 import { ethers } from 'ethers'
 import { useState } from 'react'
 import { useSigner } from 'wagmi'
 
 export const PrizePoolTransactionDisplay = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  newConfig: PrizeTierConfig
+  newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
   drawId: number
 }) => {
   const { prizeTierHistoryContract, newConfig, edits, drawId } = props
+  const { refetch } = usePrizeTierHistoryData(prizeTierHistoryContract)
   const { data: owner, isFetched: isOwnerFetched } =
     usePrizeTierHistoryOwner(prizeTierHistoryContract)
   const { data: manager, isFetched: isManagerFetched } =
@@ -36,19 +44,24 @@ export const PrizePoolTransactionDisplay = (props: {
   const [transactionId, setTransactionId] = useState<string>('')
   const transaction = useTransaction(transactionId)
 
-  const prizeTier: PrizeTier = { ...newConfig, drawId }
+  const prizeTier: PrizeTierV2 = { ...newConfig, drawId }
   const rawPrizeTierString = formatRawPrizeTierString(prizeTier)
 
   const submitPushTransaction = () => {
     const prizeTierHistoryContractWithSigner = new ethers.Contract(
       prizeTierHistoryContract.address,
-      prizeTierHistoryABI,
+      prizeTierHistoryContract.isV2 ? prizeTierHistoryV2ABI : prizeTierHistoryABI,
       signer
     )
     setTransactionId(
       sendTransaction({
-        name: 'Push Prize Tier Config',
-        callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier)
+        name: `Push Prize Tier ${prizeTierHistoryContract.isV2 ? 'V2 ' : ''}Config`,
+        callTransaction: () => prizeTierHistoryContractWithSigner.push(prizeTier),
+        callbacks: {
+          onSuccess: () => {
+            refetch()
+          }
+        }
       })
     )
   }
@@ -56,7 +69,7 @@ export const PrizePoolTransactionDisplay = (props: {
   const txButtonDisabled =
     !isOwnerFetched || !isManagerFetched || (usersAddress !== owner && usersAddress !== manager)
 
-  if (edits.edited) {
+  if (edits.edited || transaction?.response?.hash) {
     return (
       <li className='bg-pt-purple-dark p-3 rounded-xl'>
         <PrizeTierHistoryTitle
@@ -77,6 +90,7 @@ export const PrizePoolTransactionDisplay = (props: {
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
+              className={classNames({ 'mb-3': transaction?.state === TransactionState.pending })}
             >
               Push Edits
             </TxButton>

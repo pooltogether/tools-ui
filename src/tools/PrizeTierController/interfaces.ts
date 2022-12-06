@@ -1,6 +1,16 @@
 import { Token } from '@pooltogether/hooks'
-import { PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { PrizeTierConfig, PrizeTier } from '@pooltogether/v4-utils-js'
 import { Contract } from 'ethers'
+
+// Once `PrizeTierConfigV2` is added to v4-utils-js, this should be refactored as to prevent duplicate types in our codebase.
+export interface PrizeTierConfigV2 extends PrizeTierConfig {
+  dpr?: number
+}
+
+// Once V1 is entirely deprecated, this can be removed and the PrizeTierV2 type from v4-utils-js can be used.
+export interface PrizeTierV2 extends PrizeTier {
+  dpr?: number
+}
 
 export interface PrizeTierHistoryContract {
   id: string
@@ -8,6 +18,7 @@ export interface PrizeTierHistoryContract {
   address: string
   token: Token
   contract: Contract
+  isV2?: boolean
 }
 
 export interface EditPrizeTierFormValues {
@@ -17,6 +28,7 @@ export interface EditPrizeTierFormValues {
   endTimestampOffset: string
   prize: string
   tiers: { value: string }[]
+  dpr?: string
 }
 
 export interface PrizeTierEditsCheck {
@@ -27,11 +39,22 @@ export interface PrizeTierEditsCheck {
   endTimestampOffset: boolean
   prize: boolean
   tiers: boolean[]
+  dpr: boolean
 }
 
 export interface PrizePoolEditHistory {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  oldConfig: PrizeTierConfig
-  newConfig: PrizeTierConfig
+  oldConfig?: PrizeTierConfigV2
+  newConfig: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
+}
+
+export interface PrettyConfig {
+  bitRangeSize: string
+  expiryDuration: string
+  maxPicksPerUser: string
+  prize: string
+  tiers: string[]
+  endTimestampOffset: string
+  dpr?: string
 }

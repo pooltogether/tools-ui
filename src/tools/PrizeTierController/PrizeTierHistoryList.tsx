@@ -1,6 +1,6 @@
 import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
-import { calculate, PrizeTierConfig } from '@pooltogether/v4-client-js'
+import { calculate } from '@pooltogether/v4-client-js'
 import {
   isEditPrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
@@ -10,9 +10,10 @@ import {
 } from '@prizeTierController/atoms'
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
-import { PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
+import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -62,7 +63,7 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
  */
 const PrizeTierState = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  prizeTier: PrizeTierConfig
+  prizeTier: PrizeTierConfigV2
 }) => {
   const { prizeTierHistoryContract, prizeTier } = props
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
@@ -70,97 +71,105 @@ const PrizeTierState = (props: {
   const prizeTierEdits =
     allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
 
-  // Calculating combined outcome of existing and edited prize tiers:
-  const combinedPrizeTier = formatCombinedPrizeTier(prizeTier, prizeTierEdits)
-  useEffect(() => {
-    setCombinedPrizeTiers(() => {
-      const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
-      if (!updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId]) {
-        updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId] = {}
-      }
-      updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId][
-        prizeTierHistoryContract.address
-      ] = combinedPrizeTier
-      return updatedCombinedPrizeTiers
-    })
-  }, [prizeTier, prizeTierEdits])
-
-  const defaultNumberofPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
-  const defaultTotalPrizes = defaultNumberofPrizesPerTier.reduce((a, b) => a + b, 0)
-
-  const numberOfPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
-  const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
-    calculate.calculatePrizeForTierPercentage(
-      index,
-      tier,
-      combinedPrizeTier.bitRangeSize,
-      combinedPrizeTier.prize
-    )
-  )
-  const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
-
-  const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
-  const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
-    selectedPrizeTierHistoryContractIdAtom
-  )
-
   const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
 
-  return (
-    <div>
-      <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
-        <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
-        <Stat
-          label='Total Value'
-          value={formatUnformattedBigNumberForDisplay(
-            combinedPrizeTier.prize,
-            prizeTierHistoryContract.token.decimals
+  const combinedPrizeTier = !!prizeTier
+    ? formatCombinedPrizeTier(prizeTier, prizeTierEdits)
+    : prizeTierEdits
+  useEffect(() => {
+    if (!!combinedPrizeTiers) {
+      setCombinedPrizeTiers(() => {
+        const updatedCombinedPrizeTiers = { ...combinedPrizeTiers }
+        if (!updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId]) {
+          updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId] = {}
+        }
+        updatedCombinedPrizeTiers[prizeTierHistoryContract.chainId][
+          prizeTierHistoryContract.address
+        ] = combinedPrizeTier
+        return updatedCombinedPrizeTiers
+      })
+    }
+  }, [prizeTier, prizeTierEdits])
+
+  if (!!combinedPrizeTier) {
+    const defaultNumberOfPrizesPerTier: number[] = !!prizeTier
+      ? calculate.calculateNumberOfPrizesPerTier(prizeTier)
+      : Array(16).fill(0)
+    const defaultTotalPrizes = defaultNumberOfPrizesPerTier.reduce((a, b) => a + b, 0)
+
+    const numberOfPrizesPerTier: number[] =
+      calculate.calculateNumberOfPrizesPerTier(combinedPrizeTier)
+    const valueOfPrizesPerTier = combinedPrizeTier.tiers.map((tier, index) =>
+      calculate.calculatePrizeForTierPercentage(
+        index,
+        tier,
+        combinedPrizeTier.bitRangeSize,
+        combinedPrizeTier.prize
+      )
+    )
+    const totalPrizes = numberOfPrizesPerTier.reduce((a, b) => a + b, 0)
+    const formattedDefaultTotalValue = !!prizeTier
+      ? formatUnformattedBigNumberForDisplay(
+          prizeTier.prize,
+          prizeTierHistoryContract.token.decimals
+        )
+      : '0'
+
+    return (
+      <div>
+        <div className={classNames('grid grid-cols-2 gap-x-2 gap-y-3', { 'mb-4': !isCollapsed })}>
+          <Stat label='Total Prizes' value={totalPrizes} defaultValue={defaultTotalPrizes} />
+          <Stat
+            label='Total Value'
+            value={formatUnformattedBigNumberForDisplay(
+              combinedPrizeTier.prize,
+              prizeTierHistoryContract.token.decimals
+            )}
+            defaultValue={formattedDefaultTotalValue}
+          />
+          {!isCollapsed && (
+            <PrizeTierStats
+              prizeTier={combinedPrizeTier}
+              defaultMaxPicksValue={prizeTier?.maxPicksPerUser}
+              defaultBitRangeValue={prizeTier?.bitRangeSize}
+              defaultDPRValue={prizeTier?.dpr}
+            />
           )}
-          defaultValue={formatUnformattedBigNumberForDisplay(
-            prizeTier.prize,
-            prizeTierHistoryContract.token.decimals
-          )}
-        />
+        </div>
+
         {!isCollapsed && (
-          <PrizeTierStats
+          <PrizesList
+            prizeTierHistoryContract={prizeTierHistoryContract}
             prizeTier={combinedPrizeTier}
-            defaultMaxPicksValue={prizeTier.maxPicksPerUser}
-            defaultBitRangeValue={prizeTier.bitRangeSize}
+            numberOfPrizesPerTier={numberOfPrizesPerTier}
+            valueOfPrizesPerTier={valueOfPrizesPerTier}
           />
         )}
-      </div>
 
-      {!isCollapsed && (
-        <PrizesList
-          prizeTierHistoryContract={prizeTierHistoryContract}
-          prizeTier={combinedPrizeTier}
-          numberOfPrizesPerTier={numberOfPrizesPerTier}
-          valueOfPrizesPerTier={valueOfPrizesPerTier}
-        />
-      )}
-
-      <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
-        <Button
-          onClick={() => {
-            setSelectedPrizeTierHistoryContractId(prizeTierHistoryContract.id)
-            setIsOpen(true)
-          }}
-          theme={ButtonTheme.transparent}
-          size={ButtonSize.sm}
-        >
-          Edit
-        </Button>
+        <div className={classNames('w-full flex justify-end', { 'mt-4': !isCollapsed })}>
+          <EditButton contractId={prizeTierHistoryContract.id} />
+        </div>
       </div>
-    </div>
-  )
+    )
+  } else {
+    return (
+      <>
+        <span className='text-xxs opacity-80'>No prize tiers detected.</span>
+        <div className='w-full flex justify-end'>
+          <EditButton contractId={prizeTierHistoryContract.id} />
+        </div>
+      </>
+    )
+  }
 }
 
 const PrizeTierStats = (props: {
-  prizeTier: PrizeTierConfig
-  defaultMaxPicksValue: number
-  defaultBitRangeValue: number
+  prizeTier: PrizeTierConfigV2
+  defaultMaxPicksValue?: number
+  defaultBitRangeValue?: number
+  defaultDPRValue?: number
 }) => {
-  const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue } = props
+  const { prizeTier, defaultMaxPicksValue, defaultBitRangeValue, defaultDPRValue } = props
 
   return (
     <>
@@ -174,6 +183,13 @@ const PrizeTierStats = (props: {
         value={prizeTier.bitRangeSize}
         defaultValue={defaultBitRangeValue}
       />
+      {!!prizeTier.dpr && (
+        <Stat
+          label='Draw Percentage Rate'
+          value={formatPrettyPercentage(prizeTier.dpr)}
+          defaultValue={formatPrettyPercentage(defaultDPRValue ?? 1_000_000_000)}
+        />
+      )}
     </>
   )
 }
@@ -188,13 +204,13 @@ const Stat = (props: { label: string; value: number | string; defaultValue?: num
       <span
         className={classNames({
           'text-pt-green':
-            !!props.defaultValue &&
+            props.defaultValue !== undefined &&
             (typeof props.value === 'string' && typeof props.defaultValue === 'string'
               ? parseFloat(props.value.replaceAll(',', '')) >
                 parseFloat(props.defaultValue.replaceAll(',', ''))
               : props.value > props.defaultValue),
           'text-pt-red':
-            !!props.defaultValue &&
+            props.defaultValue !== undefined &&
             (typeof props.value === 'string' && typeof props.defaultValue === 'string'
               ? parseFloat(props.value.replaceAll(',', '')) <
                 parseFloat(props.defaultValue.replaceAll(',', ''))
@@ -209,7 +225,7 @@ const Stat = (props: { label: string; value: number | string; defaultValue?: num
 
 const PrizesList = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
-  prizeTier: PrizeTierConfig
+  prizeTier: PrizeTierConfigV2
   numberOfPrizesPerTier: number[]
   valueOfPrizesPerTier: BigNumber[]
 }) => {
@@ -243,5 +259,25 @@ const PrizesList = (props: {
         })
         .filter(Boolean)}
     </ul>
+  )
+}
+
+const EditButton = (props: { contractId: string }) => {
+  const setIsOpen = useUpdateAtom(isEditPrizeTiersModalOpenAtom)
+  const setSelectedPrizeTierHistoryContractId = useUpdateAtom(
+    selectedPrizeTierHistoryContractIdAtom
+  )
+
+  return (
+    <Button
+      onClick={() => {
+        setSelectedPrizeTierHistoryContractId(props.contractId)
+        setIsOpen(true)
+      }}
+      theme={ButtonTheme.transparent}
+      size={ButtonSize.sm}
+    >
+      Edit
+    </Button>
   )
 }

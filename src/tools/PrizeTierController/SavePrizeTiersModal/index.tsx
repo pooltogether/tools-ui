@@ -85,7 +85,7 @@ const ReviewEdits = (props: { allEdits: PrizePoolEditHistory[]; onContinue: Func
       <ul className='flex flex-col gap-4 mb-4'>
         {allEdits.map(
           (editHistory) =>
-            editHistory && (
+            !!editHistory && (
               <PrizePoolEditsDisplay
                 prizeTierHistoryContract={editHistory.prizeTierHistoryContract}
                 oldConfig={editHistory.oldConfig}
@@ -125,7 +125,7 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
           <ul className='flex flex-col gap-4 mb-4'>
             {allEdits.map(
               (editHistory) =>
-                editHistory && (
+                !!editHistory && (
                   <PrizePoolTransactionDisplay
                     prizeTierHistoryContract={editHistory.prizeTierHistoryContract}
                     newConfig={editHistory.newConfig}

@@ -23,6 +23,8 @@ export const PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS = Object.freeze({
   ]
 })
 
+export const DPR_DECIMALS: number = 7
+
 export const PRIZE_TIER_HISTORY_V1: {
   [chainId: number]: { address: string; tokenAddress: string }
 } = Object.freeze({
@@ -64,24 +66,25 @@ export const PRIZE_TIER_HISTORY_V1: {
   }
 })
 
-// export const PRIZE_TIER_HISTORY_V2: { [chainId: number]: { address: string; tokenAddress: string } } =
-//   Object.freeze({
-//     [CHAIN_ID.optimism]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID.polygon]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID['optimism-goerli']]: {
-//       address: '',
-//       tokenAddress: ''
-//     },
-//     [CHAIN_ID['arbitrum-goerli']]: {
-//       address: '',
-//       tokenAddress: ''
-//     },
-//     [CHAIN_ID.mumbai]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID.goerli]: { address: '', tokenAddress: '' },
-//     [CHAIN_ID.fuji]: { address: '', tokenAddress: '' }
-//   })
+export const PRIZE_TIER_HISTORY_V2: {
+  [chainId: number]: { address: string; tokenAddress: string }
+} = Object.freeze({
+  [CHAIN_ID.optimism]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.polygon]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
+  [CHAIN_ID['optimism-goerli']]: {
+    address: '',
+    tokenAddress: ''
+  },
+  [CHAIN_ID['arbitrum-goerli']]: {
+    address: '',
+    tokenAddress: ''
+  },
+  [CHAIN_ID.mumbai]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.goerli]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.fuji]: { address: '', tokenAddress: '' }
+})
 
 export const PRIZE_TIER_HISTORY_TOKENS: { [chainId: number]: { [address: string]: Token } } =
   Object.freeze({
