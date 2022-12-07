@@ -20,7 +20,6 @@ const Layout = dynamic(() => import('@components/Layout'), {
 export const PrizeTierController: React.FC = () => {
   const [view] = useAtom(selectedView)
   const { t } = useTranslation()
-  // TODO: check atom state and decide to show configuration view or projection view
 
   return (
     <Suspense fallback={<LoadingScreen />}>
