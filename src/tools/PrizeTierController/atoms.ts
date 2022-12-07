@@ -15,3 +15,9 @@ export const prizeTierEditsAtom = atomWithReset<{
 export const allCombinedPrizeTiersAtom = atom<{
   [chainId: number]: { [prizeTierHistoryAddress: string]: PrizeTierConfigV2 }
 }>({})
+
+export enum SelectedView {
+  configuration = 'configuration',
+  projection = 'projection'
+}
+export const selectedView = atom(SelectedView.configuration)
