@@ -124,7 +124,7 @@ const SaveEdits = (props: { allEdits: PrizePoolEditHistory[] }) => {
         <>
           <DrawIdForm
             onChange={(value) => setDrawId(value)}
-            defaultValues={{ drawId: (nextDrawId + 1).toString() }}
+            defaultValues={{ drawId: nextDrawId.toString() }}
             minDrawId={nextDrawId}
           />
           <ul className='flex flex-col gap-4 mb-4'>

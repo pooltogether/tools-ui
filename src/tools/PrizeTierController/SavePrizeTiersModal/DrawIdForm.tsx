@@ -25,14 +25,19 @@ export const DrawIdForm = (props: {
 
   useEffect(() => {
     const numDrawId = Number(drawId)
-    if (Number.isInteger(numDrawId) && numDrawId > minDrawId) {
+    if (Number.isInteger(numDrawId) && numDrawId >= 0) {
       onChange(numDrawId)
     }
   }, [drawId])
 
   return (
     <form className='flex flex-col' autoComplete='off'>
-      <DrawIdInput minDrawId={minDrawId} errors={errors} register={register} />
+      <DrawIdInput
+        minDrawId={minDrawId}
+        errors={errors}
+        register={register}
+        drawId={Number(drawId)}
+      />
     </form>
   )
 }
@@ -41,8 +46,9 @@ const DrawIdInput = (props: {
   minDrawId: number
   errors: FieldErrorsImpl<{ drawId: string }>
   register: UseFormRegister<{ drawId: string }>
+  drawId: number
 }) => {
-  const { minDrawId, errors, register } = props
+  const { minDrawId, errors, register, drawId } = props
   const { t } = useTranslation()
 
   return (
@@ -63,14 +69,15 @@ const DrawIdInput = (props: {
           validate: {
             isValidInteger: (v) =>
               Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('drawIdLabel') }),
-            isGreaterThanZero: (v) =>
-              parseInt(v) > 0 || t('fieldIsInvalid', { field: t('drawIdLabel') }),
-            isGreaterThanNewestId: (v) =>
-              parseInt(v) > minDrawId || t('fieldIsInvalid', { field: t('drawIdLabel') })
+            isGreaterThanOrEqualToZero: (v) =>
+              parseInt(v) >= 0 || t('fieldIsInvalid', { field: t('drawIdLabel') })
           }
         })}
       />
-      <ErrorMessage>
+      {Number(drawId) < minDrawId && (
+        <p className='text-yellow text-xxxs mt-2'>{t('warningDrawId')}</p>
+      )}
+      <ErrorMessage className='mb-3'>
         {!!errors.drawId?.message && typeof errors.drawId.message === 'string'
           ? errors.drawId.message
           : null}
