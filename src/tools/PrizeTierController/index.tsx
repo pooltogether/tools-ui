@@ -4,7 +4,7 @@ import { LoadingScreen } from '@pooltogether/react-components'
 import { Actions } from '@prizeTierController/Actions'
 import { EditPrizeTiersModal } from '@prizeTierController/EditPrizeTiersModal'
 import { PrizeTierControllerDescription } from '@prizeTierController/PrizeTierControllerDescription'
-import { PrizeTierHistoryList } from '@prizeTierController/PrizeTierHistoryList'
+import { ConfigurationView } from '@prizeTierController/ConfigurationView'
 import { SavePrizeTiersModal } from '@prizeTierController/SavePrizeTiersModal'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic.js'
@@ -16,6 +16,7 @@ const Layout = dynamic(() => import('@components/Layout'), {
 
 export const PrizeTierController: React.FC = () => {
   const { t } = useTranslation()
+  // TODO: check atom state and decide to show configuration view or projection view
 
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -24,7 +25,7 @@ export const PrizeTierController: React.FC = () => {
           <PageTitle title={t('prizeTierController')} />
           <PrizeTierControllerDescription className='mb-8' />
           <Actions className='mb-4' />
-          <PrizeTierHistoryList className='mb-8' />
+          <ConfigurationView className='mb-8' />
           <EditPrizeTiersModal />
           <SavePrizeTiersModal />
         </PagePadding>

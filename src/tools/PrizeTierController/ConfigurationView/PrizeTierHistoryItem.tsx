@@ -8,7 +8,6 @@ import {
   selectedPrizeTierHistoryContractIdAtom,
   isPrizeTierListCollapsed
 } from '@prizeTierController/atoms'
-import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
@@ -21,20 +20,9 @@ import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'next-i18next'
 import { useEffect } from 'react'
 
-export const PrizeTierHistoryList = (props: { className?: string }) => {
-  const { className } = props
-  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
-
-  return (
-    <ul className={classNames('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
-      {prizeTierHistoryContracts.map((contract) => (
-        <PrizePoolItem prizeTierHistoryContract={contract} key={'pth-item-' + `${contract.id}`} />
-      ))}
-    </ul>
-  )
-}
-
-const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContract }) => {
+export const PrizeTierHistoryItem = (props: {
+  prizeTierHistoryContract: PrizeTierHistoryContract
+}) => {
   const { prizeTierHistoryContract } = props
   const { t } = useTranslation()
 
@@ -59,10 +47,6 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
   )
 }
 
-/**
- *
- * @param props
- */
 const PrizeTierState = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
   prizeTier: PrizeTierConfigV2
