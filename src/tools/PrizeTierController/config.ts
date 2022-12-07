@@ -87,7 +87,7 @@ export const PRIZE_TIER_HISTORY_V2: {
     tokenAddress: '0xD297F7BCF6c030EBBFD0331a8a7C3a92cB45A8a2'
   },
   [CHAIN_ID.goerli]: {
-    address: '0x54DB26F2a149AA1d8057e753A210585A43a9F4E1',
+    address: '0x3f89D644475918aB86CaaF3915540E06365EcB87',
     tokenAddress: '0xA2025B15a1757311bfD68cb14eaeFCc237AF5b43'
   },
   [CHAIN_ID.fuji]: {
