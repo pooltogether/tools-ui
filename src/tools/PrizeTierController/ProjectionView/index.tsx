@@ -1,20 +1,24 @@
-import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
-import { PrizeTierHistoryItem } from '@prizeTierController/ConfigurationView/PrizeTierHistoryItem'
+import { PrizePoolItem } from '@prizeTierController/ProjectionView/PrizePoolItem'
 import classNames from 'classnames'
+import { usePrizePools } from '@hooks/usePrizePools'
+import { useAllPrizePoolConfigEdits } from '@prizeTierController/hooks/useAllPrizePoolConfigEdits'
 
 export const ProjectionView = (props: { className?: string }) => {
   const { className } = props
-  // const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
+  const prizePools = usePrizePools()
+  const allPrizePoolConfigEdits = useAllPrizePoolConfigEdits()
 
-  // return (
-  //   <ul className={classNames('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
-  //     {prizeTierHistoryContracts.map((contract) => (
-  //       <PrizeTierHistoryItem
-  //         prizeTierHistoryContract={contract}
-  //         key={'pth-item-' + `${contract.id}`}
-  //       />
-  //     ))}
-  //   </ul>
-  // )
-  return <></>
+  return (
+    <ul className={classNames('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
+      {prizePools.map((prizePool) => (
+        <PrizePoolItem
+          prizePool={prizePool}
+          editHistory={allPrizePoolConfigEdits.find(
+            (entry) => entry.prizeTierHistoryContract.chainId === prizePool.chainId
+          )}
+          key={'pth-item-' + `${prizePool.id()}`}
+        />
+      ))}
+    </ul>
+  )
 }

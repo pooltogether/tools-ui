@@ -92,7 +92,9 @@ export const PrizePoolTransactionDisplay = (props: {
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
-              className={classNames({ 'mb-3': transaction?.state === TransactionState.pending })}
+              className={classNames({
+                'w-full mb-3': transaction?.state === TransactionState.pending
+              })}
             >
               {t('pushEdits')}
             </TxButton>

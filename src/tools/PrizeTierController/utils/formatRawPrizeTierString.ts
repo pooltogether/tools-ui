@@ -12,5 +12,5 @@ export const formatRawPrizeTierString = (prizeTier: PrizeTierV2) => {
   }
   rawString += ',' + prizeTier.prize.toString()
   rawString += ',[' + prizeTier.tiers.toString() + ']'
-  return rawString
+  return `[${rawString}]`
 }
