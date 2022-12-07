@@ -227,27 +227,25 @@ const PrizesList = (props: {
         <div>{t('prizes')}</div>
         <div>{t('value')}</div>
       </li>
-      {prizeTier.tiers
-        .map((tier, index) => {
-          if (tier === 0) return null
+      {prizeTier.tiers.map((tier, index) => {
+        if (tier === 0) return null
 
-          return (
-            <li
-              key={`pl-${index}-${prizeTierHistoryContract.id}`}
-              className='grid grid-cols-3 gap-x-4 font-bold'
-            >
-              <div>{index + 1}</div>
-              <div>{numberOfPrizesPerTier[index]}</div>
-              <div>
-                {formatUnformattedBigNumberForDisplay(
-                  valueOfPrizesPerTier[index],
-                  prizeTierHistoryContract.token.decimals
-                )}
-              </div>
-            </li>
-          )
-        })
-        .filter(Boolean)}
+        return (
+          <li
+            key={`pl-${index}-${prizeTierHistoryContract.id}`}
+            className='grid grid-cols-3 gap-x-4 font-bold'
+          >
+            <div>{index + 1}</div>
+            <div>{numberOfPrizesPerTier[index]}</div>
+            <div>
+              {formatUnformattedBigNumberForDisplay(
+                valueOfPrizesPerTier[index],
+                prizeTierHistoryContract.token.decimals
+              )}
+            </div>
+          </li>
+        )
+      })}
     </ul>
   )
 }
