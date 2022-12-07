@@ -75,16 +75,25 @@ export const PRIZE_TIER_HISTORY_V2: {
   [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
   [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
   [CHAIN_ID['optimism-goerli']]: {
-    address: '',
-    tokenAddress: ''
+    address: '0xC000d30950968C87517704183aEa1C3DDbBE0082',
+    tokenAddress: '0xf1485Aa729DF94083ab61B2C65EeA99894Aabdb3'
   },
   [CHAIN_ID['arbitrum-goerli']]: {
-    address: '',
-    tokenAddress: ''
+    address: '0xaA24123779a9a504394f7f874D032039FCC22349',
+    tokenAddress: '0x6775842AE82BF2F0f987b10526768Ad89d79536E'
   },
-  [CHAIN_ID.mumbai]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.goerli]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.fuji]: { address: '', tokenAddress: '' }
+  [CHAIN_ID.mumbai]: {
+    address: '0xc6165F7f0c82ED78650B7035467d4649A1DdD133',
+    tokenAddress: '0xD297F7BCF6c030EBBFD0331a8a7C3a92cB45A8a2'
+  },
+  [CHAIN_ID.goerli]: {
+    address: '0x54DB26F2a149AA1d8057e753A210585A43a9F4E1',
+    tokenAddress: '0xA2025B15a1757311bfD68cb14eaeFCc237AF5b43'
+  },
+  [CHAIN_ID.fuji]: {
+    address: '0x3f89D644475918aB86CaaF3915540E06365EcB87',
+    tokenAddress: '0x555796ADdc9f9Ee8861b31d12615E0cb49A9Be2F'
+  }
 })
 
 export const PRIZE_TIER_HISTORY_TOKENS: { [chainId: number]: { [address: string]: Token } } =
