@@ -29,7 +29,9 @@ export const formatCombinedPrizeTier = (
   if (tiersSum !== 10 ** TIER_DECIMALS) {
     const firstNonEmptyTier = combinedPrizeTier.tiers.findIndex((value) => value > 0)
     if (firstNonEmptyTier !== -1) {
-      combinedPrizeTier.tiers[firstNonEmptyTier] += 10 ** TIER_DECIMALS - tiersSum
+      let tempTiers = [...combinedPrizeTier.tiers]
+      tempTiers[firstNonEmptyTier] += 10 ** TIER_DECIMALS - tiersSum
+      combinedPrizeTier.tiers = tempTiers
     }
   }
 
