@@ -74,9 +74,7 @@ const DrawIdInput = (props: {
           }
         })}
       />
-      {Number(drawId) < minDrawId && (
-        <p className='text-yellow text-xxxs mt-2'>{t('warningDrawId')}</p>
-      )}
+      {drawId < minDrawId && <p className='text-yellow text-xxxs mt-2'>{t('warningDrawId')}</p>}
       <ErrorMessage className='mb-3'>
         {!!errors.drawId?.message && typeof errors.drawId.message === 'string'
           ? errors.drawId.message
