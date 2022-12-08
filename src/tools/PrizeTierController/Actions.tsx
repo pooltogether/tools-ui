@@ -1,4 +1,4 @@
-import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
+import { Button, ButtonTheme, ButtonSize, Tabs } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
   isPrizeTierListCollapsed,
@@ -15,6 +15,7 @@ import { useTranslation } from 'next-i18next'
 export const Actions = (props: { className?: string }) => {
   const { className } = props
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
+  const [currentView, setSelectedView] = useAtom(selectedView)
 
   const editedPools: { chainId: string; address: string }[] = []
   Object.keys(allPrizeTierEdits).forEach((chainId) => {
@@ -26,8 +27,14 @@ export const Actions = (props: { className?: string }) => {
   return (
     <div className={classNames(className, 'w-full flex justify-between items-center')}>
       <div className='flex items-center gap-3'>
-        <ViewButton view={SelectedView.configuration} />
-        <ViewButton view={SelectedView.projection} />
+        <Tabs
+          initialTabId={currentView}
+          onTabSelect={(tab) => setSelectedView(tab.id as SelectedView)}
+          tabs={[
+            { id: SelectedView.configuration, title: 'Configurations', view: <></> },
+            { id: SelectedView.projection, title: 'Projections', view: <></> }
+          ]}
+        />
       </div>
       <div className='flex items-center gap-3'>
         <ToggleCollapsedButton />
@@ -35,25 +42,6 @@ export const Actions = (props: { className?: string }) => {
         <SaveButton disabled={editedPools.length === 0} />
       </div>
     </div>
-  )
-}
-
-const ViewButton = (props: { view: SelectedView }) => {
-  const [currentView, setSelectedView] = useAtom(selectedView)
-  const { t } = useTranslation()
-
-  return (
-    <button
-      className={classNames('py-1 px-2 rounded', {
-        'font-bold bg-pt-purple': props.view === currentView,
-        'opacity-80': props.view !== currentView
-      })}
-      onClick={() => setSelectedView(props.view)}
-    >
-      {/* TODO: Localization */}
-      {props.view === SelectedView.configuration && 'Configurations'}
-      {props.view === SelectedView.projection && 'Projections'}
-    </button>
   )
 }
 
