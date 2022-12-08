@@ -36,11 +36,13 @@ export const Actions = (props: { className?: string }) => {
           ]}
         />
       </div>
-      <div className='flex items-center gap-3'>
-        <ToggleCollapsedButton />
-        {editedPools.length > 0 && <ResetButton />}
-        <SaveButton disabled={editedPools.length === 0} />
-      </div>
+      {currentView === SelectedView.configuration && (
+        <div className='flex items-center gap-3'>
+          <ToggleCollapsedButton />
+          {editedPools.length > 0 && <ResetButton />}
+          <SaveButton disabled={editedPools.length === 0} />
+        </div>
+      )}
     </div>
   )
 }

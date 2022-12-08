@@ -1,19 +1,18 @@
 import { Token } from '@pooltogether/hooks'
-import { formatUnformattedBigNumberForDisplay } from '@pooltogether/utilities'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
 import { allCombinedPrizeTiersAtom } from '@prizeTierController/atoms'
-import { DPR_DECIMALS } from '@prizeTierController/config'
+import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
 import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
+import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
 
-// TODO: proper styling
 // TODO: localization
 
 export const PrizePoolItem = (props: {
@@ -53,16 +52,54 @@ const PrizePoolProjections = (props: {
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
   const { t } = useTranslation()
 
-  // TODO: show dropped prizes estimates
-  // TODO: include variance input
+  const dprMultiplier = isFetchedTvl
+    ? calculateDprMultiplier(
+        prizeTier.dpr,
+        tvl,
+        prizeTier.prize,
+        prizeTierHistoryContract.token.decimals
+      )
+    : 0
+
+  const prizes = prizeTier.tiers.map((tier, i) =>
+    parseFloat(
+      formatUnits(
+        calculate.calculatePrizeForTierPercentage(i, tier, prizeTier.bitRangeSize, prizeTier.prize),
+        parseInt(prizeTierHistoryContract.token.decimals)
+      )
+    )
+  )
+  const numPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
+  const prizeChances = numPrizesPerTier.map((value) => value * dprMultiplier)
+
+  const expectedTierPrizeAmounts = prizes.map((prize, i) => prize * prizeChances[i])
+  const expectedPrizeAmount = expectedTierPrizeAmounts.reduce((a, b) => a + b, 0)
 
   return (
     <>
       {isFetchedTvl ? (
         <>
-          <PoolTVL tvl={tvl} token={prizeTierHistoryContract.token} />
-          <PoolDPR dpr={prizeTier.dpr} />
-          <DrawChances tvl={tvl} prizeTier={prizeTier} token={prizeTierHistoryContract.token} />
+          <BasicStats
+            prizeTier={prizeTier}
+            tvl={tvl}
+            token={prizeTierHistoryContract.token}
+            className='mb-2'
+          />
+          <DrawBreakdown
+            prizeAmount={expectedPrizeAmount}
+            prizes={prizes}
+            prizeChances={prizeChances}
+            token={prizeTierHistoryContract.token}
+            className='mb-2'
+          />
+          <PrizesOverTime
+            prizeAmount={expectedPrizeAmount}
+            prizes={prizes}
+            prizeChances={prizeChances}
+            token={prizeTierHistoryContract.token}
+            className='mb-2'
+          />
+          <VarianceInput />
         </>
       ) : (
         t('loading')
@@ -71,61 +108,98 @@ const PrizePoolProjections = (props: {
   )
 }
 
-const PoolTVL = (props: { tvl: number; token: Token }) => {
-  const { tvl, token } = props
+const BasicStats = (props: {
+  prizeTier: PrizeTierConfigV2
+  tvl: number
+  token: Token
+  className?: string
+}) => {
+  const { prizeTier, tvl, token, className } = props
 
   // TODO: make tvl input (with reset button to return to actual value)
 
   return (
-    <div>
-      TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
+    <div className={classNames('flex flex-col', className)}>
+      <SectionTitle text='Basic Stats' />
+      <span>
+        TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
+      </span>
+      <span>DPR: {formatPrettyPercentage(prizeTier.dpr)}</span>
     </div>
   )
 }
 
-const PoolDPR = (props: { dpr: number }) => {
-  const { dpr } = props
+const DrawBreakdown = (props: {
+  prizeAmount: number
+  prizes: number[]
+  prizeChances: number[]
+  token: Token
+  className?: string
+}) => {
+  const { prizeAmount, prizes, prizeChances, token, className } = props
 
-  return <div>With a DPR of {formatPrettyPercentage(dpr)}...</div>
-}
-
-const DrawChances = (props: { tvl: number; prizeTier: PrizeTierConfigV2; token: Token }) => {
-  const { tvl, prizeTier, token } = props
-
-  const multiplier = calculateDprMultiplier(prizeTier.dpr, tvl, prizeTier.prize, token.decimals)
-  const prizes = prizeTier.tiers.map((tier, i) =>
-    formatUnformattedBigNumberForDisplay(
-      calculate.calculatePrizeForTierPercentage(i, tier, prizeTier.bitRangeSize, prizeTier.prize),
-      token.decimals
-    )
-  )
-  const numPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
-  const prizeChances = numPrizesPerTier.map((value) =>
-    (value * multiplier).toLocaleString('en', { maximumFractionDigits: 4 })
-  )
+  const formattedPrizeAmount = prizeAmount.toLocaleString('en', { maximumFractionDigits: 0 })
+  // TODO: show claimable vs dropped prizes estimates (make dropped prizes a % input - default 15%?)
 
   return (
-    <ul>
-      <span className='opacity-80'>Each Draw</span>
-      {prizes.map((prize, i) => {
-        if (prize === '0') return null
+    <div className={classNames('flex flex-col', className)}>
+      <SectionTitle text='Draw Breakdown' />
+      <span>
+        Total Estimated Prizes: {formattedPrizeAmount} {token.symbol}
+      </span>
+      <ul>
+        {prizes.map((prize, i) => {
+          if (prize === 0) return null
 
-        return (
-          <li key={`pl-${i}-${token.address}-${tvl}`}>
-            {prizeChances[i]} prizes of {prize}
-          </li>
-        )
-      })}
-    </ul>
+          return (
+            <li key={`pl-${i}-${prizeChances[i]}`}>
+              {prizeChances[i].toLocaleString('en', { maximumFractionDigits: 4 })} prizes of{' '}
+              {prize.toLocaleString('en', { maximumFractionDigits: 2 })} {token.symbol}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   )
 }
 
-const PrizesDistributedOverTime = (props: { tvl: number; prizeTier: PrizeTierConfigV2 }) => {
-  const { tvl, prizeTier } = props
+const PrizesOverTime = (props: {
+  prizeAmount: number
+  prizes: number[]
+  prizeChances: number[]
+  token: Token
+  className?: string
+}) => {
+  const { prizeAmount, prizes, prizeChances, token, className } = props
+
+  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
 
   // TODO: show prizes over time chart
-  // TODO: display daily, weekly, monthly, and yearly estimate of prize amounts
-  // TODO: add toggle for taking into account dropped prizes or not
+
+  return (
+    <div className={classNames('flex flex-col', className)}>
+      <SectionTitle text='Prizes Over Time' />
+      <span>
+        Weekly prizes: {formattedWeeklyPrizeAmount} {token.symbol}
+      </span>
+      <span>
+        Yearly prizes: {formattedYearlyPrizeAmount} {token.symbol}
+      </span>
+    </div>
+  )
+}
+
+const VarianceInput = () => {
+  // TODO: include variance input to change charts, estimates, etc.
 
   return <></>
+}
+
+const SectionTitle = (props: { text: string; className?: string }) => {
+  return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
 }
