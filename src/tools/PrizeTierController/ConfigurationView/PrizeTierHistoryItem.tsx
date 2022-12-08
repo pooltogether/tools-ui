@@ -6,7 +6,7 @@ import {
   prizeTierEditsAtom,
   allCombinedPrizeTiersAtom,
   selectedPrizeTierHistoryContractIdAtom,
-  isPrizeTierListCollapsed
+  isListCollapsed
 } from '@prizeTierController/atoms'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
@@ -58,7 +58,7 @@ const PrizeTierState = (props: {
     allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
   const { t } = useTranslation()
 
-  const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
+  const [isCollapsed] = useAtom(isListCollapsed)
 
   const combinedPrizeTier = !!prizeTier
     ? formatCombinedPrizeTier(prizeTier, prizeTierEdits)

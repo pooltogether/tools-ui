@@ -1,10 +1,17 @@
+import { ErrorMessage } from '@components/ErrorMessage'
+import { StyledInput } from '@components/Input'
+import { Label } from '@components/Label'
 import { Token } from '@pooltogether/hooks'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
 import { allCombinedPrizeTiersAtom } from '@prizeTierController/atoms'
 import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
-import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
+import {
+  PrizeTierConfigV2,
+  PrizeTierHistoryContract,
+  ProjectionSettings
+} from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
 import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
@@ -12,6 +19,8 @@ import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
+import { useEffect } from 'react'
+import { FieldErrorsImpl, useForm, UseFormRegister } from 'react-hook-form'
 
 // TODO: localization
 
@@ -29,7 +38,6 @@ export const PrizePoolItem = (props: {
         <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
           <PrizeTierHistoryTitle
             prizeTierHistoryContract={prizeTierHistoryContract}
-            showLink
             className='mb-4'
           />
           <PrizePoolProjections
@@ -50,12 +58,33 @@ const PrizePoolProjections = (props: {
 }) => {
   const { prizePool, prizeTierHistoryContract, prizeTier } = props
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
+  const {
+    register,
+    watch,
+    setValue,
+    formState: { errors, isValid }
+  } = useForm<ProjectionSettings>({
+    mode: 'onChange',
+    defaultValues: { tvl: '0', variance: '0' },
+    shouldUnregister: true
+  })
   const { t } = useTranslation()
 
-  const dprMultiplier = isFetchedTvl
+  // TODO: make `isListCollapsed` atom also affect projections
+
+  useEffect(() => {
+    if (isFetchedTvl) {
+      setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+    }
+  }, [tvl, isFetchedTvl])
+
+  const parsedFormTvl = parseFloat(watch('tvl')?.replaceAll(',', ''))
+
+  // TODO: need to use debounced effect to recalculate this based on form tvl:
+  const dprMultiplier = !!parsedFormTvl
     ? calculateDprMultiplier(
         prizeTier.dpr,
-        tvl,
+        parsedFormTvl,
         prizeTier.prize,
         prizeTierHistoryContract.token.decimals
       )
@@ -79,12 +108,7 @@ const PrizePoolProjections = (props: {
     <>
       {isFetchedTvl ? (
         <>
-          <BasicStats
-            prizeTier={prizeTier}
-            tvl={tvl}
-            token={prizeTierHistoryContract.token}
-            className='mb-2'
-          />
+          <BasicStats prizeTier={prizeTier} className='mb-2' errors={errors} register={register} />
           <DrawBreakdown
             prizeAmount={expectedPrizeAmount}
             prizes={prizes}
@@ -94,8 +118,6 @@ const PrizePoolProjections = (props: {
           />
           <PrizesOverTime
             prizeAmount={expectedPrizeAmount}
-            prizes={prizes}
-            prizeChances={prizeChances}
             token={prizeTierHistoryContract.token}
             className='mb-2'
           />
@@ -110,20 +132,31 @@ const PrizePoolProjections = (props: {
 
 const BasicStats = (props: {
   prizeTier: PrizeTierConfigV2
-  tvl: number
-  token: Token
   className?: string
+  errors: FieldErrorsImpl<ProjectionSettings>
+  register: UseFormRegister<ProjectionSettings>
 }) => {
-  const { prizeTier, tvl, token, className } = props
+  const { prizeTier, className, errors, register } = props
+  const { t } = useTranslation()
 
-  // TODO: make tvl input (with reset button to return to actual value)
+  // TODO: add button to reset tvl to actual value
 
   return (
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text='Basic Stats' />
-      <span>
-        TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
-      </span>
+      <ProjectionInput
+        title='TVL'
+        formKey='tvl'
+        validate={{
+          isValidNumber: (v) =>
+            !Number.isNaN(Number(v.replaceAll(',', ''))) ||
+            t('fieldIsInvalid', { field: t('tier') }),
+          isGreaterThanOrEqualToZero: (v) =>
+            parseFloat(v.replaceAll(',', '')) >= 0 || t('fieldIsInvalid', { field: t('tier') })
+        }}
+        errors={errors}
+        register={register}
+      />
       <span>DPR: {formatPrettyPercentage(prizeTier.dpr)}</span>
     </div>
   )
@@ -139,7 +172,11 @@ const DrawBreakdown = (props: {
   const { prizeAmount, prizes, prizeChances, token, className } = props
 
   const formattedPrizeAmount = prizeAmount.toLocaleString('en', { maximumFractionDigits: 0 })
+
   // TODO: show claimable vs dropped prizes estimates (make dropped prizes a % input - default 15%?)
+  // TODO: remake breakdown as table (prize, daily, weekly, monthly, yearly)
+  // TODO: add minimum time until prize (10 days, etc.)
+  // TODO: maybe add a toggle between breakdown and min time until prize?
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -163,14 +200,8 @@ const DrawBreakdown = (props: {
   )
 }
 
-const PrizesOverTime = (props: {
-  prizeAmount: number
-  prizes: number[]
-  prizeChances: number[]
-  token: Token
-  className?: string
-}) => {
-  const { prizeAmount, prizes, prizeChances, token, className } = props
+const PrizesOverTime = (props: { prizeAmount: number; token: Token; className?: string }) => {
+  const { prizeAmount, token, className } = props
 
   const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
     maximumFractionDigits: 0
@@ -179,7 +210,7 @@ const PrizesOverTime = (props: {
     maximumFractionDigits: 0
   })
 
-  // TODO: show prizes over time chart
+  // TODO: show yearly APR (DPR * 365)
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -202,4 +233,42 @@ const VarianceInput = () => {
 
 const SectionTitle = (props: { text: string; className?: string }) => {
   return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
+}
+
+const ProjectionInput = (props: {
+  title: string
+  formKey: keyof ProjectionSettings
+  validate?: Record<string, (v: any) => true | string>
+  disabled?: boolean
+  errors: FieldErrorsImpl<ProjectionSettings>
+  register: UseFormRegister<ProjectionSettings>
+}) => {
+  const { title, formKey, validate, disabled, errors, register } = props
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <Label className='uppercase' htmlFor={formKey}>
+        {title}
+      </Label>
+      <StyledInput
+        id={formKey}
+        invalid={!!errors[formKey]}
+        className='w-full'
+        {...register(formKey, {
+          required: {
+            value: true,
+            message: t('blankIsRequired', { blank: title })
+          },
+          validate: validate
+        })}
+        disabled={disabled}
+      />
+      <ErrorMessage>
+        {!!errors[formKey]?.message && typeof errors[formKey].message === 'string'
+          ? errors[formKey].message
+          : null}
+      </ErrorMessage>
+    </div>
+  )
 }

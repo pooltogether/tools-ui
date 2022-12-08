@@ -79,6 +79,7 @@ export const EditPrizeTierHistoryForm = (props: {
           disabled
         />
         {isV2 && (
+          // TODO: [BUG] cannot set DPR to decimal
           <FormElement
             title={`${t('drawPercentageRate')} (%)`}
             formKey='dpr'

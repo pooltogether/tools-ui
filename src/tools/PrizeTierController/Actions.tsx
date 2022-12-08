@@ -1,7 +1,7 @@
 import { Button, ButtonTheme, ButtonSize, Tabs } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
-  isPrizeTierListCollapsed,
+  isListCollapsed,
   isSavePrizeTiersModalOpenAtom,
   prizeTierEditsAtom,
   SelectedView,
@@ -36,19 +36,17 @@ export const Actions = (props: { className?: string }) => {
           ]}
         />
       </div>
-      {currentView === SelectedView.configuration && (
-        <div className='flex items-center gap-3'>
-          <ToggleCollapsedButton />
-          {editedPools.length > 0 && <ResetButton />}
-          <SaveButton disabled={editedPools.length === 0} />
-        </div>
-      )}
+      <div className='flex items-center gap-3'>
+        <ToggleCollapsedButton />
+        {editedPools.length > 0 && <ResetButton />}
+        <SaveButton disabled={editedPools.length === 0} />
+      </div>
     </div>
   )
 }
 
 const ToggleCollapsedButton = () => {
-  const [isCollapsed, setIsCollapsed] = useAtom(isPrizeTierListCollapsed)
+  const [isCollapsed, setIsCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
 
   return (

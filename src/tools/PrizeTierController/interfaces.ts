@@ -58,3 +58,8 @@ export interface PrettyConfig {
   endTimestampOffset: string
   dpr?: string
 }
+
+export interface ProjectionSettings {
+  tvl: string
+  variance: string
+}

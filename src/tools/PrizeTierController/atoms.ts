@@ -2,7 +2,7 @@ import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 
-export const isPrizeTierListCollapsed = atom(true)
+export const isListCollapsed = atom(true)
 
 export const isEditPrizeTiersModalOpenAtom = atom(false)
 export const isSavePrizeTiersModalOpenAtom = atom(false)
