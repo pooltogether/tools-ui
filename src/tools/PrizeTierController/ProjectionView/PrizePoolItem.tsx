@@ -7,6 +7,8 @@ import { DPR_DECIMALS } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
+import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
+import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
@@ -52,14 +54,14 @@ const PrizePoolProjections = (props: {
   const { t } = useTranslation()
 
   // TODO: show dropped prizes estimates
-  // TODO: include tvl slider
-  // TODO: include variance slider (-50% to +50%?)
+  // TODO: include variance input
 
   return (
     <>
       {isFetchedTvl ? (
         <>
           <PoolTVL tvl={tvl} token={prizeTierHistoryContract.token} />
+          <PoolDPR dpr={prizeTier.dpr} />
           <DrawChances tvl={tvl} prizeTier={prizeTier} token={prizeTierHistoryContract.token} />
         </>
       ) : (
@@ -72,6 +74,8 @@ const PrizePoolProjections = (props: {
 const PoolTVL = (props: { tvl: number; token: Token }) => {
   const { tvl, token } = props
 
+  // TODO: make tvl input (with reset button to return to actual value)
+
   return (
     <div>
       TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
@@ -79,14 +83,16 @@ const PoolTVL = (props: { tvl: number; token: Token }) => {
   )
 }
 
+const PoolDPR = (props: { dpr: number }) => {
+  const { dpr } = props
+
+  return <div>With a DPR of {formatPrettyPercentage(dpr)}...</div>
+}
+
 const DrawChances = (props: { tvl: number; prizeTier: PrizeTierConfigV2; token: Token }) => {
   const { tvl, prizeTier, token } = props
 
-  // TODO: abstract out some of this logic to reuse elsewhere, or just bring it upwards to pass to children
-
-  const totalPrizesPerDraw = parseFloat(formatUnits(prizeTier.prize, parseInt(token.decimals)))
-  const dpr = prizeTier.dpr / 10 ** (DPR_DECIMALS + 2)
-  const multiplier = (dpr * tvl) / totalPrizesPerDraw
+  const multiplier = calculateDprMultiplier(prizeTier.dpr, tvl, prizeTier.prize, token.decimals)
   const prizes = prizeTier.tiers.map((tier, i) =>
     formatUnformattedBigNumberForDisplay(
       calculate.calculatePrizeForTierPercentage(i, tier, prizeTier.bitRangeSize, prizeTier.prize),

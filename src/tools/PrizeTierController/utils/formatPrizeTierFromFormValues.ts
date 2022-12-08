@@ -37,7 +37,7 @@ export const formatPrizeTierFromFormValues = (
     prizeTier.tiers = tempTiers
   }
   if (!!formValues.dpr) {
-    prizeTier.dpr = parseFloat(formValues.dpr) * 10 ** DPR_DECIMALS
+    prizeTier.dpr = parseFloat(formValues.dpr) * 10 ** (DPR_DECIMALS - 2)
   }
   return prizeTier
 }

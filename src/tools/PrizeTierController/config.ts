@@ -23,7 +23,7 @@ export const PRIZE_TIER_CONTROLLER_SUPPORTED_CHAIN_IDS = Object.freeze({
   ]
 })
 
-export const DPR_DECIMALS: number = 7
+export const DPR_DECIMALS: number = 9
 export const TIER_DECIMALS: number = 9
 
 export const PRIZE_TIER_HISTORY_V1: {
