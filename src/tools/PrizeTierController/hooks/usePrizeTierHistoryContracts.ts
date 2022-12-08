@@ -36,7 +36,7 @@ export const usePrizeTierHistoryContracts = () => {
     const tokenV2 = tokens[contractInfoV2.tokenAddress]
     if (contractInfoV2 && tokenV2 && contractInfoV2.address !== '') {
       prizeTierHistoryContracts.push(
-        formatPrizeTierHistoryContract(chainId, contractInfoV2.address, token, provider, {
+        formatPrizeTierHistoryContract(chainId, contractInfoV2.address, tokenV2, provider, {
           isV2: true
         })
       )

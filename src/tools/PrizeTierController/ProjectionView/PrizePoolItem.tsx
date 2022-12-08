@@ -17,12 +17,12 @@ import { useTranslation } from 'next-i18next'
 
 export const PrizePoolItem = (props: {
   prizePool: PrizePool
-  prizeTierHistoryContract?: PrizeTierHistoryContract
+  prizeTierHistoryContract: PrizeTierHistoryContract
 }) => {
   const { prizePool, prizeTierHistoryContract } = props
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
 
-  if (!!prizeTierHistoryContract && !!combinedPrizeTiers) {
+  if (!!prizePool && !!prizeTierHistoryContract && !!combinedPrizeTiers) {
     const prizeTier = combinedPrizeTiers[prizePool.chainId]?.[prizeTierHistoryContract.address]
     if (!!prizeTier) {
       return (
