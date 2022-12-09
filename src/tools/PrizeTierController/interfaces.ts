@@ -61,5 +61,6 @@ export interface PrettyConfig {
 
 export interface ProjectionSettings {
   tvl: string
+  dropped: string
   variance: string
 }

@@ -85,14 +85,14 @@ const PrizePoolProjections = (props: {
     formState: { errors, isValid }
   } = useForm<ProjectionSettings>({
     mode: 'onChange',
-    defaultValues: projectionSettings ?? { tvl: '0', variance: '0' },
+    defaultValues: projectionSettings ?? { tvl: '0', variance: '0', dropped: '0' },
     shouldUnregister: true
   })
   const { t } = useTranslation()
 
   const formTvl = watch('tvl')
   const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
-
+  const formDroppedPrizes = watch('dropped')
   const formVariance = watch('variance')
 
   // Function to update `allProjectionSettings`:
@@ -108,6 +108,10 @@ const PrizePoolProjections = (props: {
             ? value
             : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.tvl ??
               tvl.toLocaleString('en', { maximumFractionDigits: 0 }),
+        dropped:
+          key === 'dropped'
+            ? value
+            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.dropped ?? '0',
         variance:
           key === 'variance'
             ? value
@@ -129,6 +133,17 @@ const PrizePoolProjections = (props: {
       }
     }
   }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
+
+  useEffect(() => {
+    if (isFetchedTvl) {
+      if (
+        formDroppedPrizes !== undefined &&
+        !Number.isNaN(Number(formDroppedPrizes.replaceAll(',', '')))
+      ) {
+        updateProjectionSettings('dropped', formDroppedPrizes)
+      }
+    }
+  }, [isFetchedTvl, formDroppedPrizes])
 
   useEffect(() => {
     if (isFetchedTvl) {
@@ -183,6 +198,7 @@ const PrizePoolProjections = (props: {
             token={prizeTierHistoryContract.token}
             className='mb-2'
           />
+          <DroppedPrizesInput errors={errors} register={register} setValue={setValue} />
           <VarianceInput errors={errors} register={register} setValue={setValue} />
         </>
       ) : (
@@ -272,7 +288,6 @@ const DrawBreakdown = (props: {
 
   const formattedPrizeAmount = prizeAmount.toLocaleString('en', { maximumFractionDigits: 0 })
 
-  // TODO: show claimable vs dropped prizes estimates (make dropped prizes a % input - default 15%?)
   // TODO: remake breakdown as table (prize, daily, weekly, monthly, yearly)
   // TODO: add minimum time until prize (10 days, etc.)
   // TODO: maybe add a toggle between breakdown and min time until prize?
@@ -299,7 +314,35 @@ const DrawBreakdown = (props: {
   )
 }
 
-// TODO: use variance input in most calculations
+// TODO: use dropped prizes input in relevant calculations
+const DroppedPrizesInput = (props: {
+  errors: FieldErrorsImpl<ProjectionSettings>
+  register: UseFormRegister<ProjectionSettings>
+  setValue: UseFormSetValue<ProjectionSettings>
+}) => {
+  const { errors, register, setValue } = props
+  const [isCollapsed] = useAtom(isListCollapsed)
+  const { t } = useTranslation()
+
+  return (
+    <ProjectionInput
+      title='Dropped Prizes'
+      formKey='dropped'
+      validate={{
+        isValidNumber: (v) =>
+          !Number.isNaN(Number(v.replaceAll(',', ''))) ||
+          t('fieldIsInvalid', { field: 'Dropped Prizes %' })
+      }}
+      errors={errors}
+      register={register}
+      onReset={() => setValue('dropped', '0', { shouldValidate: true })}
+      className={classNames({ hidden: isCollapsed })}
+      percent
+    />
+  )
+}
+
+// TODO: use variance input in relevant calculations
 const VarianceInput = (props: {
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
@@ -310,21 +353,19 @@ const VarianceInput = (props: {
   const { t } = useTranslation()
 
   return (
-    <div>
-      <ProjectionInput
-        title='Variance (%)'
-        formKey='variance'
-        validate={{
-          isValidNumber: (v) =>
-            !Number.isNaN(Number(v.replaceAll(',', ''))) ||
-            t('fieldIsInvalid', { field: 'Variance' })
-        }}
-        errors={errors}
-        register={register}
-        onReset={() => setValue('variance', '0', { shouldValidate: true })}
-        className={classNames({ hidden: isCollapsed })}
-      />
-    </div>
+    <ProjectionInput
+      title='Variance'
+      formKey='variance'
+      validate={{
+        isValidNumber: (v) =>
+          !Number.isNaN(Number(v.replaceAll(',', ''))) || t('fieldIsInvalid', { field: 'Variance' })
+      }}
+      errors={errors}
+      register={register}
+      onReset={() => setValue('variance', '0', { shouldValidate: true })}
+      className={classNames({ hidden: isCollapsed })}
+      percent
+    />
   )
 }
 
@@ -341,14 +382,17 @@ const ProjectionInput = (props: {
   register: UseFormRegister<ProjectionSettings>
   onReset?: Function
   className?: string
+  percent?: boolean
 }) => {
-  const { title, formKey, validate, disabled, errors, register, onReset, className } = props
+  const { title, formKey, validate, disabled, errors, register, onReset, className, percent } =
+    props
   const { t } = useTranslation()
 
   return (
     <div className={className}>
       <Label className='uppercase' htmlFor={formKey}>
         {title}
+        {percent && ' (%)'}
       </Label>
       <StyledInput
         id={formKey}
