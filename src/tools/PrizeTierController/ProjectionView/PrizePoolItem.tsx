@@ -3,7 +3,11 @@ import { Label } from '@components/Label'
 import { Token } from '@pooltogether/hooks'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
-import { allCombinedPrizeTiersAtom, allProjectionSettingsAtom } from '@prizeTierController/atoms'
+import {
+  allCombinedPrizeTiersAtom,
+  allProjectionSettingsAtom,
+  isListCollapsed
+} from '@prizeTierController/atoms'
 import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
@@ -74,6 +78,7 @@ const PrizePoolProjections = (props: {
   const { prizePool, prizeTierHistoryContract, prizeTier, projectionSettings } = props
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
   const [allProjectionSettings, setAllProjectionSettings] = useAtom(allProjectionSettingsAtom)
+  const [isCollapsed] = useAtom(isListCollapsed)
   const {
     register,
     watch,
@@ -86,40 +91,39 @@ const PrizePoolProjections = (props: {
   })
   const { t } = useTranslation()
 
-  // TODO: make `isListCollapsed` atom also affect projections
-
   const formTvl = watch('tvl')
   const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
 
-  // TODO: abstract out some of this logic elsewhere
+  // Function to update `allProjectionSettings`:
+  const updateProjectionSettings = (key: keyof ProjectionSettings, value: string) => {
+    setAllProjectionSettings(() => {
+      const updatedProjectionSettings = { ...allProjectionSettings }
+      if (!updatedProjectionSettings[prizePool.chainId]) {
+        updatedProjectionSettings[prizePool.chainId] = {}
+      }
+      updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
+        tvl:
+          key === 'tvl'
+            ? value
+            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.tvl ??
+              tvl.toLocaleString('en', { maximumFractionDigits: 0 }),
+        variance:
+          key === 'variance'
+            ? value
+            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
+      }
+      return updatedProjectionSettings
+    })
+  }
+
   useEffect(() => {
     if (isFetchedTvl && (formTvl === '0' || formTvl === undefined)) {
       setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
       if (allProjectionSettings[prizePool.chainId]?.[prizePool.id()] === undefined) {
-        setAllProjectionSettings(() => {
-          const updatedProjectionSettings = { ...allProjectionSettings }
-          if (!updatedProjectionSettings[prizePool.chainId]) {
-            updatedProjectionSettings[prizePool.chainId] = {}
-          }
-          updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
-            tvl: tvl.toString(),
-            variance: updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
-          }
-          return updatedProjectionSettings
-        })
+        updateProjectionSettings('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
       }
     } else if (!!parsedFormTvl) {
-      setAllProjectionSettings(() => {
-        const updatedProjectionSettings = { ...allProjectionSettings }
-        if (!updatedProjectionSettings[prizePool.chainId]) {
-          updatedProjectionSettings[prizePool.chainId] = {}
-        }
-        updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
-          tvl: formTvl,
-          variance: updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
-        }
-        return updatedProjectionSettings
-      })
+      updateProjectionSettings('tvl', formTvl)
     }
   }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
 
@@ -152,11 +156,14 @@ const PrizePoolProjections = (props: {
         <>
           <BasicStats
             tvl={tvl}
+            formTvl={formTvl}
             dpr={prizeTier.dpr}
-            className='mb-2'
+            prizeAmount={expectedPrizeAmount}
+            token={prizeTierHistoryContract.token}
             errors={errors}
             register={register}
             setValue={setValue}
+            className='mb-2'
           />
           <DrawBreakdown
             prizeAmount={expectedPrizeAmount}
@@ -165,12 +172,7 @@ const PrizePoolProjections = (props: {
             token={prizeTierHistoryContract.token}
             className='mb-2'
           />
-          <PrizesOverTime
-            prizeAmount={expectedPrizeAmount}
-            token={prizeTierHistoryContract.token}
-            className='mb-2'
-          />
-          <VarianceInput />
+          {!isCollapsed && <VarianceInput />}
         </>
       ) : (
         t('loading')
@@ -181,18 +183,41 @@ const PrizePoolProjections = (props: {
 
 const BasicStats = (props: {
   tvl: number
+  formTvl: string
   dpr: number
-  className?: string
+  prizeAmount: number
+  token: Token
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
   setValue: UseFormSetValue<ProjectionSettings>
+  className?: string
 }) => {
-  const { tvl, dpr, className, errors, register, setValue } = props
+  const { tvl, formTvl, dpr, prizeAmount, token, errors, register, setValue, className } = props
+  const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
+
+  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+  const formattedMonthlyPrizeAmount = (((prizeAmount * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
+    'en',
+    {
+      maximumFractionDigits: 0
+    }
+  )
+  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
 
   return (
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text='Basic Stats' />
+      {isCollapsed && (
+        <span>
+          TVL: {formTvl} {token.symbol}
+        </span>
+      )}
+      {/* TODO: improve input styling */}
       <ProjectionInput
         title='TVL'
         formKey='tvl'
@@ -205,14 +230,27 @@ const BasicStats = (props: {
         }}
         errors={errors}
         register={register}
+        className={classNames({ hidden: isCollapsed })}
       />
-      <button
-        className='text-xxs opacity-80'
-        onClick={() => setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))}
-      >
-        Reset TVL
-      </button>
+      {!isCollapsed && (
+        <button
+          className='text-xxs opacity-80'
+          onClick={() => setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))}
+        >
+          Reset TVL
+        </button>
+      )}
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
+      <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
+      <span>
+        Weekly Prizes: {formattedWeeklyPrizeAmount} {token.symbol}
+      </span>
+      <span>
+        Monthly Prizes: {formattedMonthlyPrizeAmount} {token.symbol}
+      </span>
+      <span>
+        Yearly Prizes: {formattedYearlyPrizeAmount} {token.symbol}
+      </span>
     </div>
   )
 }
@@ -255,32 +293,6 @@ const DrawBreakdown = (props: {
   )
 }
 
-// TODO: bring prizes over time into basic stats
-const PrizesOverTime = (props: { prizeAmount: number; token: Token; className?: string }) => {
-  const { prizeAmount, token, className } = props
-
-  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-
-  // TODO: show yearly APR (DPR * 365)
-
-  return (
-    <div className={classNames('flex flex-col', className)}>
-      <SectionTitle text='Prizes Over Time' />
-      <span>
-        Weekly prizes: {formattedWeeklyPrizeAmount} {token.symbol}
-      </span>
-      <span>
-        Yearly prizes: {formattedYearlyPrizeAmount} {token.symbol}
-      </span>
-    </div>
-  )
-}
-
 const VarianceInput = () => {
   // TODO: include variance input to change charts, estimates, etc.
 
@@ -298,12 +310,13 @@ const ProjectionInput = (props: {
   disabled?: boolean
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
+  className?: string
 }) => {
-  const { title, formKey, validate, disabled, errors, register } = props
+  const { title, formKey, validate, disabled, errors, register, className } = props
   const { t } = useTranslation()
 
   return (
-    <div>
+    <div className={className}>
       <Label className='uppercase' htmlFor={formKey}>
         {title}
       </Label>
