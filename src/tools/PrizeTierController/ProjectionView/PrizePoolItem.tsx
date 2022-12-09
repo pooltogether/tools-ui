@@ -7,6 +7,7 @@ import { calculate } from '@pooltogether/v4-utils-js'
 import { allCombinedPrizeTiersAtom } from '@prizeTierController/atoms'
 import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
+import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import {
   PrizeTierConfigV2,
   PrizeTierHistoryContract,
@@ -19,7 +20,7 @@ import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister } from 'react-hook-form'
 
 // TODO: localization
@@ -30,26 +31,38 @@ export const PrizePoolItem = (props: {
 }) => {
   const { prizePool, prizeTierHistoryContract } = props
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+  const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizeTierHistoryContract)
+  const { t } = useTranslation()
 
-  if (!!prizePool && !!prizeTierHistoryContract && !!combinedPrizeTiers) {
-    const prizeTier = combinedPrizeTiers[prizePool.chainId]?.[prizeTierHistoryContract.address]
-    if (!!prizeTier) {
-      return (
-        <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
-          <PrizeTierHistoryTitle
-            prizeTierHistoryContract={prizeTierHistoryContract}
-            className='mb-4'
-          />
-          <PrizePoolProjections
-            prizePool={prizePool}
-            prizeTierHistoryContract={prizeTierHistoryContract}
-            prizeTier={prizeTier}
-          />
-        </li>
-      )
+  const prizeTier = useMemo(() => {
+    if (!!prizePool && !!prizeTierHistoryContract && !!combinedPrizeTiers) {
+      const editedPrizeTier =
+        combinedPrizeTiers[prizePool.chainId]?.[prizeTierHistoryContract.address]
+      if (!!editedPrizeTier) {
+        return editedPrizeTier
+      } else if (isFetched) {
+        return upcomingPrizeTier
+      }
     }
-  }
+  }, [prizePool, prizeTierHistoryContract, combinedPrizeTiers, isFetched])
+
+  return (
+    <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
+      <PrizeTierHistoryTitle prizeTierHistoryContract={prizeTierHistoryContract} className='mb-4' />
+      {!!prizeTier ? (
+        <PrizePoolProjections
+          prizePool={prizePool}
+          prizeTierHistoryContract={prizeTierHistoryContract}
+          prizeTier={prizeTier}
+        />
+      ) : (
+        t('loading')
+      )}
+    </li>
+  )
 }
+
+// TODO: add edits to `allProjectionSettings` atom to persist over tab switching
 
 const PrizePoolProjections = (props: {
   prizePool: PrizePool
@@ -200,6 +213,7 @@ const DrawBreakdown = (props: {
   )
 }
 
+// TODO: bring prizes over time into basic stats
 const PrizesOverTime = (props: { prizeAmount: number; token: Token; className?: string }) => {
   const { prizeAmount, token, className } = props
 
