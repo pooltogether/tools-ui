@@ -79,7 +79,6 @@ export const EditPrizeTierHistoryForm = (props: {
           disabled
         />
         {isV2 && (
-          // TODO: [BUG] cannot set DPR to decimal
           <FormElement
             title={`${t('drawPercentageRate')} (%)`}
             formKey='dpr'
@@ -87,9 +86,9 @@ export const EditPrizeTierHistoryForm = (props: {
               isValidNumber: (v) =>
                 !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
               isGreaterThanZero: (v) =>
-                parseInt(v) > 0 || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
+                parseFloat(v) > 0 || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
               isLessThanOrEqualToOneHundred: (v) =>
-                parseInt(v) <= 100 || t('fieldIsInvalid', { field: t('drawPercentageRate') })
+                parseFloat(v) <= 100 || t('fieldIsInvalid', { field: t('drawPercentageRate') })
             }}
             errors={errors}
             register={register}
