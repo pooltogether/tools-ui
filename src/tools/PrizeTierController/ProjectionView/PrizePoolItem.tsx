@@ -18,6 +18,7 @@ import {
 } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
+import { calculateEstimatedTimeFromPrizeChance } from '@prizeTierController/utils/calculateEstimatedTimeFromPrizeChance'
 import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
@@ -191,13 +192,7 @@ const PrizePoolProjections = (props: {
             setValue={setValue}
             className='mb-2'
           />
-          <DrawBreakdown
-            prizeAmount={expectedPrizeAmount}
-            prizes={prizes}
-            prizeChances={prizeChances}
-            token={prizeTierHistoryContract.token}
-            className='mb-2'
-          />
+          <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
           <DroppedPrizesInput errors={errors} register={register} setValue={setValue} />
           <VarianceInput errors={errors} register={register} setValue={setValue} />
         </>
@@ -223,6 +218,9 @@ const BasicStats = (props: {
   const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
 
+  const formattedDailyPrizeAmount = (prizeAmount * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
   const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
     maximumFractionDigits: 0
   })
@@ -265,6 +263,9 @@ const BasicStats = (props: {
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
       <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
       <span>
+        Daily Prizes: {formattedDailyPrizeAmount} {token.symbol}
+      </span>
+      <span>
         Weekly Prizes: {formattedWeeklyPrizeAmount} {token.symbol}
       </span>
       <span>
@@ -277,35 +278,70 @@ const BasicStats = (props: {
   )
 }
 
-const DrawBreakdown = (props: {
-  prizeAmount: number
-  prizes: number[]
-  prizeChances: number[]
-  token: Token
-  className?: string
-}) => {
-  const { prizeAmount, prizes, prizeChances, token, className } = props
+const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; className?: string }) => {
+  const { prizes, prizeChances, className } = props
 
-  const formattedPrizeAmount = prizeAmount.toLocaleString('en', { maximumFractionDigits: 0 })
-
-  // TODO: remake breakdown as table (prize, daily, weekly, monthly, yearly)
-  // TODO: add minimum time until prize (10 days, etc.)
-  // TODO: maybe add a toggle between breakdown and min time until prize?
+  // TODO: add a toggle between breakdown and min time until prize
 
   return (
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text='Draw Breakdown' />
-      <span>
-        Total Estimated Prizes: {formattedPrizeAmount} {token.symbol}
-      </span>
-      <ul>
+      <ul className='mb-3'>
+        <li className='grid grid-cols-5 gap-x-4 opacity-80'>
+          <div>Prize</div>
+          <div>Daily</div>
+          <div>Weekly</div>
+          <div>Monthly</div>
+          <div>Yearly</div>
+        </li>
         {prizes.map((prize, i) => {
           if (prize === 0) return null
 
           return (
-            <li key={`pl-${i}-${prizeChances[i]}`}>
-              {prizeChances[i].toLocaleString('en', { maximumFractionDigits: 4 })} prizes of{' '}
-              {prize.toLocaleString('en', { maximumFractionDigits: 2 })} {token.symbol}
+            <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
+              <div className='font-bold'>
+                {prize.toLocaleString('en', { maximumFractionDigits: 2 })}
+              </div>
+              <div>
+                {(prizeChances[i] * DRAWS_PER_DAY).toLocaleString('en', {
+                  maximumFractionDigits: 3
+                })}
+              </div>
+              <div>
+                {(prizeChances[i] * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+                  maximumFractionDigits: 3
+                })}
+              </div>
+              <div>
+                {(((prizeChances[i] * 365) / 12) * DRAWS_PER_DAY).toLocaleString('en', {
+                  maximumFractionDigits: 2
+                })}
+              </div>
+              <div>
+                {(prizeChances[i] * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+                  maximumFractionDigits: 2
+                })}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+      <ul>
+        <li className='grid grid-cols-5 gap-x-4 opacity-80'>
+          <div>Prize</div>
+          <div className='col-span-4'>Estimated Award Time</div>
+        </li>
+        {prizes.map((prize, i) => {
+          if (prize === 0) return null
+
+          return (
+            <li key={`pl-time-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
+              <div className='font-bold'>
+                {prize.toLocaleString('en', { maximumFractionDigits: 2 })}
+              </div>
+              <div className='col-span-4'>
+                {calculateEstimatedTimeFromPrizeChance(prizeChances[i])}
+              </div>
             </li>
           )
         })}
@@ -370,7 +406,7 @@ const VarianceInput = (props: {
 }
 
 const SectionTitle = (props: { text: string; className?: string }) => {
-  return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
+  return <h3 className={classNames('text-xs opacity-80 mb-2', props.className)}>{props.text}</h3>
 }
 
 const ProjectionInput = (props: {
@@ -389,7 +425,7 @@ const ProjectionInput = (props: {
   const { t } = useTranslation()
 
   return (
-    <div className={className}>
+    <div className={classNames('mb-2', className)}>
       <Label className='uppercase' htmlFor={formKey}>
         {title}
         {percent && ' (%)'}
@@ -408,9 +444,11 @@ const ProjectionInput = (props: {
         disabled={disabled}
       />
       {!!onReset && (
-        <button className='text-xxs opacity-80' onClick={() => onReset()}>
-          Reset {title}
-        </button>
+        <div className='flex justify-end'>
+          <button className='text-xxs opacity-80' onClick={() => onReset()}>
+            Reset {title}
+          </button>
+        </div>
       )}
     </div>
   )
