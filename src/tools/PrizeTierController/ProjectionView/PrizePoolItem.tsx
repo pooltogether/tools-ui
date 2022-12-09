@@ -78,7 +78,6 @@ const PrizePoolProjections = (props: {
   const { prizePool, prizeTierHistoryContract, prizeTier, projectionSettings } = props
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
   const [allProjectionSettings, setAllProjectionSettings] = useAtom(allProjectionSettingsAtom)
-  const [isCollapsed] = useAtom(isListCollapsed)
   const {
     register,
     watch,
@@ -93,6 +92,8 @@ const PrizePoolProjections = (props: {
 
   const formTvl = watch('tvl')
   const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
+
+  const formVariance = watch('variance')
 
   // Function to update `allProjectionSettings`:
   const updateProjectionSettings = (key: keyof ProjectionSettings, value: string) => {
@@ -117,15 +118,25 @@ const PrizePoolProjections = (props: {
   }
 
   useEffect(() => {
-    if (isFetchedTvl && (formTvl === '0' || formTvl === undefined)) {
-      setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
-      if (allProjectionSettings[prizePool.chainId]?.[prizePool.id()] === undefined) {
-        updateProjectionSettings('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+    if (isFetchedTvl) {
+      if (formTvl === '0' || formTvl === undefined) {
+        setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+        if (allProjectionSettings[prizePool.chainId]?.[prizePool.id()] === undefined) {
+          updateProjectionSettings('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+        }
+      } else if (!!parsedFormTvl) {
+        updateProjectionSettings('tvl', formTvl)
       }
-    } else if (!!parsedFormTvl) {
-      updateProjectionSettings('tvl', formTvl)
     }
   }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
+
+  useEffect(() => {
+    if (isFetchedTvl) {
+      if (formVariance !== undefined && !Number.isNaN(Number(formVariance.replaceAll(',', '')))) {
+        updateProjectionSettings('variance', formVariance)
+      }
+    }
+  }, [isFetchedTvl, formVariance])
 
   const dprMultiplier = !!parsedFormTvl
     ? calculateDprMultiplier(
@@ -172,7 +183,7 @@ const PrizePoolProjections = (props: {
             token={prizeTierHistoryContract.token}
             className='mb-2'
           />
-          {!isCollapsed && <VarianceInput />}
+          <VarianceInput errors={errors} register={register} setValue={setValue} />
         </>
       ) : (
         t('loading')
@@ -217,29 +228,24 @@ const BasicStats = (props: {
           TVL: {formTvl} {token.symbol}
         </span>
       )}
-      {/* TODO: improve input styling */}
       <ProjectionInput
         title='TVL'
         formKey='tvl'
         validate={{
           isValidNumber: (v) =>
-            !Number.isNaN(Number(v.replaceAll(',', ''))) ||
-            t('fieldIsInvalid', { field: t('tier') }),
+            !Number.isNaN(Number(v.replaceAll(',', ''))) || t('fieldIsInvalid', { field: 'TVL' }),
           isGreaterThanOrEqualToZero: (v) =>
-            parseFloat(v.replaceAll(',', '')) >= 0 || t('fieldIsInvalid', { field: t('tier') })
+            parseFloat(v.replaceAll(',', '')) >= 0 || t('fieldIsInvalid', { field: 'TVL' })
         }}
         errors={errors}
         register={register}
+        onReset={() =>
+          setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }), {
+            shouldValidate: true
+          })
+        }
         className={classNames({ hidden: isCollapsed })}
       />
-      {!isCollapsed && (
-        <button
-          className='text-xxs opacity-80'
-          onClick={() => setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))}
-        >
-          Reset TVL
-        </button>
-      )}
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
       <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
       <span>
@@ -293,10 +299,33 @@ const DrawBreakdown = (props: {
   )
 }
 
-const VarianceInput = () => {
-  // TODO: include variance input to change charts, estimates, etc.
+// TODO: use variance input in most calculations
+const VarianceInput = (props: {
+  errors: FieldErrorsImpl<ProjectionSettings>
+  register: UseFormRegister<ProjectionSettings>
+  setValue: UseFormSetValue<ProjectionSettings>
+}) => {
+  const { errors, register, setValue } = props
+  const [isCollapsed] = useAtom(isListCollapsed)
+  const { t } = useTranslation()
 
-  return <></>
+  return (
+    <div>
+      <ProjectionInput
+        title='Variance (%)'
+        formKey='variance'
+        validate={{
+          isValidNumber: (v) =>
+            !Number.isNaN(Number(v.replaceAll(',', ''))) ||
+            t('fieldIsInvalid', { field: 'Variance' })
+        }}
+        errors={errors}
+        register={register}
+        onReset={() => setValue('variance', '0', { shouldValidate: true })}
+        className={classNames({ hidden: isCollapsed })}
+      />
+    </div>
+  )
 }
 
 const SectionTitle = (props: { text: string; className?: string }) => {
@@ -310,9 +339,10 @@ const ProjectionInput = (props: {
   disabled?: boolean
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
+  onReset?: Function
   className?: string
 }) => {
-  const { title, formKey, validate, disabled, errors, register, className } = props
+  const { title, formKey, validate, disabled, errors, register, onReset, className } = props
   const { t } = useTranslation()
 
   return (
@@ -333,6 +363,11 @@ const ProjectionInput = (props: {
         })}
         disabled={disabled}
       />
+      {!!onReset && (
+        <button className='text-xxs opacity-80' onClick={() => onReset()}>
+          Reset {title}
+        </button>
+      )}
     </div>
   )
 }
