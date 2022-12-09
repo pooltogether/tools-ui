@@ -1,10 +1,9 @@
-import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Token } from '@pooltogether/hooks'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
-import { allCombinedPrizeTiersAtom } from '@prizeTierController/atoms'
+import { allCombinedPrizeTiersAtom, allProjectionSettingsAtom } from '@prizeTierController/atoms'
 import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
@@ -21,7 +20,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
 import { useEffect, useMemo } from 'react'
-import { FieldErrorsImpl, useForm, UseFormRegister } from 'react-hook-form'
+import { FieldErrorsImpl, useForm, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 // TODO: localization
 
@@ -31,6 +30,7 @@ export const PrizePoolItem = (props: {
 }) => {
   const { prizePool, prizeTierHistoryContract } = props
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+  const [allProjectionSettings] = useAtom(allProjectionSettingsAtom)
   const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizeTierHistoryContract)
   const { t } = useTranslation()
 
@@ -46,6 +46,8 @@ export const PrizePoolItem = (props: {
     }
   }, [prizePool, prizeTierHistoryContract, combinedPrizeTiers, isFetched])
 
+  const projectionSettings = allProjectionSettings[prizePool.chainId]?.[prizePool.id()]
+
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
       <PrizeTierHistoryTitle prizeTierHistoryContract={prizeTierHistoryContract} className='mb-4' />
@@ -54,6 +56,7 @@ export const PrizePoolItem = (props: {
           prizePool={prizePool}
           prizeTierHistoryContract={prizeTierHistoryContract}
           prizeTier={prizeTier}
+          projectionSettings={projectionSettings}
         />
       ) : (
         t('loading')
@@ -62,15 +65,15 @@ export const PrizePoolItem = (props: {
   )
 }
 
-// TODO: add edits to `allProjectionSettings` atom to persist over tab switching
-
 const PrizePoolProjections = (props: {
   prizePool: PrizePool
   prizeTierHistoryContract: PrizeTierHistoryContract
   prizeTier: PrizeTierConfigV2
+  projectionSettings: ProjectionSettings
 }) => {
-  const { prizePool, prizeTierHistoryContract, prizeTier } = props
+  const { prizePool, prizeTierHistoryContract, prizeTier, projectionSettings } = props
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
+  const [allProjectionSettings, setAllProjectionSettings] = useAtom(allProjectionSettingsAtom)
   const {
     register,
     watch,
@@ -78,22 +81,48 @@ const PrizePoolProjections = (props: {
     formState: { errors, isValid }
   } = useForm<ProjectionSettings>({
     mode: 'onChange',
-    defaultValues: { tvl: '0', variance: '0' },
+    defaultValues: projectionSettings ?? { tvl: '0', variance: '0' },
     shouldUnregister: true
   })
   const { t } = useTranslation()
 
   // TODO: make `isListCollapsed` atom also affect projections
 
+  const formTvl = watch('tvl')
+  const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
+
+  // TODO: abstract out some of this logic elsewhere
   useEffect(() => {
-    if (isFetchedTvl) {
+    if (isFetchedTvl && (formTvl === '0' || formTvl === undefined)) {
       setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+      if (allProjectionSettings[prizePool.chainId]?.[prizePool.id()] === undefined) {
+        setAllProjectionSettings(() => {
+          const updatedProjectionSettings = { ...allProjectionSettings }
+          if (!updatedProjectionSettings[prizePool.chainId]) {
+            updatedProjectionSettings[prizePool.chainId] = {}
+          }
+          updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
+            tvl: tvl.toString(),
+            variance: updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
+          }
+          return updatedProjectionSettings
+        })
+      }
+    } else if (!!parsedFormTvl) {
+      setAllProjectionSettings(() => {
+        const updatedProjectionSettings = { ...allProjectionSettings }
+        if (!updatedProjectionSettings[prizePool.chainId]) {
+          updatedProjectionSettings[prizePool.chainId] = {}
+        }
+        updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
+          tvl: formTvl,
+          variance: updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
+        }
+        return updatedProjectionSettings
+      })
     }
-  }, [tvl, isFetchedTvl])
+  }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
 
-  const parsedFormTvl = parseFloat(watch('tvl')?.replaceAll(',', ''))
-
-  // TODO: need to use debounced effect to recalculate this based on form tvl:
   const dprMultiplier = !!parsedFormTvl
     ? calculateDprMultiplier(
         prizeTier.dpr,
@@ -121,7 +150,14 @@ const PrizePoolProjections = (props: {
     <>
       {isFetchedTvl ? (
         <>
-          <BasicStats prizeTier={prizeTier} className='mb-2' errors={errors} register={register} />
+          <BasicStats
+            tvl={tvl}
+            dpr={prizeTier.dpr}
+            className='mb-2'
+            errors={errors}
+            register={register}
+            setValue={setValue}
+          />
           <DrawBreakdown
             prizeAmount={expectedPrizeAmount}
             prizes={prizes}
@@ -144,15 +180,15 @@ const PrizePoolProjections = (props: {
 }
 
 const BasicStats = (props: {
-  prizeTier: PrizeTierConfigV2
+  tvl: number
+  dpr: number
   className?: string
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
+  setValue: UseFormSetValue<ProjectionSettings>
 }) => {
-  const { prizeTier, className, errors, register } = props
+  const { tvl, dpr, className, errors, register, setValue } = props
   const { t } = useTranslation()
-
-  // TODO: add button to reset tvl to actual value
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -170,7 +206,13 @@ const BasicStats = (props: {
         errors={errors}
         register={register}
       />
-      <span>DPR: {formatPrettyPercentage(prizeTier.dpr)}</span>
+      <button
+        className='text-xxs opacity-80'
+        onClick={() => setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))}
+      >
+        Reset TVL
+      </button>
+      <span>DPR: {formatPrettyPercentage(dpr)}</span>
     </div>
   )
 }
@@ -278,11 +320,6 @@ const ProjectionInput = (props: {
         })}
         disabled={disabled}
       />
-      <ErrorMessage>
-        {!!errors[formKey]?.message && typeof errors[formKey].message === 'string'
-          ? errors[formKey].message
-          : null}
-      </ErrorMessage>
     </div>
   )
 }

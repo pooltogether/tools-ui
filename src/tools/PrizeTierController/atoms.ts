@@ -22,6 +22,6 @@ export enum SelectedView {
 }
 export const selectedView = atom(SelectedView.configuration)
 
-export const allProjectionSettings = atom<{
+export const allProjectionSettingsAtom = atom<{
   [chainId: number]: { [prizePoolId: string]: ProjectionSettings }
 }>({})
