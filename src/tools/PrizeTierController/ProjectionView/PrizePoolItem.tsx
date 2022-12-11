@@ -3,11 +3,7 @@ import { Label } from '@components/Label'
 import { Token } from '@pooltogether/hooks'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
-import {
-  allCombinedPrizeTiersAtom,
-  allProjectionSettingsAtom,
-  isListCollapsed
-} from '@prizeTierController/atoms'
+import { allCombinedPrizeTiersAtom, isListCollapsed } from '@prizeTierController/atoms'
 import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
@@ -28,6 +24,7 @@ import { useEffect, useMemo } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 // TODO: localization
+// TODO: move tvl and variance input into an "extra options" component and display near bottom when not collapsed
 
 export const PrizePoolItem = (props: {
   prizePool: PrizePool
@@ -35,7 +32,6 @@ export const PrizePoolItem = (props: {
 }) => {
   const { prizePool, prizeTierHistoryContract } = props
   const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
-  const [allProjectionSettings] = useAtom(allProjectionSettingsAtom)
   const { data: upcomingPrizeTier, isFetched } = usePrizeTierHistoryData(prizeTierHistoryContract)
   const { t } = useTranslation()
 
@@ -51,8 +47,6 @@ export const PrizePoolItem = (props: {
     }
   }, [prizePool, prizeTierHistoryContract, combinedPrizeTiers, isFetched])
 
-  const projectionSettings = allProjectionSettings[prizePool.chainId]?.[prizePool.id()]
-
   return (
     <li className='p-4 bg-actually-black bg-opacity-10 rounded-xl'>
       <PrizeTierHistoryTitle prizeTierHistoryContract={prizeTierHistoryContract} className='mb-4' />
@@ -61,7 +55,7 @@ export const PrizePoolItem = (props: {
           prizePool={prizePool}
           prizeTierHistoryContract={prizeTierHistoryContract}
           prizeTier={prizeTier}
-          projectionSettings={projectionSettings}
+          defaultFormValues={{ tvl: '0', variance: '0' }}
         />
       ) : (
         t('loading')
@@ -74,85 +68,34 @@ const PrizePoolProjections = (props: {
   prizePool: PrizePool
   prizeTierHistoryContract: PrizeTierHistoryContract
   prizeTier: PrizeTierConfigV2
-  projectionSettings: ProjectionSettings
+  defaultFormValues: ProjectionSettings
 }) => {
-  const { prizePool, prizeTierHistoryContract, prizeTier, projectionSettings } = props
+  const { prizePool, prizeTierHistoryContract, prizeTier, defaultFormValues } = props
   const { data: tvl, isFetched: isFetchedTvl } = usePrizePoolTvl(prizePool)
-  const [allProjectionSettings, setAllProjectionSettings] = useAtom(allProjectionSettingsAtom)
   const {
     register,
     watch,
     setValue,
-    formState: { errors, isValid }
+    formState: { errors }
   } = useForm<ProjectionSettings>({
     mode: 'onChange',
-    defaultValues: projectionSettings ?? { tvl: '0', variance: '0', dropped: '0' },
+    defaultValues: defaultFormValues,
     shouldUnregister: true
   })
   const { t } = useTranslation()
 
   const formTvl = watch('tvl')
   const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
-  const formDroppedPrizes = watch('dropped')
   const formVariance = watch('variance')
-
-  // Function to update `allProjectionSettings`:
-  const updateProjectionSettings = (key: keyof ProjectionSettings, value: string) => {
-    setAllProjectionSettings(() => {
-      const updatedProjectionSettings = { ...allProjectionSettings }
-      if (!updatedProjectionSettings[prizePool.chainId]) {
-        updatedProjectionSettings[prizePool.chainId] = {}
-      }
-      updatedProjectionSettings[prizePool.chainId][prizePool.id()] = {
-        tvl:
-          key === 'tvl'
-            ? value
-            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.tvl ??
-              tvl.toLocaleString('en', { maximumFractionDigits: 0 }),
-        dropped:
-          key === 'dropped'
-            ? value
-            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.dropped ?? '0',
-        variance:
-          key === 'variance'
-            ? value
-            : updatedProjectionSettings[prizePool.chainId][prizePool.id()]?.variance ?? '0'
-      }
-      return updatedProjectionSettings
-    })
-  }
+  const parsedFormVariance = parseFloat(formVariance?.replaceAll(',', ''))
 
   useEffect(() => {
     if (isFetchedTvl) {
       if (formTvl === '0' || formTvl === undefined) {
         setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
-        if (allProjectionSettings[prizePool.chainId]?.[prizePool.id()] === undefined) {
-          updateProjectionSettings('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
-        }
-      } else if (!!parsedFormTvl) {
-        updateProjectionSettings('tvl', formTvl)
       }
     }
   }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
-
-  useEffect(() => {
-    if (isFetchedTvl) {
-      if (
-        formDroppedPrizes !== undefined &&
-        !Number.isNaN(Number(formDroppedPrizes.replaceAll(',', '')))
-      ) {
-        updateProjectionSettings('dropped', formDroppedPrizes)
-      }
-    }
-  }, [isFetchedTvl, formDroppedPrizes])
-
-  useEffect(() => {
-    if (isFetchedTvl) {
-      if (formVariance !== undefined && !Number.isNaN(Number(formVariance.replaceAll(',', '')))) {
-        updateProjectionSettings('variance', formVariance)
-      }
-    }
-  }, [isFetchedTvl, formVariance])
 
   const dprMultiplier = !!parsedFormTvl
     ? calculateDprMultiplier(
@@ -198,7 +141,6 @@ const PrizePoolProjections = (props: {
             className='mb-2'
           />
           <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
-          <DroppedPrizesInput errors={errors} register={register} setValue={setValue} />
           <VarianceInput errors={errors} register={register} setValue={setValue} />
         </>
       ) : (
@@ -392,34 +334,6 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
         </ul>
       )}
     </div>
-  )
-}
-
-// TODO: use dropped prizes input in relevant calculations
-const DroppedPrizesInput = (props: {
-  errors: FieldErrorsImpl<ProjectionSettings>
-  register: UseFormRegister<ProjectionSettings>
-  setValue: UseFormSetValue<ProjectionSettings>
-}) => {
-  const { errors, register, setValue } = props
-  const [isCollapsed] = useAtom(isListCollapsed)
-  const { t } = useTranslation()
-
-  return (
-    <ProjectionInput
-      title='Dropped Prizes'
-      formKey='dropped'
-      validate={{
-        isValidNumber: (v) =>
-          !Number.isNaN(Number(v.replaceAll(',', ''))) ||
-          t('fieldIsInvalid', { field: 'Dropped Prizes %' })
-      }}
-      errors={errors}
-      register={register}
-      onReset={() => setValue('dropped', '0', { shouldValidate: true })}
-      className={classNames({ hidden: isCollapsed })}
-      percent
-    />
   )
 }
 

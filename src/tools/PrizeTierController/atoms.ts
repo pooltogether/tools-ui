@@ -1,4 +1,4 @@
-import { PrizeTierConfigV2, ProjectionSettings } from '@prizeTierController/interfaces'
+import { PrizeTierConfigV2 } from '@prizeTierController/interfaces'
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 
@@ -21,7 +21,3 @@ export enum SelectedView {
   projection = 'projection'
 }
 export const selectedView = atom(SelectedView.configuration)
-
-export const allProjectionSettingsAtom = atom<{
-  [chainId: number]: { [prizePoolId: string]: ProjectionSettings }
-}>({})
