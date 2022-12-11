@@ -171,9 +171,10 @@ const PrizePoolProjections = (props: {
       )
     )
   )
+
   const numPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
   const prizeChances = numPrizesPerTier.map((value) => value * dprMultiplier)
-
+  const expectedNumPrizes = prizeChances.reduce((a, b) => a + b, 0)
   const expectedTierPrizeAmounts = prizes.map((prize, i) => prize * prizeChances[i])
   const expectedPrizeAmount = expectedTierPrizeAmounts.reduce((a, b) => a + b, 0)
 
@@ -185,11 +186,15 @@ const PrizePoolProjections = (props: {
             tvl={tvl}
             formTvl={formTvl}
             dpr={prizeTier.dpr}
-            prizeAmount={expectedPrizeAmount}
             token={prizeTierHistoryContract.token}
             errors={errors}
             register={register}
             setValue={setValue}
+            className='mb-2'
+          />
+          <PrizesOverTime
+            numPrizes={expectedNumPrizes}
+            prizeAmount={expectedPrizeAmount}
             className='mb-2'
           />
           <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
@@ -207,32 +212,15 @@ const BasicStats = (props: {
   tvl: number
   formTvl: string
   dpr: number
-  prizeAmount: number
   token: Token
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
   setValue: UseFormSetValue<ProjectionSettings>
   className?: string
 }) => {
-  const { tvl, formTvl, dpr, prizeAmount, token, errors, register, setValue, className } = props
+  const { tvl, formTvl, dpr, token, errors, register, setValue, className } = props
   const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
-
-  const formattedDailyPrizeAmount = (prizeAmount * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedMonthlyPrizeAmount = (((prizeAmount * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
-    'en',
-    {
-      maximumFractionDigits: 0
-    }
-  )
-  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -262,90 +250,147 @@ const BasicStats = (props: {
       />
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
       <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
-      <span>
-        Daily Prizes: {formattedDailyPrizeAmount} {token.symbol}
-      </span>
-      <span>
-        Weekly Prizes: {formattedWeeklyPrizeAmount} {token.symbol}
-      </span>
-      <span>
-        Monthly Prizes: {formattedMonthlyPrizeAmount} {token.symbol}
-      </span>
-      <span>
-        Yearly Prizes: {formattedYearlyPrizeAmount} {token.symbol}
-      </span>
+    </div>
+  )
+}
+
+const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; className?: string }) => {
+  const { numPrizes, prizeAmount, className } = props
+
+  const formattedDailyNumPrizes = (numPrizes * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+  const formattedDailyPrizeAmount = (prizeAmount * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+
+  const formattedWeeklyNumPrizes = (numPrizes * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+
+  const formattedMonthlyNumPrizes = (((numPrizes * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
+    'en',
+    {
+      maximumFractionDigits: 0
+    }
+  )
+  const formattedMonthlyPrizeAmount = (((prizeAmount * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
+    'en',
+    {
+      maximumFractionDigits: 0
+    }
+  )
+
+  const formattedYearlyNumPrizes = (numPrizes * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+    maximumFractionDigits: 0
+  })
+
+  return (
+    <div className={classNames('flex flex-col', className)}>
+      <SectionTitle text='Prizes Over Time' />
+      <ul>
+        <li className='grid grid-cols-3 gap-x-4 opacity-80'>
+          <div>Timespan</div>
+          <div>Prizes</div>
+          <div>Amount</div>
+        </li>
+        <li className='grid grid-cols-3 gap-x-4'>
+          <div>Daily</div>
+          <div>{formattedDailyNumPrizes}</div>
+          <div>{formattedDailyPrizeAmount}</div>
+        </li>
+        <li className='grid grid-cols-3 gap-x-4'>
+          <div>Weekly</div>
+          <div>{formattedWeeklyNumPrizes}</div>
+          <div>{formattedWeeklyPrizeAmount}</div>
+        </li>
+        <li className='grid grid-cols-3 gap-x-4'>
+          <div>Monthly</div>
+          <div>{formattedMonthlyNumPrizes}</div>
+          <div>{formattedMonthlyPrizeAmount}</div>
+        </li>
+        <li className='grid grid-cols-3 gap-x-4'>
+          <div>Yearly</div>
+          <div>{formattedYearlyNumPrizes}</div>
+          <div>{formattedYearlyPrizeAmount}</div>
+        </li>
+      </ul>
     </div>
   )
 }
 
 const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; className?: string }) => {
   const { prizes, prizeChances, className } = props
-
-  // TODO: add a toggle between breakdown and min time until prize
+  const [isCollapsed] = useAtom(isListCollapsed)
 
   return (
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text='Draw Breakdown' />
-      <ul className='mb-3'>
-        <li className='grid grid-cols-5 gap-x-4 opacity-80'>
-          <div>Prize</div>
-          <div>Daily</div>
-          <div>Weekly</div>
-          <div>Monthly</div>
-          <div>Yearly</div>
-        </li>
-        {prizes.map((prize, i) => {
-          if (prize === 0) return null
+      {isCollapsed ? (
+        <ul>
+          <li className='grid grid-cols-5 gap-x-4 opacity-80'>
+            <div>Prize</div>
+            <div className='col-span-4'>Estimated Award Time</div>
+          </li>
+          {prizes.map((prize, i) => {
+            if (prize === 0) return null
 
-          return (
-            <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
-              <div className='font-bold'>
-                {prize.toLocaleString('en', { maximumFractionDigits: 2 })}
-              </div>
-              <div>
-                {(prizeChances[i] * DRAWS_PER_DAY).toLocaleString('en', {
-                  maximumFractionDigits: 3
-                })}
-              </div>
-              <div>
-                {(prizeChances[i] * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-                  maximumFractionDigits: 3
-                })}
-              </div>
-              <div>
-                {(((prizeChances[i] * 365) / 12) * DRAWS_PER_DAY).toLocaleString('en', {
-                  maximumFractionDigits: 2
-                })}
-              </div>
-              <div>
-                {(prizeChances[i] * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-                  maximumFractionDigits: 2
-                })}
-              </div>
-            </li>
-          )
-        })}
-      </ul>
-      <ul>
-        <li className='grid grid-cols-5 gap-x-4 opacity-80'>
-          <div>Prize</div>
-          <div className='col-span-4'>Estimated Award Time</div>
-        </li>
-        {prizes.map((prize, i) => {
-          if (prize === 0) return null
+            return (
+              <li key={`pl-time-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
+                <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
+                <div className='col-span-4'>
+                  {calculateEstimatedTimeFromPrizeChance(prizeChances[i])}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      ) : (
+        <ul className='mb-3'>
+          <li className='grid grid-cols-5 gap-x-4 opacity-80'>
+            <div>Prize</div>
+            <div>Daily</div>
+            <div>Weekly</div>
+            <div>Monthly</div>
+            <div>Yearly</div>
+          </li>
+          {prizes.map((prize, i) => {
+            if (prize === 0) return null
 
-          return (
-            <li key={`pl-time-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
-              <div className='font-bold'>
-                {prize.toLocaleString('en', { maximumFractionDigits: 2 })}
-              </div>
-              <div className='col-span-4'>
-                {calculateEstimatedTimeFromPrizeChance(prizeChances[i])}
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+            return (
+              <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
+                <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
+                <div>
+                  {(prizeChances[i] * DRAWS_PER_DAY).toLocaleString('en', {
+                    maximumFractionDigits: 3
+                  })}
+                </div>
+                <div>
+                  {(prizeChances[i] * 7 * DRAWS_PER_DAY).toLocaleString('en', {
+                    maximumFractionDigits: 3
+                  })}
+                </div>
+                <div>
+                  {(((prizeChances[i] * 365) / 12) * DRAWS_PER_DAY).toLocaleString('en', {
+                    maximumFractionDigits: 2
+                  })}
+                </div>
+                <div>
+                  {(prizeChances[i] * 365 * DRAWS_PER_DAY).toLocaleString('en', {
+                    maximumFractionDigits: 2
+                  })}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }
@@ -406,7 +451,7 @@ const VarianceInput = (props: {
 }
 
 const SectionTitle = (props: { text: string; className?: string }) => {
-  return <h3 className={classNames('text-xs opacity-80 mb-2', props.className)}>{props.text}</h3>
+  return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
 }
 
 const ProjectionInput = (props: {
