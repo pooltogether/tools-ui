@@ -106,6 +106,11 @@ const PrizePoolProjections = (props: {
       )
     : 0
 
+  const varianceMultiplier =
+    !!parsedFormVariance && parsedFormVariance >= -100 && parsedFormVariance <= 100
+      ? 1 + parsedFormVariance / 100
+      : 1
+
   const prizes = prizeTier.tiers.map((tier, i) =>
     parseFloat(
       formatUnits(
@@ -116,7 +121,7 @@ const PrizePoolProjections = (props: {
   )
 
   const numPrizesPerTier = calculate.calculateNumberOfPrizesPerTier(prizeTier)
-  const prizeChances = numPrizesPerTier.map((value) => value * dprMultiplier)
+  const prizeChances = numPrizesPerTier.map((value) => value * dprMultiplier * varianceMultiplier)
   const expectedNumPrizes = prizeChances.reduce((a, b) => a + b, 0)
   const expectedTierPrizeAmounts = prizes.map((prize, i) => prize * prizeChances[i])
   const expectedPrizeAmount = expectedTierPrizeAmounts.reduce((a, b) => a + b, 0)
@@ -199,39 +204,23 @@ const BasicStats = (props: {
 const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; className?: string }) => {
   const { numPrizes, prizeAmount, className } = props
 
-  const formattedDailyNumPrizes = (numPrizes * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedDailyPrizeAmount = (prizeAmount * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-
-  const formattedWeeklyNumPrizes = (numPrizes * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedWeeklyPrizeAmount = (prizeAmount * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-
-  const formattedMonthlyNumPrizes = (((numPrizes * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
-    'en',
-    {
+  const getTimeBasedValue = (value: number) => {
+    return (value * DRAWS_PER_DAY).toLocaleString('en', {
       maximumFractionDigits: 0
-    }
-  )
-  const formattedMonthlyPrizeAmount = (((prizeAmount * 365) / 12) * DRAWS_PER_DAY).toLocaleString(
-    'en',
-    {
-      maximumFractionDigits: 0
-    }
-  )
+    })
+  }
 
-  const formattedYearlyNumPrizes = (numPrizes * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
-  const formattedYearlyPrizeAmount = (prizeAmount * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-    maximumFractionDigits: 0
-  })
+  const formattedDailyNumPrizes = getTimeBasedValue(numPrizes)
+  const formattedDailyPrizeAmount = getTimeBasedValue(prizeAmount)
+
+  const formattedWeeklyNumPrizes = getTimeBasedValue(numPrizes * 7)
+  const formattedWeeklyPrizeAmount = getTimeBasedValue(prizeAmount * 7)
+
+  const formattedMonthlyNumPrizes = getTimeBasedValue((numPrizes * 365) / 12)
+  const formattedMonthlyPrizeAmount = getTimeBasedValue((prizeAmount * 365) / 12)
+
+  const formattedYearlyNumPrizes = getTimeBasedValue(numPrizes * 365)
+  const formattedYearlyPrizeAmount = getTimeBasedValue(prizeAmount * 365)
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -337,7 +326,6 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
   )
 }
 
-// TODO: use variance input in relevant calculations
 const VarianceInput = (props: {
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
@@ -353,7 +341,11 @@ const VarianceInput = (props: {
       formKey='variance'
       validate={{
         isValidNumber: (v) =>
-          !Number.isNaN(Number(v.replaceAll(',', ''))) || t('fieldIsInvalid', { field: 'Variance' })
+          !Number.isNaN(Number(v.replaceAll(',', ''))) ||
+          t('fieldIsInvalid', { field: 'Variance' }),
+        isValidPercentage: (v) =>
+          (parseFloat(v.replaceAll(',', '')) >= -100 && parseFloat(v.replaceAll(',', '')) <= 100) ||
+          t('fieldIsInvalid', { field: 'Variance' })
       }}
       errors={errors}
       register={register}
