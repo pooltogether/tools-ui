@@ -21,7 +21,13 @@ import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
 import { useEffect, useMemo } from 'react'
-import { FieldErrorsImpl, useForm, UseFormRegister, UseFormSetValue } from 'react-hook-form'
+import {
+  FieldErrorsImpl,
+  useForm,
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch
+} from 'react-hook-form'
 
 // TODO: localization
 
@@ -141,7 +147,13 @@ const PrizePoolProjections = (props: {
             className='mb-2'
           />
           <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
-          <AdvancedOptions tvl={tvl} errors={errors} register={register} setValue={setValue} />
+          <AdvancedOptions
+            tvl={tvl}
+            errors={errors}
+            register={register}
+            watch={watch}
+            setValue={setValue}
+          />
         </>
       ) : (
         t('loading')
@@ -280,15 +292,16 @@ const AdvancedOptions = (props: {
   tvl: number
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
+  watch: UseFormWatch<ProjectionSettings>
   setValue: UseFormSetValue<ProjectionSettings>
 }) => {
-  const { tvl, errors, register, setValue } = props
+  const { tvl, errors, register, watch, setValue } = props
   const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
 
   return (
     <div className={classNames({ hidden: isCollapsed })}>
-      <SectionTitle text='Advanced Options' />
+      <SectionTitle text='Advanced Options' className='mb-2' />
       <ProjectionInput
         title='TVL'
         formKey='tvl'
@@ -299,11 +312,9 @@ const AdvancedOptions = (props: {
         }}
         errors={errors}
         register={register}
-        onReset={() =>
-          setValue('tvl', tvl.toFixed(0), {
-            shouldValidate: true
-          })
-        }
+        watch={watch}
+        setValue={setValue}
+        onResetValue={tvl.toFixed(0)}
       />
       <ProjectionInput
         title='Variance'
@@ -316,7 +327,9 @@ const AdvancedOptions = (props: {
         }}
         errors={errors}
         register={register}
-        onReset={() => setValue('variance', '0', { shouldValidate: true })}
+        watch={watch}
+        setValue={setValue}
+        onResetValue='0'
         percent
       />
     </div>
@@ -327,7 +340,6 @@ const SectionTitle = (props: { text: string; className?: string }) => {
   return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
 }
 
-// TODO: these inputs should look a little prettier
 const ProjectionInput = (props: {
   title: string
   formKey: keyof ProjectionSettings
@@ -335,16 +347,31 @@ const ProjectionInput = (props: {
   disabled?: boolean
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
-  onReset?: Function
+  watch: UseFormWatch<ProjectionSettings>
+  setValue: UseFormSetValue<ProjectionSettings>
+  onResetValue?: string
   className?: string
   percent?: boolean
 }) => {
-  const { title, formKey, validate, disabled, errors, register, onReset, className, percent } =
-    props
+  const {
+    title,
+    formKey,
+    validate,
+    disabled,
+    errors,
+    register,
+    watch,
+    setValue,
+    onResetValue,
+    className,
+    percent
+  } = props
   const { t } = useTranslation()
 
+  const formValue = watch(formKey)
+
   return (
-    <div className={classNames('mb-2', className)}>
+    <div className={classNames(className)}>
       <Label className='uppercase' htmlFor={formKey}>
         {title}
         {percent && ' (%)'}
@@ -362,9 +389,14 @@ const ProjectionInput = (props: {
         })}
         disabled={disabled}
       />
-      {!!onReset && (
-        <div className='flex justify-end'>
-          <button className='text-xxs opacity-80' onClick={() => onReset()}>
+      {!!onResetValue && (
+        <div className='flex justify-end mt-1'>
+          <button
+            className={classNames('text-xxs opacity-20', {
+              'opacity-80': formValue !== onResetValue
+            })}
+            onClick={() => setValue(formKey, onResetValue, { shouldValidate: true })}
+          >
             Reset {title}
           </button>
         </div>
