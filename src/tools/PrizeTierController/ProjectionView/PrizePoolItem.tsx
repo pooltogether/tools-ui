@@ -146,6 +146,7 @@ const PrizePoolProjections = (props: {
           />
           <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
           <AdvancedOptions
+            prizePoolId={prizePool.id()}
             tvl={tvl}
             errors={errors}
             register={register}
@@ -292,13 +293,14 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
 }
 
 const AdvancedOptions = (props: {
+  prizePoolId: string
   tvl: number
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
   watch: UseFormWatch<ProjectionSettings>
   setValue: UseFormSetValue<ProjectionSettings>
 }) => {
-  const { tvl, errors, register, watch, setValue } = props
+  const { prizePoolId, tvl, errors, register, watch, setValue } = props
   const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
 
@@ -308,6 +310,7 @@ const AdvancedOptions = (props: {
       <ProjectionInput
         title='TVL'
         formKey='tvl'
+        prizePoolId={prizePoolId}
         validate={{
           isValidNumber: (v) => !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: 'TVL' }),
           isGreaterThanOrEqualToZero: (v) =>
@@ -322,6 +325,7 @@ const AdvancedOptions = (props: {
       <ProjectionInput
         title={t('variance')}
         formKey='variance'
+        prizePoolId={prizePoolId}
         validate={{
           isValidNumber: (v) =>
             !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('variance') }),
@@ -346,6 +350,7 @@ const SectionTitle = (props: { text: string; className?: string }) => {
 const ProjectionInput = (props: {
   title: string
   formKey: keyof ProjectionSettings
+  prizePoolId: string
   validate?: Record<string, (v: any) => true | string>
   disabled?: boolean
   errors: FieldErrorsImpl<ProjectionSettings>
@@ -359,6 +364,7 @@ const ProjectionInput = (props: {
   const {
     title,
     formKey,
+    prizePoolId,
     validate,
     disabled,
     errors,
@@ -371,16 +377,18 @@ const ProjectionInput = (props: {
   } = props
   const { t } = useTranslation()
 
+  const inputId = `${prizePoolId}-${formKey}`
+
   const formValue = watch(formKey)
 
   return (
     <div className={classNames(className)}>
-      <Label className='uppercase' htmlFor={formKey}>
+      <Label className='uppercase' htmlFor={inputId}>
         {title}
         {percent && ' (%)'}
       </Label>
       <StyledInput
-        id={formKey}
+        id={inputId}
         invalid={!!errors[formKey]}
         className='w-full'
         {...register(formKey, {
