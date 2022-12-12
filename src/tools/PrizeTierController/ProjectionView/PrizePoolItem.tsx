@@ -1,6 +1,7 @@
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Token } from '@pooltogether/hooks'
+import { formatNumberForDisplay } from '@pooltogether/utilities'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
 import { allCombinedPrizeTiersAtom, isListCollapsed } from '@prizeTierController/atoms'
@@ -14,7 +15,7 @@ import {
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
 import { calculateEstimatedTimeFromPrizeChance } from '@prizeTierController/utils/calculateEstimatedTimeFromPrizeChance'
-import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
+import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyDprPercentage'
 import { getTimeBasedDrawValue } from '@prizeTierController/utils/formatTimeBasedDrawValue'
 import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
@@ -169,11 +170,11 @@ const BasicStats = (props: { tvl: number; dpr: number; token: Token; className?:
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text={t('basicStats')} />
       <span>
-        TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
+        TVL: {formatNumberForDisplay(tvl, { round: true, hideZeroes: true })} {token.symbol}
       </span>
-      <span>DPR: {formatPrettyPercentage(dpr)}</span>
+      <span>DPR: {formatPrettyDprPercentage(dpr)}</span>
       <span>
-        {t('projectedApr')}: {formatPrettyPercentage(dpr * 365)}
+        {t('projectedApr')}: {formatPrettyDprPercentage(dpr * 365)}
       </span>
     </div>
   )
@@ -256,7 +257,7 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
 
             return (
               <li key={`pl-time-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
-                <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
+                <div>{formatNumberForDisplay(prize, { maximumFractionDigits: 2 })}</div>
                 <div className='col-span-4'>
                   {calculateEstimatedTimeFromPrizeChance(prizeChances[i])}
                 </div>
@@ -278,7 +279,7 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
 
             return (
               <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
-                <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
+                <div>{formatNumberForDisplay(prize, { maximumFractionDigits: 2 })}</div>
                 <div>{getTimeBasedDrawValue(prizeChances[i], 'day')}</div>
                 <div>{getTimeBasedDrawValue(prizeChances[i], 'week')}</div>
                 <div>{getTimeBasedDrawValue(prizeChances[i], 'month')}</div>

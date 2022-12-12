@@ -12,7 +12,7 @@ import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTier
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
-import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
+import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyDprPercentage'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -174,8 +174,8 @@ const PrizeTierStats = (props: {
       {!!prizeTier.dpr && (
         <Stat
           label={t('drawPercentageRate')}
-          value={formatPrettyPercentage(prizeTier.dpr)}
-          defaultValue={formatPrettyPercentage(defaultDPRValue ?? 0)}
+          value={formatPrettyDprPercentage(prizeTier.dpr)}
+          defaultValue={formatPrettyDprPercentage(defaultDPRValue ?? 0)}
         />
       )}
     </>
