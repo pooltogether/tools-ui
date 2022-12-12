@@ -4,6 +4,7 @@ import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
 import { formatNumberForDisplay } from '@pooltogether/utilities'
 import { calculate } from '@pooltogether/v4-utils-js'
+import { DPR_DECIMALS } from '@prizeTierController/config'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { formatTotalPrizeValue } from '@prizeTierController/utils/formatTotalPrizeValue'
 import { getLastNonZeroTierIndex } from '@prizeTierController/utils/getLastNonZeroTierIndex'
@@ -91,7 +92,11 @@ export const EditPrizeTierHistoryForm = (props: {
               isGreaterThanZero: (v) =>
                 parseFloat(v) > 0 || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
               isLessThanOrEqualToOneHundred: (v) =>
-                parseFloat(v) <= 100 || t('fieldIsInvalid', { field: t('drawPercentageRate') })
+                parseFloat(v) <= 100 || t('fieldIsInvalid', { field: t('drawPercentageRate') }),
+              isNotTooSpecific: (v) =>
+                v.split('.').length < 2 ||
+                v.split('.')[1].length < DPR_DECIMALS - 1 ||
+                t('fieldIsInvalid', { field: t('drawPercentageRate') })
             }}
             errors={errors}
             register={register}
