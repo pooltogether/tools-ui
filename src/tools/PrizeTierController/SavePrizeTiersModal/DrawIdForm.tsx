@@ -70,7 +70,7 @@ const DrawIdInput = (props: {
             isValidInteger: (v) =>
               Number.isInteger(Number(v)) || t('fieldIsInvalid', { field: t('drawIdLabel') }),
             isGreaterThanOrEqualToZero: (v) =>
-              parseInt(v) >= 0 || t('fieldIsInvalid', { field: t('drawIdLabel') })
+              parseInt(v) > 0 || t('fieldIsInvalid', { field: t('drawIdLabel') })
           }
         })}
       />
