@@ -20,7 +20,6 @@ import {
 } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatRawPrizeTierString } from '@prizeTierController/utils/formatRawPrizeTierString'
-import classNames from 'classnames'
 import { ethers } from 'ethers'
 import { useTranslation } from 'next-i18next'
 import { useState } from 'react'
@@ -92,9 +91,7 @@ export const PrizePoolTransactionDisplay = (props: {
               onClick={submitPushTransaction}
               state={transaction?.state}
               status={transaction?.status}
-              className={classNames({
-                'w-full mb-3': transaction?.state === TransactionState.pending
-              })}
+              className='w-full mb-3'
             >
               {t('pushEdits')}
             </TxButton>
