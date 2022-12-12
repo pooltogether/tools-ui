@@ -168,21 +168,25 @@ const BasicStats = (props: { tvl: number; dpr: number; token: Token; className?:
 const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; className?: string }) => {
   const { numPrizes, prizeAmount, className } = props
 
-  const formattedDailyNumPrizes = getTimeBasedDrawValue(numPrizes, { noDecimals: true })
-  const formattedDailyPrizeAmount = getTimeBasedDrawValue(prizeAmount, { noDecimals: true })
+  const formattedDailyNumPrizes = getTimeBasedDrawValue(numPrizes, 'day', { noDecimals: true })
+  const formattedDailyPrizeAmount = getTimeBasedDrawValue(prizeAmount, 'day', { noDecimals: true })
 
-  const formattedWeeklyNumPrizes = getTimeBasedDrawValue(numPrizes * 7, { noDecimals: true })
-  const formattedWeeklyPrizeAmount = getTimeBasedDrawValue(prizeAmount * 7, { noDecimals: true })
-
-  const formattedMonthlyNumPrizes = getTimeBasedDrawValue((numPrizes * 365) / 12, {
-    noDecimals: true
-  })
-  const formattedMonthlyPrizeAmount = getTimeBasedDrawValue((prizeAmount * 365) / 12, {
+  const formattedWeeklyNumPrizes = getTimeBasedDrawValue(numPrizes, 'week', { noDecimals: true })
+  const formattedWeeklyPrizeAmount = getTimeBasedDrawValue(prizeAmount, 'week', {
     noDecimals: true
   })
 
-  const formattedYearlyNumPrizes = getTimeBasedDrawValue(numPrizes * 365, { noDecimals: true })
-  const formattedYearlyPrizeAmount = getTimeBasedDrawValue(prizeAmount * 365, { noDecimals: true })
+  const formattedMonthlyNumPrizes = getTimeBasedDrawValue(numPrizes, 'month', {
+    noDecimals: true
+  })
+  const formattedMonthlyPrizeAmount = getTimeBasedDrawValue(prizeAmount, 'month', {
+    noDecimals: true
+  })
+
+  const formattedYearlyNumPrizes = getTimeBasedDrawValue(numPrizes, 'year', { noDecimals: true })
+  const formattedYearlyPrizeAmount = getTimeBasedDrawValue(prizeAmount, 'year', {
+    noDecimals: true
+  })
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -259,10 +263,10 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
             return (
               <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
                 <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
-                <div>{getTimeBasedDrawValue(prizeChances[i])}</div>
-                <div>{getTimeBasedDrawValue(prizeChances[i] * 7)}</div>
-                <div>{getTimeBasedDrawValue((prizeChances[i] * 365) / 12)}</div>
-                <div>{getTimeBasedDrawValue(prizeChances[i] * 365)}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i], 'day')}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i], 'week')}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i], 'month')}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i], 'year')}</div>
               </li>
             )
           })}
