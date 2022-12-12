@@ -45,7 +45,7 @@ export interface PrizeTierEditsCheck {
 export interface PrizePoolEditHistory {
   prizeTierHistoryContract: PrizeTierHistoryContract
   oldConfig?: PrizeTierConfigV2
-  newConfig: PrizeTierConfigV2
+  newConfig?: PrizeTierConfigV2
   edits: PrizeTierEditsCheck
 }
 
@@ -57,4 +57,9 @@ export interface PrettyConfig {
   tiers: string[]
   endTimestampOffset: string
   dpr?: string
+}
+
+export interface ProjectionSettings {
+  tvl: string
+  variance: string
 }

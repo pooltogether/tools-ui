@@ -1,19 +1,14 @@
 import { BottomSheet, Button } from '@pooltogether/react-components'
-import {
-  isSavePrizeTiersModalOpenAtom,
-  allCombinedPrizeTiersAtom
-} from '@prizeTierController/atoms'
-import { useAllPrizeTierHistoryData } from '@prizeTierController/hooks/useAllPrizeTierHistoryData'
+import { isSavePrizeTiersModalOpenAtom } from '@prizeTierController/atoms'
+import { useAllPrizePoolConfigEdits } from '@prizeTierController/hooks/useAllPrizePoolConfigEdits'
 import { useDrawBeaconDrawId } from '@prizeTierController/hooks/useDrawBeaconDrawId'
-import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { PrizePoolEditHistory } from '@prizeTierController/interfaces'
 import { DrawIdForm } from '@prizeTierController/SavePrizeTiersModal/DrawIdForm'
 import { PrizePoolEditsDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolEditsDisplay'
 import { PrizePoolTransactionDisplay } from '@prizeTierController/SavePrizeTiersModal/PrizePoolTransactionDisplay'
-import { checkForPrizeEdits } from '@prizeTierController/utils/checkForPrizeEdits'
 import { useAtom } from 'jotai'
 import { useTranslation } from 'next-i18next'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 enum SavePrizeTiersModalState {
   'review' = 'review',
@@ -25,29 +20,8 @@ export const SavePrizeTiersModal = () => {
   const [modalState, setModalState] = useState<SavePrizeTiersModalState>(
     SavePrizeTiersModalState.review
   )
-  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
-  const { data, isFetched } = useAllPrizeTierHistoryData()
-  const [combinedPrizeTiers] = useAtom(allCombinedPrizeTiersAtom)
+  const allPrizePoolConfigEdits = useAllPrizePoolConfigEdits()
   const { t } = useTranslation()
-
-  const allPrizePoolConfigEdits = useMemo(() => {
-    if (isFetched) {
-      return prizeTierHistoryContracts.map((contract) => {
-        if (combinedPrizeTiers[contract.chainId]) {
-          const oldConfig = data[contract.chainId][contract.address]
-          const newConfig = combinedPrizeTiers[contract.chainId][contract.address]
-          const edits = checkForPrizeEdits(oldConfig, newConfig)
-          const prizePoolEditHistory: PrizePoolEditHistory = {
-            prizeTierHistoryContract: contract,
-            oldConfig,
-            newConfig,
-            edits
-          }
-          return prizePoolEditHistory
-        }
-      })
-    }
-  }, [prizeTierHistoryContracts, data, isFetched, combinedPrizeTiers])
 
   return (
     <BottomSheet

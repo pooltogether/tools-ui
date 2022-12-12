@@ -1,9 +1,11 @@
-import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
+import { Button, ButtonTheme, ButtonSize, Tabs } from '@pooltogether/react-components'
 import { useUsersAddress } from '@pooltogether/wallet-connection'
 import {
-  isPrizeTierListCollapsed,
+  isListCollapsed,
   isSavePrizeTiersModalOpenAtom,
-  prizeTierEditsAtom
+  prizeTierEditsAtom,
+  SelectedView,
+  selectedView
 } from '@prizeTierController/atoms'
 import classNames from 'classnames'
 import { useAtom } from 'jotai'
@@ -12,12 +14,8 @@ import { useTranslation } from 'next-i18next'
 
 export const Actions = (props: { className?: string }) => {
   const { className } = props
-  const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
-  const resetForm = useResetAtom(prizeTierEditsAtom)
-  const [isCollapsed, setIsCollapsed] = useAtom(isPrizeTierListCollapsed)
   const [allPrizeTierEdits] = useAtom(prizeTierEditsAtom)
-  const usersAddress = useUsersAddress()
-  const { t } = useTranslation()
+  const [currentView, setSelectedView] = useAtom(selectedView)
 
   const editedPools: { chainId: string; address: string }[] = []
   Object.keys(allPrizeTierEdits).forEach((chainId) => {
@@ -27,30 +25,68 @@ export const Actions = (props: { className?: string }) => {
   })
 
   return (
-    <div className={classNames(className, 'w-full flex justify-end items-center space-x-2')}>
-      <button className='text-xxs mr-2 opacity-80' onClick={() => setIsCollapsed(!isCollapsed)}>
-        {isCollapsed ? t('expandAll') : t('collapseAll')}
-      </button>
-      {editedPools.length > 0 && (
-        <Button
-          onClick={() => {
-            resetForm()
-          }}
-          size={ButtonSize.sm}
-          theme={ButtonTheme.orangeOutline}
-        >
-          {t('resetEdits')}
-        </Button>
-      )}
-      <Button
-        onClick={() => {
-          setIsOpen(true)
-        }}
-        size={ButtonSize.sm}
-        disabled={usersAddress === null || editedPools.length === 0}
-      >
-        {t('saveEdits')}
-      </Button>
+    <div className={classNames(className, 'w-full flex justify-between items-center')}>
+      <div className='flex items-center gap-3'>
+        <Tabs
+          initialTabId={currentView}
+          onTabSelect={(tab) => setSelectedView(tab.id as SelectedView)}
+          tabs={[
+            { id: SelectedView.configuration, title: 'Configurations', view: <></> },
+            { id: SelectedView.projection, title: 'Projections', view: <></> }
+          ]}
+        />
+      </div>
+      <div className='flex items-center gap-3'>
+        <ToggleCollapsedButton />
+        {editedPools.length > 0 && <ResetButton />}
+        <SaveButton disabled={editedPools.length === 0} />
+      </div>
     </div>
+  )
+}
+
+const ToggleCollapsedButton = () => {
+  const [isCollapsed, setIsCollapsed] = useAtom(isListCollapsed)
+  const { t } = useTranslation()
+
+  return (
+    <button className='text-xxs opacity-80' onClick={() => setIsCollapsed(!isCollapsed)}>
+      {isCollapsed ? t('expandAll') : t('collapseAll')}
+    </button>
+  )
+}
+
+const ResetButton = () => {
+  const resetForm = useResetAtom(prizeTierEditsAtom)
+  const { t } = useTranslation()
+
+  return (
+    <Button
+      onClick={() => {
+        resetForm()
+      }}
+      size={ButtonSize.sm}
+      theme={ButtonTheme.orangeOutline}
+    >
+      {t('resetEdits')}
+    </Button>
+  )
+}
+
+const SaveButton = (props: { disabled?: boolean }) => {
+  const setIsOpen = useUpdateAtom(isSavePrizeTiersModalOpenAtom)
+  const usersAddress = useUsersAddress()
+  const { t } = useTranslation()
+
+  return (
+    <Button
+      onClick={() => {
+        setIsOpen(true)
+      }}
+      size={ButtonSize.sm}
+      disabled={usersAddress === null || props.disabled}
+    >
+      {t('saveEdits')}
+    </Button>
   )
 }

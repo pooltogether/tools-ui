@@ -6,14 +6,13 @@ import {
   prizeTierEditsAtom,
   allCombinedPrizeTiersAtom,
   selectedPrizeTierHistoryContractIdAtom,
-  isPrizeTierListCollapsed
+  isListCollapsed
 } from '@prizeTierController/atoms'
-import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
-import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
+import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyDprPercentage'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
@@ -21,20 +20,9 @@ import { useUpdateAtom } from 'jotai/utils'
 import { useTranslation } from 'next-i18next'
 import { useEffect } from 'react'
 
-export const PrizeTierHistoryList = (props: { className?: string }) => {
-  const { className } = props
-  const prizeTierHistoryContracts = usePrizeTierHistoryContracts()
-
-  return (
-    <ul className={classNames('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
-      {prizeTierHistoryContracts.map((contract) => (
-        <PrizePoolItem prizeTierHistoryContract={contract} key={'pth-item-' + `${contract.id}`} />
-      ))}
-    </ul>
-  )
-}
-
-const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContract }) => {
+export const PrizeTierHistoryItem = (props: {
+  prizeTierHistoryContract: PrizeTierHistoryContract
+}) => {
   const { prizeTierHistoryContract } = props
   const { t } = useTranslation()
 
@@ -59,10 +47,6 @@ const PrizePoolItem = (props: { prizeTierHistoryContract: PrizeTierHistoryContra
   )
 }
 
-/**
- *
- * @param props
- */
 const PrizeTierState = (props: {
   prizeTierHistoryContract: PrizeTierHistoryContract
   prizeTier: PrizeTierConfigV2
@@ -74,7 +58,7 @@ const PrizeTierState = (props: {
     allPrizeTierEdits[prizeTierHistoryContract.chainId]?.[prizeTierHistoryContract.address]
   const { t } = useTranslation()
 
-  const [isCollapsed] = useAtom(isPrizeTierListCollapsed)
+  const [isCollapsed] = useAtom(isListCollapsed)
 
   const combinedPrizeTier = !!prizeTier
     ? formatCombinedPrizeTier(prizeTier, prizeTierEdits)
@@ -190,8 +174,8 @@ const PrizeTierStats = (props: {
       {!!prizeTier.dpr && (
         <Stat
           label={t('drawPercentageRate')}
-          value={formatPrettyPercentage(prizeTier.dpr)}
-          defaultValue={formatPrettyPercentage(defaultDPRValue ?? 1_000_000_000)}
+          value={formatPrettyDprPercentage(prizeTier.dpr)}
+          defaultValue={formatPrettyDprPercentage(defaultDPRValue ?? 0)}
         />
       )}
     </>
@@ -243,27 +227,25 @@ const PrizesList = (props: {
         <div>{t('prizes')}</div>
         <div>{t('value')}</div>
       </li>
-      {prizeTier.tiers
-        .map((tier, index) => {
-          if (tier === 0) return null
+      {prizeTier.tiers.map((tier, index) => {
+        if (tier === 0) return null
 
-          return (
-            <li
-              key={`pl-${index}-${prizeTierHistoryContract.id}`}
-              className='grid grid-cols-3 gap-x-4 font-bold'
-            >
-              <div>{index + 1}</div>
-              <div>{numberOfPrizesPerTier[index]}</div>
-              <div>
-                {formatUnformattedBigNumberForDisplay(
-                  valueOfPrizesPerTier[index],
-                  prizeTierHistoryContract.token.decimals
-                )}
-              </div>
-            </li>
-          )
-        })
-        .filter(Boolean)}
+        return (
+          <li
+            key={`pl-${index}-${prizeTierHistoryContract.id}`}
+            className='grid grid-cols-3 gap-x-4 font-bold'
+          >
+            <div>{index + 1}</div>
+            <div>{numberOfPrizesPerTier[index]}</div>
+            <div>
+              {formatUnformattedBigNumberForDisplay(
+                valueOfPrizesPerTier[index],
+                prizeTierHistoryContract.token.decimals
+              )}
+            </div>
+          </li>
+        )
+      })}
     </ul>
   )
 }

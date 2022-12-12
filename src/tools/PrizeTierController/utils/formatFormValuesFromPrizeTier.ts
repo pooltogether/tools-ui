@@ -47,7 +47,7 @@ export const formatFormValuesFromPrizeTier = (
       })
     }
     if (!!prizeTier.dpr) {
-      formValues.dpr = formatUnits(prizeTier.dpr, DPR_DECIMALS)
+      formValues.dpr = formatUnits(prizeTier.dpr, DPR_DECIMALS - 2)
     }
     return formValues
   } else {
