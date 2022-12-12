@@ -4,7 +4,6 @@ import { Token } from '@pooltogether/hooks'
 import { PrizePool } from '@pooltogether/v4-client-js'
 import { calculate } from '@pooltogether/v4-utils-js'
 import { allCombinedPrizeTiersAtom, isListCollapsed } from '@prizeTierController/atoms'
-import { DRAWS_PER_DAY } from '@prizeTierController/config'
 import { usePrizePoolTvl } from '@prizeTierController/hooks/usePrizePoolTvl'
 import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTierHistoryData'
 import {
@@ -16,6 +15,7 @@ import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitl
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
 import { calculateEstimatedTimeFromPrizeChance } from '@prizeTierController/utils/calculateEstimatedTimeFromPrizeChance'
 import { formatPrettyPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
+import { getTimeBasedDrawValue } from '@prizeTierController/utils/formatTimeBasedDrawValue'
 import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
 import { useAtom } from 'jotai'
@@ -24,7 +24,6 @@ import { useEffect, useMemo } from 'react'
 import { FieldErrorsImpl, useForm, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 // TODO: localization
-// TODO: move tvl and variance input into an "extra options" component and display near bottom when not collapsed
 
 export const PrizePoolItem = (props: {
   prizePool: PrizePool
@@ -85,14 +84,14 @@ const PrizePoolProjections = (props: {
   const { t } = useTranslation()
 
   const formTvl = watch('tvl')
-  const parsedFormTvl = parseFloat(formTvl?.replaceAll(',', ''))
+  const parsedFormTvl = parseFloat(formTvl)
   const formVariance = watch('variance')
-  const parsedFormVariance = parseFloat(formVariance?.replaceAll(',', ''))
+  const parsedFormVariance = parseFloat(formVariance)
 
   useEffect(() => {
     if (isFetchedTvl) {
       if (formTvl === '0' || formTvl === undefined) {
-        setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }))
+        setValue('tvl', tvl.toFixed(0))
       }
     }
   }, [tvl, isFetchedTvl, formTvl, parsedFormTvl])
@@ -131,13 +130,9 @@ const PrizePoolProjections = (props: {
       {isFetchedTvl ? (
         <>
           <BasicStats
-            tvl={tvl}
-            formTvl={formTvl}
+            tvl={parsedFormTvl}
             dpr={prizeTier.dpr}
             token={prizeTierHistoryContract.token}
-            errors={errors}
-            register={register}
-            setValue={setValue}
             className='mb-2'
           />
           <PrizesOverTime
@@ -146,7 +141,7 @@ const PrizePoolProjections = (props: {
             className='mb-2'
           />
           <DrawBreakdown prizes={prizes} prizeChances={prizeChances} className='mb-2' />
-          <VarianceInput errors={errors} register={register} setValue={setValue} />
+          <AdvancedOptions tvl={tvl} errors={errors} register={register} setValue={setValue} />
         </>
       ) : (
         t('loading')
@@ -155,46 +150,15 @@ const PrizePoolProjections = (props: {
   )
 }
 
-const BasicStats = (props: {
-  tvl: number
-  formTvl: string
-  dpr: number
-  token: Token
-  errors: FieldErrorsImpl<ProjectionSettings>
-  register: UseFormRegister<ProjectionSettings>
-  setValue: UseFormSetValue<ProjectionSettings>
-  className?: string
-}) => {
-  const { tvl, formTvl, dpr, token, errors, register, setValue, className } = props
-  const [isCollapsed] = useAtom(isListCollapsed)
-  const { t } = useTranslation()
+const BasicStats = (props: { tvl: number; dpr: number; token: Token; className?: string }) => {
+  const { tvl, dpr, token, className } = props
 
   return (
     <div className={classNames('flex flex-col', className)}>
       <SectionTitle text='Basic Stats' />
-      {isCollapsed && (
-        <span>
-          TVL: {formTvl} {token.symbol}
-        </span>
-      )}
-      <ProjectionInput
-        title='TVL'
-        formKey='tvl'
-        validate={{
-          isValidNumber: (v) =>
-            !Number.isNaN(Number(v.replaceAll(',', ''))) || t('fieldIsInvalid', { field: 'TVL' }),
-          isGreaterThanOrEqualToZero: (v) =>
-            parseFloat(v.replaceAll(',', '')) >= 0 || t('fieldIsInvalid', { field: 'TVL' })
-        }}
-        errors={errors}
-        register={register}
-        onReset={() =>
-          setValue('tvl', tvl.toLocaleString('en', { maximumFractionDigits: 0 }), {
-            shouldValidate: true
-          })
-        }
-        className={classNames({ hidden: isCollapsed })}
-      />
+      <span>
+        TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
+      </span>
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
       <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
     </div>
@@ -204,23 +168,21 @@ const BasicStats = (props: {
 const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; className?: string }) => {
   const { numPrizes, prizeAmount, className } = props
 
-  const getTimeBasedValue = (value: number) => {
-    return (value * DRAWS_PER_DAY).toLocaleString('en', {
-      maximumFractionDigits: 0
-    })
-  }
+  const formattedDailyNumPrizes = getTimeBasedDrawValue(numPrizes, { noDecimals: true })
+  const formattedDailyPrizeAmount = getTimeBasedDrawValue(prizeAmount, { noDecimals: true })
 
-  const formattedDailyNumPrizes = getTimeBasedValue(numPrizes)
-  const formattedDailyPrizeAmount = getTimeBasedValue(prizeAmount)
+  const formattedWeeklyNumPrizes = getTimeBasedDrawValue(numPrizes * 7, { noDecimals: true })
+  const formattedWeeklyPrizeAmount = getTimeBasedDrawValue(prizeAmount * 7, { noDecimals: true })
 
-  const formattedWeeklyNumPrizes = getTimeBasedValue(numPrizes * 7)
-  const formattedWeeklyPrizeAmount = getTimeBasedValue(prizeAmount * 7)
+  const formattedMonthlyNumPrizes = getTimeBasedDrawValue((numPrizes * 365) / 12, {
+    noDecimals: true
+  })
+  const formattedMonthlyPrizeAmount = getTimeBasedDrawValue((prizeAmount * 365) / 12, {
+    noDecimals: true
+  })
 
-  const formattedMonthlyNumPrizes = getTimeBasedValue((numPrizes * 365) / 12)
-  const formattedMonthlyPrizeAmount = getTimeBasedValue((prizeAmount * 365) / 12)
-
-  const formattedYearlyNumPrizes = getTimeBasedValue(numPrizes * 365)
-  const formattedYearlyPrizeAmount = getTimeBasedValue(prizeAmount * 365)
+  const formattedYearlyNumPrizes = getTimeBasedDrawValue(numPrizes * 365, { noDecimals: true })
+  const formattedYearlyPrizeAmount = getTimeBasedDrawValue(prizeAmount * 365, { noDecimals: true })
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -297,26 +259,10 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
             return (
               <li key={`pl-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
                 <div>{prize.toLocaleString('en', { maximumFractionDigits: 2 })}</div>
-                <div>
-                  {(prizeChances[i] * DRAWS_PER_DAY).toLocaleString('en', {
-                    maximumFractionDigits: 3
-                  })}
-                </div>
-                <div>
-                  {(prizeChances[i] * 7 * DRAWS_PER_DAY).toLocaleString('en', {
-                    maximumFractionDigits: 3
-                  })}
-                </div>
-                <div>
-                  {(((prizeChances[i] * 365) / 12) * DRAWS_PER_DAY).toLocaleString('en', {
-                    maximumFractionDigits: 2
-                  })}
-                </div>
-                <div>
-                  {(prizeChances[i] * 365 * DRAWS_PER_DAY).toLocaleString('en', {
-                    maximumFractionDigits: 2
-                  })}
-                </div>
+                <div>{getTimeBasedDrawValue(prizeChances[i])}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i] * 7)}</div>
+                <div>{getTimeBasedDrawValue((prizeChances[i] * 365) / 12)}</div>
+                <div>{getTimeBasedDrawValue(prizeChances[i] * 365)}</div>
               </li>
             )
           })}
@@ -326,33 +272,50 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
   )
 }
 
-const VarianceInput = (props: {
+const AdvancedOptions = (props: {
+  tvl: number
   errors: FieldErrorsImpl<ProjectionSettings>
   register: UseFormRegister<ProjectionSettings>
   setValue: UseFormSetValue<ProjectionSettings>
 }) => {
-  const { errors, register, setValue } = props
+  const { tvl, errors, register, setValue } = props
   const [isCollapsed] = useAtom(isListCollapsed)
   const { t } = useTranslation()
 
   return (
-    <ProjectionInput
-      title='Variance'
-      formKey='variance'
-      validate={{
-        isValidNumber: (v) =>
-          !Number.isNaN(Number(v.replaceAll(',', ''))) ||
-          t('fieldIsInvalid', { field: 'Variance' }),
-        isValidPercentage: (v) =>
-          (parseFloat(v.replaceAll(',', '')) >= -100 && parseFloat(v.replaceAll(',', '')) <= 100) ||
-          t('fieldIsInvalid', { field: 'Variance' })
-      }}
-      errors={errors}
-      register={register}
-      onReset={() => setValue('variance', '0', { shouldValidate: true })}
-      className={classNames({ hidden: isCollapsed })}
-      percent
-    />
+    <div className={classNames({ hidden: isCollapsed })}>
+      <SectionTitle text='Advanced Options' />
+      <ProjectionInput
+        title='TVL'
+        formKey='tvl'
+        validate={{
+          isValidNumber: (v) => !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: 'TVL' }),
+          isGreaterThanOrEqualToZero: (v) =>
+            parseFloat(v) >= 0 || t('fieldIsInvalid', { field: 'TVL' })
+        }}
+        errors={errors}
+        register={register}
+        onReset={() =>
+          setValue('tvl', tvl.toFixed(0), {
+            shouldValidate: true
+          })
+        }
+      />
+      <ProjectionInput
+        title='Variance'
+        formKey='variance'
+        validate={{
+          isValidNumber: (v) =>
+            !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: 'Variance' }),
+          isValidPercentage: (v) =>
+            parseFloat(v) >= -100 || t('fieldIsInvalid', { field: 'Variance' })
+        }}
+        errors={errors}
+        register={register}
+        onReset={() => setValue('variance', '0', { shouldValidate: true })}
+        percent
+      />
+    </div>
   )
 }
 
@@ -360,6 +323,7 @@ const SectionTitle = (props: { text: string; className?: string }) => {
   return <h3 className={classNames('text-xs opacity-80', props.className)}>{props.text}</h3>
 }
 
+// TODO: these inputs should look a little prettier
 const ProjectionInput = (props: {
   title: string
   formKey: keyof ProjectionSettings
