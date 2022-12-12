@@ -29,8 +29,6 @@ import {
   UseFormWatch
 } from 'react-hook-form'
 
-// TODO: localization
-
 export const PrizePoolItem = (props: {
   prizePool: PrizePool
   prizeTierHistoryContract: PrizeTierHistoryContract
@@ -164,21 +162,25 @@ const PrizePoolProjections = (props: {
 
 const BasicStats = (props: { tvl: number; dpr: number; token: Token; className?: string }) => {
   const { tvl, dpr, token, className } = props
+  const { t } = useTranslation()
 
   return (
     <div className={classNames('flex flex-col', className)}>
-      <SectionTitle text='Basic Stats' />
+      <SectionTitle text={t('basicStats')} />
       <span>
         TVL: {tvl.toLocaleString('en', { maximumFractionDigits: 0 })} {token.symbol}
       </span>
       <span>DPR: {formatPrettyPercentage(dpr)}</span>
-      <span>Projected APR: {formatPrettyPercentage(dpr * 365)}</span>
+      <span>
+        {t('projectedApr')}: {formatPrettyPercentage(dpr * 365)}
+      </span>
     </div>
   )
 }
 
 const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; className?: string }) => {
   const { numPrizes, prizeAmount, className } = props
+  const { t } = useTranslation()
 
   const formattedDailyNumPrizes = getTimeBasedDrawValue(numPrizes, 'day', { noDecimals: true })
   const formattedDailyPrizeAmount = getTimeBasedDrawValue(prizeAmount, 'day', { noDecimals: true })
@@ -202,30 +204,30 @@ const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; classNa
 
   return (
     <div className={classNames('flex flex-col', className)}>
-      <SectionTitle text='Prizes Over Time' />
+      <SectionTitle text={t('prizesOverTime')} />
       <ul>
         <li className='grid grid-cols-3 gap-x-4 opacity-80'>
-          <div>Timespan</div>
-          <div>Prizes</div>
-          <div>Amount</div>
+          <div>{t('timespan')}</div>
+          <div>{t('prizes')}</div>
+          <div>{t('amount')}</div>
         </li>
         <li className='grid grid-cols-3 gap-x-4'>
-          <div>Daily</div>
+          <div>{t('daily')}</div>
           <div>{formattedDailyNumPrizes}</div>
           <div>{formattedDailyPrizeAmount}</div>
         </li>
         <li className='grid grid-cols-3 gap-x-4'>
-          <div>Weekly</div>
+          <div>{t('weekly')}</div>
           <div>{formattedWeeklyNumPrizes}</div>
           <div>{formattedWeeklyPrizeAmount}</div>
         </li>
         <li className='grid grid-cols-3 gap-x-4'>
-          <div>Monthly</div>
+          <div>{t('monthly')}</div>
           <div>{formattedMonthlyNumPrizes}</div>
           <div>{formattedMonthlyPrizeAmount}</div>
         </li>
         <li className='grid grid-cols-3 gap-x-4'>
-          <div>Yearly</div>
+          <div>{t('yearly')}</div>
           <div>{formattedYearlyNumPrizes}</div>
           <div>{formattedYearlyPrizeAmount}</div>
         </li>
@@ -237,15 +239,16 @@ const PrizesOverTime = (props: { numPrizes: number; prizeAmount: number; classNa
 const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; className?: string }) => {
   const { prizes, prizeChances, className } = props
   const [isCollapsed] = useAtom(isListCollapsed)
+  const { t } = useTranslation()
 
   return (
     <div className={classNames('flex flex-col', className)}>
-      <SectionTitle text='Draw Breakdown' />
+      <SectionTitle text={t('drawBreakdown')} />
       {isCollapsed ? (
         <ul>
           <li className='grid grid-cols-5 gap-x-4 opacity-80'>
-            <div>Prize</div>
-            <div className='col-span-4'>Estimated Award Time</div>
+            <div>{t('prize')}</div>
+            <div className='col-span-4'>{t('estimatedAwardTime')}</div>
           </li>
           {prizes.map((prize, i) => {
             if (prize === 0) return null
@@ -263,11 +266,11 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
       ) : (
         <ul className='mb-3'>
           <li className='grid grid-cols-5 gap-x-4 opacity-80'>
-            <div>Prize</div>
-            <div>Daily</div>
-            <div>Weekly</div>
-            <div>Monthly</div>
-            <div>Yearly</div>
+            <div>{t('prize')}</div>
+            <div>{t('daily')}</div>
+            <div>{t('weekly')}</div>
+            <div>{t('monthly')}</div>
+            <div>{t('yearly')}</div>
           </li>
           {prizes.map((prize, i) => {
             if (prize === 0) return null
@@ -301,7 +304,7 @@ const AdvancedOptions = (props: {
 
   return (
     <div className={classNames({ hidden: isCollapsed })}>
-      <SectionTitle text='Advanced Options' className='mb-2' />
+      <SectionTitle text={t('advancedOptions')} className='mb-2' />
       <ProjectionInput
         title='TVL'
         formKey='tvl'
@@ -317,13 +320,13 @@ const AdvancedOptions = (props: {
         onResetValue={tvl.toFixed(0)}
       />
       <ProjectionInput
-        title='Variance'
+        title={t('variance')}
         formKey='variance'
         validate={{
           isValidNumber: (v) =>
-            !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: 'Variance' }),
+            !Number.isNaN(Number(v)) || t('fieldIsInvalid', { field: t('variance') }),
           isValidPercentage: (v) =>
-            parseFloat(v) >= -100 || t('fieldIsInvalid', { field: 'Variance' })
+            parseFloat(v) >= -100 || t('fieldIsInvalid', { field: t('variance') })
         }}
         errors={errors}
         register={register}
@@ -397,7 +400,7 @@ const ProjectionInput = (props: {
             })}
             onClick={() => setValue(formKey, onResetValue, { shouldValidate: true })}
           >
-            Reset {title}
+            {t('reset')} {title}
           </button>
         </div>
       )}
