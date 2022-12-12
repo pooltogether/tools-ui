@@ -2,6 +2,7 @@ import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { Label } from '@components/Label'
 import { Button, ButtonTheme, ButtonSize } from '@pooltogether/react-components'
+import { formatNumberForDisplay } from '@pooltogether/utilities'
 import { calculate } from '@pooltogether/v4-utils-js'
 import { EditPrizeTierFormValues } from '@prizeTierController/interfaces'
 import { formatTotalPrizeValue } from '@prizeTierController/utils/formatTotalPrizeValue'
@@ -56,6 +57,8 @@ export const EditPrizeTierHistoryForm = (props: {
     return () => updatePrizeValue.cancel()
   }, [bitRange, tierValues])
 
+  const dpr = watch('dpr')
+
   return (
     <form onSubmit={handleSubmit((v) => onSubmit(v))} className='flex flex-col' autoComplete='off'>
       <div className='flex flex-col'>
@@ -92,6 +95,9 @@ export const EditPrizeTierHistoryForm = (props: {
             }}
             errors={errors}
             register={register}
+            extraNote={`(${formatNumberForDisplay(parseFloat(dpr) * 365, {
+              maximumFractionDigits: 2
+            })}% APR)`}
           />
         )}
       </div>
@@ -183,14 +189,19 @@ const FormElement = (props: {
   disabled?: boolean
   errors: FieldErrorsImpl<EditPrizeTierFormValues>
   register: UseFormRegister<EditPrizeTierFormValues>
+  extraNote?: string
 }) => {
-  const { title, formKey, validate, disabled, errors, register } = props
+  const { title, formKey, validate, disabled, errors, register, extraNote } = props
   const { t } = useTranslation()
 
   return (
     <div>
-      <Label className='uppercase' htmlFor={formKey}>
-        {title}
+      <Label
+        className={classNames('uppercase', { 'flex gap-2 justify-between': !!extraNote })}
+        htmlFor={formKey}
+      >
+        <span>{title}</span>
+        {!!extraNote && <span>{extraNote}</span>}
       </Label>
       <StyledInput
         id={formKey}
