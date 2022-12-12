@@ -1,5 +1,5 @@
-import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import { PrizeTierHistoryItem } from '@prizeTierController/ConfigurationView/PrizeTierHistoryItem'
+import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
 import classNames from 'classnames'
 
 export const ConfigurationView = (props: { className?: string }) => {

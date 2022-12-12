@@ -1,7 +1,7 @@
-import { PrizePoolItem } from '@prizeTierController/ProjectionView/PrizePoolItem'
-import classNames from 'classnames'
 import { usePrizePools } from '@hooks/usePrizePools'
 import { usePrizeTierHistoryContracts } from '@prizeTierController/hooks/usePrizeTierHistoryContracts'
+import { PrizePoolItem } from '@prizeTierController/ProjectionView/PrizePoolItem'
+import classNames from 'classnames'
 
 export const ProjectionView = (props: { className?: string }) => {
   const { className } = props
