@@ -15,7 +15,7 @@ import {
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { calculateDprMultiplier } from '@prizeTierController/utils/calculateDprMultiplier'
 import { calculateEstimatedTimeFromPrizeChance } from '@prizeTierController/utils/calculateEstimatedTimeFromPrizeChance'
-import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyDprPercentage'
+import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import { getTimeBasedDrawValue } from '@prizeTierController/utils/formatTimeBasedDrawValue'
 import classNames from 'classnames'
 import { formatUnits } from 'ethers/lib/utils'
