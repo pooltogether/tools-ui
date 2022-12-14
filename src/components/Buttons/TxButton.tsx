@@ -9,7 +9,7 @@ import {
 } from '@pooltogether/wallet-connection'
 import { useTranslation } from 'next-i18next'
 import React, { useMemo } from 'react'
-import { useNetwork, useSwitchNetwork } from 'wagmi'
+import { useSwitchNetwork } from 'wagmi'
 
 export interface TxButtonProps extends ButtonProps {
   state?: TransactionState
@@ -43,7 +43,7 @@ export const TxButton = (props: TxButtonProps) => {
   const disabled =
     (_disabled || state === TransactionState.pending) &&
     isWalletConnected &&
-    isWalletOnProperNetwork
+    (isWalletOnProperNetwork || state === TransactionState.pending)
 
   const [content, onClick] = useMemo(() => {
     if (!isWalletConnected) {
