@@ -12,7 +12,7 @@ import { usePrizeTierHistoryData } from '@prizeTierController/hooks/usePrizeTier
 import { PrizeTierConfigV2, PrizeTierHistoryContract } from '@prizeTierController/interfaces'
 import { PrizeTierHistoryTitle } from '@prizeTierController/PrizeTierHistoryTitle'
 import { formatCombinedPrizeTier } from '@prizeTierController/utils/formatCombinedPrizeTier'
-import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyDprPercentage'
+import { formatPrettyDprPercentage } from '@prizeTierController/utils/formatPrettyPercentage'
 import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import { useAtom } from 'jotai'
