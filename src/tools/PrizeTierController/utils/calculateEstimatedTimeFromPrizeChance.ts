@@ -1,21 +1,23 @@
-export const calculateEstimatedTimeFromPrizeChance = (prizeChance: number) => {
-  if (prizeChance !== 0) {
-    const days = 1 / prizeChance
-    const weeks = days / 7
-    const months = days / (365 / 12)
-    const years = days / 365
-    if (days < 1.5) {
-      return 'Daily'
-    } else if (weeks < 1.5) {
-      return `Every ${days.toFixed(0)} Days`
-    } else if (months < 1.5) {
-      return `Every ${weeks.toFixed(0)} Weeks`
-    } else if (years < 1.5) {
-      return `Every ${months.toFixed(0)} Months`
+import { i18nTranslate } from '@pooltogether/react-components'
+import { formatDailyCountToFrequency } from '@pooltogether/utilities'
+
+export const calculateEstimatedTimeFromPrizeChance = (prizeChance: number, t: i18nTranslate) => {
+  const result = formatDailyCountToFrequency(prizeChance)
+  if (result.frequency !== 0) {
+    if (result.unit === 'day') {
+      if (result.frequency <= 1.5) {
+        return t('daily')
+      } else {
+        return t('everyNDays', { n: result.frequency.toFixed(0) })
+      }
+    } else if (result.unit === 'week') {
+      return t('everyNWeeks', { n: result.frequency.toFixed(0) })
+    } else if (result.unit === 'month') {
+      return t('everyNMonths', { n: result.frequency.toFixed(0) })
     } else {
-      return `Every ${years.toFixed(0)} Years`
+      return t('everyNYears', { n: result.frequency.toFixed(0) })
     }
   } else {
-    return 'Never'
+    return t('never')
   }
 }

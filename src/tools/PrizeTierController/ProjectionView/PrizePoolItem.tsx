@@ -259,7 +259,7 @@ const DrawBreakdown = (props: { prizes: number[]; prizeChances: number[]; classN
               <li key={`pl-time-${i}-${prizeChances[i]}`} className='grid grid-cols-5 gap-x-4'>
                 <div>{formatNumberForDisplay(prize, { maximumFractionDigits: 2 })}</div>
                 <div className='col-span-4'>
-                  {calculateEstimatedTimeFromPrizeChance(prizeChances[i])}
+                  {calculateEstimatedTimeFromPrizeChance(prizeChances[i], t)}
                 </div>
               </li>
             )
