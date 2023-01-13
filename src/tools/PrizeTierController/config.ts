@@ -35,18 +35,9 @@ export const PRIZE_TIER_HISTORY_V1: {
     address: '0xC88f04D5D00367Ecd016228302a1eACFaB164DBA',
     tokenAddress: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
   },
-  [CHAIN_ID.polygon]: {
-    address: '0x1DcaD946D10343cc4494D610d6273153FB071772',
-    tokenAddress: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
-  },
-  [CHAIN_ID.mainnet]: {
-    address: '0x24C3e15BdC10Ce2CB1BEc56cd43F397cE9B89430',
-    tokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
-  },
-  [CHAIN_ID.avalanche]: {
-    address: '0xC3DAD539E460103c860Bb9Ca547647EDbD4903b6',
-    tokenAddress: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664'
-  },
+  [CHAIN_ID.polygon]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
   [CHAIN_ID['optimism-goerli']]: { address: '', tokenAddress: '' },
   [CHAIN_ID['arbitrum-goerli']]: { address: '', tokenAddress: '' },
   [CHAIN_ID.mumbai]: { address: '', tokenAddress: '' },
@@ -58,9 +49,18 @@ export const PRIZE_TIER_HISTORY_V2: {
   [chainId: number]: { address: string; tokenAddress: string }
 } = Object.freeze({
   [CHAIN_ID.optimism]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.polygon]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
-  [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.polygon]: {
+    address: '0x1D215be2F7CA11E5B31D6057C6a3E8eAde7A3a75',
+    tokenAddress: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+  },
+  [CHAIN_ID.mainnet]: {
+    address: '0x63C82Be45399B5CA6041A3b6AaC0f326614c8aAA',
+    tokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+  },
+  [CHAIN_ID.avalanche]: {
+    address: '0xd2d3900D19BC0976E43399D7C57D35AcC8938140',
+    tokenAddress: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664'
+  },
   [CHAIN_ID['optimism-goerli']]: {
     address: '0xC000d30950968C87517704183aEa1C3DDbBE0082',
     tokenAddress: '0xf1485Aa729DF94083ab61B2C65EeA99894Aabdb3'
