@@ -31,10 +31,7 @@ export const DRAWS_PER_DAY: number = 1
 export const PRIZE_TIER_HISTORY_V1: {
   [chainId: number]: { address: string; tokenAddress: string }
 } = Object.freeze({
-  [CHAIN_ID.optimism]: {
-    address: '0xC88f04D5D00367Ecd016228302a1eACFaB164DBA',
-    tokenAddress: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
-  },
+  [CHAIN_ID.optimism]: { address: '', tokenAddress: '' },
   [CHAIN_ID.polygon]: { address: '', tokenAddress: '' },
   [CHAIN_ID.mainnet]: { address: '', tokenAddress: '' },
   [CHAIN_ID.avalanche]: { address: '', tokenAddress: '' },
@@ -48,7 +45,10 @@ export const PRIZE_TIER_HISTORY_V1: {
 export const PRIZE_TIER_HISTORY_V2: {
   [chainId: number]: { address: string; tokenAddress: string }
 } = Object.freeze({
-  [CHAIN_ID.optimism]: { address: '', tokenAddress: '' },
+  [CHAIN_ID.optimism]: {
+    address: '0x2Eb3F768a00Ec81E8A0AC337870572907d3B953d',
+    tokenAddress: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+  },
   [CHAIN_ID.polygon]: {
     address: '0x1D215be2F7CA11E5B31D6057C6a3E8eAde7A3a75',
     tokenAddress: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
