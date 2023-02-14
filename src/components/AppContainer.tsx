@@ -8,6 +8,7 @@ import {
   initRpcUrls
 } from '@pooltogether/wallet-connection'
 import { getSupportedChains } from '@utils/getSupportedChains'
+import { ApexConnector } from 'apex-integration'
 import * as Fathom from 'fathom-client'
 import { Provider as JotaiProvider } from 'jotai'
 import { useTranslation } from 'next-i18next'
@@ -24,7 +25,6 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { initSentry } from '../services/sentry'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
-
 // Initialize react-query Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +54,7 @@ const chains = getSupportedChains().map((chain) => {
 })
 const connectors = () => {
   return [
+    new ApexConnector({ chains, options: {} }),
     new MetaMaskConnector({ chains, options: {} }),
     new WalletConnectConnector({
       chains,
