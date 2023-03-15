@@ -1,4 +1,5 @@
 import { TxButton } from '@components/Buttons/TxButton'
+import { ErrorMessage } from '@components/ErrorMessage'
 import { StyledInput } from '@components/Input'
 import { BottomSheet, ModalTitle, Button, ButtonTheme } from '@pooltogether/react-components'
 import {
@@ -13,7 +14,6 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSigner } from 'wagmi'
 import { DELEGATION_LEARN_MORE_URL } from './constants'
-import { ErrorMessage } from './DelegationForm'
 import { useIsUserDelegatorsRepresentative } from './hooks/useIsUserDelegatorsRepresentative'
 import { getTwabDelegatorContract } from './utils/getTwabDelegatorContract'
 

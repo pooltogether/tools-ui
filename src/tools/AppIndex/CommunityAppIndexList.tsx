@@ -37,7 +37,8 @@ const APPS_TO_LIST: AppInfo[] = [
     descriptionKey: 'poolExplorerDescription',
     href: 'https://poolexplorer.win/',
     twitter: 'underethsea',
-    github: 'underethsea'
+    github: 'underethsea',
+    repo: 'https://github.com/underethsea/poolexplorer'
   },
   {
     titleKey: 'multidelegatorCalculatorTitle',

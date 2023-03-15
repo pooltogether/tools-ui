@@ -6,7 +6,9 @@ import classNames from 'classnames'
 import { BigNumber } from 'ethers'
 import FeatherIcon from 'feather-icons-react'
 import { useTranslation } from 'next-i18next'
+import { useState } from 'react'
 import { PromotionsListProps } from '.'
+import { EditPromotionModal } from './EditPromotionModal'
 
 export interface ActiveStateProps extends PromotionsListProps {
   currentAccount: string
@@ -19,6 +21,8 @@ export interface ActiveStateProps extends PromotionsListProps {
 export const ActiveState: React.FC<ActiveStateProps> = (props) => {
   const { chainId, className, currentAccount } = props
   const { data: promotionsData } = useAccountsPromotions(chainId, currentAccount)
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion>()
 
   const { promotions } = promotionsData || {}
 
@@ -30,14 +34,27 @@ export const ActiveState: React.FC<ActiveStateProps> = (props) => {
           {promotions?.map((promotion, index) => {
             return (
               <PromotionRow
-                key={`slot-${promotion.createdAt.toString()}`}
+                key={`promo-${promotion.id}`}
                 index={index}
                 promotion={promotion}
                 chainId={chainId}
+                onClick={() => {
+                  setSelectedPromotion(promotion)
+                  setIsOpen(true)
+                }}
               />
             )
           })}
         </ul>
+        {!!selectedPromotion && (
+          <EditPromotionModal
+            isOpen={isOpen}
+            closeModal={() => setIsOpen(false)}
+            promotion={selectedPromotion}
+            chainId={chainId}
+            currentAccount={currentAccount}
+          />
+        )}
       </div>
     </>
   )
@@ -69,6 +86,7 @@ interface PromotionRowProps {
   chainId: number
   index: number
   promotion?: Promotion
+  onClick: () => void
 }
 
 /**
@@ -76,7 +94,7 @@ interface PromotionRowProps {
  * @returns
  */
 const PromotionRow: React.FC<PromotionRowProps> = (props) => {
-  const { chainId, index, promotion } = props
+  const { chainId, index, promotion, onClick } = props
 
   const { token, tokensPerEpoch, startTimestamp, epochDuration, numberOfEpochs } = promotion
 
@@ -107,17 +125,9 @@ const PromotionRow: React.FC<PromotionRowProps> = (props) => {
           />
         </div>
         <div className='flex justify-end w-4 xs:w-auto'>
-          <Tooltip
-            id={`tooltip-edit-promo-${startTimestamp}`}
-            tip={t(
-              'extendingEndingPromotionsComingSoon',
-              'Extending, ending and destroying promotions coming soon'
-            )}
-          >
-            <div className='flex space-x-1 items-center'>
-              <FeatherIcon icon={'edit-2'} className='w-4 h-4 opacity-50 text-pt-teal' />
-            </div>
-          </Tooltip>
+          <button onClick={onClick}>
+            <FeatherIcon icon={'edit-2'} className='w-4 h-4 text-pt-teal' />
+          </button>
         </div>
       </div>
     </li>

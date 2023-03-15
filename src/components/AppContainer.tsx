@@ -39,14 +39,14 @@ const queryClient = new QueryClient({
 })
 
 // Initialize Sentry error logging
-initSentry()
+// initSentry()
 
 // Initialize global RPC URLs for external packages
 initRpcUrls(RPC_URLS)
 
 // Initialize WAGMI wallet connectors
 const chains = getSupportedChains().map((chain) => {
-  console.log(chain)
+  // console.log(chain)
   if (!!RPC_URLS[chain.id]) {
     chain.rpcUrls.default = RPC_URLS[chain.id]
   }
@@ -118,7 +118,7 @@ export const AppContainer: React.FC<AppProps> = (props) => {
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools />
-          <ThemeProvider attribute='class'>
+          <ThemeProvider attribute='class' defaultTheme='dark'>
             <ThemedToastContainer />
             <CustomErrorBoundary>
               <Content {...props} />

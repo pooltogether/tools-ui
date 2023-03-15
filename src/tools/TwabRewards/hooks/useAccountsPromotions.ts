@@ -1,6 +1,7 @@
 import { getTwabRewardsSubgraphClient } from '@twabRewards/utils/getTwabRewardsSubgraphClient'
 import gql from 'graphql-tag'
 import { useQuery } from 'react-query'
+import { Promotion } from '../interfaces'
 
 /**
  *
@@ -26,10 +27,16 @@ export const getAccountsPromotions = async (chainId, account) => {
 
   const client = getTwabRewardsSubgraphClient(chainId)
 
-  return client.request(query, variables).catch((e) => {
-    console.error(e.message)
-    return null
-  })
+  const promotions: { promotions: Promotion[] } = await client
+    .request(query, variables)
+    .catch((e) => {
+      console.error(e.message)
+      return null
+    })
+
+  console.log('promotions', promotions)
+
+  return promotions
 }
 
 const promotionsQuery = () => {

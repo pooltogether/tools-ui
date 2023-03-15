@@ -8,7 +8,8 @@ const sentryWebpackPluginOptions = {
   // recommended:
   //   release, url, org, project, authToken, configFile, stripPrefix,
   //   urlPrefix, include, ignore
-
+  
+  dryRun: process.env.NEXT_PUBLIC_PT_ENV !== 'production',
   silent: true, // Suppresses all logs
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options.
@@ -36,7 +37,8 @@ const nextConfig = {
       '@twabDelegator': path.resolve(__dirname, './src/tools/TwabDelegator'),
       '@twabRewards': path.resolve(__dirname, './src/tools/TwabRewards'),
       '@liquidator': path.resolve(__dirname, './src/tools/Liquidator'),
-      '@tokenFaucet': path.resolve(__dirname, './src/tools/TokenFaucet')
+      '@prizeTierController': path.resolve(__dirname, './src/tools/PrizeTierController'),
+      '@tokenFaucet': path.resolve(__dirname, './src/tools/TokenFaucet'),
     };
     return config
   }
