@@ -72,6 +72,13 @@ const APPS_TO_LIST: AppInfo[] = [
     descriptionKey: 'prizeTierControllerDescription',
     href: 'prize-tier-controller',
     emoji: '🕹'
+  },
+  {
+    titleKey: 'pooltogetherLiquidatorSimulation',
+    descriptionKey: 'pooltogetherLiquidatorSimulationDescription',
+    href: 'liquidator-simulator',
+    testnet: true,
+    emoji: '🌊'
   }
 ]
 
