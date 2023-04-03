@@ -16,7 +16,7 @@ import {
 import { chartDataAtom, hasSimulatedStateAtom, isSimulatingStateAtom } from './atoms'
 import { ChartData } from './interfaces'
 
-const LINES = {
+const METRICS = {
   initialVirtualReserveIn: {
     dataKey: 'initial-virtualReserveIn',
     name: 'Initial Virtual Reserve In'
@@ -67,7 +67,7 @@ const LINES = {
   },
   swapPercent: {
     dataKey: 'swap-swapPercent',
-    name: 'Swao Percent'
+    name: 'Percentage of Yield Swapped'
   },
   marketRate: {
     dataKey: 'marketRate',
@@ -76,18 +76,24 @@ const LINES = {
   profit: {
     dataKey: 'swap-profit',
     name: 'Profit'
+  },
+  yieldArea: {
+    dataKey: 'yield-area',
+    name: 'Available Yield Post Swap'
   }
 }
 
-const CHARTS = [
-  // [{ dataKey: 'uv', name: 'YEWVEE' }, { dataKey: 'pv' }, { dataKey: 'amt' }],
-  // [{ dataKey: 'uv' }, { dataKey: 'pv' }, { dataKey: 'amt' }]
-  [LINES.finalVirtualReserveIn, LINES.finalVirtualReserveOut],
-  [LINES.amountOut, LINES.amountIn, LINES.marketAmountOut],
-  [LINES.amountOut, LINES.marketAmountOut],
-  [LINES.amountOut, LINES.amountIn],
-  [LINES.totalAmountOut, LINES.totalYield]
+const LINE_CHARTS = [
+  [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
+  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
+  [METRICS.amountOut, METRICS.marketAmountOut],
+  [METRICS.totalAmountOut, METRICS.totalYield]
 ]
+const BAR_CHARTS = [
+  [METRICS.swapPercent],
+  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut]
+]
+const AREA_CHARTS = [[METRICS.yieldArea]]
 
 export const SimulationCharts: React.FC = () => {
   const [chartData] = useAtom(chartDataAtom)
@@ -102,42 +108,35 @@ export const SimulationCharts: React.FC = () => {
     return <div>Simulate to see results</div>
   }
 
-  // return (
-  //   <ResponsiveContainer width='90%' height={300}>
-  //     <LineChart data={testData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-  //       <Line type='monotone' dataKey='uv' stroke='#00FFFF' />
-  //       <Line type='monotone' dataKey='pv' stroke='#FF00ff' />
-  //       <Line type='monotone' dataKey='amt' stroke='#FFFF00' />
-  //       <CartesianGrid stroke='#ccc' strokeDasharray='5 5' />
-  //       <XAxis />
-  //       <YAxis />
-  //       <Tooltip />
-  //       <Legend verticalAlign='top' height={36} />
-  //     </LineChart>
-  //   </ResponsiveContainer>
-  // )
-
   return (
     <div className='grid grid-cols-1 gap-8'>
-      {CHARTS.map((lines, i) => (
-        <LiquidatorChart key={`chart-${i}`} chartData={chartData} lines={lines} />
+      {LINE_CHARTS.map((metrics, i) => (
+        <PtLineChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
       ))}
-
-      <SwapPercentChart data={chartData} />
-      <YieldAreaChart data={chartData} />
+      {BAR_CHARTS.map((metrics, i) => (
+        <PtBarChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
+      ))}
+      {AREA_CHARTS.map((metrics, i) => (
+        <PtAreaChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
+      ))}
       <AprAndTvlChart data={chartData} />
     </div>
   )
 }
 
-const LiquidatorChart = (props: {
+const PtLineChart = (props: {
   chartData: ChartData[]
-  lines: { dataKey: string; name?: string }[]
+  metrics: { dataKey: string; name?: string }[]
 }) => {
   return (
     <ResponsiveContainer width='100%' height={400} className='mx-auto'>
       <LineChart data={props.chartData}>
-        {props.lines.map((line, i) => {
+        <CartesianGrid stroke='#cccccc11' />
+        <Tooltip />
+        <XAxis />
+        <YAxis />
+        <Legend />
+        {props.metrics.map((line, i) => {
           return (
             <Line
               key={`line-${i}-${line.dataKey}`}
@@ -148,12 +147,73 @@ const LiquidatorChart = (props: {
             />
           )
         })}
+      </LineChart>
+    </ResponsiveContainer>
+  )
+}
+
+const PtBarChart = (props: {
+  chartData: ChartData[]
+  metrics: { dataKey: string; name?: string }[]
+}) => {
+  return (
+    <ResponsiveContainer width='100%' height={400} className='mx-auto'>
+      <BarChart data={props.chartData}>
         <CartesianGrid stroke='#cccccc11' />
-        <Tooltip />
         <XAxis />
         <YAxis />
+        <Tooltip />
         <Legend />
-      </LineChart>
+        {props.metrics.map((line, i) => {
+          return (
+            <Bar
+              key={`line-${i}-${line.dataKey}`}
+              type='monotone'
+              dataKey={line.dataKey}
+              name={line?.name}
+              stroke={LINE_COLOURS[i % LINE_COLOURS.length]}
+              fill={LINE_COLOURS[i % LINE_COLOURS.length]}
+            />
+          )
+        })}
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
+const PtAreaChart = (props: {
+  chartData: ChartData[]
+  metrics: { dataKey: string; name?: string }[]
+}) => {
+  return (
+    <ResponsiveContainer width='100%' height={400} className='mx-auto'>
+      <AreaChart
+        data={props.chartData}
+        margin={{
+          top: 20,
+          right: 20,
+          bottom: 20,
+          left: 20
+        }}
+      >
+        <CartesianGrid stroke='#cccccc11' />
+        <XAxis />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {props.metrics.map((line, i) => {
+          return (
+            <Area
+              key={`line-${i}-${line.dataKey}`}
+              type='monotone'
+              dataKey={line.dataKey}
+              name={line?.name}
+              stroke={LINE_COLOURS[i % LINE_COLOURS.length]}
+              fill={LINE_COLOURS[i % LINE_COLOURS.length]}
+            />
+          )
+        })}
+      </AreaChart>
     </ResponsiveContainer>
   )
 }
@@ -177,7 +237,6 @@ const SwapPercentChart = (props: { data: ChartData[] }) => (
       <YAxis />
       <Tooltip />
       <Legend />
-      <Bar dataKey='swap-swapPercent' name='Percentage of Yield Swapped' fill={LINE_COLOURS[0]} />
     </BarChart>
   </ResponsiveContainer>
 )
@@ -195,12 +254,7 @@ const YieldAreaChart = (props: { data: ChartData[] }) => (
     >
       <XAxis />
       <YAxis />
-      <Area
-        dataKey='yield-area'
-        name='Available Yield Post Swap'
-        stroke={LINE_COLOURS[2]}
-        fill={LINE_COLOURS[2]}
-      />
+      <Area stroke={LINE_COLOURS[2]} fill={LINE_COLOURS[2]} />
       <Tooltip />
       <Legend />
     </AreaChart>

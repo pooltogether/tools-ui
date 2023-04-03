@@ -41,6 +41,5 @@ export function applyRandomScaling(value: bigint, seed: number, chaosLevel: Chao
   const range = (value * BigInt(percent)) / BigInt(100)
   const scaled = value + (range * BigInt(Math.round(random * 100000))) / BigInt(10000)
 
-  console.log({ value, percent, range, scaled })
   return scaled
 }
