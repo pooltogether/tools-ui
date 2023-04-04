@@ -27,6 +27,7 @@
       "@twabDelegator/*": ["./src/tools/TwabDelegator/*"],
       "@twabRewards/*": ["./src/tools/TwabRewards/*"],
       "@liquidator/*": ["./src/tools/Liquidator/*"],
+      "@liquidatorSimulator/*": ["./src/tools/LiquidatorSimulator/*"],
       "@prizeTierController/*": ["./src/tools/PrizeTierController/*"],
       "@tokenFaucet/*": ["./src/tools/TokenFaucet/*"]
     }
