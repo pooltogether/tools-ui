@@ -129,7 +129,7 @@ export const SimulationInputs: React.FC = () => {
     register,
     handleSubmit,
     control,
-    watch,
+    getValues,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
@@ -214,7 +214,8 @@ export const SimulationInputs: React.FC = () => {
           size={ButtonSize.sm}
           className='col-span-2 mt-2 ml-auto'
           onClick={() => {
-            navigator.clipboard.writeText(JSON.stringify(serializeBigInts(config)))
+            console.log('Copying', getValues())
+            navigator.clipboard.writeText(JSON.stringify(getValues()))
           }}
         >
           Copy Config
@@ -282,16 +283,15 @@ function formatFormDataToSimulatorConfig(config: FormData): SimulatorConfig {
     tickLength: Number(config.tickLength),
     tokenInDecimals: Number(config.tokenInDecimals),
     tokenOutDecimals: Number(config.tokenOutDecimals),
-    virtualReserveIn:
-      BigInt(config.virtualReserveIn) * BigInt(10 ** Number(config.tokenInDecimals)),
-    virtualReserveOut:
-      BigInt(config.virtualReserveOut) * BigInt(10 ** Number(config.tokenOutDecimals)),
-    totalValueLockedOut:
-      BigInt(config.totalValueLockedOut) * BigInt(10 ** Number(config.tokenOutDecimals)),
+    virtualReserveIn: BigInt(config.virtualReserveIn * 10 ** Number(config.tokenInDecimals)),
+    virtualReserveOut: BigInt(config.virtualReserveOut * 10 ** Number(config.tokenOutDecimals)),
+    totalValueLockedOut: BigInt(config.totalValueLockedOut * 10 ** Number(config.tokenOutDecimals)),
     swapMultiplier: BigInt(Number(config.swapMultiplier) * RATE_SCALAR),
     liquidityFraction: BigInt(Number(config.liquidityFraction) * RATE_SCALAR),
     minimumK: BigInt(config.minimumK),
-    minimumProfit: BigInt(Number(config.minimumProfit) * 10 ** Number(config.tokenOutDecimals)),
+    minimumProfit: BigInt(
+      Math.floor(Number(config.minimumProfit) * 10 ** Number(config.tokenOutDecimals))
+    ),
     marketRates,
     yieldYearlyAprRates,
     chaosLevel: config.chaosLevel as ChaosLevel

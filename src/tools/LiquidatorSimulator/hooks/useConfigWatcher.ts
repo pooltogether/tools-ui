@@ -136,10 +136,19 @@ function formatSimulatedTickToChartData(
   return chartData
 }
 
+// // Maintain BigInt
+// function toToken(x: bigint, decimals: number) {
+//   return div(x, 10 ** decimals)
+// }
+
+// function div(x: bigint, y: number) {
+//   return Number(x / BigInt(y))
+// }
+
 function toToken(x: bigint, decimals: number) {
   return div(x, 10 ** decimals)
 }
 
 function div(x: bigint, y: number) {
-  return Number(x / BigInt(y))
+  return Number(x) / y
 }
