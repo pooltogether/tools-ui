@@ -13,6 +13,10 @@ import { RATE_SCALAR, simulateSwapExactAmountOut } from '../utils/simulator'
  * Should match what the simulation data gets translated to
  */
 export const METRICS = {
+  finalK: {
+    dataKey: 'finalK',
+    name: 'K'
+  },
   initialVirtualReserveIn: {
     dataKey: 'initial-virtualReserveIn',
     name: 'Initial Virtual Reserve In'
@@ -23,7 +27,7 @@ export const METRICS = {
   },
   amountToAccrue: {
     dataKey: 'amountToAccrue',
-    name: 'Amount of Yield Accrued'
+    name: 'Yield Earned'
   },
   finalVirtualReserveIn: {
     dataKey: 'initial-virtualReserveIn',
@@ -120,6 +124,7 @@ function formatSimulatedTickToChartData(
     'swap-marketAmountOut': toToken(data.swap.marketAmountOut, config.tokenOutDecimals),
     'final-virtualReserveIn': toToken(data.final.virtualReserveIn, config.tokenInDecimals),
     'final-virtualReserveOut': toToken(data.final.virtualReserveOut, config.tokenOutDecimals),
+    'final-k': String(data.final.virtualReserveOut * data.final.virtualReserveIn),
     'final-availableYield': toToken(data.final.availableYield, config.tokenOutDecimals),
     'yield-area': [
       toToken(data.amountToAccrue + data.initial.availableYield, config.tokenOutDecimals),

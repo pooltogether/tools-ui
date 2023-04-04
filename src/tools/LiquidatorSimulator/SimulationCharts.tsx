@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai'
+import { useMemo } from 'react'
 import {
   LineChart,
   Line,
@@ -19,13 +20,15 @@ import { ChartData } from './interfaces'
 
 const LINE_CHARTS = [
   [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
+  // [METRICS.finalK],
   // [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
   [METRICS.totalAmountOut, METRICS.totalYield]
   // [METRICS.amountOut, METRICS.marketAmountOut]
 ]
 const BAR_CHARTS = [
   [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
-  [METRICS.swapPercent]
+  [METRICS.swapPercent],
+  [METRICS.profit]
 ]
 const AREA_CHARTS = [[METRICS.yieldArea]]
 
@@ -44,6 +47,7 @@ export const SimulationCharts: React.FC = () => {
 
   return (
     <div className='grid grid-cols-1 gap-8'>
+      <AveragePercentageSwapped />
       {LINE_CHARTS.map((metrics, i) => (
         <PtLineChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
       ))}
@@ -229,3 +233,32 @@ const AprAndTvlChart = (props: { data: ChartData[] }) => (
     </LineChart>
   </ResponsiveContainer>
 )
+
+const AveragePercentageSwapped = () => {
+  const [chartData] = useAtom(chartDataAtom)
+  const data = useMemo(() => {
+    let countOfSwaps = 0
+    let firstSwapTick = null
+    const total = chartData.reduce((avg, data, i) => {
+      const amt = Number(data['swap-swapPercent'])
+
+      if (amt > 0) {
+        countOfSwaps += 1
+        if (firstSwapTick === null) {
+          firstSwapTick = i
+        }
+      }
+      return avg + amt
+    }, 0)
+    const avg = total / chartData.length
+    const avgOfSwaps = total / countOfSwaps
+    return { avg, avgOfSwaps, firstSwapTick }
+  }, [chartData])
+  return (
+    <div>
+      <p className='text-xs'>Average Percentage Swapped Per Tick: {data.avg || '--'}%</p>
+      <p className='text-xs'>Average Percentage Swapped Per Swap: {data.avgOfSwaps || '--'}%</p>
+      <p className='text-xs'>First Swap Tick: {data.firstSwapTick || '--'}</p>
+    </div>
+  )
+}

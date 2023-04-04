@@ -134,7 +134,8 @@ export const SimulationInputs: React.FC = () => {
   } = useForm<FormData>({
     defaultValues: {
       marketRate: [{ time: '0', value: '1' }],
-      yieldYearlyAprRate: [{ time: '0', value: '0.05' }]
+      yieldYearlyAprRate: [{ time: '0', value: '0.05' }],
+      chaosLevel: ChaosLevel.None
     }
   })
   const onSubmit = (data) => {
@@ -163,26 +164,18 @@ export const SimulationInputs: React.FC = () => {
               errors={errors}
             />
           ))}
-        </div>
-
-        <p className='font-bold text-lg mt-2'>Liquidation Pair Configuration</p>
-        <div className='flex flex-col space-y-2 p-2  bg-actually-black bg-opacity-10 rounded'>
-          {LIQUIDATION_PAIR_CONFIG.map((formItem, i) => (
-            <TextFormRow
-              {...formItem}
-              key={`${formItem.id}-${i}`}
-              register={register}
-              errors={errors}
-            />
-          ))}
           <div className='grid grid-cols-2 gap-2'>
-            <label htmlFor='chaosLevel'>Chaos</label>
-            <select id={'chaosLevel'} {...register('chaosLevel', { required: true })}>
+            {/* <label htmlFor='chaosLevel'>Chaos</label>
+            <select
+              className='rounded px-1'
+              id={'chaosLevel'}
+              {...register('chaosLevel', { required: true })}
+            >
               <option value={ChaosLevel.None}>None</option>
               <option value={ChaosLevel.Low}>Low</option>
               <option value={ChaosLevel.Medium}>Medium</option>
               <option value={ChaosLevel.High}>High</option>
-            </select>
+            </select> */}
             {!!errors.chaosLevel && (
               <span className='text-red'>{errors.chaosLevel?.message || 'Error'}</span>
             )}
@@ -196,6 +189,18 @@ export const SimulationInputs: React.FC = () => {
               />
             ))}
           </div>
+        </div>
+
+        <p className='font-bold text-lg mt-2'>Liquidation Pair Configuration</p>
+        <div className='flex flex-col space-y-2 p-2  bg-actually-black bg-opacity-10 rounded'>
+          {LIQUIDATION_PAIR_CONFIG.map((formItem, i) => (
+            <TextFormRow
+              {...formItem}
+              key={`${formItem.id}-${i}`}
+              register={register}
+              errors={errors}
+            />
+          ))}
         </div>
       </div>
 
@@ -394,6 +399,7 @@ const ArrayFormRow = (props: {
           </li>
         ))}
         <Button
+          theme={ButtonTheme.tealOutline}
           size={ButtonSize.sm}
           className='h-fit-content w-full'
           type='button'
