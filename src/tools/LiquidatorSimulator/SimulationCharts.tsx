@@ -14,84 +14,18 @@ import {
   BarChart
 } from 'recharts'
 import { chartDataAtom, hasSimulatedStateAtom, isSimulatingStateAtom } from './atoms'
+import { METRICS } from './hooks/useConfigWatcher'
 import { ChartData } from './interfaces'
-
-const METRICS = {
-  initialVirtualReserveIn: {
-    dataKey: 'initial-virtualReserveIn',
-    name: 'Initial Virtual Reserve In'
-  },
-  yearlyApr: {
-    dataKey: 'yearlyApr',
-    name: 'APR'
-  },
-  finalVirtualReserveIn: {
-    dataKey: 'initial-virtualReserveIn',
-    name: 'Virtual Reserve In'
-  },
-  initialVirtualReserveOut: {
-    dataKey: 'initial-virtualReserveOut',
-    name: 'Initial Virtual Reserve Out'
-  },
-  finalVirtualReserveOut: {
-    dataKey: 'final-virtualReserveOut',
-    name: 'Virtual Reserve Out'
-  },
-  initialAvailableYield: {
-    dataKey: 'initial-availableYield',
-    name: 'Available Yield'
-  },
-  finalAvailableYield: {
-    dataKey: 'final-availableYield',
-    name: 'Available Yield'
-  },
-  marketAmountOut: {
-    dataKey: 'swap-marketAmountOut',
-    name: 'Market Amount Out'
-  },
-  totalAmountOut: {
-    dataKey: 'totalAmountOut',
-    name: 'Total Amount Out'
-  },
-  totalYield: {
-    dataKey: 'totalYield',
-    name: 'Total Yield Earned'
-  },
-  amountOut: {
-    dataKey: 'swap-amountOut',
-    name: 'Amount Out'
-  },
-  amountIn: {
-    dataKey: 'swap-amountIn',
-    name: 'Amount In'
-  },
-  swapPercent: {
-    dataKey: 'swap-swapPercent',
-    name: 'Percentage of Yield Swapped'
-  },
-  marketRate: {
-    dataKey: 'marketRate',
-    name: 'Market Rate'
-  },
-  profit: {
-    dataKey: 'swap-profit',
-    name: 'Profit'
-  },
-  yieldArea: {
-    dataKey: 'yield-area',
-    name: 'Available Yield Post Swap'
-  }
-}
 
 const LINE_CHARTS = [
   [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
-  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
-  [METRICS.amountOut, METRICS.marketAmountOut],
+  // [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
   [METRICS.totalAmountOut, METRICS.totalYield]
+  // [METRICS.amountOut, METRICS.marketAmountOut]
 ]
 const BAR_CHARTS = [
-  [METRICS.swapPercent],
-  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut]
+  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
+  [METRICS.swapPercent]
 ]
 const AREA_CHARTS = [[METRICS.yieldArea]]
 
@@ -113,13 +47,13 @@ export const SimulationCharts: React.FC = () => {
       {LINE_CHARTS.map((metrics, i) => (
         <PtLineChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
       ))}
+      <AprAndTvlChart data={chartData} />
       {BAR_CHARTS.map((metrics, i) => (
         <PtBarChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
       ))}
       {AREA_CHARTS.map((metrics, i) => (
         <PtAreaChart key={`chart-${i}`} chartData={chartData} metrics={metrics} />
       ))}
-      <AprAndTvlChart data={chartData} />
     </div>
   )
 }
@@ -230,36 +164,36 @@ const LINE_COLOURS = [
   '#8811d8'
 ]
 
-const SwapPercentChart = (props: { data: ChartData[] }) => (
-  <ResponsiveContainer width='100%' height={400} className='mx-auto'>
-    <BarChart {...props}>
-      <XAxis />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-    </BarChart>
-  </ResponsiveContainer>
-)
+// const SwapPercentChart = (props: { data: ChartData[] }) => (
+//   <ResponsiveContainer width='100%' height={400} className='mx-auto'>
+//     <BarChart {...props}>
+//       <XAxis />
+//       <YAxis />
+//       <Tooltip />
+//       <Legend />
+//     </BarChart>
+//   </ResponsiveContainer>
+// )
 
-const YieldAreaChart = (props: { data: ChartData[] }) => (
-  <ResponsiveContainer width='100%' height={400} className='mx-auto'>
-    <AreaChart
-      {...props}
-      margin={{
-        top: 20,
-        right: 20,
-        bottom: 20,
-        left: 20
-      }}
-    >
-      <XAxis />
-      <YAxis />
-      <Area stroke={LINE_COLOURS[2]} fill={LINE_COLOURS[2]} />
-      <Tooltip />
-      <Legend />
-    </AreaChart>
-  </ResponsiveContainer>
-)
+// const YieldAreaChart = (props: { data: ChartData[] }) => (
+//   <ResponsiveContainer width='100%' height={400} className='mx-auto'>
+//     <AreaChart
+//       {...props}
+//       margin={{
+//         top: 20,
+//         right: 20,
+//         bottom: 20,
+//         left: 20
+//       }}
+//     >
+//       <XAxis />
+//       <YAxis />
+//       <Area stroke={LINE_COLOURS[2]} fill={LINE_COLOURS[2]} />
+//       <Tooltip />
+//       <Legend />
+//     </AreaChart>
+//   </ResponsiveContainer>
+// )
 
 const AprAndTvlChart = (props: { data: ChartData[] }) => (
   <ResponsiveContainer width='100%' height={400}>
@@ -277,14 +211,21 @@ const AprAndTvlChart = (props: { data: ChartData[] }) => (
         dataKey='yearlyApr'
         stroke={LINE_COLOURS[0]}
       />
-      <Line yAxisId='left' type='monotone' name='TVL' dataKey='tvl' stroke={LINE_COLOURS[1]} />
-      {/* <Line
+
+      <Line
         yAxisId='left'
         type='monotone'
-        name='Yield'
-        dataKey='amountToAccrue'
+        name={METRICS.totalYield.name}
+        dataKey={METRICS.totalYield.dataKey}
+        stroke={LINE_COLOURS[1]}
+      />
+      <Line
+        yAxisId='left'
+        type='monotone'
+        name={METRICS.amountToAccrue.name}
+        dataKey={METRICS.amountToAccrue.dataKey}
         stroke={LINE_COLOURS[2]}
-      /> */}
+      />
     </LineChart>
   </ResponsiveContainer>
 )

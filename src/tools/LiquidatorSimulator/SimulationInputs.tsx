@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Button, ButtonSize, ButtonTheme } from '@pooltogether/react-components'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/router'
@@ -320,6 +321,7 @@ const TextFormRow = (props: {
       <label htmlFor={id}>{name}</label>
       <div className='grid grid-cols-1'>
         <input
+          className='rounded px-1'
           id={id}
           defaultValue={defaultValue}
           type={type}
@@ -372,6 +374,7 @@ const ArrayFormRow = (props: {
                 <div>
                   <label htmlFor={`${id}.${index}.time`}>Time</label>
                   <input
+                    className='rounded px-1'
                     defaultValue={0}
                     type={'string'}
                     {...register(`${id}.${index}.time` as const)}
@@ -380,6 +383,7 @@ const ArrayFormRow = (props: {
                 <div>
                   <label htmlFor={`${id}.${index}.value`}>Value</label>
                   <input
+                    className='rounded px-1'
                     defaultValue={defaultValue}
                     type={type}
                     {...register(`${id}.${index}.value` as const)}
