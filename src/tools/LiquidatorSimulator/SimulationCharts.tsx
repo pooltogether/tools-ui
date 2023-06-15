@@ -20,7 +20,12 @@ import { ChartData } from './interfaces'
 
 const LINE_CHARTS = [
   [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
-  // [METRICS.finalK],
+  [
+    METRICS.marketRate,
+    // METRICS.finalLiquidatorRate,
+    // METRICS.initialLiquidatorRate,
+    METRICS.swapRate
+  ],
   // [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
   [METRICS.totalAmountOut, METRICS.totalYield]
   // [METRICS.amountOut, METRICS.marketAmountOut]

@@ -73,9 +73,23 @@ export const METRICS = {
     dataKey: 'swap-swapPercent',
     name: 'Percentage of Yield Swapped'
   },
+  swapRate: {
+    dataKey: 'swap-executionRate',
+    name: 'Execution Rate'
+  },
+  // X token out per 1 token in
   marketRate: {
     dataKey: 'marketRate',
     name: 'Market Rate'
+  },
+  // X token out per 1 token in
+  initialLiquidatorRate: {
+    dataKey: 'initial-liquidatorRate',
+    name: 'Initial Liquidator Rate'
+  },
+  finalLiquidatorRate: {
+    dataKey: 'final-liquidatorRate',
+    name: 'Final Liquidator Rate'
   },
   profit: {
     dataKey: 'swap-profit',
@@ -114,6 +128,7 @@ function formatSimulatedTickToChartData(
     'initial-virtualReserveIn': toToken(data.initial.virtualReserveIn, config.tokenInDecimals),
     'initial-virtualReserveOut': toToken(data.initial.virtualReserveOut, config.tokenOutDecimals),
     'initial-availableYield': toToken(data.initial.availableYield, config.tokenOutDecimals),
+    'initial-liquidatorRate': div(data.initial.liquidatorRate, RATE_SCALAR),
     'totalAmountOut': toToken(data.totalAmountOut, config.tokenOutDecimals),
     'totalYield': toToken(data.totalYield, config.tokenOutDecimals),
     'swap-amountOut': toToken(data.swap.amountOut, config.tokenOutDecimals),
@@ -121,11 +136,14 @@ function formatSimulatedTickToChartData(
     'swap-profit': toToken(data.swap.profit, config.tokenOutDecimals),
     'swap-profitable': data.swap.profitable ? 1 : 0,
     'swap-swapPercent': Number(data.swap.swapPercent),
+    'swap-executionRate':
+      data.swap.executionRate > 0 ? div(data.swap.executionRate, RATE_SCALAR) : null,
     'swap-marketAmountOut': toToken(data.swap.marketAmountOut, config.tokenOutDecimals),
     'final-virtualReserveIn': toToken(data.final.virtualReserveIn, config.tokenInDecimals),
     'final-virtualReserveOut': toToken(data.final.virtualReserveOut, config.tokenOutDecimals),
     'final-k': String(data.final.virtualReserveOut * data.final.virtualReserveIn),
     'final-availableYield': toToken(data.final.availableYield, config.tokenOutDecimals),
+    'final-liquidatorRate': div(data.final.liquidatorRate, RATE_SCALAR),
     'yield-area': [
       toToken(data.amountToAccrue + data.initial.availableYield, config.tokenOutDecimals),
       toToken(data.swap.amountOut, config.tokenOutDecimals)

@@ -124,11 +124,16 @@ export function swapExactAmountOut(
 
   // 1 Virtual Buyback
   const { VRI: VRI_1, VRO: VRO_1 } = virtualBuyBack(VRI, VRO, Y)
+  const { VRI: VRI_TEST, VRO: VRO_TEST } = virtualBuyBack(VRI, VRO, AO)
+
+  console.log({ VRI_1, VRO_1, VRI_TEST, VRO_TEST })
 
   // 2 Actual Swap
   const AI = getAmountIn(AO, VRI_1, VRO_1)
   let VRI_2 = VRI_1 + AI
   let VRO_2 = VRO_1 - AO
+
+  console.log({ K1: VRI * VRO, K2: VRI_1 * VRO_1, K3: VRI_TEST * VRO_TEST, K4: VRI_2 * VRO_2 })
 
   // 3. Virtual Swap
   const { VRI: VRI_3, VRO: VRO_3 } = virtualSwap(VRI_2, VRO_2, Y, AO, SM, LF, MinK)
@@ -136,6 +141,7 @@ export function swapExactAmountOut(
   return { AO, AI, VRI: VRI_3, VRO: VRO_3 }
 }
 
+// NOTE: Not used in simulator
 export function swapExactAmountIn(
   VRI: bigint,
   VRO: bigint,

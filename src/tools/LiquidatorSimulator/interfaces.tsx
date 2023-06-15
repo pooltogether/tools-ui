@@ -5,6 +5,7 @@ export interface ChartData {
   'initial-virtualReserveIn': number
   'initial-virtualReserveOut': number
   'initial-availableYield': number
+  'initial-liquidatorRate': number
   'totalAmountOut': number
   'totalYield': number
   'swap-amountOut': number
@@ -13,9 +14,11 @@ export interface ChartData {
   'swap-profitable': number
   'swap-swapPercent': number
   'swap-marketAmountOut': number
+  'swap-executionRate': number
   'final-virtualReserveIn': number
   'final-virtualReserveOut': number
   'final-availableYield': number
+  'final-liquidatorRate': number
 }
 
 export enum ChaosLevel {
@@ -36,20 +39,22 @@ export interface SimulatedTick {
     virtualReserveIn: bigint
     virtualReserveOut: bigint
     availableYield: bigint
+    liquidatorRate: bigint
   }
   swap: {
     amountOut: bigint
     amountIn: bigint
     profit: bigint
     profitable: boolean
-    swapPercent: bigint // What is this?
-    // swapRate: bigint // Market rate of token out relative to token in that the swap is using
+    swapPercent: bigint
+    executionRate: bigint
     marketAmountOut: bigint
   }
   final: {
     virtualReserveIn: bigint
     virtualReserveOut: bigint
     availableYield: bigint
+    liquidatorRate: bigint
   }
 }
 

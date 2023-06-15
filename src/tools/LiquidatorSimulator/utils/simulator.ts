@@ -45,7 +45,8 @@ export function simulateSwapExactAmountOut(config: SimulatorConfig) {
     profit: BigInt(0),
     profitable: false,
     swapPercent: BigInt(0),
-    marketAmountOut: BigInt(0)
+    marketAmountOut: BigInt(0),
+    executionRate: BigInt(0)
   }
   const initialTick: SimulatedTick = {
     tvl: _totalValueLockedOut,
@@ -57,13 +58,15 @@ export function simulateSwapExactAmountOut(config: SimulatorConfig) {
     initial: {
       virtualReserveIn: _virtualReserveIn,
       virtualReserveOut: _virtualReserveOut,
-      availableYield: BigInt(0)
+      availableYield: BigInt(0),
+      liquidatorRate: (_virtualReserveOut * BigInt(RATE_SCALAR)) / _virtualReserveIn
     },
     swap: emptySwap,
     final: {
       virtualReserveIn: _virtualReserveIn,
       virtualReserveOut: _virtualReserveOut,
-      availableYield: BigInt(0)
+      availableYield: BigInt(0),
+      liquidatorRate: (_virtualReserveOut * BigInt(RATE_SCALAR)) / _virtualReserveIn
     }
   }
 
@@ -125,12 +128,14 @@ export function simulateSwapExactAmountOut(config: SimulatorConfig) {
             profit: swapAmounts.profit,
             profitable: swapAmounts.profitable,
             swapPercent: swapAmounts.swapPercent,
-            marketAmountOut: swapAmounts.marketAmountOut
+            marketAmountOut: swapAmounts.marketAmountOut,
+            executionRate: (AO * BigInt(RATE_SCALAR)) / AI
           }
           tickData.final = {
             virtualReserveIn: VRI,
             virtualReserveOut: VRO,
-            availableYield: tickData.final.availableYield - AO
+            availableYield: tickData.final.availableYield - AO,
+            liquidatorRate: (VRO * BigInt(RATE_SCALAR)) / VRI
           }
           // Update state
         } catch (e) {
