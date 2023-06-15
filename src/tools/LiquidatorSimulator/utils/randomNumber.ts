@@ -21,31 +21,38 @@ export function randomWithSeed(seed: number) {
  * @param range
  */
 export function applyRandomScaling(value: bigint, seed: number, chaosLevel: ChaosLevel) {
-  if (chaosLevel === ChaosLevel.None) {
-    return value
-  }
-  if (value === BigInt(0)) {
+  if (chaosLevel === ChaosLevel.None || value === BigInt(0)) {
     return value
   }
 
   let percent = 0
+  let skipThreshold = 0
   switch (chaosLevel) {
     case ChaosLevel.Low:
       percent = 1
+      skipThreshold = 0.75
       break
     case ChaosLevel.Medium:
       percent = 3
+      skipThreshold = 0.5
       break
     case ChaosLevel.High:
       percent = 10
+      skipThreshold = 0.25
       break
   }
 
+  const skipChance = randomWithSeed(seed + 2)
+  if (skipChance < skipThreshold) {
+    return value
+  }
+
   const random = randomWithSeed(seed + Number(value) + percent)
+  const direction = randomWithSeed(seed + 1)
   const maxDelta = value - (value * BigInt(100 + percent)) / BigInt(100)
   const delta = maxDelta - (maxDelta * BigInt(Math.round(random * 100000))) / BigInt(100000)
 
   console.log({ value, maxDelta, delta, random, percent })
-  const scaledValue = random > 0.5 ? value + delta : value - delta
+  const scaledValue = direction > 0.5 ? value + delta : value - delta
   return scaledValue
 }
