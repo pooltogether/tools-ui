@@ -8,6 +8,27 @@ export function getAmountOut(AI: bigint, VRO: bigint, VRI: bigint) {
   return AO
 }
 
+export function getExpectedSlippage(AI: bigint, VRO: bigint, VRI: bigint) {
+  const K = VRI * VRO
+  const AO = getAmountOut(AI, VRO, VRI)
+  const expectedSlippage = (AI - AO) / AI
+  return expectedSlippage
+}
+
+export function getVirtualBuybackAmountOut(AI: bigint, VRO: bigint, VRI: bigint) {
+  // Hard cap AO to VRI. This is to prevent the case where AO is so large that
+  // virtual reserves get squashed.
+  if (AI > VRI) {
+    AI = VRI
+  }
+
+  const AO = (AI * VRI) / (AI + VRO)
+  if (AO === BigInt(0)) {
+    throw new Error('AO is zero')
+  }
+  return AO
+}
+
 export function getAmountIn(AO: bigint, VRO: bigint, VRI: bigint) {
   return (AO * VRO) / (VRI - AO) + BigInt(1)
 }
@@ -25,10 +46,17 @@ export function computeExactAmountOut(VRI: bigint, VRO: bigint, AI0: bigint, AI1
   return AO0
 }
 
+// b = a * k / (x * (x + a))
+// AO = (AI * (VRI*VRO)) / (VRO * (VRO + AI))
 export function virtualBuyBack(VRI: bigint, VRO: bigint, AI: bigint) {
-  const AO = getAmountOut(AI, VRO, VRI)
+  const AO = getVirtualBuybackAmountOut(AI, VRO, VRI)
   let VRI_1 = VRI - AO
   let VRO_1 = VRO + AI
+  let AO2 = (AI * (VRI * VRO)) / (VRO * (VRO + AI))
+
+  if (AO != AO2) {
+    console.log({ AO, AO2 })
+  }
 
   return { VRI: VRI_1, VRO: VRO_1 }
 }

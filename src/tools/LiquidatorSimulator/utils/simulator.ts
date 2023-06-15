@@ -186,6 +186,21 @@ function findOptimalSwapAmounts(
         (BigInt(10 ** (tokenInDecimals - tokenOutDecimals)) * BigInt(RATE_SCALAR))
       const profitable = amountOut > marketAmountOut + minimumProfit
       const profit = profitable ? amountOut - marketAmountOut : BigInt(0)
+
+      // // Obviously this is a bit of a kludge... Uncomment this to allow for some random unprofitable trades
+      // const r = Math.random()
+      // if (!profitable && r < 0.5) {
+      //   console.log('UNPROFITABLE TRADE')
+      //   result.amountOut = amountOut
+      //   result.amountIn = amountIn
+      //   result.profit = profit
+      //   result.profitable = true
+      //   result.swapPercent = (amountOut * BigInt(100)) / availableYield
+      //   result.yieldAfterSwap = availableYield - amountOut
+      //   result.marketAmountOut = marketAmountOut
+      //   break
+      // }
+
       if (profitable && profit > result.profit) {
         result.amountOut = amountOut
         result.amountIn = amountIn

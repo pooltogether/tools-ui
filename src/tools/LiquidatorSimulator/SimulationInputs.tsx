@@ -165,7 +165,7 @@ export const SimulationInputs: React.FC = () => {
             />
           ))}
           <div className='grid grid-cols-2 gap-2'>
-            {/* <label htmlFor='chaosLevel'>Chaos</label>
+            <label htmlFor='chaosLevel'>Chaos</label>
             <select
               className='rounded px-1'
               id={'chaosLevel'}
@@ -175,7 +175,7 @@ export const SimulationInputs: React.FC = () => {
               <option value={ChaosLevel.Low}>Low</option>
               <option value={ChaosLevel.Medium}>Medium</option>
               <option value={ChaosLevel.High}>High</option>
-            </select> */}
+            </select>
             {!!errors.chaosLevel && (
               <span className='text-red'>{errors.chaosLevel?.message || 'Error'}</span>
             )}

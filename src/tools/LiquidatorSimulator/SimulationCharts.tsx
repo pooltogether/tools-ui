@@ -26,7 +26,7 @@ const LINE_CHARTS = [
   // [METRICS.amountOut, METRICS.marketAmountOut]
 ]
 const BAR_CHARTS = [
-  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
+  [METRICS.amountOut, METRICS.marketAmountOut],
   [METRICS.swapPercent],
   [METRICS.profit]
 ]
