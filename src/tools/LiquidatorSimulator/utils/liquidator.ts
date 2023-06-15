@@ -52,11 +52,6 @@ export function virtualBuyBack(VRI: bigint, VRO: bigint, AI: bigint) {
   const AO = getVirtualBuybackAmountOut(AI, VRO, VRI)
   let VRI_1 = VRI - AO
   let VRO_1 = VRO + AI
-  let AO2 = (AI * (VRI * VRO)) / (VRO * (VRO + AI))
-
-  if (AO != AO2) {
-    console.log({ AO, AO2 })
-  }
 
   return { VRI: VRI_1, VRO: VRO_1 }
 }

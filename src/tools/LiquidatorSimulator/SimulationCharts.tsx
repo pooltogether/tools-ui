@@ -22,7 +22,7 @@ const LINE_CHARTS = [
   [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
   [
     METRICS.marketRate,
-    // METRICS.finalLiquidatorRate,
+    METRICS.finalLiquidatorRate,
     // METRICS.initialLiquidatorRate,
     METRICS.swapRate
   ],

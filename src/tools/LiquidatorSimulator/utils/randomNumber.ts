@@ -1,3 +1,4 @@
+import { max } from 'date-fns'
 import { ChaosLevel } from '../interfaces'
 
 const RNG_SEED = 1000
@@ -23,6 +24,9 @@ export function applyRandomScaling(value: bigint, seed: number, chaosLevel: Chao
   if (chaosLevel === ChaosLevel.None) {
     return value
   }
+  if (value === BigInt(0)) {
+    return value
+  }
 
   let percent = 0
   switch (chaosLevel) {
@@ -37,9 +41,11 @@ export function applyRandomScaling(value: bigint, seed: number, chaosLevel: Chao
       break
   }
 
-  const random = randomWithSeed(seed)
-  const range = (value * BigInt(percent)) / BigInt(100)
-  const scaled = value + (range * BigInt(Math.round(random * 100000))) / BigInt(10000)
+  const random = randomWithSeed(seed + Number(value) + percent)
+  const maxDelta = value - (value * BigInt(100 + percent)) / BigInt(100)
+  const delta = maxDelta - (maxDelta * BigInt(Math.round(random * 100000))) / BigInt(100000)
 
-  return scaled
+  console.log({ value, maxDelta, delta, random, percent })
+  const scaledValue = random > 0.5 ? value + delta : value - delta
+  return scaledValue
 }
