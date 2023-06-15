@@ -19,7 +19,7 @@ export const LiquidatorSimulator: React.FC = () => {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Layout>
-        <PagePadding>
+        <PagePadding maxWidthClassName='max-w-screen-lg'>
           <PageTitle title='Prize Token Liquidator' />
           <Description className='mb-8' />
           <Settings className='mb-4' />
