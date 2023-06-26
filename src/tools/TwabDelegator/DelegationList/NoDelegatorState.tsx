@@ -1,12 +1,12 @@
 import { StyledInput } from '@components/Input'
 import { Button, ButtonSize } from '@pooltogether/react-components'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 import classNames from 'classnames'
 import { isAddress } from 'ethers/lib/utils'
 import { useTranslation } from 'next-i18next'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { DelegationListProps } from '.'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 /**
  *

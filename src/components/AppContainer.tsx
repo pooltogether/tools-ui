@@ -1,18 +1,24 @@
 import { RPC_URLS } from '@constants/config'
 import { CHAIN_ID } from '@constants/misc'
-import { Trans } from 'next-i18next'
 import { useInitCookieOptions } from '@pooltogether/hooks'
 import { ScreenSize, useScreenSize, LoadingScreen } from '@pooltogether/react-components'
-import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
-import { publicProvider } from '@wagmi/core/providers/public'
 import {
   useUpdateStoredPendingTransactions,
   getReadProvider,
   initRpcUrls
 } from '@pooltogether/wallet-connection'
+import {
+  RainbowKitProvider,
+  lightTheme,
+  darkTheme,
+  DisclaimerComponent
+} from '@rainbow-me/rainbowkit'
 import { getSupportedChains } from '@utils/getSupportedChains'
+import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
+import { publicProvider } from '@wagmi/core/providers/public'
 import * as Fathom from 'fathom-client'
 import { Provider as JotaiProvider } from 'jotai'
+import { Trans } from 'next-i18next'
 import { useTranslation } from 'next-i18next'
 import { ThemeProvider, useTheme } from 'next-themes'
 import { AppProps } from 'next/app'
@@ -25,14 +31,8 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { CustomErrorBoundary } from './CustomErrorBoundary'
-import {
-  RainbowKitProvider,
-  lightTheme,
-  darkTheme,
-  DisclaimerComponent
-} from '@rainbow-me/rainbowkit'
 import { getWalletConnectors } from '../services/walletConnection'
+import { CustomErrorBoundary } from './CustomErrorBoundary'
 
 // Initialize react-query Query Client
 const queryClient = new QueryClient({
