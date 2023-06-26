@@ -1,7 +1,10 @@
 import { RPC_URLS } from '@constants/config'
 import { CHAIN_ID } from '@constants/misc'
+import { Trans } from 'next-i18next'
 import { useInitCookieOptions } from '@pooltogether/hooks'
 import { ScreenSize, useScreenSize, LoadingScreen } from '@pooltogether/react-components'
+import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
+import { publicProvider } from '@wagmi/core/providers/public'
 import {
   useUpdateStoredPendingTransactions,
   getReadProvider,
@@ -17,13 +20,19 @@ import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { ToastContainer, ToastContainerProps } from 'react-toastify'
-import { createClient, useAccount, useConnect, WagmiConfig } from 'wagmi'
+import { configureChains, Connector, createClient, useAccount, WagmiConfig } from 'wagmi'
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { initSentry } from '../services/sentry'
 import { CustomErrorBoundary } from './CustomErrorBoundary'
+import {
+  RainbowKitProvider,
+  lightTheme,
+  darkTheme,
+  DisclaimerComponent
+} from '@rainbow-me/rainbowkit'
+import { getWalletConnectors } from '../services/walletConnection'
 
 // Initialize react-query Query Client
 const queryClient = new QueryClient({
@@ -44,45 +53,23 @@ const queryClient = new QueryClient({
 // Initialize global RPC URLs for external packages
 initRpcUrls(RPC_URLS)
 
-// Initialize WAGMI wallet connectors
-const chains = getSupportedChains().map((chain) => {
-  // console.log(chain)
-  if (!!RPC_URLS[chain.id]) {
-    chain.rpcUrls.default = RPC_URLS[chain.id]
-  }
-  return chain
-})
-const connectors = () => {
-  return [
-    new MetaMaskConnector({ chains, options: {} }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        bridge: 'https://pooltogether.bridge.walletconnect.org/',
-        qrcode: true
-      }
-    }),
-    new CoinbaseWalletConnector({
-      chains,
-      options: {
-        appName: 'PoolTogether'
-      }
-    }),
-    new InjectedConnector({ chains, options: {} })
-  ]
-}
+const supportedChains = getSupportedChains()
+
+const { chains, provider } = configureChains(supportedChains, [
+  jsonRpcProvider({
+    rpc: (chain) => ({
+      http: RPC_URLS[chain.id]
+    })
+  }),
+  publicProvider()
+])
+
+const connectors: () => Connector[] = getWalletConnectors(supportedChains)
 
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  provider: ({ chainId }) => {
-    try {
-      return getReadProvider(chainId || CHAIN_ID.mainnet)
-    } catch (e) {
-      console.error(e)
-      return getReadProvider(CHAIN_ID.mainnet)
-    }
-  }
+  provider
 })
 
 /**
@@ -115,17 +102,39 @@ export const AppContainer: React.FC<AppProps> = (props) => {
 
   return (
     <WagmiConfig client={wagmiClient}>
-      <JotaiProvider>
-        <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools />
-          <ThemeProvider attribute='class' defaultTheme='dark'>
-            <ThemedToastContainer />
-            <CustomErrorBoundary>
-              <Content {...props} />
-            </CustomErrorBoundary>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </JotaiProvider>
+      <RainbowKitProvider
+        theme={{
+          lightMode: lightTheme({
+            accentColor: '#ff77e1',
+            accentColorForeground: '#1A1B1F',
+            borderRadius: 'small',
+            overlayBlur: 'small'
+          }),
+          darkMode: darkTheme({
+            accentColor: '#35f0d0',
+            accentColorForeground: '#1A1B1F',
+            borderRadius: 'small',
+            overlayBlur: 'small'
+          })
+        }}
+        chains={chains}
+        appInfo={{
+          appName: 'PoolTogether',
+          disclaimer: Disclaimer
+        }}
+      >
+        <JotaiProvider>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools />
+            <ThemeProvider attribute='class' defaultTheme='dark'>
+              <ThemedToastContainer />
+              <CustomErrorBoundary>
+                <Content {...props} />
+              </CustomErrorBoundary>
+            </ThemeProvider>
+          </QueryClientProvider>
+        </JotaiProvider>
+      </RainbowKitProvider>
     </WagmiConfig>
   )
 }
@@ -161,3 +170,17 @@ const ThemedToastContainer: React.FC<ToastContainerProps> = (props) => {
     />
   )
 }
+
+const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
+  <Text>
+    <Trans
+      i18nKey='connectWalletTermsAndDisclaimerBlurb'
+      components={{
+        termsLink: <Link href='https://pooltogether.com/terms/' children={undefined} />,
+        disclaimerLink: (
+          <Link href='https://pooltogether.com/protocol-disclaimer/' children={undefined} />
+        )
+      }}
+    />
+  </Text>
+)

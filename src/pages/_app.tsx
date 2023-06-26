@@ -12,6 +12,7 @@ import 'react-spring-bottom-sheet/dist/style.css'
 import '@styles/bottomSheet.css'
 import '@styles/tools.css'
 import '@styles/antd-custom.css'
+import '@rainbow-me/rainbowkit/styles.css'
 
 const App = (props: AppProps) => {
   return <AppContainer {...props} />

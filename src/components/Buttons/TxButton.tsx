@@ -3,10 +3,10 @@ import { getNetworkNiceNameByChainId } from '@pooltogether/utilities'
 import {
   TransactionState,
   TransactionStatus,
-  useConnectWallet,
   useIsWalletConnected,
   useIsWalletOnChainId
 } from '@pooltogether/wallet-connection'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useTranslation } from 'next-i18next'
 import React, { useMemo } from 'react'
 import { useSwitchNetwork } from 'wagmi'
@@ -33,7 +33,7 @@ export const TxButton = (props: TxButtonProps) => {
     ...squareButtonProps
   } = props
   const isWalletConnected = useIsWalletConnected()
-  const connectWallet = useConnectWallet()
+  const { openConnectModal } = useConnectModal()
   const { switchNetwork } = useSwitchNetwork()
 
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ export const TxButton = (props: TxButtonProps) => {
 
   const [content, onClick] = useMemo(() => {
     if (!isWalletConnected) {
-      return [t('connectWallet'), connectWallet]
+      return [t('connectWallet'), openConnectModal]
     } else if (status === TransactionStatus.pendingUserConfirmation) {
       return [t('confirmInWallet'), () => null]
     } else if (status === TransactionStatus.pendingBlockchainConfirmation) {
