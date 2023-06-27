@@ -20,15 +20,21 @@ import { ChartData } from './interfaces'
 
 const LINE_CHARTS = [
   [METRICS.finalVirtualReserveIn, METRICS.finalVirtualReserveOut],
-  // [METRICS.finalK],
+  [
+    METRICS.marketRate,
+    METRICS.finalLiquidatorRate,
+    // METRICS.initialLiquidatorRate,
+    METRICS.swapRate
+  ],
   // [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
   [METRICS.totalAmountOut, METRICS.totalYield]
   // [METRICS.amountOut, METRICS.marketAmountOut]
 ]
 const BAR_CHARTS = [
-  [METRICS.amountOut, METRICS.amountIn, METRICS.marketAmountOut],
+  [METRICS.amountOut, METRICS.marketAmountOut],
   [METRICS.swapPercent],
-  [METRICS.profit]
+  [METRICS.profit],
+  [METRICS.marketRate, METRICS.swapRate]
 ]
 const AREA_CHARTS = [[METRICS.yieldArea]]
 
@@ -77,6 +83,7 @@ const PtLineChart = (props: {
         {props.metrics.map((line, i) => {
           return (
             <Line
+              dot={false}
               key={`line-${i}-${line.dataKey}`}
               type='monotone'
               dataKey={line.dataKey}
@@ -209,6 +216,7 @@ const AprAndTvlChart = (props: { data: ChartData[] }) => (
       <Tooltip />
       <Legend />
       <Line
+        dot={false}
         yAxisId='right'
         type='monotone'
         name='APR'
@@ -217,6 +225,7 @@ const AprAndTvlChart = (props: { data: ChartData[] }) => (
       />
 
       <Line
+        dot={false}
         yAxisId='left'
         type='monotone'
         name={METRICS.totalYield.name}
@@ -224,6 +233,7 @@ const AprAndTvlChart = (props: { data: ChartData[] }) => (
         stroke={LINE_COLOURS[1]}
       />
       <Line
+        dot={false}
         yAxisId='left'
         type='monotone'
         name={METRICS.amountToAccrue.name}
